@@ -22,6 +22,10 @@ const HomePage = () => {
 
         console.log("📩 Respuesta backend:", data);
 
+        const userInfo = await HomeService.testUserInfo();
+
+        console.log("User info:", userInfo)
+
       } catch (error) {
         console.error("❌ Error en Home:", error);
       }

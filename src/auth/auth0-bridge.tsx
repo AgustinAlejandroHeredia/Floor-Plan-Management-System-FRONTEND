@@ -6,7 +6,13 @@ export function useAuth0Bridge(): AuthBridge {
 
   const getAccessToken = async () => {
     if (!isAuthenticated) return null;
-    return await getAccessTokenSilently();
+
+    try {
+      return await getAccessTokenSilently();
+    } catch (error) {
+      console.error("Error getting token", error);
+      return null;
+    }
   };
 
   return {

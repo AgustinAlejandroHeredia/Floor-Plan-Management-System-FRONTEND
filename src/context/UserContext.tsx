@@ -11,29 +11,33 @@ interface UserInfo {
 
 interface UserContextType {
   user: UserInfo | null;
-  isLoading: boolean;
+  lodaingUserContext: boolean;
+  error: Error | null;
 }
 
 const UserContext = createContext<UserContextType>({
   user: null,
-  isLoading: true,
+  lodaingUserContext: true,
+  error: null,
 });
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading: authLoading } = useAuth0();
 
   const [user, setUser] = useState<UserInfo | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [lodaingUserContext, setLodaingUserContext] = useState<boolean>(true);
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const data = await UserContextService.getUserInfo();
         setUser(data);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error fetching user info", error);
+        setError(error)
       } finally {
-        setIsLoading(false);
+        setLodaingUserContext(false);
       }
     };
 
@@ -42,13 +46,13 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     if (!authLoading && !isAuthenticated) {
-      setIsLoading(false);
+      setLodaingUserContext(false);
     }
 
   }, [authLoading, isAuthenticated]);
 
   return (
-    <UserContext.Provider value={{ user, isLoading }}>
+    <UserContext.Provider value={{ user, lodaingUserContext, error }}>
       {children}
     </UserContext.Provider>
   );

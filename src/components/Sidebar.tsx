@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useUser } from "../context/UserContext";
 
 import { useAuth0 } from "@auth0/auth0-react";
@@ -33,12 +33,17 @@ import {
 
 
 const Sidebar = () => {
-  const { user, isLoading } = useUser();
+  
+  const navigate = useNavigate()
+  const { user, lodaingUserContext, error } = useUser();
   const { logout } = useAuth0();
-
   const [open, setOpen] = useState(false);
 
-  if (isLoading) return null;
+  useEffect(() => {
+    if(error){
+      navigate(`/ErrorDisplay/${error.message}`);
+    }
+  }, [error, navigate])
 
   const handleOpenLogoutDialog = () => setOpen(true)
 
@@ -48,6 +53,8 @@ const Sidebar = () => {
   }
 
   const handleCancelLogout = () => setOpen(false)
+
+  if (lodaingUserContext) return null;
 
   return (
     <div className="sidebar">

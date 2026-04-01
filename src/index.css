@@ -7,6 +7,7 @@
   --code-bg: #f4f3ec;
   --accent: oklch(0.97 0 0);
   --accent-bg: rgba(170, 59, 255, 0.1);
+  --accent-bg2: rgba(170, 59, 255, 0.322);
   --accent-border: rgba(170, 59, 255, 0.5);
   --social-bg: rgba(244, 243, 236, 0.5);
   --shadow:
@@ -185,8 +186,35 @@ body {
 }
 
 .main-content {
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin-top: 25px;
+  margin-bottom: 25px;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.main-content-item {
+  margin-top: 15px;
+  margin-bottom: 27px;
+}
+
+.sub-content {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.sub-heading {
+  text-align: left;
+  font-size: 2rem;
+  color: var(--text-h);
+  margin-bottom: 16px;
+}
+
+.comment-text {
+  text-align: left;
+  font-size: 1rem;
+  color: var(--text);
+  margin-bottom: 16px;
+  line-height: 1.5;
 }
 
 /* Sidebar */

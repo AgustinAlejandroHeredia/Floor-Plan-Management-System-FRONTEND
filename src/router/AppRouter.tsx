@@ -7,6 +7,8 @@ import AppLayout from "../layout/AppLayout";
 import LoginPage from "../pages/LoginPage";
 import HomePage from "../pages/HomePage";
 import DevOptions from "../pages/DevOptions";
+import OrganizationPage from "@/pages/OrganizationPage";
+import ErrorPage from "@/pages/ErrorPage";
 
 export function AppRouter() {
   return (
@@ -25,6 +27,18 @@ export function AppRouter() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/DevOptions" element={<DevOptions />} />
+        </Route>
+      </Route>
+
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route path="/OrganizationPage/:name/:id" element={<OrganizationPage />} />
+        </Route>
+      </Route>
+
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route path="/ErrorPage/:message" element={<ErrorPage />} />
         </Route>
       </Route>
 

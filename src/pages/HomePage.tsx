@@ -15,9 +15,7 @@ const HomePage = () => {
 
       <>
         <BreadcrumbBar items={[
-          { label: "Home", href: "/" },
-          { label: "DevOps", href: "/devOptions" }, 
-          { label: "last" },
+          { label: "Home" },
         ]} />
       </>
 

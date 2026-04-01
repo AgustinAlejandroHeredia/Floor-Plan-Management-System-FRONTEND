@@ -57,7 +57,7 @@ const Sidebar = () => {
         {/* Organización */}
         <div
           style={{
-            padding: "20px 16px",
+            padding: "14px 16px",
             fontWeight: 500,
             color: "var(--text-h)",
             textAlign: "left",
@@ -69,7 +69,7 @@ const Sidebar = () => {
         <Separator />
 
         {/* Navegación */}
-        <div className="p-2 flex flex-col gap-2">
+        <div className="p-6 px-2 flex flex-col gap-2">
           
           {/* HOME */}
           <Button asChild variant="sidebar_nav_button">

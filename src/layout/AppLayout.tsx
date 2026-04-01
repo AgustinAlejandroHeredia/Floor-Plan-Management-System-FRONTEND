@@ -7,7 +7,7 @@ const AppLayout = () => {
       
       <Sidebar />
 
-      <div style={{ flex: 1, padding: "20px" }}>
+      <div style={{ flex: 1 }}>
         <Outlet />
       </div>
 

@@ -1,6 +1,7 @@
 :root {
   --text: #6b6375;
   --text-h: #08060d;
+  --text-l: #bbb9c0;
   --bg: #fff;
   --border: oklch(0.922 0 0);
   --code-bg: #f4f3ec;
@@ -65,6 +66,18 @@
 @import "@fontsource-variable/geist";
 
 @custom-variant dark (&:is(.dark *));
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
 
 /* Dark mode */
 @media (prefers-color-scheme: dark) {
@@ -161,18 +174,6 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  html {
-    @apply font-sans;
-  }
-}
-
 /* Reset básico */
 * {
   box-sizing: border-box;
@@ -181,6 +182,11 @@
 body {
   margin: 0;
   background: var(--bg);
+}
+
+.main-content {
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 /* Sidebar */

@@ -1,6 +1,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useUser } from "../context/UserContext";
 import Loading from "../components/Loading";
+import BreadcrumbBar from "@/components/BreadcrumbBar";
 
 const HomePage = () => {
 
@@ -10,7 +11,18 @@ const HomePage = () => {
   if (isLoading) return <Loading/>;
 
   return (
-    <div style={{ textAlign: "center", marginTop: "100px" }}>
+    <div style={{ textAlign: "center" }}>
+
+      <>
+        <BreadcrumbBar items={[
+          { label: "Home", href: "/" },
+          { label: "DevOps", href: "/devOptions" }, 
+          { label: "last" },
+        ]} />
+      </>
+
+      <div className="main-content">
+
       <h1>Bienvenido! 🎉</h1>
 
       {user && (
@@ -31,6 +43,8 @@ const HomePage = () => {
       >
         Cerrar sesión
       </button>
+    </div>
+
     </div>
   );
 };

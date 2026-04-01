@@ -15,7 +15,7 @@ interface EmptyOrganizationsProps {
 
 export function EmptyOrganizations({ onJoinClick }: EmptyOrganizationsProps) {
   return (
-    <Empty className="border border-dashed p-6 max-w-md mx-auto">
+    <Empty className="border border-dashed p-6 max-w-md mx-auto mt-30">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <FaRegFolderOpen size={24} color="black" />

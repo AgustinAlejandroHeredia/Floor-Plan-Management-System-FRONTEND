@@ -13,6 +13,16 @@ import {
   CardDescription,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button";
@@ -22,6 +32,7 @@ const HomePage = () => {
   const { organizations, loadingHomeOrganizations, error } = useHome();
 
   const [token, setToken] = useState("");
+  const [openFirstTokenDialog, setOpenFirstTokenDialog] = useState(false);
 
   useEffect(() => {
     if (error) {
@@ -30,7 +41,8 @@ const HomePage = () => {
   }, [error, navigate]);
 
   const handleJoinFirstOrganization = () => {
-    console.log("FIRST TOKEN DIALOG")
+    console.log("FIRST TOKEN DIALOG OPENS")
+    setOpenFirstTokenDialog(true);
   }
 
   const handleValidateToken = (token: string) => {
@@ -53,60 +65,105 @@ const HomePage = () => {
 
       <div className="main-content">
 
-        <div className="main-content-item">
+        {organizations.length === 0 ? (
+          <EmptyOrganizations onJoinClick={handleJoinFirstOrganization} />
+        ) : (
+          <>
+            {/* JOIN */}
+            <div className="main-content-item">
+              <h1 className="sub-heading">Join organization: </h1>
+              <p className="comment-text">
+                Here you can enter the token / code that was sent to you on your email.
+                This will grant you access to the projects that this entity has.
+              </p>
 
-          <h1 className="sub-heading">Join organization: </h1>
-          <p className="comment-text">
-            Here you can enter the toke / code that was sent to you on your email. This will grant you access to the projects that this entity has.
-          </p>
+              <Field orientation="horizontal">
+                <Input 
+                  type="search" 
+                  placeholder="Token / Example : 637873" 
+                  className="w-full max-w-xs text-[var(--text-h)]"
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
+                />
+                <Button onClick={() => handleValidateToken(token)}>
+                  Join
+                </Button>
+              </Field>
+            </div>
 
-          <Field orientation="horizontal">
-            <Input 
-              type="search" 
-              placeholder="Token / Example : 637873" 
-              className="w-full max-w-xs text-[var(--text-h)]"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-            />
-            <Button onClick={() => handleValidateToken(token)}>
-              Join
-            </Button>
-          </Field>
+            {/* ORGANIZATIONS */}
+            <div className="main-content-item">
+              <h1 className="sub-heading">Your organizations: </h1>
 
-        </div>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                  gap: "16px",
+                  justifyContent: "center",
+                  padding: "16px",
+                  maxWidth: "1700px",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                }}
+              >
+                {organizations.map((org, index) => (
+                  <Card
+                    key={index}
+                    className="cursor-pointer transition-colors duration-200 bg-[var(--accent-bg)] hover:bg-[var(--accent-bg2)] max-w-md"
+                    onClick={() => handleSelectOrganization(org.name, org._id)}
+                  >
+                    <CardContent>
+                      <CardTitle className="text-[var(--text-h)]">
+                        {org.name}
+                      </CardTitle>
+                      <CardDescription className="text-[var(--text)]">
+                        Address: {org.address}
+                      </CardDescription>
+                      <CardDescription className="text-[var(--text)]">
+                        Email: {org.contactEmail}
+                      </CardDescription>
+                      <CardDescription className="text-[var(--text)]">
+                        Phone: {org.contactPhone}
+                      </CardDescription>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
 
-        <div className="main-content-item">
+        {/* FIRST TOKEN DIALOG */}
+        <Dialog open={openFirstTokenDialog} onOpenChange={setOpenFirstTokenDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Join organization</DialogTitle>
+              <DialogDescription>
+                Enter the invitation token sent to your email.
+              </DialogDescription>
+            </DialogHeader>
 
-          <h1 className="sub-heading">Your organizations: </h1>
+            <Field orientation="horizontal">
+              <Input
+                type="search"
+                placeholder="Token / Example : 637873"
+                className="w-full text-[var(--text-h)]"
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+              />
+              <Button onClick={() => handleValidateToken(token)}>
+                Join
+              </Button>
+            </Field>
 
-          <div>
-            {organizations.length === 0 ? (
-              <EmptyOrganizations onJoinClick={handleJoinFirstOrganization} />
-            ) : (
-              organizations.map((org, index) => (
-                <Card
-                  key={index}
-                  className="cursor-pointer transition-colors duration-200 bg-[var(--accent-bg)] hover:bg-[var(--accent-bg2)] max-w-md"
-                  onClick={() => handleSelectOrganization(org.name, org._id)}
-                >
-                  <CardContent>
-                    <CardTitle className="text-[var(--text-h)]">{org.name}</CardTitle>
-                    <CardDescription className="text-[var(--text)]">
-                      Address: {org.address}
-                    </CardDescription>
-                    <CardDescription className="text-[var(--text)]">
-                      Email: {org.contactEmail}
-                    </CardDescription>
-                    <CardDescription className="text-[var(--text)]">
-                      Phone: {org.contactPhone}
-                    </CardDescription>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
-
-        </div>
+            <DialogFooter className="sm:justify-start">
+              <DialogClose asChild>
+                <Button type="button">Close</Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
       </div>
     </div>

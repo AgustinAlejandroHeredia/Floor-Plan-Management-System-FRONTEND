@@ -24,10 +24,8 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
 
@@ -50,23 +48,6 @@ const Sidebar = () => {
   }
 
   const handleCancelLogout = () => setOpen(false)
-
-  const ConfirmLogoutDialog = () => (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogContent size="sm">
-        <AlertDialogHeader>
-          <AlertDialogTitle>¿Cerrar sesión?</AlertDialogTitle>
-          <AlertDialogDescription>
-            ¿Estás seguro que querés cerrar sesión?
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <div className="flex justify-end gap-2 mt-2">
-          <AlertDialogCancel onClick={handleCancelLogout}>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirmLogout}>Cerrar sesión</AlertDialogAction>
-        </div>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
 
   return (
     <div className="sidebar">

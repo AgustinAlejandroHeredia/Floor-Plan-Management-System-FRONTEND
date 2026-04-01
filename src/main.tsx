@@ -1,15 +1,16 @@
-import { StrictMode } from "react";
+import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import App from "./App.tsx";
-import AuthProvider from "./auth/AuthProvider.tsx";
 
-import { useEffect } from "react";
+import App from "./App";
+import AuthProvider from "./auth/AuthProvider";
+
 import { api } from "./api/api";
 import { setupAuthInterceptor, registerAuthBridge } from "./api/auth-interceptor";
 import { useAuth0Bridge } from "./auth/auth0-bridge";
+import { UserProvider } from "./context/UserContext";
 
-function Bootstrap() {
+function Bootstrap({ children }: { children: React.ReactNode }) {
   const authBridge = useAuth0Bridge();
 
   useEffect(() => {
@@ -17,13 +18,17 @@ function Bootstrap() {
     setupAuthInterceptor(api);
   }, [authBridge]);
 
-  return <App />;
+  return <>{children}</>;
 }
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AuthProvider>
-      <Bootstrap />
+      <Bootstrap>
+        <UserProvider>
+          <App />
+        </UserProvider>
+      </Bootstrap>
     </AuthProvider>
   </StrictMode>
 );

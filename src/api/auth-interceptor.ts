@@ -9,7 +9,7 @@ export function registerAuthBridge(bridge: AuthBridge) {
 }
 
 export function setupAuthInterceptor(http: AxiosInstance) {
-  if (isInterceptorSet) return; // se deben evitar duplicados
+  if (isInterceptorSet) return;
 
   http.interceptors.request.use(async (config) => {
     if (!authBridge) return config;
@@ -17,11 +17,6 @@ export function setupAuthInterceptor(http: AxiosInstance) {
     const token = await authBridge.getAccessToken();
 
     if (token) {
-
-        if (import.meta.env.DEV) {
-            console.log("Token:", token);
-        }
-
       config.headers = config.headers ?? {};
       config.headers.Authorization = `Bearer ${token}`;
     }

@@ -1,8 +1,14 @@
-import { useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import { HomeService } from "../services/HomeService";
+import { useUser } from "../context/UserContext";
 
 const HomePage = () => {
+
+  const { logout } = useAuth0();
+  const { user, isLoading } = useUser();
+
+  if (isLoading) return <div>Loading...</div>;
+
+  /*
   const { user, logout, getAccessTokenSilently, isAuthenticated } = useAuth0();
 
   useEffect(() => {
@@ -33,6 +39,7 @@ const HomePage = () => {
 
     run();
   }, [isAuthenticated, getAccessTokenSilently]);
+  */
 
   return (
     <div style={{ textAlign: "center", marginTop: "100px" }}>

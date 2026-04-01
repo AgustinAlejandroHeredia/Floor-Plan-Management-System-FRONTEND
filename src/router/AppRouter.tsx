@@ -1,10 +1,12 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import ProtectedRoute from "../components/ProtectedRoute";
+import AppLayout from "../layout/AppLayout";
 
 // PAGES
 import LoginPage from "../pages/LoginPage";
 import HomePage from "../pages/HomePage";
+import DevOptions from "../pages/DevOptions";
 
 export function AppRouter() {
   return (
@@ -15,7 +17,15 @@ export function AppRouter() {
 
       {/* Rutas privadas */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/" element={<HomePage />} />
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<HomePage />} />
+        </Route>
+      </Route>
+
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route path="/DevOptions" element={<DevOptions />} />
+        </Route>
       </Route>
 
       {/* Fallback */}

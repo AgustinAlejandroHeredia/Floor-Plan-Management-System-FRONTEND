@@ -52,7 +52,14 @@ const BreadcrumbBar = ({ items }: BreadcrumbBarProps) => {
                     ) : (
                       // Elementos intermedios → BreadcrumbLink usando Link de React Router
                       <BreadcrumbLink asChild>
-                        <Link to={item.href}>{item.label}</Link>
+                        <Link 
+                          to={item.href}
+                          style={{ color: "var(--text)" }}
+                          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-h)")}
+                          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text)")}
+                        >
+                          {item.label}
+                        </Link>
                       </BreadcrumbLink>
                     )}
                   </BreadcrumbItem>

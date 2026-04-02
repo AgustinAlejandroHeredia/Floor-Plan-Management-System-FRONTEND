@@ -21,7 +21,7 @@ const Loading = () => {
         }}
       />
 
-      <p style={{ marginTop: "16px" }}>Loading...</p>
+      <p style={{ marginTop: "16px", color: "var(--text-h)" }}>Loading...</p>
 
       <style>
         {`

@@ -212,6 +212,13 @@ body {
   margin-bottom: 16px;
 }
 
+.sub-heading-center {
+  text-align: center;
+  font-size: 2rem;
+  color: var(--text-h);
+  margin-bottom: 16px;
+}
+
 .comment-text {
   text-align: left;
   font-size: 1rem;

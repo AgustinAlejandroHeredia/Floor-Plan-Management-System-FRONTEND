@@ -57,3 +57,8 @@ export interface ProjectOrganizationType {
     technicalDirection: string
     status: StatusType
 }
+
+export type ProjectStatusColor =
+  | "red"
+  | "yellow"
+  | "green" 

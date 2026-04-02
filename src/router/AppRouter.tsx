@@ -10,6 +10,7 @@ import DevOptions from "../pages/DevOptions";
 import OrganizationPage from "@/pages/OrganizationPage";
 import ErrorPage from "@/pages/ErrorPage";
 import MyProjectsPage from "@/pages/MyProjectsPage";
+import ProjectPage from "@/pages/ProjectPage";
 
 export function AppRouter() {
   return (
@@ -46,6 +47,12 @@ export function AppRouter() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/MyProjects" element={<MyProjectsPage />} />
+        </Route>
+      </Route>
+
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route path="/Project/:organizationName/:organizationId/:projectName/:projectId" element={<ProjectPage />} />
         </Route>
       </Route>
 

@@ -17,8 +17,7 @@ export function useOrganization(organizationId: string) {
       const data: ProjectOrganizationType[] =
         await OrganizationService.getOrganizationProjects(organizationId);
 
-      //setProjects(data);
-      setProjects([]);
+      setProjects(data);
 
       const userRole = await OrganizationService.getOrganizationMyRole(organizationId)
       setUserOrganizationRole(userRole)

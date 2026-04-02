@@ -1,6 +1,6 @@
 import BreadcrumbBar from "@/components/BreadcrumbBar";
 import { useOrganization } from "@/hooks/useOrganization";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 // UI
 import {
@@ -16,10 +16,13 @@ const OrganizationPage = () => {
 
     const { name, id } = useParams<{ name: string, id: string }>()
 
+    const navigate = useNavigate()
+
     const { projects, userOrganizationRole, loadingOrganizationProjects, error, refreshProjects } = useOrganization(id!)
 
-    const handleSelectProject = (name: string, id: string) => {
-        console.log("TRYING TO LOAD A PROJECT : ", name, " ", id)
+    const handleSelectProject = (projectName: string, projectId: string) => {
+        console.log("LOADING A PROJECT : ", name, " ", id)
+        navigate(`/Project/${name}/${id}/${projectName}/${projectId}`)
     }
 
     const handleCreateFirstProject = () => {

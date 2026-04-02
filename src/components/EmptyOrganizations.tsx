@@ -1,4 +1,4 @@
-import { FaRegFolderOpen } from "react-icons/fa";
+import { TbHomeOff } from "react-icons/tb";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -18,7 +18,7 @@ export function EmptyOrganizations({ onJoinClick }: EmptyOrganizationsProps) {
     <Empty className="border border-dashed p-6 max-w-md mx-auto mt-30">
       <EmptyHeader>
         <EmptyMedia variant="icon">
-          <FaRegFolderOpen size={24} color="black" />
+          <TbHomeOff  size={24} color="black" />
         </EmptyMedia>
         <EmptyTitle className="text-[var(--text-h)]">No organizations to show</EmptyTitle>
         <EmptyDescription>

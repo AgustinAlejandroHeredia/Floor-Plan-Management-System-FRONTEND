@@ -83,6 +83,11 @@ const Sidebar = () => {
             <Link to="/">Home</Link>
           </Button>
 
+          {/* MY PROJECTS */}
+          <Button asChild variant="sidebar_nav_button">
+            <Link to="/MyProjects">My Projects</Link>
+          </Button>
+
           {/* SOLO SUPER ADMIN */}
           {user?.globalRole === "super_admin" && (
             <Button asChild variant="sidebar_nav_button">

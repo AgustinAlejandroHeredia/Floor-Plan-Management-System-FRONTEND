@@ -23,6 +23,7 @@ export function useHome() {
       }));
 
       setOrganizations(homeOrganizations);
+      //setOrganizations([]);
 
     } catch (err: any) {
       setError(err);

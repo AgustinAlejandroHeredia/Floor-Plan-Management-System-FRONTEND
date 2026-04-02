@@ -56,6 +56,9 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  --success: #16a34a;
+  --error: #dc2626;
 }
 
 @import "tailwindcss";
@@ -215,6 +218,20 @@ body {
   color: var(--text);
   margin-bottom: 16px;
   line-height: 1.5;
+}
+
+.success-message-s {
+  text-align: left;
+  color: var(--success, #16a34a);
+  font-size: 0.875rem;
+  margin-top: 6px;
+}
+
+.fail-message-s {
+  text-align: left;
+  color: var(--error, #dc2626);
+  font-size: 0.875rem;
+  margin-top: 6px;
 }
 
 /* Sidebar */

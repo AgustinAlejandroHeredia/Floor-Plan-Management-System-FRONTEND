@@ -34,6 +34,10 @@ const HomePage = () => {
   const [token, setToken] = useState("");
   const [openFirstTokenDialog, setOpenFirstTokenDialog] = useState(false);
 
+  const [noToken, setNoToken] = useState<boolean>(false)
+  const [invalidToken, setInvalidToken] = useState<boolean>(false)
+  const [validToken, setValidToken] = useState<boolean>(false)
+
   useEffect(() => {
     if (error) {
       navigate(`/ErrorDisplay/${error.message}`);
@@ -50,6 +54,7 @@ const HomePage = () => {
     InvitationService.validateInvitation(token)
 
     // AÑADIR MAS LOGICA
+    setValidToken(true)
 
   }
 
@@ -89,6 +94,25 @@ const HomePage = () => {
                   Join
                 </Button>
               </Field>
+
+              {noToken && (
+                <p className="fail-message-s">
+                  You have to enter a token to send
+                </p>
+              )}
+
+              {invalidToken && (
+                <p className="fail-message-s">
+                  Invalid token, please try again
+                </p>
+              )}
+
+              {validToken && (
+                <p className="success-message-s">
+                  The token was correctly validated, you will be redirected to the organization you just joined
+                </p>
+              )}
+
             </div>
 
             {/* ORGANIZATIONS */}
@@ -148,7 +172,7 @@ const HomePage = () => {
               <Input
                 type="search"
                 placeholder="Token / Example : 637873"
-                className="w-full text-[var(--text-h)]"
+                className="w-full"
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
               />

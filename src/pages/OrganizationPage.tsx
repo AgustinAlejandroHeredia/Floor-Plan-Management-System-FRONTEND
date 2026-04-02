@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { EmptyProjects } from "@/components/EmptyProjects";
+import Loading from "@/components/Loading";
 
 const OrganizationPage = () => {
 
@@ -24,6 +25,8 @@ const OrganizationPage = () => {
     const handleCreateFirstProject = () => {
         console.log("OPENS DIALOG TO CREATE NEW PROJECT")
     }
+
+    if(loadingOrganizationProjects) return <Loading/>
 
     return (
         <div style={{ textAlign: "center" }}>

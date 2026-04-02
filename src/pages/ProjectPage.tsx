@@ -27,6 +27,7 @@ const ProjectPage = () => {
 
   const {
     project,
+    blueprints,
     userProjectRole,
     loadingProject,
     error,
@@ -125,7 +126,43 @@ const ProjectPage = () => {
             <h1 className="sub-heading">
                 Uploaded blueprints
             </h1>
-        </div>
+
+            <div
+                style={{
+                display: "flex",
+                overflowX: "auto",
+                gap: "4px",
+                paddingBottom: "8px",
+                }}
+            >
+                {blueprints?.map((bp) => (
+                <div
+                    key={bp._id}
+                    style={{
+                    minWidth: "200px",
+                    height: "150px",
+                    flexShrink: 0,
+                    overflow: "hidden",
+                    borderRadius: "6px",
+                    }}
+                >
+                    <img
+                    src={bp.downloadUrl}
+                    alt={bp.filename}
+                    style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                    }}
+                    onError={(e) => {
+                        e.currentTarget.src = "/fallback.png";
+                    }}
+                    />
+                </div>
+                ))}
+            </div>
+            </div>
+
       </div>
     </div>
   );

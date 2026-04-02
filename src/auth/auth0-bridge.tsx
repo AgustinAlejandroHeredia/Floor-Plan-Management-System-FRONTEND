@@ -8,7 +8,15 @@ export function useAuth0Bridge(): AuthBridge {
     if (!isAuthenticated) return null;
 
     try {
-      return await getAccessTokenSilently();
+      const res = await getAccessTokenSilently();
+
+      
+      if(import.meta.env.DEV){
+        console.log("AUTH0-BRIDGE RESPONSE : ", res)
+      }
+      
+
+      return res
     } catch (error) {
       console.error("Error getting token", error);
       return null;

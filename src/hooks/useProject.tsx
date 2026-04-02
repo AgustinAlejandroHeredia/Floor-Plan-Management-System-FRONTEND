@@ -6,6 +6,7 @@ export function useProject(projectId: string) {
 
     const [error, setError] = useState<Error | null>(null);
     const [project, setProject] = useState<ProjectType>();
+    const [blueprints, setBlueprints] = useState<any[]>([]);
     const [userProjectRole, setUserProjectRole] = useState<ProjectRole>("viewer")
     const [loadingProject, setLoadingProject] = useState<boolean>(true);
 
@@ -21,8 +22,9 @@ export function useProject(projectId: string) {
             const userRole = await ProjectService.getProjectMyRole(projectId)
             setUserProjectRole(userRole)
 
-            const blueprnts = await ProjectService.getProjectBlueprints(projectId)
-            console.log("DATA DE BLUEPRINTS: ", blueprnts)
+            const blueprintsData = await ProjectService.getProjectBlueprints(projectId)
+            setBlueprints(blueprintsData)
+            console.log("DATA DE BLUEPRINTS: ", blueprintsData)
 
         } catch (err : any) {
             setError(err)
@@ -39,6 +41,7 @@ export function useProject(projectId: string) {
 
     return {
         project,
+        blueprints,
         userProjectRole,
         loadingProject,
         error,

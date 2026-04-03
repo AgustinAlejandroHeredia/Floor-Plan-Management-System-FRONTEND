@@ -139,8 +139,8 @@ const ProjectPage = () => {
                 <div
                     key={bp._id}
                     style={{
-                    minWidth: "200px",
-                    height: "150px",
+                    minWidth: "400px",
+                    height: "300px",
                     flexShrink: 0,
                     overflow: "hidden",
                     borderRadius: "6px",
@@ -161,7 +161,7 @@ const ProjectPage = () => {
                 </div>
                 ))}
             </div>
-            </div>
+        </div>
 
       </div>
     </div>

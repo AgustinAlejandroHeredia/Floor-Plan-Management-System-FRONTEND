@@ -1,18 +1,30 @@
+export type OrganizationRole =
+  | "admin"
+  | "member" 
+
 export interface OrganizationType {
-    _id: string
-    name: string
-    address: string
-    contactEmail: string
-    contactPhone: string
-    record: string
+  _id: string
+  name: string
+  address: string
+  contactEmail: string
+  contactPhone: string
+  record: string
 }
 
 export interface OrganizationHomeType {
-    _id: string
-    name: string
-    address: string
-    contactEmail: string
-    contactPhone: string
+  _id: string
+  name: string
+  address: string
+  contactEmail: string
+  contactPhone: string
+}
+
+export interface OrganizationMembersList {
+  _id: string
+  name: string
+  email: string
+  picture: string
+  organizationRole: OrganizationRole
 }
 
 export type StatusType =
@@ -20,42 +32,38 @@ export type StatusType =
   | "pending"
   | "approved"
 
-export type OrganizationRole =
-  | "admin"
-  | "member" 
-
 export type ProjectRole =
   | "viewer"
   | "creator" 
 
 export interface ProjectType {
-    _id: string
-    projectName: string
-    record: string
-    address: string
-    scale: string
-    others: string
-    references: string
-    background: string
-    owner: string
-    technicalDirection: string
-    status: StatusType
-    creatorUserId: string
-    organizationId: string
+  _id: string
+  projectName: string
+  record: string
+  address: string
+  scale: string
+  others: string
+  references: string
+  background: string
+  owner: string
+  technicalDirection: string
+  status: StatusType
+  creatorUserId: string
+  organizationId: string
 }
 
 export interface ProjectOrganizationType {
-    _id: string
-    projectName: string
-    record: string
-    address: string
-    scale: string
-    others: string
-    references: string
-    background: string
-    owner: string
-    technicalDirection: string
-    status: StatusType
+  _id: string
+  projectName: string
+  record: string
+  address: string
+  scale: string
+  others: string
+  references: string
+  background: string
+  owner: string
+  technicalDirection: string
+  status: StatusType
 }
 
 export type ProjectStatusColor =

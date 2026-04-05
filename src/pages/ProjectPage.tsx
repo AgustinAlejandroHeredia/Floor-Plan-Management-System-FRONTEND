@@ -3,7 +3,6 @@ import { useProject } from "@/hooks/useProject";
 import { useNavigate, useParams } from "react-router-dom";
 import { FileDropZone } from "@/components/FileDropZone";
 
-// UI
 import {
   Card,
   CardHeader,
@@ -12,7 +11,32 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
 import Loading from "@/components/Loading";
+import { useState } from "react";
+import { ProjectService } from "@/services/ProjectService";
+import { Button } from "@/components/ui/button";
+import { FieldGroup, Field } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const ProjectPage = () => {
   const { organizationName, organizationId, projectName, projectId } =
@@ -25,12 +49,23 @@ const ProjectPage = () => {
 
   const navigate = useNavigate();
 
+  // 🔹 DIALOG STATE
+  const [openCreation, setOpenCreation] = useState(false);
+
+  // 🔹 ALERT STATE
+  const [openAlert, setOpenAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
+  // 🔹 FILE STATE
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
   const {
     project,
     blueprints,
     userProjectRole,
     loadingProject,
     error,
+    refreshProject,
   } = useProject(projectId!);
 
   const formatKey = (key: string) =>
@@ -48,9 +83,67 @@ const ProjectPage = () => {
       )
     : [];
 
-  const handleUploadFile = (file: File) => {
-    console.log("Uploading file: ", file);
-    // await ProjectService.uploadFile(projectId!, file)
+  // 🔹 Cuando seleccionan archivo → abrir dialog
+  const handleUploadFile = async (file: File) => {
+    setSelectedFile(file);
+    setOpenCreation(true);
+  };
+
+  // 🔹 Submit blueprint
+  const handleCreateBlueprint = async (
+    e: React.SyntheticEvent<HTMLFormElement>
+  ) => {
+    e.preventDefault();
+
+    if (!selectedFile) {
+      setAlertMessage("No file selected");
+      setOpenAlert(true);
+      return;
+    }
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    const blueprintName = formData.get("blueprintName") as string;
+    const tagsRaw = formData.get("tags") as string;
+
+    const tags = tagsRaw
+      .split(",")
+      .map((t) => t.trim())
+      .filter((t) => t.length > 0);
+
+    try {
+      const payload = {
+        file: selectedFile,
+        blueprintName,
+        projectId: projectId!,
+        organizationId: organizationId!,
+        tags,
+      };
+
+      const response = await ProjectService.createBlueprint(payload);
+
+      if (!response) {
+        setAlertMessage("Something went wrong uploading the blueprint");
+        setOpenAlert(true);
+        return;
+      }
+
+      setOpenCreation(false);
+      setSelectedFile(null);
+      form.reset();
+      refreshProject();
+
+    } catch (error) {
+      setAlertMessage("An unexpected error occurred");
+      setOpenAlert(true);
+    }
+  };
+
+  const handleOpenBlueprint = (blueprintId: string, blueprintName: string) => {
+    navigate(
+      `/BlueprintView/${organizationName}/${organizationId}/${projectName}/${projectId}/${blueprintName}/${blueprintId}`
+    );
   };
 
   if (loadingProject) return <Loading />;
@@ -65,7 +158,6 @@ const ProjectPage = () => {
 
   return (
     <div>
-      {/* 🔹 Breadcrumb */}
       <BreadcrumbBar
         items={[
           { label: "Home", href: "/" },
@@ -79,90 +171,169 @@ const ProjectPage = () => {
 
       <div className="main-content">
 
+        {/* ================= INFO + UPLOAD ================= */}
         <div className="main-content-item">
-            <div
-                style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
-                    gap: "16px",
-                    alignItems: "start",
-                }}
-            >
-            {/* ================= LEFT: PROJECT INFO ================= */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
+              gap: "16px",
+              alignItems: "start",
+            }}
+          >
+            {/* INFO */}
             <Card className="border border-[var(--border)] bg-transparent">
-                <CardHeader>
+              <CardHeader>
                 <CardTitle className="text-[var(--text-h)]">
-                    Project information
+                  Project information
                 </CardTitle>
-                </CardHeader>
+              </CardHeader>
 
-                <CardContent>
+              <CardContent>
                 {filteredProjectEntries.map(([key, value]) => (
-                    <div key={key} className="mb-2 text-left">
+                  <div key={key} className="mb-2 text-left">
                     <CardDescription className="text-[var(--text-h)]">
-                        <span className="font-semibold">
+                      <span className="font-semibold">
                         {formatKey(key)}:
-                        </span>{" "}
-                        {String(value)}
+                      </span>{" "}
+                      {String(value)}
                     </CardDescription>
-                    </div>
+                  </div>
                 ))}
-                </CardContent>
+              </CardContent>
             </Card>
 
-            {/* ================= RIGHT: UPLOAD ================= */}
+            {/* UPLOAD */}
             <div>
-                <h1 className="sub-heading-center">
-                Upload blueprint
-                </h1>
-
-                <FileDropZone onFileSelect={handleUploadFile} />
+              <h1 className="sub-heading-center">Upload blueprint</h1>
+              <FileDropZone onFileSelect={handleUploadFile} />
             </div>
-            </div>
+          </div>
         </div>
 
-        {/* 🔹 PICTURES SECTION */}
+        {/* ================= BLUEPRINTS ================= */}
         <div className="main-content-item">
-            <h1 className="sub-heading">
-                Uploaded blueprints
-            </h1>
+          <h1 className="sub-heading">Uploaded blueprints</h1>
 
-            <div
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "4px",
+              paddingBottom: "8px",
+            }}
+          >
+            {blueprints?.map((bp) => (
+              <div
+                key={bp._id}
+                onClick={() =>
+                  handleOpenBlueprint(bp._id, bp.blueprintName)
+                }
                 style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "4px",
-                paddingBottom: "8px",
+                  minWidth: "400px",
+                  height: "300px",
+                  overflow: "hidden",
+                  borderRadius: "6px",
+                  cursor: "pointer",
                 }}
-            >
-                {blueprints?.map((bp) => (
-                <div
-                    key={bp._id}
-                    style={{
-                    minWidth: "400px",
-                    height: "300px",
-                    overflow: "hidden",
-                    borderRadius: "6px",
-                    }}
-                >
-                    <img
-                    src={bp.downloadUrl}
-                    alt={bp.filename}
-                    style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                    }}
-                    onError={(e) => {
-                        e.currentTarget.src = "/fallback.png";
-                    }}
-                    />
-                </div>
-                ))}
-            </div>
+              >
+                <img
+                  src={bp.downloadUrl}
+                  alt={bp.filename}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                  onError={(e) => {
+                    e.currentTarget.src = "/fallback.png";
+                  }}
+                />
+              </div>
+            ))}
+          </div>
         </div>
 
       </div>
+
+      {/* ================= DIALOG CREATE BLUEPRINT ================= */}
+      <Dialog open={openCreation} onOpenChange={setOpenCreation}>
+        <DialogContent className="sm:max-w-sm">
+          <form onSubmit={handleCreateBlueprint}>
+
+            <DialogHeader>
+              <DialogTitle>Create blueprint</DialogTitle>
+              <DialogDescription>
+                Complete the fields and upload your blueprint.
+              </DialogDescription>
+            </DialogHeader>
+
+            <FieldGroup>
+
+              <Field>
+                <Label>Selected file</Label>
+                <Input value={selectedFile?.name || ""} disabled />
+              </Field>
+
+              <Field>
+                <Label htmlFor="blueprintName">Blueprint name</Label>
+                <Input
+                  id="blueprintName"
+                  name="blueprintName"
+                  required
+                  minLength={3}
+                />
+              </Field>
+
+              <Field>
+                <Label htmlFor="tags">Tags</Label>
+                <Input
+                  id="tags"
+                  name="tags"
+                  placeholder="tag1, tag2, tag3"
+                  required
+                />
+              </Field>
+
+            </FieldGroup>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpenCreation(false)}
+              >
+                Cancel
+              </Button>
+
+              <Button type="submit">
+                Upload
+              </Button>
+            </DialogFooter>
+
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* ================= ALERT ================= */}
+      <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Error</AlertDialogTitle>
+            <AlertDialogDescription>
+              {alertMessage}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <div className="flex justify-end w-full">
+              <AlertDialogAction onClick={() => setOpenAlert(false)}>
+                Ok
+              </AlertDialogAction>
+            </div>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

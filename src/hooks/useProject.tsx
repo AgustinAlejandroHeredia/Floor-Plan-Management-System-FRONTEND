@@ -1,11 +1,12 @@
 import { ProjectService } from "@/services/ProjectService";
-import type { ProjectRole, ProjectType } from "@/types/types";
+import type { ProjectMembersList, ProjectRole, ProjectType } from "@/types/types";
 import { useCallback, useEffect, useState } from "react";
 
 export function useProject(projectId: string) {
 
     const [error, setError] = useState<Error | null>(null);
     const [project, setProject] = useState<ProjectType>();
+    const [projectMembersList, setProjectMembersList] = useState<ProjectMembersList[]>([])
     const [blueprints, setBlueprints] = useState<any[]>([]);
     const [userProjectRole, setUserProjectRole] = useState<ProjectRole>("viewer")
     const [loadingProject, setLoadingProject] = useState<boolean>(true);
@@ -24,7 +25,6 @@ export function useProject(projectId: string) {
 
             const blueprintsData = await ProjectService.getProjectBlueprints(projectId)
             setBlueprints(blueprintsData)
-            console.log("DATA DE BLUEPRINTS: ", blueprintsData)
 
         } catch (err : any) {
             setError(err)

@@ -27,6 +27,14 @@ export interface OrganizationMembersList {
   organizationRole: OrganizationRole
 }
 
+export interface ProjectMembersList {
+  _id: string
+  name: string
+  email: string
+  picture: string
+  projectRole: ProjectRole
+}
+
 export type StatusType =
   | "canceled"
   | "pending"
@@ -83,3 +91,26 @@ export type ProjectStatusColor =
   | "red"
   | "yellow"
   | "green" 
+
+export interface BlueprintType {
+  _id: string
+  blueprintName: string
+  filename: string
+  projectId: string
+  organizationId: string
+  storageId: string
+  encodign: string
+  mimetype: string
+  size: string
+  tags: string[]
+  uploadedBy: string
+  creationDate: string
+}
+
+export interface CreateBlueprintPayload {
+  file: File
+  blueprintName: string
+  projectId: string
+  organizationId: string
+  tags: string[]
+}

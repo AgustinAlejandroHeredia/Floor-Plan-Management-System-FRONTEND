@@ -69,16 +69,11 @@ const OrganizationPage = () => {
         navigate(`/Project/${name}/${id}/${projectName}/${projectId}`)
     }
 
-    const handleCreateProject_aux = () => {
-        console.log("SE CREA UN PROYECTo")
-    }
-
     const handleCreateProject = async (e: React.SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const form = e.currentTarget
         const formData = new FormData(form)
-
 
         try {
 
@@ -172,7 +167,7 @@ const OrganizationPage = () => {
             ) : (
             <div className="main-content-item">
 
-                <h1 className="sub-heading">{name}'s projects:</h1>
+                <h1 className="sub-heading">{name}'s projects</h1>
 
                 <div
                 style={{

@@ -28,11 +28,9 @@ export function useOrganization(organizationId: string) {
 
       await Promise.all(
         data.map(async (project) => {
-          try {
-            const res = await OrganizationService.getProjectOldestBlueprint(project._id)
+          const res = await OrganizationService.getProjectOldestBlueprint(project._id)
+          if (res) {
             thumbnails[project._id] = res.downloadUrl
-          } catch {
-            // nothing
           }
         })
       )

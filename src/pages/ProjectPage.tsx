@@ -130,7 +130,7 @@ const ProjectPage = () => {
             <div
                 style={{
                 display: "flex",
-                overflowX: "auto",
+                flexWrap: "wrap",
                 gap: "4px",
                 paddingBottom: "8px",
                 }}
@@ -141,7 +141,6 @@ const ProjectPage = () => {
                     style={{
                     minWidth: "400px",
                     height: "300px",
-                    flexShrink: 0,
                     overflow: "hidden",
                     borderRadius: "6px",
                     }}

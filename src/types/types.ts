@@ -66,6 +66,19 @@ export interface ProjectOrganizationType {
   status: StatusType
 }
 
+export interface CreateProjectPayload {
+  projectName: string
+  record: string
+  address: string
+  scale: string
+  others: string
+  references: string
+  background: string
+  owner: string
+  technicalDirection: string
+  organizationId: string
+};
+
 export type ProjectStatusColor =
   | "red"
   | "yellow"

@@ -12,7 +12,7 @@ import type { OrganizationRole } from "@/types/types";
 
 interface EmptyProjectsProps {
   userRole: OrganizationRole;
-  onCreateClick: () => void;
+  onCreateClick: () => void; // 👈 importante
 }
 
 export function EmptyProjects({ userRole, onCreateClick }: EmptyProjectsProps) {
@@ -39,7 +39,7 @@ export function EmptyProjects({ userRole, onCreateClick }: EmptyProjectsProps) {
             <Button
               variant="outline"
               size="sm"
-              onClick={onCreateClick}
+              onClick={onCreateClick} // 👈 abre el dialog
             >
               Create project!
             </Button>
@@ -58,7 +58,7 @@ export function EmptyProjects({ userRole, onCreateClick }: EmptyProjectsProps) {
 
             <EmptyDescription>
               Currently there are no projects for this organization.
-              You have to wait for someone with the permissions to create a projet creates one.
+              You have to wait for someone with the permissions to create a project.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>

@@ -190,7 +190,7 @@ body {
 
 .main-content {
   margin-top: 25px;
-  margin-bottom: 25px;
+  margin-bottom: 100px;
   margin-left: 20px;
   margin-right: 20px;
 }
@@ -259,15 +259,17 @@ body {
   margin-top: 6px;
 }
 
-/* Sidebar */
+/* Sidebar vh */
 .sidebar {
   width: 260px;
-  height: 100vh;
   background: var(--bg);
   border-right: 1px solid var(--border);
+  
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+
+  align-self: stretch; /* 🔑 CLAVE */
 }
 
 .sidebar-link {

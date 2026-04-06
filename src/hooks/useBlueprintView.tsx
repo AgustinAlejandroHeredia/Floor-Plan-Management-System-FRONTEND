@@ -1,4 +1,4 @@
-import { BlueprintViewService } from "@/services/BLueprintViewService";
+import { BlueprintViewService } from "@/services/BlueprintViewService";
 import type { BlueprintType } from "@/types/types";
 import { useCallback, useEffect, useState } from "react";
 
@@ -15,7 +15,7 @@ export function useBlueprintView(blueprintId: string) {
             setError(null)
 
             const data = await BlueprintViewService.getBlueprint(blueprintId)
-            setBlueprint(blueprint)
+            setBlueprint(data)
 
         } catch (err: any) {
             setError(err)

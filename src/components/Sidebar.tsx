@@ -70,7 +70,7 @@ const Sidebar = () => {
             textAlign: "left",
           }}
         >
-          Acme Inc.
+          Floor Plan Management
         </div>
 
         <Separator />

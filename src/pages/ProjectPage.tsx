@@ -37,6 +37,7 @@ import { Button } from "@/components/ui/button";
 import { FieldGroup, Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 
 const ProjectPage = () => {
   const { organizationName, organizationId, projectName, projectId } =
@@ -62,7 +63,6 @@ const ProjectPage = () => {
   const {
     project,
     blueprints,
-    userProjectRole,
     loadingProject,
     error,
     refreshProject,
@@ -219,37 +219,67 @@ const ProjectPage = () => {
             style={{
               display: "flex",
               flexWrap: "wrap",
-              gap: "4px",
+              gap: "8px",
               paddingBottom: "8px",
             }}
           >
             {blueprints?.map((bp) => (
-              <div
+              <Card
                 key={bp._id}
-                onClick={() =>
-                  handleOpenBlueprint(bp._id, bp.blueprintName)
-                }
+                onClick={() => handleOpenBlueprint(bp._id, bp.blueprintName)}
+                className="cursor-pointer overflow-hidden bg-transparent border-0 shadow-none"
                 style={{
                   minWidth: "400px",
                   height: "300px",
-                  overflow: "hidden",
-                  borderRadius: "6px",
-                  cursor: "pointer",
                 }}
               >
-                <img
-                  src={bp.downloadUrl}
-                  alt={bp.filename}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}
-                  onError={(e) => {
-                    e.currentTarget.src = "/fallback.png";
-                  }}
-                />
-              </div>
+                <div style={{ position: "relative", width: "100%", height: "100%" }}>
+                  
+                  {/* IMAGE */}
+                  <img
+                    src={bp.downloadUrl}
+                    alt={bp.filename}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                    onError={(e) => {
+                      e.currentTarget.src = "/fallback.png";
+                    }}
+                  />
+
+                  {/* OVERLAY INFO */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      padding: "8px",
+                      background: "linear-gradient(to bottom, rgba(0,0,0,0.9), transparent)",
+                     color: "var(--text-h)",
+                    }}
+                  >
+                    <p style={{ fontWeight: "600" }}>{bp.blueprintName}</p>
+                    <p style={{ fontSize: "12px" }}>
+                      {new Date(bp.creationDate).toLocaleDateString()}
+                    </p>
+                    {bp.tags && bp.tags.length > 0 && (
+                      <p
+                        style={{
+                          fontSize: "11px",
+                          marginTop: "4px",
+                          opacity: 0.9,
+                        }}
+                      >
+                        {bp.tags.join(", ")}
+                      </p>
+                    )}
+                  </div>
+
+                </div>
+              </Card>
             ))}
           </div>
         </div>
@@ -290,7 +320,7 @@ const ProjectPage = () => {
                 <Input
                   id="tags"
                   name="tags"
-                  placeholder="tag1, tag2, tag3"
+                  placeholder="tag 1, tag 2, tag 3"
                   required
                 />
               </Field>
@@ -334,6 +364,9 @@ const ProjectPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+
+
     </div>
   );
 };

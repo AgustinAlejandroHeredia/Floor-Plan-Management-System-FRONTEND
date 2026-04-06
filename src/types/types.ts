@@ -105,6 +105,7 @@ export interface BlueprintType {
   tags: string[]
   uploadedBy: string
   creationDate: string
+  downloadUrl?: string
 }
 
 export interface CreateBlueprintPayload {

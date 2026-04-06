@@ -286,7 +286,7 @@ const OrganizationPage = () => {
                     </p>
                     <Button 
                         variant="ghost" 
-                        className="!text-lg text-[var(--text)]"
+                        className="!text-xs text-[var(--text)]"
                         onClick={showOrHideSendInvitation}
                     >
                         Close help

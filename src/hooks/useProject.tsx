@@ -8,7 +8,6 @@ export function useProject(projectId: string) {
     const [project, setProject] = useState<ProjectType>();
     const [projectMembersList, setProjectMembersList] = useState<ProjectMembersList[]>([])
     const [blueprints, setBlueprints] = useState<any[]>([]);
-    const [userProjectRole, setUserProjectRole] = useState<ProjectRole>("viewer")
     const [loadingProject, setLoadingProject] = useState<boolean>(true);
 
     const loadProject = useCallback(async () => {
@@ -19,9 +18,6 @@ export function useProject(projectId: string) {
 
             const data: ProjectType = await ProjectService.getProject(projectId)
             setProject(data)
-
-            const userRole = await ProjectService.getProjectMyRole(projectId)
-            setUserProjectRole(userRole)
 
             const blueprintsData = await ProjectService.getProjectBlueprints(projectId)
             setBlueprints(blueprintsData)
@@ -42,7 +38,6 @@ export function useProject(projectId: string) {
     return {
         project,
         blueprints,
-        userProjectRole,
         loadingProject,
         error,
         refreshProject: loadProject,

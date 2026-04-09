@@ -30,6 +30,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert"
+
+import { Spinner } from "@/components/ui/spinner"
 import Loading from "@/components/Loading";
 import { useState } from "react";
 import { ProjectService } from "@/services/ProjectService";
@@ -38,6 +45,8 @@ import { FieldGroup, Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+
+import { convertPdfToImages } from "@/utils/pdfToImage";
 
 const ProjectPage = () => {
   const { organizationName, organizationId, projectName, projectId } =
@@ -59,6 +68,9 @@ const ProjectPage = () => {
 
   // 🔹 FILE STATE
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imagesFromPdf, setImagesFromPdf] = useState<File[]>([]);
+
+  const [isUploading, setIsUploading] = useState(false);
 
   const {
     project,
@@ -86,6 +98,19 @@ const ProjectPage = () => {
   // 🔹 Cuando seleccionan archivo → abrir dialog
   const handleUploadFile = async (file: File) => {
     setSelectedFile(file);
+
+    if (file.type === "application/pdf") {
+      try {
+        const images = await convertPdfToImages(file);
+        setImagesFromPdf(images.map((img) => img.file));
+      } catch (error) {
+        setAlertMessage("Error processing PDF");
+        setOpenAlert(true);
+      }
+    } else {
+      setImagesFromPdf([]);
+    }
+
     setOpenCreation(true);
   };
 
@@ -105,7 +130,8 @@ const ProjectPage = () => {
     const formData = new FormData(form);
 
     const blueprintName = formData.get("blueprintName") as string;
-    const tagsRaw = formData.get("tags") as string;
+    
+    const tagsRaw = (formData.get("tags") as string) || "";
 
     const tags = tagsRaw
       .split(",")
@@ -113,28 +139,68 @@ const ProjectPage = () => {
       .filter((t) => t.length > 0);
 
     try {
-      const payload = {
-        file: selectedFile,
-        blueprintName,
-        projectId: projectId!,
-        organizationId: organizationId!,
-        tags,
-      };
 
-      const response = await ProjectService.createBlueprint(payload);
+      setIsUploading(true)
+      setOpenCreation(false);
 
-      if (!response) {
-        setAlertMessage("Something went wrong uploading the blueprint");
-        setOpenAlert(true);
-        return;
+      if(selectedFile?.type === "application/pdf" && imagesFromPdf.length > 0){
+
+        for (let i = 0; i < imagesFromPdf.length; i++) {
+          const file = imagesFromPdf[i];
+
+          const numberedName = `${blueprintName} ${i + 1}`;
+
+          const payload = {
+            file: file,
+            blueprintName: numberedName,
+            projectId: projectId!,
+            organizationId: organizationId!,
+            tags,
+          };
+
+          const response = await ProjectService.createBlueprint(payload);
+
+          if (!response) {
+            setIsUploading(false)
+            setAlertMessage("Something went wrong uploading the blueprint");
+            setOpenAlert(true);
+            return;
+          }
+        }
+
+      } else {
+
+        setIsUploading(true)
+        setOpenCreation(false);
+
+        const payload = {
+          file: selectedFile,
+          blueprintName,
+          projectId: projectId!,
+          organizationId: organizationId!,
+          tags,
+        };
+
+        const response = await ProjectService.createBlueprint(payload);
+
+        if (!response) {
+          setIsUploading(false)
+          setAlertMessage("Something went wrong uploading the blueprint");
+          setOpenAlert(true);
+          return;
+        }
+
       }
 
-      setOpenCreation(false);
+      setImagesFromPdf([])
       setSelectedFile(null);
       form.reset();
       refreshProject();
 
+      setIsUploading(false)
+
     } catch (error) {
+      setIsUploading(false)
       setAlertMessage("An unexpected error occurred");
       setOpenAlert(true);
     }
@@ -295,6 +361,7 @@ const ProjectPage = () => {
               <DialogTitle>Create blueprint</DialogTitle>
               <DialogDescription>
                 Complete the fields and upload your blueprint.
+                Tags field is optional.
               </DialogDescription>
             </DialogHeader>
 
@@ -306,24 +373,27 @@ const ProjectPage = () => {
               </Field>
 
               <Field>
-                <Label htmlFor="blueprintName">Blueprint name</Label>
+                <Label htmlFor="blueprintName">Blueprint name *</Label>
                 <Input
                   id="blueprintName"
                   name="blueprintName"
                   required
                   minLength={3}
+                  maxLength={100}
                 />
               </Field>
 
-              <Field>
-                <Label htmlFor="tags">Tags</Label>
-                <Input
-                  id="tags"
-                  name="tags"
-                  placeholder="tag 1, tag 2, tag 3"
-                  required
-                />
-              </Field>
+              {selectedFile?.type != "application/pdf" && (
+                <Field>
+                  <Label htmlFor="tags">Tags</Label>
+                  <Input
+                    id="tags"
+                    name="tags"
+                    placeholder="tag 1, tag 2, tag 3"
+                    maxLength={100}
+                  />
+                </Field>
+              )}
 
             </FieldGroup>
 
@@ -344,6 +414,19 @@ const ProjectPage = () => {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* ================= UPLOADING ================= */}
+      {isUploading && (
+        <Alert className="max-w-md fixed bottom-4 right-4 z-50">
+          <AlertTitle>Uploading files...</AlertTitle>
+          <div className="flex items-center gap-2 mt-2">
+            <Spinner className="size-5" />
+            <AlertDescription>
+              Please wait while your files are being uploaded
+            </AlertDescription>
+          </div>
+        </Alert>
+      )}
 
       {/* ================= ALERT ================= */}
       <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>

@@ -14,7 +14,7 @@ export const ProjectService = {
     },
 
     getProjectBlueprints: async (projectId: string) => {
-        const response = await api.get(`/blueprints/project/${projectId}`)
+        const response = await api.get(`/blueprints/projectThumbnails/${projectId}`)
         return response.data
     },
 

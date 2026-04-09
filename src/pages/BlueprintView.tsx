@@ -49,9 +49,19 @@ const BlueprintView = () => {
             key !== "size" &&
             key !== "downloadUrl" &&
             key !== "mimetype" &&
-            key !== "uploadedBy"
+            key !== "uploadedBy" &&
+            key != "storageThumbnailId"
         )
         : [];
+
+    const getDisplayFileName = (filename: string) => {
+        const parts = filename.split("_");
+
+        // elimina el UUID (primer segmento)
+        parts.shift();
+
+        return parts.join("_");
+    };
 
     const handleDownloadFile = async () => {
         const downloadUrl = await BlueprintViewService.getDownloadUrl(blueprintId!)
@@ -146,6 +156,12 @@ const BlueprintView = () => {
                             </span>{" "}
                             {key === "creationDate"
                                 ? new Date(value as string).toLocaleDateString("es-AR")
+                                : key === "filename"
+                                ? getDisplayFileName(value as string)
+                                : key === "tags"
+                                ? (value as string[]).length > 0
+                                ? (value as string[]).join(", ")
+                                : "no tags to show"
                                 : String(value)}
                             </CardDescription>
                         </div>

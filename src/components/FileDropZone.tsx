@@ -8,6 +8,13 @@ import {
 } from "@/components/ui/empty";
 import { Input } from "@/components/ui/input";
 
+const allowedTypes = [
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "application/pdf",
+];
+
 interface FileDropZoneProps {
   onFileSelect: (file: File) => void;
 }
@@ -16,12 +23,14 @@ export function FileDropZone({ onFileSelect }: FileDropZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
+  e.preventDefault();
+  setIsDragging(false);
 
-    const file = e.dataTransfer.files?.[0];
-    if (file) {
+  const file = e.dataTransfer.files?.[0];
+    if (file && allowedTypes.includes(file.type)) {
       onFileSelect(file);
+    } else {
+      alert("Only PNG, JPG, JPEG or PDF files are allowed");
     }
   };
 
@@ -36,8 +45,10 @@ export function FileDropZone({ onFileSelect }: FileDropZoneProps) {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (file && allowedTypes.includes(file.type)) {
       onFileSelect(file);
+    } else {
+      alert("Only PNG, JPG, JPEG or PDF files are allowed");
     }
   };
 

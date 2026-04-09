@@ -115,3 +115,9 @@ export interface CreateBlueprintPayload {
   organizationId: string
   tags: string[]
 }
+
+export type allowedTypes =
+  | "image/png"
+  | "image/jpeg"
+  | "image/jpg"
+  | "application/pdf"

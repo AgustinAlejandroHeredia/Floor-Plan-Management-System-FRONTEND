@@ -13,9 +13,9 @@ export const OrganizationService = {
         return response.data
     },
 
-    getProjectOldestBlueprint: async (projectId: string): Promise<{ downloadUrl: string } | null> => {
+    getProjectOldestBlueprintThumbnail: async (projectId: string): Promise<{ downloadUrl: string } | null> => {
         try {
-            const response = await api.get(`/blueprints/oldestBlueprintUrl/${projectId}`)
+            const response = await api.get(`/blueprints/oldestBlueprintThumbnailUrl/${projectId}`)
             return response.data
         } catch {
             return null

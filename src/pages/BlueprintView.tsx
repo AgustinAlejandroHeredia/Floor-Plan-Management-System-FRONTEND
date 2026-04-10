@@ -30,10 +30,13 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogMedia,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+
+// IMAGE CROP
+import Cropper from "react-easy-crop";
+import { getCroppedImg, type CropArea } from "@/utils/cropImage";
+import type { CreateBlueprintPayload } from "@/types/types";
 
 const BlueprintView = () => {
 
@@ -47,12 +50,12 @@ const BlueprintView = () => {
             blueprintId: string;
         }>();
 
-    const { blueprint, loadingBlueprint, error, refreshBlueprint } = useBlueprintView(blueprintId!)
+    const { blueprint, blueprtinImageUrl, loadingBlueprint, error, refreshBlueprint } = useBlueprintView(blueprintId!)
 
     const navigate = useNavigate()
 
     // DOWNLOAD
-    const [downloadError, setDownloadError] = useState<boolean>(false)
+    const [isDownloading, setIsDownloading] = useState<boolean>(false)
 
     // BLUEPRINT EDIT VARIABLES
     const [openEditDialog, setOpenEditDialog] = useState<boolean>(false)
@@ -65,6 +68,14 @@ const BlueprintView = () => {
     // ERROR ALERT
     const [openErrorAlert, setOpenErrorAlert] = useState<boolean>(false)
     const [errorAlertMessage, setErrorAlertMessage] = useState<string>("")
+
+    // CROP VARIABLES
+    const [cropMode, setCropMode] = useState(false);
+    const [crop, setCrop] = useState({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1);
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState<CropArea | null>(null);
+    const [isUploadingCrop, setIsUploadingCrop] = useState<boolean>(false)
+    const [cropSuccessfullyUploaded, setCropSuccesfullyUploaded] = useState<boolean>(false)
 
     const formatKey = (key: string) =>
         key
@@ -99,7 +110,9 @@ const BlueprintView = () => {
     };
 
     const handleDownloadFile = async () => {
+        setIsDownloading(true)
         const downloadUrl = await BlueprintViewService.getDownloadUrl(blueprintId!)
+        setIsDownloading(false)
         if(downloadUrl != ""){
             const response = await fetch(downloadUrl);
             const blob = await response.blob();
@@ -119,14 +132,6 @@ const BlueprintView = () => {
         }
         setErrorAlertMessage("An error has ocurred saving changes. Please try again later.")
         setOpenErrorAlert(true)
-    }
-
-    const handleCropMode = () => {
-        console.log("Crop mode on")
-    }
-
-    const handleMagicCrop = () => {
-        console.log("Magic crop")
     }
 
     const handleEditBlueprint = async (
@@ -175,6 +180,51 @@ const BlueprintView = () => {
         }
         setErrorAlertMessage("An error has ocurred deleting this blueprint. Please try again later.")
         setOpenErrorAlert(true)
+    }
+
+    const handleCropMode = () => {
+        setCropMode(true);
+    };
+
+    const onCropComplete = (_: any, croppedAreaPixels: CropArea) => {
+        setCroppedAreaPixels(croppedAreaPixels);
+    };
+
+    const handleConfirmCrop = async () => {
+        if (!croppedAreaPixels || !blueprint?.downloadUrl) return;
+
+        setCropMode(false);
+        setIsUploadingCrop(true)
+
+        const file = await getCroppedImg(
+            blueprtinImageUrl!,
+            croppedAreaPixels,
+            `cropped_${blueprint.filename}`
+        );
+
+        const payload: CreateBlueprintPayload = {
+            file,
+            blueprintName: blueprint.blueprintName + "_cropped",
+            projectId: projectId!,
+            organizationId: organizationId!,
+            tags: [],
+        }
+
+        console.log("PAYLOAD : ", payload)
+
+        const success = await BlueprintViewService.createBlueprint(payload)
+        setIsUploadingCrop(false)
+
+        if (success) {
+            setCropSuccesfullyUploaded(true)
+        } else {
+            setErrorAlertMessage("Error uploading cropped image");
+            setOpenErrorAlert(true);
+        }
+    };
+
+    const handleMagicCrop = () => {
+        console.log("Magic crop")
     }
 
     if (loadingBlueprint) return <Loading/>
@@ -252,8 +302,55 @@ const BlueprintView = () => {
                     {/* OPTIONS */}
                     <div className="flex flex-col gap-2 h-full justify-center">
                         <Button variant="secondary" onClick={handleDownloadFile}>Download blueprint</Button>
+                        
+                        {/* DOWNLOADING BLUEPRINT */}
+                        {isDownloading && (
+                            <Alert className="max-w-md fixed bottom-4 right-4 z-50">
+                                <AlertTitle>Dwnloading blueprint...</AlertTitle>
+                                <div className="flex items-center gap-2 mt-2">
+                                    <Spinner className="size-5" />
+                                    <AlertDescription>
+                                    Please wait while the blueprint is download.
+                                    </AlertDescription>
+                                </div>
+                            </Alert>
+                        )}
+
                         <Button variant="secondary" onClick={handleCropMode}>Generate crop manually</Button>
                         <Button variant="secondary" onClick={handleMagicCrop}>Magic crop</Button>
+
+                        {/* UPLOADING BLUEPRINT CROP */}
+                        {isUploadingCrop && (
+                            <Alert className="max-w-md fixed bottom-4 right-4 z-50">
+                                <AlertTitle>Uploading crop...</AlertTitle>
+                                <div className="flex items-center gap-2 mt-2">
+                                    <Spinner className="size-5" />
+                                    <AlertDescription>
+                                    Please wait while the crop is being uploaded.
+                                    </AlertDescription>
+                                </div>
+                            </Alert>
+                        )}
+
+                        {/* CROP SUCCESSFULY UPLOADED */}
+                        <AlertDialog open={cropSuccessfullyUploaded} onOpenChange={setCropSuccesfullyUploaded}>
+                            <AlertDialogContent size="sm">
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Crop generated</AlertDialogTitle>    
+                                    <AlertDialogDescription>
+                                        The crop has been successfully created and is now available as a new blueprint within this project.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+
+                                <AlertDialogFooter>
+                                    <div></div>
+                                    <AlertDialogAction onClick={() => setCropSuccesfullyUploaded(false)}>
+                                        Ok
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+
+                            </AlertDialogContent>
+                        </AlertDialog>
 
                         {/* EDIT PROJECT */}
                         <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
@@ -313,31 +410,11 @@ const BlueprintView = () => {
                                 <div className="flex items-center gap-2 mt-2">
                                     <Spinner className="size-5" />
                                     <AlertDescription>
-                                    Please wait while your changes are saved
+                                    Please wait while your changes are saved.
                                     </AlertDescription>
                                 </div>
                             </Alert>
                         )}
-
-                        {/* ALERT ERROR EDIT */}
-                        <AlertDialog open={openErrorAlert} onOpenChange={setOpenErrorAlert}>
-                            <AlertDialogContent size="sm">
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>Error</AlertDialogTitle>    
-                                    <AlertDialogDescription>
-                                        {errorAlertMessage}
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-
-                                <AlertDialogFooter>
-                                    <div></div>
-                                    <AlertDialogAction onClick={() => setOpenErrorAlert(false)}>
-                                        Ok
-                                    </AlertDialogAction>
-                                </AlertDialogFooter>
-
-                            </AlertDialogContent>
-                        </AlertDialog>
                     
                         {/* DELETE BUTTON */}
                         <Button variant="destructive" onClick={() => setOpenDeleteDialog(true)}>Delete blueprint</Button>
@@ -375,31 +452,93 @@ const BlueprintView = () => {
                                 </div>
                             </Alert>
                         )}
+
+                        {/* ALERT ERROR */}
+                        <AlertDialog open={openErrorAlert} onOpenChange={setOpenErrorAlert}>
+                            <AlertDialogContent size="sm">
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Error</AlertDialogTitle>    
+                                    <AlertDialogDescription>
+                                        {errorAlertMessage}
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+
+                                <AlertDialogFooter>
+                                    <div></div>
+                                    <AlertDialogAction onClick={() => setOpenErrorAlert(false)}>
+                                        Ok
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+
+                            </AlertDialogContent>
+                        </AlertDialog>
                     
                     </div>
                 </div>
 
                 {/* BLUEPRINT PICTURE */}
-                <div
-                    style={{
-                        marginTop: "25px",
-                        display: "flex",
-                        justifyContent: "center",
-                    }}
-                    >
-                    <img
-                        src={blueprint!.downloadUrl}
-                        alt={blueprint!.filename}
+                {!cropMode && (
+                    <div
                         style={{
-                            width: "90%",
-                            height: "90%",
-                            objectFit: "cover",
+                            marginTop: "25px",
+                            display: "flex",
+                            justifyContent: "center",
                         }}
-                        onError={(e) => {
-                            e.currentTarget.src = "/fallback.png";
+                        >
+                        <img
+                            src={blueprtinImageUrl!}
+                            alt={blueprint!.filename}
+                            style={{
+                                width: "90%",
+                                height: "90%",
+                                objectFit: "cover",
+                            }}
+                            onError={(e) => {
+                                e.currentTarget.src = "/fallback.png";
+                            }}
+                        />
+                    </div>
+                )}
+
+                {/* CROP MODE */}
+                {cropMode && (
+                    <div
+                        style={{
+                        marginTop: "25px",
+                        position: "relative",
+                        width: "100%",
+                        height: "70vh",
                         }}
-                    />
-                </div>
+                    >
+                        <Cropper
+                        image={blueprtinImageUrl!}
+                        crop={crop}
+                        zoom={zoom}
+                        aspect={4 / 3}
+                        objectFit="contain"
+                        onCropChange={setCrop}
+                        onZoomChange={setZoom}
+                        onCropComplete={onCropComplete}
+                        />
+
+                        {/* botones */}
+                        <div
+                        style={{
+                            position: "absolute",
+                            bottom: "10px",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            display: "flex",
+                            gap: "10px",
+                        }}
+                        >
+                        <Button onClick={handleConfirmCrop}>Confirm crop</Button>
+                        <Button variant="outline" onClick={() => setCropMode(false)}>
+                            Cancel
+                        </Button>
+                        </div>
+                    </div>
+                    )}
 
                 </div>
 

@@ -1,5 +1,5 @@
 import { api } from "../api/api";
-import type { BlueprintType } from "@/types/types";
+import type { BlueprintType, CreateBlueprintPayload } from "@/types/types";
 
 export const BlueprintViewService = {
 
@@ -33,6 +33,43 @@ export const BlueprintViewService = {
             return false
         } catch (error) {
             return false
+        }
+    },
+
+    getRawImage: async (blueprintId: string): Promise<Blob> => {
+        try {
+            const response = await api.get(`/blueprints/${blueprintId}/image`, {
+            responseType: "blob",
+            });
+
+            return response.data;
+
+        } catch (error) {
+            console.log("ERROR FETCHING IMAGE:", error);
+            throw error;
+        }
+    },
+
+    createBlueprint: async (data: CreateBlueprintPayload): Promise<boolean> => {
+        try {
+            const formData = new FormData();
+
+            formData.append("file", data.file);
+            formData.append("blueprintName", data.blueprintName);
+            formData.append("projectId", data.projectId);
+            formData.append("organizationId", data.organizationId);
+
+            data.tags.forEach((tag, index) => {
+                formData.append(`tags[${index}]`, tag);
+            });
+
+            await api.post("/blueprints", formData);
+
+            return true;
+
+        } catch (error) {
+            console.log("ERROR ON CREATION:", error);
+            return false;
         }
     },
 

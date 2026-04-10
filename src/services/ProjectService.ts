@@ -31,9 +31,7 @@ export const ProjectService = {
                 formData.append(`tags[${index}]`, tag);
             });
 
-            const response = await api.post("/blueprints", formData);
-
-            console.log("CREATION BLUEPRINT RESPONSE:", response.data);
+            await api.post("/blueprints", formData);
 
             return true;
 

@@ -439,11 +439,10 @@ const ProjectPage = () => {
           </AlertDialogHeader>
 
           <AlertDialogFooter>
-            <div className="flex justify-end w-full">
-              <AlertDialogAction onClick={() => setOpenAlert(false)}>
-                Ok
-              </AlertDialogAction>
-            </div>
+            <div></div>
+            <AlertDialogAction onClick={() => setOpenAlert(false)}>
+              Ok
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -17,4 +17,23 @@ export const BlueprintViewService = {
         }
     },
 
+    updateBluperint: async (blueprintId: string, blueprintName: string, tags: string[]): Promise<BlueprintType | null> => {
+        try {
+            const response = await api.patch(`/blueprints/${blueprintId}`, {blueprintName, tags})
+            return response.data
+        } catch (error) {
+            return null
+        }
+    },
+
+    deleteBlueprint: async (blueprintId: string): Promise<boolean> => {
+        try {
+            const response = await api.delete(`/blueprints/${blueprintId}`)
+            if(response) return true
+            return false
+        } catch (error) {
+            return false
+        }
+    },
+
 }

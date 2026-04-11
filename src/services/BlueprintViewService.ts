@@ -11,7 +11,8 @@ export const BlueprintViewService = {
     getDownloadUrl: async (blueprintId: string): Promise<string> => {
         try {
             const response = await api.get(`/blueprints/blueprintDownloadUrl/${blueprintId}`)
-            return response.data
+            console.log("DOWNLOAD URL : ", response.data)
+            return response.data.downloadUrl
         } catch (error) {
             return ""
         }

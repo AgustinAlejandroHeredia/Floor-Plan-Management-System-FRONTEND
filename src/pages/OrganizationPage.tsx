@@ -261,120 +261,6 @@ const OrganizationPage = () => {
 
                 <h1 className="sub-heading">Admin Options</h1>
 
-                {/* INVITE */}
-                <div className="main-content-item">
-                <h3 className="sub-heading-2">Invite member</h3>
-
-                <Field orientation="horizontal">
-                    <Input 
-                    type="search" 
-                    placeholder="Email / Example : member@gmail.com" 
-                    className="w-full max-w-xs text-[var(--text-h)]"
-                    value={invitationEmail}
-                    onChange={(e) => setInvitationEmail(e.target.value)}
-                    />
-                    <Button onClick={() => handleSendInvitation(invitationEmail)}>
-                    Send
-                    </Button>
-                </Field>
-
-                {showInvitationHelp ? (
-                    <div className="text-left">
-                    <p className="info-text">
-                        Enter the email address of the member you'd like to invite to your organization.
-                        They will receive an email containing a token/code, which they'll need to enter in the “Join Organization” section on the Home page after logging into the Floor Plan Management System.
-                    </p>
-                    <Button 
-                        variant="ghost" 
-                        className="!text-xs text-[var(--text)]"
-                        onClick={showOrHideSendInvitation}
-                    >
-                        Close help
-                    </Button>
-                    </div>
-                ) : (
-                    <div className="text-left">
-                    <Button 
-                        variant="link" 
-                        className="text-[var(--text)] text-xs"
-                        onClick={showOrHideSendInvitation}
-                    >
-                        Help!
-                    </Button>
-                    </div>
-                )}
-                </div>
-
-                {/* MEMBERS */}
-                <div className="main-content-item">
-
-                <h3 className="sub-heading-2">
-                    Organization members ({organizationMembersList.length})
-                </h3>
-
-                {organizationMembersList.length === 1 ? (
-                    <OrganizationMemberItem
-                        key={organizationMembersList[0]._id}
-                        member={organizationMembersList[0]}
-                        onViewUser={handleViewUserProfile}
-                        onRemoveUser={handleQuickUser}
-                    />
-                ) : (
-                    <div className="border rounded-lg">
-                        <ScrollArea className="h-[300px] w-full">
-                            <ItemGroup className="w-full p-2">
-                                {organizationMembersList.map((member) => (
-                                    <OrganizationMemberItem
-                                        key={member._id}
-                                        member={member}
-                                        onViewUser={handleViewUserProfile}
-                                        onRemoveUser={handleQuickUser}
-                                    />
-                                ))}
-                            </ItemGroup>
-                        </ScrollArea>
-                    </div>
-                )}
-
-                </div>
-
-                {/* LEAVE ORGANIZATION */}
-                <div className="main-content-item">
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                            <Button variant="destructive">
-                            Leave organization
-                            </Button>
-                        </AlertDialogTrigger>
-
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                            <AlertDialogTitle>
-                                Are you sure you want to leave this organization?
-                            </AlertDialogTitle>
-
-                            <AlertDialogDescription>
-                                You will lose access to all projects and data associated with this organization.
-                                This action cannot be undone.
-                            </AlertDialogDescription>
-                            </AlertDialogHeader>
-
-                            <AlertDialogFooter>
-                            <AlertDialogCancel>
-                                Cancel
-                            </AlertDialogCancel>
-
-                            <AlertDialogAction
-                                variant="destructive"
-                                onClick={handleLeaveOrganization}
-                            >
-                                Leave
-                            </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                        </AlertDialog>
-                </div>
-
                 {/* CREATE NEW PROJECT */}
                 <div className="main-content-item">
 
@@ -534,6 +420,120 @@ const OrganizationPage = () => {
                         </AlertDialogContent>
                     </AlertDialog>
 
+                </div>
+
+                {/* INVITE */}
+                <div className="main-content-item">
+                <h3 className="sub-heading-2">Invite member</h3>
+
+                <Field orientation="horizontal">
+                    <Input 
+                    type="search" 
+                    placeholder="Email / Example : member@gmail.com" 
+                    className="w-full max-w-xs text-[var(--text-h)]"
+                    value={invitationEmail}
+                    onChange={(e) => setInvitationEmail(e.target.value)}
+                    />
+                    <Button onClick={() => handleSendInvitation(invitationEmail)}>
+                    Send
+                    </Button>
+                </Field>
+
+                {showInvitationHelp ? (
+                    <div className="text-left">
+                    <p className="info-text">
+                        Enter the email address of the member you'd like to invite to your organization.
+                        They will receive an email containing a token/code, which they'll need to enter in the “Join Organization” section on the Home page after logging into the Floor Plan Management System.
+                    </p>
+                    <Button 
+                        variant="ghost" 
+                        className="!text-xs text-[var(--text)]"
+                        onClick={showOrHideSendInvitation}
+                    >
+                        Close help
+                    </Button>
+                    </div>
+                ) : (
+                    <div className="text-left">
+                    <Button 
+                        variant="link" 
+                        className="text-[var(--text)] text-xs"
+                        onClick={showOrHideSendInvitation}
+                    >
+                        Help!
+                    </Button>
+                    </div>
+                )}
+                </div>
+
+                {/* MEMBERS */}
+                <div className="main-content-item">
+
+                <h3 className="sub-heading-2">
+                    Organization members ({organizationMembersList.length})
+                </h3>
+
+                {organizationMembersList.length === 1 ? (
+                    <OrganizationMemberItem
+                        key={organizationMembersList[0]._id}
+                        member={organizationMembersList[0]}
+                        onViewUser={handleViewUserProfile}
+                        onRemoveUser={handleQuickUser}
+                    />
+                ) : (
+                    <div className="border rounded-lg">
+                        <ScrollArea className="h-[300px] w-full">
+                            <ItemGroup className="w-full p-2">
+                                {organizationMembersList.map((member) => (
+                                    <OrganizationMemberItem
+                                        key={member._id}
+                                        member={member}
+                                        onViewUser={handleViewUserProfile}
+                                        onRemoveUser={handleQuickUser}
+                                    />
+                                ))}
+                            </ItemGroup>
+                        </ScrollArea>
+                    </div>
+                )}
+
+                </div>
+
+                {/* LEAVE ORGANIZATION */}
+                <div className="main-content-item">
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="destructive">
+                            Leave organization
+                            </Button>
+                        </AlertDialogTrigger>
+
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                            <AlertDialogTitle>
+                                Are you sure you want to leave this organization?
+                            </AlertDialogTitle>
+
+                            <AlertDialogDescription>
+                                You will lose access to all projects and data associated with this organization.
+                                This action cannot be undone.
+                            </AlertDialogDescription>
+                            </AlertDialogHeader>
+
+                            <AlertDialogFooter>
+                            <AlertDialogCancel>
+                                Cancel
+                            </AlertDialogCancel>
+
+                            <AlertDialogAction
+                                variant="destructive"
+                                onClick={handleLeaveOrganization}
+                            >
+                                Leave
+                            </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                        </AlertDialog>
                 </div>
 
             </div>

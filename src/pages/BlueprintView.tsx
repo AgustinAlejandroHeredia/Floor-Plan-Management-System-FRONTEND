@@ -19,27 +19,14 @@ import { useState } from "react";
 import { Field, FieldGroup } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Spinner } from "@/components/ui/spinner";
-
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogMedia,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-
-import { RiDeleteBin6Line } from "react-icons/ri";
 
 // IMAGE CROP
 import Cropper from "react-easy-crop";
 import { getCroppedImg, type CropArea } from "@/utils/cropImage";
 import type { CreateBlueprintPayload } from "@/types/types";
+import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
+import Toast from "@/components/Toast";
+import InfoDialog from "@/components/InfoDialog";
 
 const BlueprintView = () => {
 
@@ -353,128 +340,65 @@ const BlueprintView = () => {
                         </Dialog>
 
                         {/* SAVING CHANGES */}
-                        {isPatching && (
-                            <Alert className="max-w-md fixed bottom-4 right-4 z-50">
-                                <AlertTitle>Saving changes...</AlertTitle>
-                                <div className="flex items-center gap-2 mt-2">
-                                    <Spinner className="size-5" />
-                                    <AlertDescription>
-                                    Please wait while your changes are saved.
-                                    </AlertDescription>
-                                </div>
-                            </Alert>
-                        )}
+                        <Toast
+                            open={isPatching}
+                            title="Saving changes"
+                            description="Please wait while your changes are saved..."
+                        />
 
                         <Button variant="secondary" onClick={handleDownloadFile}>Download blueprint</Button>
                         
                         {/* DOWNLOADING BLUEPRINT */}
-                        {isDownloading && (
-                            <Alert className="max-w-md fixed bottom-4 right-4 z-50">
-                                <AlertTitle>Dwnloading blueprint...</AlertTitle>
-                                <div className="flex items-center gap-2 mt-2">
-                                    <Spinner className="size-5" />
-                                    <AlertDescription>
-                                    Please wait while the blueprint is download.
-                                    </AlertDescription>
-                                </div>
-                            </Alert>
-                        )}
+                        <Toast
+                            open={isDownloading}
+                            title="Downloading blueprint"
+                            description="Please wait while the blueprint is download..."
+                        />
 
                         <Button variant="secondary" onClick={handleCropMode}>Generate crop manually</Button>
                         <Button variant="secondary" onClick={handleMagicCrop}>Magic crop</Button>
 
                         {/* UPLOADING BLUEPRINT CROP */}
-                        {isUploadingCrop && (
-                            <Alert className="max-w-md fixed bottom-4 right-4 z-50">
-                                <AlertTitle>Uploading crop...</AlertTitle>
-                                <div className="flex items-center gap-2 mt-2">
-                                    <Spinner className="size-5" />
-                                    <AlertDescription>
-                                    Please wait while the crop is being uploaded.
-                                    </AlertDescription>
-                                </div>
-                            </Alert>
-                        )}
+                        <Toast
+                            open={isUploadingCrop}
+                            title="Uploading crop"
+                            description="Please wait while the crop is being uploaded..."
+                        />
 
                         {/* CROP SUCCESSFULY UPLOADED */}
-                        <AlertDialog open={cropSuccessfullyUploaded} onOpenChange={setCropSuccesfullyUploaded}>
-                            <AlertDialogContent size="sm">
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>Crop generated</AlertDialogTitle>    
-                                    <AlertDialogDescription>
-                                        The crop has been successfully created and is now available as a new blueprint within this project.
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-
-                                <AlertDialogFooter>
-                                    <div></div>
-                                    <AlertDialogAction onClick={() => setCropSuccesfullyUploaded(false)}>
-                                        Ok
-                                    </AlertDialogAction>
-                                </AlertDialogFooter>
-
-                            </AlertDialogContent>
-                        </AlertDialog>
+                        <InfoDialog
+                            open={cropSuccessfullyUploaded}
+                            onOpenChange={setCropSuccesfullyUploaded}
+                            title="Crop generated"
+                            description="The crop has been successfully created and is now available as a new blueprint within this project."
+                        />
                     
                         {/* DELETE BUTTON */}
                         <Button variant="destructive" onClick={() => setOpenDeleteDialog(true)}>Delete blueprint</Button>
 
                         {/* DELETE ALERT DIALOG */}
-                        <AlertDialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
-                            <AlertDialogContent size="sm">
-                                <AlertDialogHeader>
-                                    <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
-                                        <RiDeleteBin6Line />
-                                    </AlertDialogMedia>
-                                    <AlertDialogTitle>Delete blueprint</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                        This action cannot be undone. This will permanently delete the blueprint.
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction
-                                        variant="destructive"
-                                        onClick={handleDeleteBlueprint}
-                                    >
-                                        Delete
-                                    </AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
+                        <ConfirmDeleteDialog
+                            open={openDeleteDialog}
+                            onOpenChange={setOpenDeleteDialog}
+                            title="Delete blueprint"
+                            description="This action cannot be undone. This will permanently delete the blueprint."
+                            onConfirm={handleDeleteBlueprint}
+                        />
 
                         {/* DELETING BLUEPRINT ALERT */}
-                        {isDeleting && (
-                            <Alert className="max-w-md fixed bottom-4 right-4 z-50">
-                                <AlertTitle>Deleting blueprint...</AlertTitle>
-                                <div className="flex items-center gap-2 mt-2">
-                                    <Spinner className="size-5" />
-                                    <AlertDescription>
-                                    Please wait while this blueprint is being deleted...
-                                    </AlertDescription>
-                                </div>
-                            </Alert>
-                        )}
+                        <Toast
+                            open={isDeleting}
+                            title="Deleting blueprint..."
+                            description="Please wait while this blueprint is being deleted..."
+                        />
 
                         {/* ALERT ERROR */}
-                        <AlertDialog open={openErrorAlert} onOpenChange={setOpenErrorAlert}>
-                            <AlertDialogContent size="sm">
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>Error</AlertDialogTitle>    
-                                    <AlertDialogDescription>
-                                        {errorAlertMessage}
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-
-                                <AlertDialogFooter>
-                                    <div></div>
-                                    <AlertDialogAction onClick={() => setOpenErrorAlert(false)}>
-                                        Ok
-                                    </AlertDialogAction>
-                                </AlertDialogFooter>
-
-                            </AlertDialogContent>
-                        </AlertDialog>
+                        <InfoDialog
+                            open={openErrorAlert}
+                            onOpenChange={setOpenErrorAlert}
+                            title="Error"
+                            description={errorAlertMessage}
+                        />
                     
                     </div>
                 </div>

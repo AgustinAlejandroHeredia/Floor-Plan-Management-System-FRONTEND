@@ -13,6 +13,7 @@ import {
   CardDescription,
   CardTitle,
 } from "@/components/ui/card";
+
 import {
   Dialog,
   DialogClose,
@@ -23,6 +24,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button";
@@ -122,13 +124,10 @@ const HomePage = () => {
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                  gridTemplateColumns: "repeat(auto-fit, 320px)",
                   gap: "16px",
-                  justifyContent: "center",
-                  padding: "16px",
-                  maxWidth: "1700px",
-                  marginLeft: "auto",
-                  marginRight: "auto",
+                  justifyContent: "start",
+                  margin: "0 auto",
                 }}
               >
                 {organizations.map((org, index) => (

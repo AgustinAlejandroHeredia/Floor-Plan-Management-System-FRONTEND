@@ -44,9 +44,10 @@ import { Button } from "@/components/ui/button";
 import { FieldGroup, Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 
 import { convertPdfToImages } from "@/utils/pdfToImage";
+import Toast from "@/components/Toast";
+import InfoDialog from "@/components/InfoDialog";
 
 const ProjectPage = () => {
   const { organizationName, organizationId, projectName, projectId } =
@@ -70,6 +71,7 @@ const ProjectPage = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagesFromPdf, setImagesFromPdf] = useState<File[]>([]);
 
+  const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [isUploading, setIsUploading] = useState(false);
 
   const {
@@ -101,8 +103,10 @@ const ProjectPage = () => {
 
     if (file.type === "application/pdf") {
       try {
+        setIsProcessing(true)
         const images = await convertPdfToImages(file);
         setImagesFromPdf(images.map((img) => img.file));
+        setIsProcessing(false)
       } catch (error) {
         setAlertMessage("Error processing PDF");
         setOpenAlert(true);
@@ -415,39 +419,27 @@ const ProjectPage = () => {
         </DialogContent>
       </Dialog>
 
+      {/* ============== PROCESSING PDF ============== */}
+      <Toast
+        open={isProcessing}
+        title="Processing pdf"
+        description="Please wait while the pdf is being processed for upload..."
+      />
+
       {/* ================= UPLOADING ================= */}
-      {isUploading && (
-        <Alert className="max-w-md fixed bottom-4 right-4 z-50">
-          <AlertTitle>Uploading files...</AlertTitle>
-          <div className="flex items-center gap-2 mt-2">
-            <Spinner className="size-5" />
-            <AlertDescription>
-              Please wait while your files are being uploaded
-            </AlertDescription>
-          </div>
-        </Alert>
-      )}
+      <Toast
+        open={isUploading}
+        title="Uploading files"
+        description="Please wait while your files are being uploaded..."
+      />
 
       {/* ================= ALERT ================= */}
-      <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
-        <AlertDialogContent size="sm">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Error</AlertDialogTitle>
-            <AlertDialogDescription>
-              {alertMessage}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-
-          <AlertDialogFooter>
-            <div></div>
-            <AlertDialogAction onClick={() => setOpenAlert(false)}>
-              Ok
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-
+      <InfoDialog
+        open={openAlert}
+        onOpenChange={setOpenAlert}
+        title="Error"
+        description={alertMessage}
+      />
 
     </div>
   );

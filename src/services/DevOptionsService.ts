@@ -1,5 +1,5 @@
 import { api } from "../api/api";
-import type { CreateOrganizationPayload, OrganizationMembersList, OrganizationType, OrganizationWithMembers } from "@/types/types";
+import type { CreateOrganizationPayload, OrganizationType, OrganizationWithMembers } from "@/types/types";
 
 export const DevOptionsService = {
 
@@ -10,11 +10,6 @@ export const DevOptionsService = {
 
     getAllUsers: async () => {
         const response = await api.get("/user/allUsers/superadmin")
-        return response.data
-    },
-
-    getAllOrganizations: async () => {
-        const response = await api.get("/organizations/allOrganizations/superadmin")
         return response.data
     },
 

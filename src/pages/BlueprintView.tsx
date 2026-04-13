@@ -297,7 +297,7 @@ const BlueprintView = () => {
                                 <form onSubmit={handleEditBlueprint}>
 
                                     <DialogHeader>
-                                        <DialogTitle>Editing project</DialogTitle>
+                                        <DialogTitle>Editing blueprint</DialogTitle>
                                         <DialogDescription>Change the existing values for this blueprint.</DialogDescription>
                                     </DialogHeader>
 
@@ -404,6 +404,7 @@ const BlueprintView = () => {
                 </div>
 
                 {/* ZOOM SELECTOR */}
+                {!cropMode && (
                 <div
                     style={{
                         display: "flex",
@@ -427,6 +428,7 @@ const BlueprintView = () => {
                         }}
                     />
                 </div>
+                )}
 
                 {/* BLUEPRINT PICTURE */}
                 {!cropMode && (

@@ -21,7 +21,8 @@ type Member = {
   _id: string;
   name: string;
   email: string;
-  organizationRole: string;
+  organizationRole?: string;
+  globalRole?: string;
   picture?: string;
 };
 
@@ -37,7 +38,23 @@ const OrganizationMemberItem = ({
   onRemoveUser,
 }: Props) => {
 
-  const isAdmin = member.organizationRole.toLowerCase() === "admin";
+  // 🔹 Determinar rol (organization > global > fallback)
+  const role = member.organizationRole ?? member.globalRole ?? "unknown";
+
+  const normalizedRole = role.toLowerCase();
+
+  const isAdmin = normalizedRole === "admin";
+  const isSuperAdmin = normalizedRole === "super_admin";
+
+  // 🔹 No se puede eliminar admin ni super admin
+  const cannotBeRemoved = isAdmin || isSuperAdmin;
+
+  // 🔹 Formatear rol (ej: super_admin → Super Admin)
+  const formattedRole = role
+    .toLowerCase()
+    .split("_")
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 
   return (
     <Item variant="outline" className="gap-6">
@@ -60,7 +77,7 @@ const OrganizationMemberItem = ({
         </span>
 
         <span className="text-sm font-medium text-[var(--text-h)]">
-          {member.organizationRole}
+          {formattedRole}
         </span>
       </ItemContent>
 
@@ -77,7 +94,7 @@ const OrganizationMemberItem = ({
           <FaUserAlt className="w-4 h-4 text-white group-hover/button:text-black transition-colors" />
         </Button>
 
-        {!isAdmin && (
+        {!cannotBeRemoved && (
           <Button
             variant="ghost"
             size="icon"

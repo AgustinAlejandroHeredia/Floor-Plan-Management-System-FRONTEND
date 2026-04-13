@@ -3,6 +3,7 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -23,6 +24,7 @@ import Loading from "@/components/Loading";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ItemGroup } from "@/components/ui/item";
 import OrganizationMemberItem from "@/components/OrganizationMemberItem";
+import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 
 const DevOptions = () => {
 
@@ -31,8 +33,15 @@ const DevOptions = () => {
     const [organizationCreationError, setOrganizationCreationError] = useState<boolean>(false)
     const [isCreatingOrganization, setIsCreatingOrganization] = useState<boolean>(false)
 
+    // DELETE VARIABLES
+    const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false)
+    const [isDeletingOrganization, setIsDeletingOrganization] = useState<boolean>(false)
+
+    // EDIT VARIABLES
+    const [openEditOrganization, setOpenEditOrganization] = useState<boolean>(false)
+
     // HOOK
-    const { organizationsWithMembers, loading, error, refreshContent } = useDevOptions()
+    const { organizationsWithMembers, users, loading, error, refreshContent } = useDevOptions()
 
     const handleCreateOrganization = async (e: React.SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -69,11 +78,27 @@ const DevOptions = () => {
 
     }
 
-    const handleQuickUser = () => {
+    const handleKickUser = () => {
 
     }
 
-    if(loading) <Loading/>
+    const handleViewOrganization = (organizationId: string) => {
+
+    }
+
+    const handleEditOrganization = (organizationId: string, e: React.SyntheticEvent<HTMLFormElement>) => {
+
+    }
+
+    const handleAddUserToOrganization = (organizationId: string) => {
+
+    }
+
+    const handleDeleteOrganization = (organizationId: string) => {
+
+    }
+
+    if(loading) return <Loading/>
 
     return (
         <div className="main-content">
@@ -224,12 +249,14 @@ const DevOptions = () => {
                             </h3>
 
                             {org.members.length === 1 && (
-                                <OrganizationMemberItem
-                                    key={org.members[0]._id}
-                                    member={org.members[0]}
-                                    onViewUser={handleViewUserProfile}
-                                    onRemoveUser={handleQuickUser}
-                                />
+                                <div className="mt-4 mb-4">
+                                    <OrganizationMemberItem
+                                        key={org.members[0]._id}
+                                        member={org.members[0]}
+                                        onViewUser={handleViewUserProfile}
+                                        onRemoveUser={handleKickUser}
+                                    />
+                                </div>
                             )}
 
                             {org.members.length > 1 && (
@@ -241,7 +268,7 @@ const DevOptions = () => {
                                                     key={member._id}
                                                     member={member}
                                                     onViewUser={handleViewUserProfile}
-                                                    onRemoveUser={handleQuickUser}
+                                                    onRemoveUser={handleKickUser}
                                                 />
                                             ))}
                                         </ItemGroup>
@@ -249,11 +276,190 @@ const DevOptions = () => {
                                 </div>
                             )}
 
+                            {org.members.length === 0 && (
+                                <p className="text-[var(--text)] text-xs">
+                                    No users to show
+                                </p>
+                            )}
+
+                        </div>
+
+                        {/* ORGANIZATION OPTIONS */}
+                        <div className="flex gap-3 mt-4">
+                            <Button
+                                variant="outline"
+                                onClick={() => handleViewOrganization(org._id)}
+                            >
+                                View organization
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => setOpenEditOrganization(true)}
+                            >
+                                Edit organization
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => handleAddUserToOrganization(org._id)}
+                            >
+                                Add user
+                            </Button>
+                            <Button
+                                variant="destructive"
+                                onClick={() => setOpenDeleteDialog(true)}
+                            >
+                                Delete organization
+                            </Button>
+
                         </div>
 
                         </CardContent>
+
+                        {/* ADD USER TO ORGANIZATION */}
+                        <Dialog open={openEditOrganization} onOpenChange={setOpenEditOrganization}>
+                            <DialogContent className="sm:max-w-sm">
+                                <form onSubmit={(e) => handleEditOrganization(org._id, e)}>
+
+                                    <DialogHeader>
+                                        <DialogTitle>Editing organization </DialogTitle>
+                                        <DialogDescription>
+                                            Change the existing values for this organization.
+                                            All the fields are required and have to be unique.
+                                        </DialogDescription>
+                                    </DialogHeader>
+
+                                    <FieldGroup>
+
+                                        <Field>
+                                            <Label htmlFor="organizationName-1">Organization name</Label>
+                                            <Input
+                                                id="organizationName-1"
+                                                name="organizationName"
+                                                required
+                                                minLength={3}
+                                                maxLength={100}
+                                                defaultValue={org.name}
+                                            />
+                                        </Field>
+
+                                        <Field>
+                                            <Label htmlFor="organizationName-1">Address</Label>
+                                            <Input
+                                                id="address-1"
+                                                name="address"
+                                                required
+                                                minLength={3}
+                                                maxLength={200}
+                                                defaultValue={org.address}
+                                            />
+                                        </Field>
+
+                                        <Field>
+                                            <Label htmlFor="email-1">Email</Label>
+                                            <Input
+                                                id="email-1"
+                                                name="email"
+                                                required
+                                                minLength={3}
+                                                maxLength={100}
+                                                defaultValue={org.contactEmail}
+                                            />
+                                        </Field>
+
+                                        <Field>
+                                            <Label htmlFor="phone-1">Phone</Label>
+                                            <Input
+                                                id="phone-1"
+                                                name="phone"
+                                                required
+                                                minLength={3}
+                                                maxLength={20}
+                                                defaultValue={org.contactPhone}
+                                            />
+                                        </Field>
+
+                                        <Field>
+                                            <Label htmlFor="record-1">Record</Label>
+                                            <Input
+                                                id="record-1"
+                                                name="record"
+                                                required
+                                                minLength={3}
+                                                maxLength={50}
+                                                defaultValue={org.record}
+                                            />
+                                        </Field>
+
+                                    </FieldGroup>
+
+                                    <DialogFooter>
+                                        <DialogClose asChild>
+                                            <Button variant="outline">Cancel</Button>
+                                        </DialogClose>
+                                        <Button type="submit">Save</Button>
+                                    </DialogFooter>
+
+                                </form>
+                            </DialogContent>
+                        </Dialog>
+
+                        {/* DELETE ALERT DIALOG */}
+                        <ConfirmDeleteDialog
+                            open={openDeleteDialog}
+                            onOpenChange={setOpenDeleteDialog}
+                            title="Delete organization"
+                            description="This action cannot be undone. This will permanently delete this organization, along with it's projects and blueprints (files included)."
+                            onConfirm={() => handleDeleteOrganization(org._id)}
+                        />
+
                     </Card>
                 ))}
+
+                <Toast
+                    open={isDeletingOrganization}
+                    title="Deleting organization"
+                    description="Wait while the selected organizations is being deleted..."
+                />
+
+            </div>
+
+            <div className="main-content-item">
+
+                <h3 className="sub-heading">Users ({users.length}): </h3>
+
+                <Card
+                    className="bg-[var(--accent-bg)] w-full"
+                >
+                    <CardContent>
+
+                        {users.length === 1 && (
+                            <OrganizationMemberItem
+                                key={users[0]._id}
+                                member={users[0]}
+                                onViewUser={handleViewUserProfile}
+                                onRemoveUser={handleKickUser}
+                            />
+                        )}
+
+                        {users.length > 1 && (
+                            <div className="border rounded-lg">
+                                <ScrollArea>
+                                    <ItemGroup className="w-full p-2">
+                                        {users.map((user) => (
+                                            <OrganizationMemberItem
+                                                key={user._id}
+                                                member={user}
+                                                onViewUser={handleViewUserProfile}
+                                                onRemoveUser={handleKickUser}
+                                            />
+                                        ))}
+                                    </ItemGroup>
+                                </ScrollArea>
+                            </div>
+                        )}
+
+                    </CardContent>
+                </Card>
 
             </div>
         

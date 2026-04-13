@@ -11,6 +11,14 @@ export interface OrganizationType {
   record: string
 }
 
+export interface CreateOrganizationPayload {
+  name: string
+  address: string
+  contactEmail: string
+  contactPhone: string
+  record: string
+}
+
 export interface OrganizationHomeType {
   _id: string
   name: string
@@ -25,6 +33,10 @@ export interface OrganizationMembersList {
   email: string
   picture: string
   organizationRole: OrganizationRole
+}
+
+export type OrganizationWithMembers = OrganizationType & {
+  members: OrganizationMembersList[]
 }
 
 export interface ProjectMembersList {
@@ -121,3 +133,11 @@ export type allowedTypes =
   | "image/jpeg"
   | "image/jpg"
   | "application/pdf"
+
+export interface UserType {
+  _id: string
+  name: string
+  email: string
+  pricture: string
+  globalRole: string
+}

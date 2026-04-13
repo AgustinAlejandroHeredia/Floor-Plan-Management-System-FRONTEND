@@ -12,16 +12,6 @@ import {
 } from "@/components/ui/card";
 
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -30,13 +20,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert"
-
-import { Spinner } from "@/components/ui/spinner"
 import Loading from "@/components/Loading";
 import { useState } from "react";
 import { ProjectService } from "@/services/ProjectService";

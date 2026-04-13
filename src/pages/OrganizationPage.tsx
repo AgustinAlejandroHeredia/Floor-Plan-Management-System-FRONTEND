@@ -98,7 +98,6 @@ const OrganizationPage = () => {
             };
 
             const response = await OrganizationService.createNewProject(data)
-            console.log("NEW PROJECT DATA : ", data)
 
             if(!response){
                 console.log("Something went wrong creation the new project")
@@ -182,9 +181,9 @@ const OrganizationPage = () => {
                 >
                 {projects.map((project, index) => (
                     <Card
-                    key={index}
-                    className="cursor-pointer transition-colors duration-200 bg-[var(--accent-bg)] hover:bg-[var(--accent-bg2)] max-w-md"
-                    onClick={() => handleSelectProject(project.projectName, project._id)}
+                        key={index}
+                        className="cursor-pointer transition-colors duration-200 bg-[var(--accent-bg)] hover:bg-[var(--accent-bg2)] max-w-md"
+                        onClick={() => handleSelectProject(project.projectName, project._id)}
                     >
                     <CardContent>
 
@@ -473,14 +472,16 @@ const OrganizationPage = () => {
                     Organization members ({organizationMembersList.length})
                 </h3>
 
-                {organizationMembersList.length === 1 ? (
+                {organizationMembersList.length === 1 && (
                     <OrganizationMemberItem
                         key={organizationMembersList[0]._id}
                         member={organizationMembersList[0]}
                         onViewUser={handleViewUserProfile}
                         onRemoveUser={handleQuickUser}
                     />
-                ) : (
+                )}
+                 
+                {organizationMembersList.length > 1 && (
                     <div className="border rounded-lg">
                         <ScrollArea className="h-[300px] w-full">
                             <ItemGroup className="w-full p-2">

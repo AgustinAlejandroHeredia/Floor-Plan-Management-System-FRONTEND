@@ -73,11 +73,25 @@ const DevOptions = () => {
             return
         }
 
+        const form = e.currentTarget
+        const formData = new FormData(form)
+
+        if(formData.get("maxBlueprints")){
+            const maxBlueprints = Number(formData.get("maxBlueprints"))
+            if((maxBlueprints >= 1)! || (maxBlueprints <= 200)!){
+                setErrorMessage("Invalid maximum blueprints. The given number must be between 1 and 200.")
+                setOpenError(true)
+                return
+            }
+        }else{
+            setErrorMessage("Maximum amount of blueprints was not provided.")
+            setOpenError(true)
+            return
+        }
+
         setOpenCreateOrganization(false)
         setIsCreatingOrganization(true)
 
-        const form = e.currentTarget
-        const formData = new FormData(form)
 
         try {
 
@@ -146,6 +160,7 @@ const DevOptions = () => {
                 contactEmail: formData.get("contactEmail") as string,
                 contactPhone: formData.get("contactPhone") as string,
                 record: formData.get("record") as string,
+                maxBlueprints: formData.get("maxBlueprints") as string
             }
 
             await DevOptionsService.updateOrganization(organizationId, payload)
@@ -269,6 +284,18 @@ const DevOptions = () => {
                                         required
                                         minLength={3}
                                         maxLength={50}
+                                    />
+                                </Field>
+
+                                <Field>
+                                    <Label htmlFor="maxBlueprints">Max. amount of blueprints (max: 200)</Label>
+                                    <Input
+                                        id="maxBlueprints"
+                                        name="maxBlueprints"
+                                        required
+                                        type="number"
+                                        min={1}
+                                        max={200}
                                     />
                                 </Field>
 

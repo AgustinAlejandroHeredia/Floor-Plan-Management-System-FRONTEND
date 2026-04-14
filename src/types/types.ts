@@ -26,6 +26,7 @@ export interface UpdateOrganizationPayload {
   contactEmail: string
   contactPhone: string
   record: string
+  maxBlueprints: string
 }
 
 export interface OrganizationHomeType {

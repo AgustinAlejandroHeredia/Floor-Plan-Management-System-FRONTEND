@@ -1,5 +1,5 @@
 import { api } from "../api/api";
-import type { BlueprintType, CreateBlueprintPayload, CreateCropPayload } from "@/types/types";
+import type { BlueprintType, CreateCropPayload } from "@/types/types";
 
 export const BlueprintViewService = {
 
@@ -11,7 +11,6 @@ export const BlueprintViewService = {
     getDownloadUrl: async (blueprintId: string): Promise<string> => {
         try {
             const response = await api.get(`/blueprints/blueprintDownloadUrl/${blueprintId}`)
-            console.log("DOWNLOAD URL : ", response.data)
             return response.data.downloadUrl
         } catch (error) {
             return ""
@@ -46,32 +45,30 @@ export const BlueprintViewService = {
             return response.data;
 
         } catch (error) {
-            console.log("ERROR FETCHING IMAGE:", error);
-            throw error;
+            console.log("ERROR FETCHING IMAGE:", error)
+            throw error
         }
     },
 
     createBlueprint: async (data: CreateCropPayload): Promise<boolean> => {
         try {
-            const formData = new FormData();
+            const formData = new FormData()
 
             formData.append("file", data.file);
             formData.append("blueprintName", data.blueprintName);
             formData.append("projectId", data.projectId);
             formData.append("organizationId", data.organizationId);
             formData.append("originalBlueprintId", data.originalBlueprintId)
+            formData.append("width", String(data.width))
+            formData.append("height", String(data.height))
 
-            data.tags.forEach((tag, index) => {
-                formData.append(`tags[${index}]`, tag);
-            });
-
-            await api.post("/blueprints", formData);
+            await api.post("/blueprints", formData)
 
             return true;
 
         } catch (error) {
-            console.log("ERROR ON CREATION:", error);
-            return false;
+            console.log("ERROR ON CREATION:", error)
+            return false
         }
     },
 

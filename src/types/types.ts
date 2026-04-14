@@ -118,6 +118,9 @@ export interface BlueprintType {
   uploadedBy: string
   creationDate: string
   downloadUrl?: string
+  croppedFrom?: string
+  height?: number
+  width?: number
 }
 
 export interface CreateBlueprintPayload {
@@ -135,6 +138,8 @@ export interface CreateCropPayload {
   organizationId: string
   tags: string[]
   originalBlueprintId: string
+  height: number
+  width: number
 }
 
 export type allowedTypes =

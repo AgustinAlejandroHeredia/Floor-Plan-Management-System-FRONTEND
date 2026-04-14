@@ -1,31 +1,33 @@
 export interface CropArea {
-  width: number;
-  height: number;
   x: number;
   y: number;
+  width: number;
+  height: number;
 }
 
 export const getCroppedImg = async (
-  imageSrc: string,
+  image: HTMLImageElement,
   crop: CropArea,
   filename: string = "cropped.png"
 ): Promise<File> => {
-  const image = await createImage(imageSrc);
 
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
 
   if (!ctx) throw new Error("No canvas context");
 
+  const scaleX = image.naturalWidth / image.width;
+  const scaleY = image.naturalHeight / image.height;
+
   canvas.width = crop.width;
   canvas.height = crop.height;
 
   ctx.drawImage(
     image,
-    crop.x,
-    crop.y,
-    crop.width,
-    crop.height,
+    crop.x * scaleX,
+    crop.y * scaleY,
+    crop.width * scaleX,
+    crop.height * scaleY,
     0,
     0,
     crop.width,
@@ -36,21 +38,12 @@ export const getCroppedImg = async (
     canvas.toBlob((blob) => {
       if (!blob) throw new Error("Canvas is empty");
 
-      const file = new File([blob], filename, {
-        type: blob.type,
-        lastModified: Date.now(),
-      });
-
-      resolve(file);
+      resolve(
+        new File([blob], filename, {
+          type: "image/png",
+          lastModified: Date.now(),
+        })
+      );
     }, "image/png");
   });
 };
-
-const createImage = (url: string): Promise<HTMLImageElement> =>
-  new Promise((resolve, reject) => {
-    const image = new Image();
-    image.setAttribute("crossOrigin", "anonymous");
-    image.src = url;
-    image.onload = () => resolve(image);
-    image.onerror = reject;
-  });

@@ -21,12 +21,19 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
 // IMAGE CROP
-import Cropper from "react-easy-crop";
-import { getCroppedImg, type CropArea } from "@/utils/cropImage";
-import type { CreateBlueprintPayload, CreateCropPayload } from "@/types/types";
+import ReactCrop, { type Crop } from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
+
+import { getCroppedImg } from "@/utils/cropImage";
+import type { CreateCropPayload } from "@/types/types";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 import Toast from "@/components/Toast";
 import InfoDialog from "@/components/InfoDialog";
+
+type ImageResolution = {
+    width: number;
+    height: number;
+}
 
 const BlueprintView = () => {
 
@@ -61,9 +68,23 @@ const BlueprintView = () => {
 
     // CROP VARIABLES
     const [cropMode, setCropMode] = useState(false);
-    const [crop, setCrop] = useState({ x: 0, y: 0 });
-    const [zoom, setZoom] = useState(1);
-    const [croppedAreaPixels, setCroppedAreaPixels] = useState<CropArea | null>(null);
+    const [crop, setCrop] = useState<Crop>({
+        unit: "px",
+        x: 0,
+        y: 0,
+        width: 100,
+        height: 100,
+    });
+
+    const [completedCrop, setCompletedCrop] = useState<Crop | null>(null);
+    const [imageRef, setImageRef] = useState<HTMLImageElement | null>(null);
+    const [imageRes, setImageRes] = useState<ImageResolution>({
+        width: 0,
+        height: 0,
+    })
+
+    // zoom manual
+    const [cropZoom, setCropZoom] = useState(1);
     const [isUploadingCrop, setIsUploadingCrop] = useState<boolean>(false)
     const [cropSuccessfullyUploaded, setCropSuccesfullyUploaded] = useState<boolean>(false)
 
@@ -91,7 +112,10 @@ const BlueprintView = () => {
             key !== "downloadUrl" &&
             key !== "mimetype" &&
             key !== "uploadedBy" &&
-            key != "storageThumbnailId"
+            key != "storageThumbnailId" &&
+            key != "originalBlueprintId" &&
+            key != "width" &&
+            key != "height"
         )
         : [];
 
@@ -170,38 +194,44 @@ const BlueprintView = () => {
         setOpenErrorAlert(true)
     }
 
-    const handleCropMode = () => {
-        setCropMode(true);
+    const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+        const img = e.currentTarget;
+        setImageRes({
+            width: img.naturalWidth,
+            height: img.naturalHeight,
+        })
+        setImageRef(img);
     };
 
-    const onCropComplete = (_: any, croppedAreaPixels: CropArea) => {
-        setCroppedAreaPixels(croppedAreaPixels);
+    const handleCropMode = () => {
+        setCropMode(true);
     };
 
     const handleConfirmCrop = async (
         e: React.SyntheticEvent<HTMLFormElement>
     ) => {
-        e.preventDefault()
+        e.preventDefault();
 
-        if (!croppedAreaPixels || !blueprint?.downloadUrl) return;
+        if (!completedCrop || !imageRef) return;
 
-        setCropMode(false);
+        setCropMode(false)
+        setOpenBlueprintForm(false)
         setIsUploadingCrop(true)
 
-        const form = e.currentTarget
-        const formData = new FormData(form)
+        const form = e.currentTarget;
+        const formData = new FormData(form);
 
-        const tagsRaw = (formData.get("tags") as string) || ""
+        const tagsRaw = (formData.get("tags") as string) || "";
 
         const tags = tagsRaw
             .split(",")
             .map((t) => t.trim())
-            .filter((t) => t.length > 0)
+            .filter((t) => t.length > 0);
 
         const file = await getCroppedImg(
-            blueprtinImageUrl!,
-            croppedAreaPixels,
-            `cropped_${blueprint.filename}`
+            imageRef,
+            completedCrop,
+            `cropped_${blueprint!.filename}`
         );
 
         const payload: CreateCropPayload = {
@@ -210,16 +240,16 @@ const BlueprintView = () => {
             projectId: projectId!,
             organizationId: organizationId!,
             tags,
-            originalBlueprintId: blueprint._id,
-        }
+            originalBlueprintId: blueprint!._id,
+            width: imageRes.width,
+            height: imageRes.height,
+        };
 
-        console.log("PAYLOAD : ", payload)
-
-        const success = await BlueprintViewService.createBlueprint(payload)
-        setIsUploadingCrop(false)
+        const success = await BlueprintViewService.createBlueprint(payload);
+        setIsUploadingCrop(false);
 
         if (success) {
-            setCropSuccesfullyUploaded(true)
+            setCropSuccesfullyUploaded(true);
         } else {
             setErrorAlertMessage("Error uploading cropped image");
             setOpenErrorAlert(true);
@@ -227,12 +257,15 @@ const BlueprintView = () => {
     };
 
     const handleCancelCrop = () => {
-        setCropMode(false)
-        setCroppedAreaPixels(null)
-        setZoom(1)
-        setCrop({ x:0 , y:0 })
-        setOpenBlueprintForm(false)
-    }
+        setCropMode(false);
+        setCompletedCrop(null);
+        setCropZoom(1);
+        setOpenBlueprintForm(false);
+        setImageRes({
+            width: 0,
+            height: 0,
+        })
+    };
 
     const handleMagicCrop = () => {
         console.log("Magic crop")
@@ -471,8 +504,8 @@ const BlueprintView = () => {
                             src={blueprtinImageUrl!}
                             alt={blueprint!.filename}
                             style={{
-                                width: "90%",
-                                height: "90%",
+                                width: "70%",
+                                height: "70%",
                                 objectFit: "cover",
                             }}
                             onError={(e) => {
@@ -486,41 +519,90 @@ const BlueprintView = () => {
                 {cropMode && (
                     <div
                         style={{
-                        marginTop: "25px",
-                        position: "relative",
-                        width: "100%",
-                        height: "70vh",
+                            marginTop: "25px",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: "10px",
+                            width: "100%",
                         }}
                     >
-                        <Cropper
-                            image={blueprtinImageUrl!}
-                            crop={crop}
-                            zoom={zoom}
-                            aspect={4 / 3}
-                            objectFit="cover"
-                            onCropChange={setCrop}
-                            onZoomChange={setZoom}
-                            onCropComplete={onCropComplete}
-                        />
+                        {/* ZOOM */}
+                        <div>
+                            <p className="info-text" style={{ textAlign: "center" }}>Crop Zoom Level</p>
+                            <input
+                                type="range"
+                                min={1}
+                                max={3}
+                                step={0.1}
+                                value={cropZoom}
+                                onChange={(e) => setCropZoom(Number(e.target.value))}
+                                style={{
+                                    accentColor: "var(--text-h)",
+                                    width: "300px",
+                                }}
+                            />
+                        </div>
 
-                        {/* botones */}
+                        {/* CONTENEDOR CON SCROLL */}
                         <div
-                        style={{
-                            position: "absolute",
-                            bottom: "10px",
-                            left: "50%",
-                            transform: "translateX(-50%)",
-                            display: "flex",
-                            gap: "10px",
-                        }}
+                            style={{
+                                width: "100%",
+                                maxWidth: "900px",
+                                height: "70vh",
+                                border: "1px solid var(--border)",
+                                borderRadius: "8px",
+                                overflowX: "auto",
+                                overflowY: "auto",
+                                background: "var(--bg)",
+                                position: "relative",
+                                display: "block",
+                            }}
                         >
-                        <Button onClick={() => setOpenBlueprintForm(true)}>Confirm crop</Button>
-                        <Button variant="outline" onClick={() => setCropMode(false)}>
-                            Cancel
-                        </Button>
+                            {/* WRAPPER DE ANCHO DINÁMICO */}
+                            <div 
+                                style={{ 
+                                    width: `${cropZoom * 100}%`,
+                                    minWidth: "100%",
+                                    display: "block",
+                                }}
+                            >
+                                <ReactCrop
+                                    crop={crop}
+                                    onChange={(c) => setCrop(c)}
+                                    onComplete={(c) => setCompletedCrop(c)}
+                                    style={{ 
+                                        display: "block",
+                                        width: "100%"
+                                    }} 
+                                >
+                                    <img
+                                        src={blueprtinImageUrl!}
+                                        onLoad={onImageLoad}
+                                        style={{
+                                            display: "block",
+                                            width: "100%",
+                                            height: "auto",
+                                            maxWidth: "none",
+                                            minWidth: "none",
+                                            border: "none",
+                                        }}
+                                    />
+                                </ReactCrop>
+                            </div>
+                        </div>
+
+                        {/* BOTONES */}
+                        <div className="flex gap-2 mt-4">
+                            <Button onClick={() => setOpenBlueprintForm(true)}>
+                                Confirm crop
+                            </Button>
+                            <Button variant="outline" onClick={handleCancelCrop}>
+                                Cancel
+                            </Button>
                         </div>
                     </div>
-                    )}
+                )}
 
                     {/* ================= DIALOG CREATE BLUEPRINT ================= */}
                     <Dialog open={openBlueprintForm} onOpenChange={setOpenBlueprintForm}>

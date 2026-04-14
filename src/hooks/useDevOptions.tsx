@@ -13,6 +13,10 @@ export function useDevOptions() {
     const [organizationsWithMembers, setOrganizationsWithMembers] = useState<OrganizationWithMembers[]>([])
     const [users, setUsers] = useState<UserType[]>([])
 
+    const [organizationBlueprintCounts, setOrganizationBlueprintCounts] = useState<
+        { organizationId: string; count: number }[]
+    >([])
+
     const loadDevOptions = useCallback(async () => {
         try{
 
@@ -24,6 +28,11 @@ export function useDevOptions() {
 
             const usersData = await DevOptionsService.getAllUsers()
             setUsers(usersData)
+
+            const counts = await DevOptionsService.getBlueprintCountsByOrganizationIds(
+                organizationsData.map(org => org._id)
+            )
+            setOrganizationBlueprintCounts(counts)
 
         } catch (err: any) {
             setError(err)
@@ -38,6 +47,7 @@ export function useDevOptions() {
 
     return {
         organizationsWithMembers,
+        organizationBlueprintCounts,
         users,
         loading,
         error,

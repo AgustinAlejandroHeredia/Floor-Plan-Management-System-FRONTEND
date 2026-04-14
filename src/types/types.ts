@@ -9,6 +9,7 @@ export interface OrganizationType {
   contactEmail: string
   contactPhone: string
   record: string
+  maxBlueprints: string
 }
 
 export interface CreateOrganizationPayload {

@@ -29,7 +29,7 @@ type Member = {
 type Props = {
   member: Member;
   onViewUser: (userId: string) => void;
-  onRemoveUser: (userId: string) => void;
+  onRemoveUser?: (userId: string) => void;
 };
 
 const OrganizationMemberItem = ({
@@ -94,7 +94,7 @@ const OrganizationMemberItem = ({
           <FaUserAlt className="w-4 h-4 text-white group-hover/button:text-black transition-colors" />
         </Button>
 
-        {!cannotBeRemoved && (
+        {!cannotBeRemoved && onRemoveUser && (
           <Button
             variant="ghost"
             size="icon"

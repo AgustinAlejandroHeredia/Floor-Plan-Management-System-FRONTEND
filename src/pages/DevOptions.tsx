@@ -62,7 +62,7 @@ const DevOptions = () => {
     const [errorMessage, setErrorMessage] = useState<string>("")
 
     // HOOK
-    const { organizationsWithMembers, users, loading, error, refreshContent } = useDevOptions()
+    const { organizationsWithMembers, organizationBlueprintCounts, users, loading, error, refreshContent } = useDevOptions()
 
     const handleCreateOrganization = async (e: React.SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -131,12 +131,12 @@ const DevOptions = () => {
         setOpenEditOrganization(true)
     };
  
-    const handleViewUserProfile = () => {
-
+    const handleViewUserProfile = (userId: string) => {
+        console.log("VIEW USER PROFILE : ", userId)
     }
 
-    const handleKickUser = () => {
-
+    const handleKickUser = (userId: string) => {
+        console.log("KICK USER : ", userId)
     }
 
     const handleViewOrganization = (organizationId: string, organizationName: string) => {
@@ -376,6 +376,10 @@ const DevOptions = () => {
                         {org.record}
                         </CardTitle>
 
+                        <CardTitle className="text-[var(--text-h)]">
+                        Blueprints uploaded: {organizationBlueprintCounts.find((item)=>item.organizationId === org._id)?.count ?? 9999}/{org.maxBlueprints}
+                        </CardTitle>
+
                         <div className="mt-4">
 
                             <h3 className="sub-heading-2">
@@ -387,8 +391,8 @@ const DevOptions = () => {
                                     <OrganizationMemberItem
                                         key={org.members[0]._id}
                                         member={org.members[0]}
-                                        onViewUser={handleViewUserProfile}
-                                        onRemoveUser={handleKickUser}
+                                        onViewUser={() => handleViewUserProfile(org.members[0]._id)}
+                                        onRemoveUser={() => handleKickUser(org.members[0]._id)}
                                     />
                                 </div>
                             )}
@@ -401,8 +405,8 @@ const DevOptions = () => {
                                                 <OrganizationMemberItem
                                                     key={member._id}
                                                     member={member}
-                                                    onViewUser={handleViewUserProfile}
-                                                    onRemoveUser={handleKickUser}
+                                                    onViewUser={() => handleViewUserProfile(member._id)}
+                                                    onRemoveUser={() => handleKickUser(member._id)}
                                                 />
                                             ))}
                                         </ItemGroup>
@@ -659,7 +663,7 @@ const DevOptions = () => {
 
             <div className="main-content-item">
 
-                <h3 className="sub-heading">Users ({users.length}): </h3>
+                <h3 className="sub-heading">Platform users ({users.length}): </h3>
 
                 <Card
                     className="bg-[var(--accent-bg)] w-full"
@@ -670,8 +674,7 @@ const DevOptions = () => {
                             <OrganizationMemberItem
                                 key={users[0]._id}
                                 member={users[0]}
-                                onViewUser={handleViewUserProfile}
-                                onRemoveUser={handleKickUser}
+                                onViewUser={() => handleViewUserProfile(users[0]._id)}
                             />
                         )}
 
@@ -683,8 +686,7 @@ const DevOptions = () => {
                                             <OrganizationMemberItem
                                                 key={user._id}
                                                 member={user}
-                                                onViewUser={handleViewUserProfile}
-                                                onRemoveUser={handleKickUser}
+                                                onViewUser={() => handleViewUserProfile(user._id)}
                                             />
                                         ))}
                                     </ItemGroup>

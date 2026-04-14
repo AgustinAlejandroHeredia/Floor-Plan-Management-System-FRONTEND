@@ -47,4 +47,11 @@ export const DevOptionsService = {
         return orgsWithMembers
     },
 
+    getBlueprintCountsByOrganizationIds: async (
+        organizationIds: string[]
+    ): Promise<{ organizationId: string; count: number }[]> => {
+        const response = await api.get(`/blueprints/counts/${organizationIds}`)
+        return response.data
+    },
+
 }

@@ -9,11 +9,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Field, FieldGroup } from "@/components/ui/field"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Field, FieldError, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label";
 import { useDevOptions } from "@/hooks/useDevOptions";
-import type { CreateOrganizationPayload } from "@/types/types";
+import type { CreateOrganizationPayload, UpdateOrganizationPayload, OrganizationType } from "@/types/types";
 import { useState } from "react"
 import { DevOptionsService } from "@/services/DevOptionsService";
 
@@ -25,20 +33,33 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ItemGroup } from "@/components/ui/item";
 import OrganizationMemberItem from "@/components/OrganizationMemberItem";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
+import { useNavigate } from "react-router-dom"
 
 const DevOptions = () => {
 
-    // CREATION VARIABLES
-    const [openCreateOrganization, setOpenCreateOrganization] = useState<boolean>(false)
-    const [organizationCreationError, setOrganizationCreationError] = useState<boolean>(false)
-    const [isCreatingOrganization, setIsCreatingOrganization] = useState<boolean>(false)
+    const navigate = useNavigate()
 
+    // CREATION VARIABLES
+    const [selectedAdminId, setSelectedAdminId] = useState<string>("");
+    const [openCreateOrganization, setOpenCreateOrganization] = useState<boolean>(false)
+    const [isCreatingOrganization, setIsCreatingOrganization] = useState<boolean>(false)
+    
     // DELETE VARIABLES
     const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false)
     const [isDeletingOrganization, setIsDeletingOrganization] = useState<boolean>(false)
 
     // EDIT VARIABLES
+    const [selectedOrganization, setSelectedOrganization] = useState<OrganizationType>()
     const [openEditOrganization, setOpenEditOrganization] = useState<boolean>(false)
+    const [isSavingChanges, setIsSavingChanges] = useState<boolean>(false)
+
+    // INVITE VARIABLES
+    const [openInvitationDialog, setOpenInvitationDialog] = useState<boolean>(false)
+    const [showInvitationHelp, setShowInvitationHelp] = useState<boolean>(false)
+    const [isInviting, setIsInviting] = useState<boolean>(false)
+
+    const [openError, setOpenError ] = useState<boolean>(false)
+    const [errorMessage, setErrorMessage] = useState<string>("")
 
     // HOOK
     const { organizationsWithMembers, users, loading, error, refreshContent } = useDevOptions()
@@ -46,6 +67,13 @@ const DevOptions = () => {
     const handleCreateOrganization = async (e: React.SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault()
 
+        if(!selectedAdminId){
+            setErrorMessage("You must select an admin user for this new organization.")
+            setOpenError(true)
+            return
+        }
+
+        setOpenCreateOrganization(false)
         setIsCreatingOrganization(true)
 
         const form = e.currentTarget
@@ -53,27 +81,42 @@ const DevOptions = () => {
 
         try {
 
-            const data: CreateOrganizationPayload = {
+            const payload: CreateOrganizationPayload = {
                 name: formData.get("name") as string,
                 address: formData.get("address") as string,
                 contactEmail: formData.get("contactEmail") as string,
                 contactPhone: formData.get("contactPhone") as string,
                 record: formData.get("record") as string,
+                adminId: selectedAdminId,
             }
 
-            const response = await DevOptionsService.createOrganization(data)
-            console.log("ORGANIZATION DATA RESPONSE : ", response.data)
+            await DevOptionsService.createOrganization(payload)
 
+            form.reset()
+            setSelectedAdminId("")
             setIsCreatingOrganization(false)
             refreshContent()
 
         } catch (error) {
-            setIsCreatingOrganization(false)
-            console.log("An error has ocurred while creating new organization.")
-            setOrganizationCreationError(true)
+            setErrorMessage("An error has occurred while creating new organization.")
+            setOpenError(true)
         }
     }
 
+    const handleSelectOrganizationForEdit = (organizationId: string) => {
+        const organization = organizationsWithMembers.find(
+            (org) => org._id === organizationId
+        )
+        if (!organization){ 
+            console.log("ERROR")
+            setOpenError(true)
+            return
+        }
+        const { members, ...organizationData } = organization;
+        setSelectedOrganization(organizationData)
+        setOpenEditOrganization(true)
+    };
+ 
     const handleViewUserProfile = () => {
 
     }
@@ -82,20 +125,68 @@ const DevOptions = () => {
 
     }
 
-    const handleViewOrganization = (organizationId: string) => {
+    const handleViewOrganization = (organizationId: string, organizationName: string) => {
+        navigate(`/OrganizationPage/${organizationName}/${organizationId}`)
+    }
+
+    const handleEditOrganization = async (organizationId: string, e: React.SyntheticEvent<HTMLFormElement>) => {
+        e.preventDefault()
+
+        setOpenEditOrganization(false)
+        setIsSavingChanges(true)
+
+        const form = e.currentTarget
+        const formData = new FormData(form)
+
+        try {
+
+            const payload: UpdateOrganizationPayload = {
+                name: formData.get("name") as string,
+                address: formData.get("address") as string,
+                contactEmail: formData.get("contactEmail") as string,
+                contactPhone: formData.get("contactPhone") as string,
+                record: formData.get("record") as string,
+            }
+
+            await DevOptionsService.updateOrganization(organizationId, payload)
+
+            form.reset()
+            setSelectedOrganization(undefined)
+            setIsSavingChanges(false)
+            refreshContent()
+
+        } catch (error) {
+            setErrorMessage("An error has occurred while saving changes. Please try again later.")
+            setOpenError(true)
+        }
 
     }
 
-    const handleEditOrganization = (organizationId: string, e: React.SyntheticEvent<HTMLFormElement>) => {
-
+    const showOrHideSendInvitation = () => {
+        if(showInvitationHelp) {
+            setShowInvitationHelp(false)
+        } else {
+            setShowInvitationHelp(true)
+        }
     }
 
-    const handleAddUserToOrganization = (organizationId: string) => {
-
+    const handleSendInvitation = (organizationId: string, e: React.SyntheticEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        console.log("ORGANIZATION ID SELECTED : ", organizationId)
     }
 
-    const handleDeleteOrganization = (organizationId: string) => {
+    const handleDeleteOrganization = async (organizationId: string) => {
+        setIsDeletingOrganization(true)
+        try {
+            await DevOptionsService.deleteOrganization(organizationId)
 
+        } catch (error) {
+            setErrorMessage("An error has occurred while deleting organization. Please try again later.")
+            setOpenError(true)
+        } finally {
+            setIsDeletingOrganization(false)
+            refreshContent()
+        }
     }
 
     if(loading) return <Loading/>
@@ -124,13 +215,13 @@ const DevOptions = () => {
                                 <DialogTitle>Creating new organization</DialogTitle>
                             </DialogHeader>
 
-                            <FieldGroup>
+                            <FieldGroup className="space-y-4 my-6">
 
                                 <Field>
-                                    <Label htmlFor="organizationName-1">Organization name</Label>
+                                    <Label htmlFor="name">Organization name</Label>
                                     <Input
-                                        id="organizationName-1"
-                                        name="organizationName"
+                                        id="name"
+                                        name="name"
                                         required
                                         minLength={3}
                                         maxLength={100}
@@ -138,9 +229,9 @@ const DevOptions = () => {
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="organizationName-1">Address</Label>
+                                    <Label htmlFor="address">Address</Label>
                                     <Input
-                                        id="address-1"
+                                        id="address"
                                         name="address"
                                         required
                                         minLength={3}
@@ -149,10 +240,10 @@ const DevOptions = () => {
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="email-1">Email</Label>
+                                    <Label htmlFor="contactEmail">Email</Label>
                                     <Input
-                                        id="email-1"
-                                        name="email"
+                                        id="contactEmail"
+                                        name="contactEmail"
                                         required
                                         minLength={3}
                                         maxLength={100}
@@ -160,10 +251,10 @@ const DevOptions = () => {
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="phone-1">Phone</Label>
+                                    <Label htmlFor="contactPhone">Phone</Label>
                                     <Input
-                                        id="phone-1"
-                                        name="phone"
+                                        id="contactPhone"
+                                        name="contactPhone"
                                         required
                                         minLength={3}
                                         maxLength={20}
@@ -171,14 +262,37 @@ const DevOptions = () => {
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="record-1">Record</Label>
+                                    <Label htmlFor="record">Record</Label>
                                     <Input
-                                        id="record-1"
+                                        id="record"
                                         name="record"
                                         required
                                         minLength={3}
                                         maxLength={50}
                                     />
+                                </Field>
+
+                                <Field>
+                                    <Label htmlFor="admin">Select admin</Label>
+                                    <Select onValueChange={setSelectedAdminId}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select admin"/>
+                                        </SelectTrigger>
+                                        <SelectContent position="popper">
+                                            <SelectGroup>
+                                                {users.map((user) => (
+                                                    <SelectItem key={user._id} value={user._id}>
+                                                        <div className="flex flex-col items-center text-center">
+                                                            <span className="font-medium">{user.name}</span>
+                                                            <span className="text-sm text-muted-foreground">
+                                                            {user.email}
+                                                            </span>
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
                                 </Field>
 
                             </FieldGroup>
@@ -202,20 +316,13 @@ const DevOptions = () => {
                     description="Please wait while this new organization is being created..."
                 />
 
-                {/* ORGANIZATION CREATION ERROR */}
-                <InfoDialog
-                    open={organizationCreationError}
-                    onOpenChange={setOrganizationCreationError}
-                    title="Error"
-                    description="An error has ocurred while creating new organization."
-                />
-
             </div>
 
             <div className="main-content-item">
 
                 <h3 className="sub-heading">Organizations ({organizationsWithMembers.length}): </h3>
 
+                <div className="space-y-4">
                 {organizationsWithMembers.map((org) => (
                     <Card
                         key={org._id}
@@ -288,21 +395,21 @@ const DevOptions = () => {
                         <div className="flex gap-3 mt-4">
                             <Button
                                 variant="outline"
-                                onClick={() => handleViewOrganization(org._id)}
+                                onClick={() => handleViewOrganization(org._id, org.name)}
                             >
                                 View organization
                             </Button>
                             <Button
                                 variant="outline"
-                                onClick={() => setOpenEditOrganization(true)}
+                                onClick={() => handleSelectOrganizationForEdit(org._id)}
                             >
                                 Edit organization
                             </Button>
                             <Button
                                 variant="outline"
-                                onClick={() => handleAddUserToOrganization(org._id)}
+                                onClick={() => setOpenInvitationDialog(true)}
                             >
-                                Add user
+                                Invite user
                             </Button>
                             <Button
                                 variant="destructive"
@@ -315,7 +422,7 @@ const DevOptions = () => {
 
                         </CardContent>
 
-                        {/* ADD USER TO ORGANIZATION */}
+                        {/* EDIT ORGANIZATION */}
                         <Dialog open={openEditOrganization} onOpenChange={setOpenEditOrganization}>
                             <DialogContent className="sm:max-w-sm">
                                 <form onSubmit={(e) => handleEditOrganization(org._id, e)}>
@@ -328,65 +435,65 @@ const DevOptions = () => {
                                         </DialogDescription>
                                     </DialogHeader>
 
-                                    <FieldGroup>
+                                    <FieldGroup className="space-y-4 my-6">
 
                                         <Field>
-                                            <Label htmlFor="organizationName-1">Organization name</Label>
+                                            <Label htmlFor="name">Organization name</Label>
                                             <Input
-                                                id="organizationName-1"
-                                                name="organizationName"
+                                                id="name"
+                                                name="name"
                                                 required
                                                 minLength={3}
                                                 maxLength={100}
-                                                defaultValue={org.name}
+                                                defaultValue={selectedOrganization?.name}
                                             />
                                         </Field>
 
                                         <Field>
-                                            <Label htmlFor="organizationName-1">Address</Label>
+                                            <Label htmlFor="address">Address</Label>
                                             <Input
-                                                id="address-1"
+                                                id="address"
                                                 name="address"
                                                 required
                                                 minLength={3}
                                                 maxLength={200}
-                                                defaultValue={org.address}
+                                                defaultValue={selectedOrganization?.address}
                                             />
                                         </Field>
 
                                         <Field>
-                                            <Label htmlFor="email-1">Email</Label>
+                                            <Label htmlFor="contactEmail">Email</Label>
                                             <Input
-                                                id="email-1"
-                                                name="email"
+                                                id="contactEmail"
+                                                name="contactEmail"
                                                 required
                                                 minLength={3}
                                                 maxLength={100}
-                                                defaultValue={org.contactEmail}
+                                                defaultValue={selectedOrganization?.contactEmail}
                                             />
                                         </Field>
 
                                         <Field>
-                                            <Label htmlFor="phone-1">Phone</Label>
+                                            <Label htmlFor="contactPhone">Phone</Label>
                                             <Input
-                                                id="phone-1"
-                                                name="phone"
+                                                id="contactPhone"
+                                                name="contactPhone"
                                                 required
                                                 minLength={3}
                                                 maxLength={20}
-                                                defaultValue={org.contactPhone}
+                                                defaultValue={selectedOrganization?.contactPhone}
                                             />
                                         </Field>
 
                                         <Field>
-                                            <Label htmlFor="record-1">Record</Label>
+                                            <Label htmlFor="record">Record</Label>
                                             <Input
-                                                id="record-1"
+                                                id="record"
                                                 name="record"
                                                 required
                                                 minLength={3}
                                                 maxLength={50}
-                                                defaultValue={org.record}
+                                                defaultValue={selectedOrganization?.record}
                                             />
                                         </Field>
 
@@ -403,6 +510,105 @@ const DevOptions = () => {
                             </DialogContent>
                         </Dialog>
 
+                        {/* SAVING CHANGES */}
+                        <Toast
+                            open={isSavingChanges}
+                            title="Saving changes"
+                            description="Please wait while your changes are saved..."
+                        />
+
+                        {/* USER INVITATION DIALOG */}
+                        <Dialog open={openInvitationDialog} onOpenChange={setOpenInvitationDialog}>
+                        <DialogContent className="sm:max-w-sm">
+                            <form onSubmit={(e) => handleSendInvitation(org._id, e)}>
+                                <DialogHeader>
+                                    <DialogTitle>Send invitation</DialogTitle>
+                                    <DialogDescription>
+                                        Here you can send an invitation to the email you enter.
+                                    </DialogDescription>
+                                </DialogHeader>
+
+                                <FieldGroup className="space-y-4 my-6">
+
+                                    <Field>
+                                        <Label htmlFor="email">Email *</Label>
+                                        <Input 
+                                            id="email"
+                                            name="email"
+                                            required
+                                            minLength={6}
+                                            maxLength={100}
+                                        ></Input>
+                                    </Field>
+
+                                    <Field>
+                                        <Label htmlFor="email">Role within organization</Label>
+                                        <Select defaultValue="member">
+                                            <SelectTrigger>
+                                                <SelectValue/>
+                                            </SelectTrigger>
+                                            <SelectContent
+                                                position="popper"
+                                            >
+                                                <SelectGroup>
+                                                    <SelectItem value="member">Member</SelectItem>
+                                                    <SelectItem value="admin">Admin</SelectItem>
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
+                                    </Field>
+
+                                </FieldGroup>
+                                
+                                {!showInvitationHelp && (
+                                    <Button
+                                        variant="link"
+                                        className="mb-4"
+                                        onClick={showOrHideSendInvitation}
+                                    >
+                                        More info
+                                    </Button>
+                                )}
+
+                                {showInvitationHelp && (
+                                    <div className="mb-4">
+                                        <p className="comment-text">
+                                            Once you enter the email address of the user you wish to invite and select the role they will have (Member by default), an email will be sent containing a code/token. The invited user can then enter this code/token in the "Home" section under "Join Organization." Upon entering the code/token, access to your organization will be granted. 
+                                        </p>
+                                        <Button
+                                            onClick={showOrHideSendInvitation}
+                                        >
+                                            Close information
+                                        </Button>
+                                    </div>
+                                )}
+
+                                <DialogFooter>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setOpenInvitationDialog(false)}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                    >
+                                        Send
+                                    </Button>
+                                </DialogFooter>
+
+                            </form>
+                        </DialogContent>
+                        </Dialog>
+
+                        {/* SENDING INVITATION */}
+                        <Toast
+                            open={isInviting}
+                            title="Sending invite"
+                            description="Please wait while your invitations is being sent..."
+                        />
+
                         {/* DELETE ALERT DIALOG */}
                         <ConfirmDeleteDialog
                             open={openDeleteDialog}
@@ -414,6 +620,7 @@ const DevOptions = () => {
 
                     </Card>
                 ))}
+                </div>
 
                 <Toast
                     open={isDeletingOrganization}
@@ -462,6 +669,14 @@ const DevOptions = () => {
                 </Card>
 
             </div>
+
+            {/* ERROR ALERT */}
+            <InfoDialog
+                open={openError}
+                onOpenChange={setOpenError}
+                title="Error"
+                description={errorMessage}
+            />
         
         </div>
     )

@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { OrganizationService } from "@/services/OrganizationService";
 import BreadcrumbBar from "@/components/BreadcrumbBar";
 import { useOrganization } from "@/hooks/useOrganization";
@@ -33,6 +34,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { EmptyProjects } from "@/components/EmptyProjects";
 import Loading from "@/components/Loading";
 import { Separator } from "@/components/ui/separator";
@@ -51,15 +61,16 @@ const OrganizationPage = () => {
     const { name, id } = useParams<{ name: string, id: string }>()
 
     const navigate = useNavigate()
+    const usersSectionRef = useRef<HTMLDivElement | null>(null);
 
     // CREATION VARIABLES
-    const [open, setOpen] = useState(false);
+    const [openCreationDialog, setOpenCreationDialog] = useState(false);
     const [errorOpen, setErrorOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
     // INVITATION VARIABLES
-    const [ invitationEmail, setInvitationEmail ] = useState<string>("")
-    const [ showInvitationHelp, setShowInvitationHelp ] = useState<boolean>(false)
+    const [openInvitationDialog, setOpenInvitationDialog] = useState<boolean>(false)
+    const [showInvitationHelp, setShowInvitationHelp] = useState<boolean>(false)
 
     // HOOK
     const { projects, projectThumbnails, userOrganizationRole, organizationMembersList, loadingOrganizationProjects, error, refreshProjects } = useOrganization(id!)
@@ -106,7 +117,7 @@ const OrganizationPage = () => {
                 return
             }
 
-            setOpen(false)
+            setOpenCreationDialog(false)
             form.reset()
 
             refreshProjects()
@@ -128,11 +139,21 @@ const OrganizationPage = () => {
         }
     }
 
-    const handleSendInvitation = (invitationEmail: string) => {
+    const handleSendInvitation = (
+        e: React.SyntheticEvent<HTMLFormElement>,
+    ) => {
+        e.preventDefault()
         console.log("SENDS INVITATION EMAIL TO BACKEND")
     }
 
     // USERS
+
+    const handleScrollToUsers = () => {
+        usersSectionRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        })
+    }
 
     const handleViewUserProfile = (userId: string) => {
         console.log("VIEW USER PROFILE : ", userId)
@@ -161,121 +182,24 @@ const OrganizationPage = () => {
             {projects.length === 0 ? (
             <EmptyProjects
                 userRole={userOrganizationRole} 
-                onCreateClick={() => setOpen(true)} 
+                onCreateClick={() => setOpenCreationDialog(true)} 
             />
             ) : (
-            <div className="main-content-item">
 
-                <h1 className="sub-heading">{name}'s projects</h1>
-
-                <div
-                style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-                    gap: "16px",
-                    justifyContent: "center",
-                    padding: "16px",
-                    maxWidth: "1700px",
-                    margin: "0 auto",
-                }}
-                >
-                {projects.map((project, index) => (
-                    <Card
-                        key={index}
-                        className="cursor-pointer transition-colors duration-200 bg-[var(--accent-bg)] hover:bg-[var(--accent-bg2)] max-w-md"
-                        onClick={() => handleSelectProject(project.projectName, project._id)}
-                    >
-                    <CardContent>
-
-                        <CardTitle className="text-[var(--text-h)]">
-                        {project.projectName}
-                        </CardTitle>
-
-                        <CardTitle className="text-[var(--text)]">
-                        Tec. Direction: {project.technicalDirection}
-                        </CardTitle>
-
-                        <CardTitle className="text-[var(--text)]">
-                        Address: {project.address}
-                        </CardTitle>
-
-                        <CardTitle className="text-[var(--text)]">
-                        Status: {project.status}
-                        </CardTitle>
-
-                        <CardTitle className="text-[var(--text)]">
-                        Record: {project.record}
-                        </CardTitle>
-
-                        <div
-                        style={{
-                            width: "100%",
-                            height: "260px",
-                            overflow: "hidden",
-                            borderRadius: "6px",
-                            marginTop: "10px",
-                            marginBottom: "10px",
-                            background: "#eee",
-                        }}
-                        >
-                        {projectThumbnails[project._id] ? (
-                            <img
-                            src={projectThumbnails[project._id]}
-                            alt="project thumbnail"
-                            style={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                            }}
-                            />
-                        ) : (
-                            <div
-                            style={{
-                                textAlign: "center",
-                                paddingTop: "60px",
-                                fontSize: "12px",
-                                color: "#999",
-                            }}
-                            >
-                            No blueprint uploaded yet for this project
-                            </div>
-                        )}
-                        </div>
-
-                    </CardContent>
-                    </Card>
-                ))}
-                </div>
-
-            </div>
-            )}
-
-        </div>
-
-        {userOrganizationRole === "admin" && (
             <>
-            <Separator />
 
-            <div className="main-content">
+                <div className="main-content-item flex gap-4">
+                    
+                    <Button
+                        variant="ghost"
+                        className="text-[var(--text)]"
+                        onClick={() => setOpenCreationDialog(true)}
+                    >
+                        Create project
+                    </Button>
 
-                <h1 className="sub-heading">Admin Options</h1>
-
-                {/* CREATE NEW PROJECT */}
-                <div className="main-content-item">
-
-                    <h3 className="sub-heading-2">
-                        Create new project
-                    </h3>
-
-                    <Dialog open={open} onOpenChange={setOpen}>
-                        <DialogTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                className="text-[var(--text)]"
-                            >
-                                Press here to open the project creation tab. 
-                            </Button>
-                        </DialogTrigger>
+                    {/* PROJECT CREATION DIALOG */}
+                    <Dialog open={openCreationDialog} onOpenChange={setOpenCreationDialog}>
                         <DialogContent className="sm:max-w-sm">
 
                             <form onSubmit={handleCreateProject}>
@@ -418,55 +342,210 @@ const OrganizationPage = () => {
                             </AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>
+                    
+                    <Button
+                        variant="ghost"
+                        className="text-[var(--text)]"
+                        onClick={() => setOpenInvitationDialog(true)}
+                    >
+                        Invite member
+                    </Button>
 
+                    <Dialog open={openInvitationDialog} onOpenChange={setOpenInvitationDialog}>
+                        <DialogContent className="sm:max-w-sm">
+                            <form onSubmit={handleSendInvitation}>
+                                <DialogHeader>
+                                    <DialogTitle>Send invitation</DialogTitle>
+                                    <DialogDescription>
+                                        Here you can send an invitation to the email you enter.
+                                    </DialogDescription>
+                                </DialogHeader>
+
+                                <FieldGroup className="space-y-4 my-6">
+
+                                    <Field>
+                                        <Label htmlFor="email">Email *</Label>
+                                        <Input 
+                                            id="email"
+                                            name="email"
+                                            required
+                                            minLength={6}
+                                            maxLength={100}
+                                        ></Input>
+                                    </Field>
+
+                                    {userOrganizationRole?.toLowerCase() === "admin" && (
+                                        <Field>
+                                            <Label htmlFor="email">Role within organization</Label>
+                                            <Select defaultValue="member">
+                                                <SelectTrigger>
+                                                    <SelectValue/>
+                                                </SelectTrigger>
+                                                <SelectContent
+                                                    position="popper"
+                                                >
+                                                    <SelectGroup>
+                                                        <SelectItem value="member">Member</SelectItem>
+                                                        <SelectItem value="admin">Admin</SelectItem>
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                        </Field>
+                                    )}
+
+                                </FieldGroup>
+                                
+                                {!showInvitationHelp && (
+                                    <Button
+                                        variant="link"
+                                        className="mb-4"
+                                        onClick={showOrHideSendInvitation}
+                                    >
+                                        More info
+                                    </Button>
+                                )}
+
+                                {showInvitationHelp && (
+                                    <div className="mb-4">
+                                        <p className="comment-text">
+                                            Once you enter the email address of the user you wish to invite and select the role they will have (Member by default), an email will be sent containing a code/token. The invited user can then enter this code/token in the "Home" section under "Join Organization." Upon entering the code/token, access to your organization will be granted. 
+                                        </p>
+                                        <Button
+                                            onClick={showOrHideSendInvitation}
+                                        >
+                                            Close information
+                                        </Button>
+                                    </div>
+                                )}
+
+                                <DialogFooter>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setOpenInvitationDialog(false)}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                    >
+                                        Send
+                                    </Button>
+                                </DialogFooter>
+
+                            </form>
+                        </DialogContent>
+                    </Dialog>
+
+                    <Button
+                        variant="ghost"
+                        className="text-[var(--text)]"
+                        onClick={handleScrollToUsers}
+                    >
+                        View members
+                    </Button>
+                
                 </div>
 
-                {/* INVITE */}
+
                 <div className="main-content-item">
-                <h3 className="sub-heading-2">Invite member</h3>
 
-                <Field orientation="horizontal">
-                    <Input 
-                    type="search" 
-                    placeholder="Email / Example : member@gmail.com" 
-                    className="w-full max-w-xs text-[var(--text-h)]"
-                    value={invitationEmail}
-                    onChange={(e) => setInvitationEmail(e.target.value)}
-                    />
-                    <Button onClick={() => handleSendInvitation(invitationEmail)}>
-                    Send
-                    </Button>
-                </Field>
+                    <h1 className="sub-heading">{name}'s projects</h1>
 
-                {showInvitationHelp ? (
-                    <div className="text-left">
-                    <p className="info-text">
-                        Enter the email address of the member you'd like to invite to your organization.
-                        They will receive an email containing a token/code, which they'll need to enter in the “Join Organization” section on the Home page after logging into the Floor Plan Management System.
-                    </p>
-                    <Button 
-                        variant="ghost" 
-                        className="!text-xs text-[var(--text)]"
-                        onClick={showOrHideSendInvitation}
+                    <div
+                    style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                        gap: "16px",
+                        justifyContent: "center",
+                        padding: "16px",
+                        maxWidth: "1700px",
+                        margin: "0 auto",
+                    }}
                     >
-                        Close help
-                    </Button>
+                    {projects.map((project, index) => (
+                        <Card
+                            key={index}
+                            className="cursor-pointer transition-colors duration-200 bg-[var(--accent-bg)] hover:bg-[var(--accent-bg2)] max-w-md"
+                            onClick={() => handleSelectProject(project.projectName, project._id)}
+                        >
+                        <CardContent>
+
+                            <CardTitle className="text-[var(--text-h)]">
+                            {project.projectName}
+                            </CardTitle>
+
+                            <CardTitle className="text-[var(--text)]">
+                            Tec. Direction: {project.technicalDirection}
+                            </CardTitle>
+
+                            <CardTitle className="text-[var(--text)]">
+                            Address: {project.address}
+                            </CardTitle>
+
+                            <CardTitle className="text-[var(--text)]">
+                            Status: {project.status}
+                            </CardTitle>
+
+                            <CardTitle className="text-[var(--text)]">
+                            Record: {project.record}
+                            </CardTitle>
+
+                            <div
+                            style={{
+                                width: "100%",
+                                height: "260px",
+                                overflow: "hidden",
+                                borderRadius: "6px",
+                                marginTop: "10px",
+                                marginBottom: "10px",
+                                background: "#eee",
+                            }}
+                            >
+                            {projectThumbnails[project._id] ? (
+                                <img
+                                src={projectThumbnails[project._id]}
+                                alt="project thumbnail"
+                                style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                }}
+                                />
+                            ) : (
+                                <div
+                                style={{
+                                    textAlign: "center",
+                                    paddingTop: "60px",
+                                    fontSize: "12px",
+                                    color: "#999",
+                                }}
+                                >
+                                No blueprint uploaded yet for this project
+                                </div>
+                            )}
+                            </div>
+
+                        </CardContent>
+                        </Card>
+                    ))}
                     </div>
-                ) : (
-                    <div className="text-left">
-                    <Button 
-                        variant="link" 
-                        className="text-[var(--text)] text-xs"
-                        onClick={showOrHideSendInvitation}
-                    >
-                        Help!
-                    </Button>
-                    </div>
-                )}
+
                 </div>
+            </>
+            )}
+
+        </div>
+
+            <Separator />
+
+            <div className="main-content">
 
                 {/* MEMBERS */}
-                <div className="main-content-item">
+                <div
+                    ref={usersSectionRef}
+                    className="main-content-item"
+                >
 
                 <h3 className="sub-heading-2">
                     Organization members ({organizationMembersList.length})
@@ -538,9 +617,6 @@ const OrganizationPage = () => {
                 </div>
 
             </div>
-
-            </>
-        )}
 
         </div>
     )

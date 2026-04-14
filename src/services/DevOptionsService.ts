@@ -1,10 +1,20 @@
 import { api } from "../api/api";
-import type { CreateOrganizationPayload, OrganizationType, OrganizationWithMembers } from "@/types/types";
+import type { CreateOrganizationPayload, OrganizationType, OrganizationWithMembers, UpdateOrganizationPayload } from "@/types/types";
 
 export const DevOptionsService = {
 
     createOrganization: async (payload: CreateOrganizationPayload) => {
         const response = await api.post("/organizations", payload) 
+        return response.data
+    },
+
+    updateOrganization: async (organizationId: string, payload: UpdateOrganizationPayload) => {
+        const response = await api.patch(`/organizations/${organizationId}`, payload)
+        return response.data
+    },
+
+    deleteOrganization: async (organizationId: string) => {
+        const response = await api.delete(`/deleteorganization/${organizationId}`)
         return response.data
     },
 

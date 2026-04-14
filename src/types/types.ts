@@ -17,6 +17,15 @@ export interface CreateOrganizationPayload {
   contactEmail: string
   contactPhone: string
   record: string
+  adminId: string
+}
+
+export interface UpdateOrganizationPayload {
+  name: string
+  address: string
+  contactEmail: string
+  contactPhone: string
+  record: string
 }
 
 export interface OrganizationHomeType {

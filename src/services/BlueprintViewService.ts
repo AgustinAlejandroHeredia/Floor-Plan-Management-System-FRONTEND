@@ -1,5 +1,5 @@
 import { api } from "../api/api";
-import type { BlueprintType, CreateBlueprintPayload } from "@/types/types";
+import type { BlueprintType, CreateBlueprintPayload, CreateCropPayload } from "@/types/types";
 
 export const BlueprintViewService = {
 
@@ -51,7 +51,7 @@ export const BlueprintViewService = {
         }
     },
 
-    createBlueprint: async (data: CreateBlueprintPayload): Promise<boolean> => {
+    createBlueprint: async (data: CreateCropPayload): Promise<boolean> => {
         try {
             const formData = new FormData();
 
@@ -59,6 +59,7 @@ export const BlueprintViewService = {
             formData.append("blueprintName", data.blueprintName);
             formData.append("projectId", data.projectId);
             formData.append("organizationId", data.organizationId);
+            formData.append("originalBlueprintId", data.originalBlueprintId)
 
             data.tags.forEach((tag, index) => {
                 formData.append(`tags[${index}]`, tag);

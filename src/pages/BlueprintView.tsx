@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 // IMAGE CROP
 import Cropper from "react-easy-crop";
 import { getCroppedImg, type CropArea } from "@/utils/cropImage";
-import type { CreateBlueprintPayload } from "@/types/types";
+import type { CreateBlueprintPayload, CreateCropPayload } from "@/types/types";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 import Toast from "@/components/Toast";
 import InfoDialog from "@/components/InfoDialog";
@@ -66,6 +66,8 @@ const BlueprintView = () => {
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<CropArea | null>(null);
     const [isUploadingCrop, setIsUploadingCrop] = useState<boolean>(false)
     const [cropSuccessfullyUploaded, setCropSuccesfullyUploaded] = useState<boolean>(false)
+
+    const [openBlueprintForm, setOpenBlueprintForm] = useState<boolean>(false)
 
     // ZOOM
     const [imageZoom, setImageZoom] = useState(1);
@@ -176,11 +178,25 @@ const BlueprintView = () => {
         setCroppedAreaPixels(croppedAreaPixels);
     };
 
-    const handleConfirmCrop = async () => {
+    const handleConfirmCrop = async (
+        e: React.SyntheticEvent<HTMLFormElement>
+    ) => {
+        e.preventDefault()
+
         if (!croppedAreaPixels || !blueprint?.downloadUrl) return;
 
         setCropMode(false);
         setIsUploadingCrop(true)
+
+        const form = e.currentTarget
+        const formData = new FormData(form)
+
+        const tagsRaw = (formData.get("tags") as string) || ""
+
+        const tags = tagsRaw
+            .split(",")
+            .map((t) => t.trim())
+            .filter((t) => t.length > 0)
 
         const file = await getCroppedImg(
             blueprtinImageUrl!,
@@ -188,12 +204,13 @@ const BlueprintView = () => {
             `cropped_${blueprint.filename}`
         );
 
-        const payload: CreateBlueprintPayload = {
+        const payload: CreateCropPayload = {
             file,
-            blueprintName: blueprint.blueprintName + "_cropped",
+            blueprintName: formData.get("blueprintName") as string,
             projectId: projectId!,
             organizationId: organizationId!,
-            tags: [],
+            tags,
+            originalBlueprintId: blueprint._id,
         }
 
         console.log("PAYLOAD : ", payload)
@@ -208,6 +225,14 @@ const BlueprintView = () => {
             setOpenErrorAlert(true);
         }
     };
+
+    const handleCancelCrop = () => {
+        setCropMode(false)
+        setCroppedAreaPixels(null)
+        setZoom(1)
+        setCrop({ x:0 , y:0 })
+        setOpenBlueprintForm(false)
+    }
 
     const handleMagicCrop = () => {
         console.log("Magic crop")
@@ -489,13 +514,70 @@ const BlueprintView = () => {
                             gap: "10px",
                         }}
                         >
-                        <Button onClick={handleConfirmCrop}>Confirm crop</Button>
+                        <Button onClick={() => setOpenBlueprintForm(true)}>Confirm crop</Button>
                         <Button variant="outline" onClick={() => setCropMode(false)}>
                             Cancel
                         </Button>
                         </div>
                     </div>
                     )}
+
+                    {/* ================= DIALOG CREATE BLUEPRINT ================= */}
+                    <Dialog open={openBlueprintForm} onOpenChange={setOpenBlueprintForm}>
+                        <DialogContent className="sm:max-w-sm">
+                        <form onSubmit={handleConfirmCrop}>
+
+                            <DialogHeader>
+                            <DialogTitle>Create crop</DialogTitle>
+                            <DialogDescription>
+                                Complete the fields and upload your crop.
+                            </DialogDescription>
+                            </DialogHeader>
+
+                            <FieldGroup>
+
+                            <Field>
+                                <Label htmlFor="blueprintName">Crop name *</Label>
+                                <Input
+                                id="blueprintName"
+                                name="blueprintName"
+                                required
+                                minLength={3}
+                                maxLength={100}
+                                placeholder={`${blueprint?.blueprintName}_crop` || "BlueprintName_crop"}
+                                />
+                            </Field>
+
+                            <Field>
+                                <Label htmlFor="tags">Tags *</Label>
+                                <Input
+                                id="tags"
+                                name="tags"
+                                placeholder="tag 1, tag 2, tag 3"
+                                minLength={3}
+                                maxLength={100}
+                                />
+                            </Field>
+
+                            </FieldGroup>
+
+                            <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => handleCancelCrop()}
+                            >
+                                Cancel
+                            </Button>
+
+                            <Button type="submit">
+                                Upload
+                            </Button>
+                            </DialogFooter>
+
+                        </form>
+                        </DialogContent>
+                    </Dialog>
 
                 </div>
 

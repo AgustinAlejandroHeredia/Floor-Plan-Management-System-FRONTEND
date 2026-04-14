@@ -128,6 +128,15 @@ export interface CreateBlueprintPayload {
   tags: string[]
 }
 
+export interface CreateCropPayload {
+  file: File
+  blueprintName: string
+  projectId: string
+  organizationId: string
+  tags: string[]
+  originalBlueprintId: string
+}
+
 export type allowedTypes =
   | "image/png"
   | "image/jpeg"

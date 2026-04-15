@@ -32,17 +32,16 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import DatePickerField from "@/components/DatePickerField";
 import { EmptyProjects } from "@/components/EmptyProjects";
 import Loading from "@/components/Loading";
 import { Separator } from "@/components/ui/separator";
@@ -68,6 +67,12 @@ const OrganizationPage = () => {
     const [errorOpen, setErrorOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
+    // CREATION VARIABLES / CUSTOM FIELDS
+    const [customFields, setCustomFields] = useState<{ name: string; type: string; value: any }[]>([]);
+    const [openNewFieldDialog, setOpenNewFieldDialog] = useState(false);
+    const [newFieldName, setNewFieldName] = useState("");
+    const [newFieldType, setNewFieldType] = useState<string>("text");
+
     // INVITATION VARIABLES
     const [openInvitationDialog, setOpenInvitationDialog] = useState<boolean>(false)
     const [showInvitationHelp, setShowInvitationHelp] = useState<boolean>(false)
@@ -78,6 +83,36 @@ const OrganizationPage = () => {
     const handleSelectProject = (projectName: string, projectId: string) => {
         console.log("LOADING A PROJECT : ", name, " ", id)
         navigate(`/Project/${name}/${id}/${projectName}/${projectId}`)
+    }
+
+    const handleAddField = () => {
+        if (!newFieldName.trim()) return;
+
+        setCustomFields((prev) => [
+            ...prev,
+            {
+            name: newFieldName,
+            type: newFieldType,
+            value: "",
+            },
+        ]);
+
+        // reset
+        setNewFieldName("")
+        setNewFieldType("text")
+        setOpenNewFieldDialog(false)
+    }
+
+    const handleCustomFieldChange = (index: number, value: any) => {
+        const updated = [...customFields]
+        updated[index].value = value
+        setCustomFields(updated)
+    }
+
+    const closeCreateDialog = () => {
+        setNewFieldName("")
+        setNewFieldType("text")
+        setCustomFields([])
     }
 
     const handleCreateProject = async (e: React.SyntheticEvent<HTMLFormElement>) => {
@@ -95,20 +130,17 @@ const OrganizationPage = () => {
                 return
             }
 
-            const data: CreateProjectPayload = {
+            const customFieldsObject = Object.fromEntries(
+                customFields.map((field) => [field.name, field.value])
+            )
+
+            const payload: CreateProjectPayload = {
                 projectName: formData.get("projectName") as string,
-                record: formData.get("record") as string,
-                address: formData.get("address") as string,
-                scale: formData.get("scale") as string,
-                others: formData.get("others") as string,
-                references: formData.get("references") as string,
-                background: formData.get("background") as string,
-                owner: formData.get("owner") as string,
-                technicalDirection: formData.get("technicalDirection") as string,
                 organizationId: id,
+                customFields: customFieldsObject,
             };
 
-            const response = await OrganizationService.createNewProject(data)
+            const response = await OrganizationService.createNewProject(payload)
 
             if(!response){
                 console.log("Something went wrong creation the new project")
@@ -199,116 +231,84 @@ const OrganizationPage = () => {
                     </Button>
 
                     {/* PROJECT CREATION DIALOG */}
-                    <Dialog open={openCreationDialog} onOpenChange={setOpenCreationDialog}>
+                    <Dialog 
+                        open={openCreationDialog} 
+                        //onOpenChange={setOpenCreationDialog}
+                        onOpenChange={(open) => {
+                            if(!open){
+                                closeCreateDialog()
+                            }
+                            setOpenCreationDialog(open)
+                        }}
+                    >
                         <DialogContent className="sm:max-w-sm">
 
                             <form onSubmit={handleCreateProject}>
 
                             <DialogHeader>
                                 <DialogTitle>Creating new project</DialogTitle>
-                                <DialogDescription>Complete the next fields and press "Create" to finish. All de fields are required.</DialogDescription>
+                                <DialogDescription>
+                                Complete the next fields and press "Create".
+                                </DialogDescription>
                             </DialogHeader>
 
-                            <FieldGroup>
+                            <FieldGroup className="space-y-4 my-6">
 
+                                {/* Project name */}
                                 <Field>
-                                    <Label htmlFor="projectName-1">Project name</Label>
-                                    <Input 
-                                        id="projectName-1" 
-                                        name="projectName" 
-                                        required
-                                        minLength={3}
-                                        maxLength={100}
-                                    />
+                                <Label htmlFor="projectName">Project name *</Label>
+                                <Input
+                                    id="projectName"
+                                    name="projectName"
+                                    required
+                                    minLength={3}
+                                    maxLength={100}
+                                />
                                 </Field>
 
-                                <Field>
-                                    <Label htmlFor="address-1">Address</Label>
-                                    <Input 
-                                        id="address-1" 
-                                        name="address" 
-                                        required
-                                        minLength={3}
-                                        maxLength={200}
-                                    />
-                                </Field>
+                                {/* Dynamic fields */}
+                                {customFields.map((field, index) => (
+                                <Field key={index}>
+                                    <Label>{field.name}</Label>
 
-                                <Field>
-                                    <Label htmlFor="projectName-1">Record</Label>
-                                    <Input 
-                                        id="record-1" 
-                                        name="record" 
-                                        required
-                                        minLength={3}
-                                        maxLength={50}
+                                    {field.type === "text" && (
+                                    <Input
+                                        value={field.value}
+                                        onChange={(e) =>
+                                        handleCustomFieldChange(index, e.target.value)
+                                        }
                                     />
-                                </Field>
+                                    )}
 
-                                <Field>
-                                    <Label htmlFor="projectName-1">Owner</Label>
-                                    <Input 
-                                        id="owner-1" 
-                                        name="owner" 
-                                        required
-                                        minLength={3}
-                                        maxLength={100}
+                                    {field.type === "number" && (
+                                    <Input
+                                        type="number"
+                                        value={field.value}
+                                        onChange={(e) =>
+                                        handleCustomFieldChange(index, Number(e.target.value))
+                                        }
                                     />
-                                </Field>
+                                    )}
 
-                                <Field>
-                                    <Label htmlFor="projectName-1">Technical direction</Label>
-                                    <Input 
-                                        id="technicalDirection-1" 
-                                        name="technicalDirection" 
-                                        required
-                                        minLength={3}
-                                        maxLength={100}
+                                    {field.type === "date" && (
+                                    <DatePickerField
+                                        value={field.value}
+                                        onChange={(date) =>
+                                        handleCustomFieldChange(index, date)
+                                        }
                                     />
+                                    )}
                                 </Field>
+                                ))}
 
-                                <Field>
-                                    <Label htmlFor="projectName-1">References</Label>
-                                    <Input 
-                                        id="references-1" 
-                                        name="references" 
-                                        required
-                                        minLength={3}
-                                        maxLength={100}
-                                    />
-                                </Field>
-
-                                <Field>
-                                    <Label htmlFor="projectName-1">Scale</Label>
-                                    <Input 
-                                        id="scale-1" 
-                                        name="scale"
-                                        required
-                                        minLength={3}
-                                        maxLength={50}
-                                    />
-                                </Field>
-
-                                <Field>
-                                    <Label htmlFor="projectName-1">Background</Label>
-                                    <Input 
-                                        id="background-1" 
-                                        name="background" 
-                                        required
-                                        minLength={3}
-                                        maxLength={100}
-                                    />
-                                </Field>
-
-                                <Field>
-                                    <Label htmlFor="projectName-1">Others</Label>
-                                    <Input 
-                                        id="others-1" 
-                                        name="others" 
-                                        required
-                                        minLength={3}
-                                        maxLength={100}
-                                    />
-                                </Field>
+                                {/* Add field button */}
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => setOpenNewFieldDialog(true)}
+                                >
+                                    Add new field
+                                </Button>
 
                             </FieldGroup>
 
@@ -316,10 +316,59 @@ const OrganizationPage = () => {
                                 <DialogClose asChild>
                                     <Button variant="outline">Cancel</Button>
                                 </DialogClose>
-                                <Button type="submit">Create</Button>
+                                <Button onClick={closeCreateDialog} type="submit">Create</Button>
                             </DialogFooter>
 
                             </form>
+                        </DialogContent>
+                    </Dialog>
+
+                    {/* CREATE FIELD DIALOG */}
+                    <Dialog open={openNewFieldDialog} onOpenChange={setOpenNewFieldDialog}>
+                        <DialogContent className="sm:max-w-sm">
+
+                            <DialogHeader>
+                            <DialogTitle>Add new field</DialogTitle>
+                            </DialogHeader>
+
+                            <FieldGroup>
+
+                            <Field>
+                                <Label>Field name</Label>
+                                <Input
+                                value={newFieldName}
+                                onChange={(e) => setNewFieldName(e.target.value)}
+                                />
+                            </Field>
+
+                            <Field>
+                                <Label>Field type</Label>
+                                <Select onValueChange={setNewFieldType}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select type" />
+                                </SelectTrigger>
+
+                                <SelectContent>
+                                    <SelectGroup>
+                                    <SelectItem value="text">Text</SelectItem>
+                                    <SelectItem value="number">Number</SelectItem>
+                                    <SelectItem value="date">Date</SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                                </Select>
+                            </Field>
+
+                            </FieldGroup>
+
+                            <DialogFooter>
+                            <DialogClose asChild>
+                                <Button variant="outline">Cancel</Button>
+                            </DialogClose>
+
+                            <Button onClick={handleAddField}>
+                                Create
+                            </Button>
+                            </DialogFooter>
 
                         </DialogContent>
                     </Dialog>
@@ -343,6 +392,7 @@ const OrganizationPage = () => {
                         </AlertDialogContent>
                     </AlertDialog>
                     
+                    {/* MEMBER INVITATION */}
                     <Button
                         variant="ghost"
                         className="text-[var(--text)]"
@@ -475,21 +525,21 @@ const OrganizationPage = () => {
                             {project.projectName}
                             </CardTitle>
 
-                            <CardTitle className="text-[var(--text)]">
-                            Tec. Direction: {project.technicalDirection}
-                            </CardTitle>
+                            <div className="mt-2 text-[var(--text)] text-sm space-y-1">
+                                <div>
+                                    <span className="font-medium">Status:</span> {project.status}
+                                </div>
 
-                            <CardTitle className="text-[var(--text)]">
-                            Address: {project.address}
-                            </CardTitle>
-
-                            <CardTitle className="text-[var(--text)]">
-                            Status: {project.status}
-                            </CardTitle>
-
-                            <CardTitle className="text-[var(--text)]">
-                            Record: {project.record}
-                            </CardTitle>
+                                {project.customFields &&
+                                    Object.entries(project.customFields).map(([key, value]) => (
+                                    <div key={key}>
+                                        <span className="font-medium capitalize">{key}:</span>{" "}
+                                        {typeof value === "string" && !isNaN(Date.parse(value))
+                                        ? new Date(value).toLocaleDateString()
+                                        : String(value)}
+                                    </div>
+                                ))}
+                            </div>
 
                             <div
                             style={{

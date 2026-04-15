@@ -70,44 +70,23 @@ export type ProjectRole =
 export interface ProjectType {
   _id: string
   projectName: string
-  record: string
-  address: string
-  scale: string
-  others: string
-  references: string
-  background: string
-  owner: string
-  technicalDirection: string
   status: StatusType
   creatorUserId: string
   organizationId: string
+  customFields?: Record<string, any>
 }
 
 export interface ProjectOrganizationType {
   _id: string
   projectName: string
-  record: string
-  address: string
-  scale: string
-  others: string
-  references: string
-  background: string
-  owner: string
-  technicalDirection: string
   status: StatusType
+  customFields?: Record<string, any>
 }
 
 export interface CreateProjectPayload {
   projectName: string
-  record: string
-  address: string
-  scale: string
-  others: string
-  references: string
-  background: string
-  owner: string
-  technicalDirection: string
   organizationId: string
+  customFields?: Record<string, any>
 };
 
 export type ProjectStatusColor =

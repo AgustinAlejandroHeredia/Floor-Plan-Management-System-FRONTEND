@@ -43,14 +43,14 @@ const ProjectPage = () => {
 
   const navigate = useNavigate();
 
-  // 🔹 DIALOG STATE
+  // DIALOG STATE
   const [openCreation, setOpenCreation] = useState(false);
 
-  // 🔹 ALERT STATE
+  // ALERT STATE
   const [openAlert, setOpenAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
 
-  // 🔹 FILE STATE
+  // FILE STATE
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagesFromPdf, setImagesFromPdf] = useState<File[]>([]);
 
@@ -70,17 +70,23 @@ const ProjectPage = () => {
       .replace(/([A-Z])/g, " $1")
       .replace(/^./, (str) => str.toUpperCase());
 
-  const filteredProjectEntries = project
-    ? Object.entries(project).filter(
+  const projectEntries = project
+  ? [
+      ...Object.entries(project).filter(
         ([key]) =>
           key !== "creatorUserId" &&
           key !== "organizationId" &&
           key !== "_id" &&
-          key !== "__v"
-      )
-    : [];
+          key !== "__v" &&
+          key !== "customFields"
+      ),
+      ...(project.customFields
+        ? Object.entries(project.customFields)
+        : []),
+    ]
+  : [];
 
-  // 🔹 Cuando seleccionan archivo → abrir dialog
+  // Cuando seleccionan archivo → abrir dialog
   const handleUploadFile = async (file: File) => {
     setSelectedFile(file);
 
@@ -101,7 +107,7 @@ const ProjectPage = () => {
     setOpenCreation(true);
   };
 
-  // 🔹 Submit blueprint
+  // Submit blueprint
   const handleCreateBlueprint = async (
     e: React.SyntheticEvent<HTMLFormElement>
   ) => {
@@ -231,7 +237,7 @@ const ProjectPage = () => {
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
               gap: "16px",
-              alignItems: "start",
+              alignItems: "center",
             }}
           >
             {/* INFO */}
@@ -243,13 +249,15 @@ const ProjectPage = () => {
               </CardHeader>
 
               <CardContent>
-                {filteredProjectEntries.map(([key, value]) => (
+                {projectEntries.map(([key, value]) => (
                   <div key={key} className="mb-2 text-left">
                     <CardDescription className="text-[var(--text-h)]">
-                      <span className="font-semibold">
+                      <span className="font-semibold capitalize">
                         {formatKey(key)}:
                       </span>{" "}
-                      {String(value)}
+                      {typeof value === "string" && !isNaN(Date.parse(value))
+                        ? new Date(value).toLocaleDateString()
+                        : String(value)}
                     </CardDescription>
                   </div>
                 ))}

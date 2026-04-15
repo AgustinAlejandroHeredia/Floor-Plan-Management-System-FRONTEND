@@ -30,7 +30,6 @@ export const OrganizationService = {
     createNewProject: async (data: CreateProjectPayload): Promise<boolean> => {
         try {
             const response = await api.post(`/projects`, data)
-            console.log("CREATION PROJECT RESPONSE : ",response.data)
             return true
         } catch (error) {
             return false

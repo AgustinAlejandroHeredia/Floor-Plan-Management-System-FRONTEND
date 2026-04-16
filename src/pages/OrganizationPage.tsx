@@ -54,6 +54,7 @@ import { useState } from "react";
 import OrganizationMemberItem from "@/components/OrganizationMemberItem";
 import { Label } from "@/components/ui/label";
 import type { ActionPermission, CreateProjectPayload, OrganizationActionPermissions } from "@/types/types";
+import Toast from "@/components/Toast";
 
 const OrganizationPage = () => {
 
@@ -614,7 +615,14 @@ const OrganizationPage = () => {
 
                         </DialogContent>
                     </Dialog>
-                
+
+                    {/* SAVING CHANGES */}
+                    <Toast
+                        open={isSavingChanges}
+                        title="Saving changes"
+                        description="Please wait while this the changes are being saved..."
+                    />
+
                 </div>
 
 

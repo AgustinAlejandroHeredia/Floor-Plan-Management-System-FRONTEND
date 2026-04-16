@@ -53,7 +53,7 @@ import { useState } from "react";
 
 import OrganizationMemberItem from "@/components/OrganizationMemberItem";
 import { Label } from "@/components/ui/label";
-import type { CreateProjectPayload } from "@/types/types";
+import type { ActionPermission, CreateProjectPayload, OrganizationActionPermissions } from "@/types/types";
 
 const OrganizationPage = () => {
 
@@ -63,9 +63,9 @@ const OrganizationPage = () => {
     const usersSectionRef = useRef<HTMLDivElement | null>(null);
 
     // CREATION VARIABLES
-    const [openCreationDialog, setOpenCreationDialog] = useState(false);
-    const [errorOpen, setErrorOpen] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
+    const [openCreationDialog, setOpenCreationDialog] = useState<boolean>(false);
+    const [errorOpen, setErrorOpen] = useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = useState<string>("");
 
     // CREATION VARIABLES / CUSTOM FIELDS
     const [customFields, setCustomFields] = useState<{ name: string; type: string; value: any }[]>([]);
@@ -76,9 +76,16 @@ const OrganizationPage = () => {
     // INVITATION VARIABLES
     const [openInvitationDialog, setOpenInvitationDialog] = useState<boolean>(false)
     const [showInvitationHelp, setShowInvitationHelp] = useState<boolean>(false)
+    const [invitationRoleSelected, setInvitationRoleSelected] = useState<string>("Member")
+
+    // PERMISSIONS VARIABLES
+    const [openActionPermissionsEdit, setOpenActionPermissionsEdit] = useState<boolean>(false)
+    const [createActionPermissionsEdited, setCreateActionPermissionsEdited] = useState<ActionPermission>("admins")
+    const [inviteActionPermissionsEdited, setInviteActionPermissionsEdited] = useState<ActionPermission>("admins")
+    const [isSavingChanges, setIsSavingChanges] = useState<boolean>(false)
 
     // HOOK
-    const { projects, projectThumbnails, userOrganizationRole, organizationMembersList, loadingOrganizationProjects, error, refreshProjects } = useOrganization(id!)
+    const { organizationPermissions, projects, projectThumbnails, userOrganizationRole, organizationMembersList, loadingOrganizationProjects, error, refreshProjects } = useOrganization(id!)
 
     const handleSelectProject = (projectName: string, projectId: string) => {
         console.log("LOADING A PROJECT : ", name, " ", id)
@@ -175,7 +182,11 @@ const OrganizationPage = () => {
         e: React.SyntheticEvent<HTMLFormElement>,
     ) => {
         e.preventDefault()
-        console.log("SENDS INVITATION EMAIL TO BACKEND")
+
+        const form = e.currentTarget
+        const formData = new FormData(form)
+
+        console.log("SENDS INVITATION EMAIL : ", formData.get("email"), " and ", invitationRoleSelected)
     }
 
     // USERS
@@ -197,6 +208,34 @@ const OrganizationPage = () => {
 
     const handleLeaveOrganization = () => {
         console.log("LEAVING ORGANIZATION WITH ID : ", id)
+    }
+
+    const loadEditVariables = async () => {
+        setCreateActionPermissionsEdited(organizationPermissions.createPermission)
+        setInviteActionPermissionsEdited(organizationPermissions.invitePermission)
+        console.log("LOAD EDIT VARIABLE: ", organizationPermissions.createPermission, " y ", organizationPermissions.invitePermission)
+        setOpenActionPermissionsEdit(true)
+    }
+
+    const handleEditActionPermissions = async () => {
+        setOpenActionPermissionsEdit(false)
+        setIsSavingChanges(true)
+        try {
+            const actionsPayload: OrganizationActionPermissions = {
+                createPermission: createActionPermissionsEdited,
+                invitePermission: inviteActionPermissionsEdited,
+            }
+            console.log("ACTIONS PAYLOAD: ", actionsPayload)
+            await OrganizationService.updateOrganizationActionPermissionsAsAdmin(id!, actionsPayload)
+            setIsSavingChanges(false)
+            setCreateActionPermissionsEdited("admins")
+            setInvitationRoleSelected("admins")
+            refreshProjects()
+        } catch (error) {
+            setIsSavingChanges(false)
+            setErrorMessage("Something went wrong saving the changes. Please try later.")
+            setErrorOpen(true)
+        }
     }
 
     if(loadingOrganizationProjects) return <Loading/>
@@ -221,19 +260,20 @@ const OrganizationPage = () => {
             <>
 
                 <div className="main-content-item flex gap-4">
-                    
-                    <Button
-                        variant="ghost"
-                        className="text-[var(--text)]"
-                        onClick={() => setOpenCreationDialog(true)}
-                    >
-                        Create project
-                    </Button>
+
+                    {(userOrganizationRole === "admin" || organizationPermissions.createPermission === "members") && (
+                        <Button
+                            variant="ghost"
+                            className="text-[var(--text)]"
+                            onClick={() => setOpenCreationDialog(true)}
+                        >
+                            Create project
+                        </Button>
+                    )}
 
                     {/* PROJECT CREATION DIALOG */}
                     <Dialog 
                         open={openCreationDialog} 
-                        //onOpenChange={setOpenCreationDialog}
                         onOpenChange={(open) => {
                             if(!open){
                                 closeCreateDialog()
@@ -323,6 +363,8 @@ const OrganizationPage = () => {
                         </DialogContent>
                     </Dialog>
 
+
+
                     {/* CREATE FIELD DIALOG */}
                     <Dialog open={openNewFieldDialog} onOpenChange={setOpenNewFieldDialog}>
                         <DialogContent className="sm:max-w-sm">
@@ -393,13 +435,15 @@ const OrganizationPage = () => {
                     </AlertDialog>
                     
                     {/* MEMBER INVITATION */}
-                    <Button
-                        variant="ghost"
-                        className="text-[var(--text)]"
-                        onClick={() => setOpenInvitationDialog(true)}
-                    >
-                        Invite member
-                    </Button>
+                    {(userOrganizationRole === "admin" || organizationPermissions.invitePermission === "members") && (
+                        <Button
+                            variant="ghost"
+                            className="text-[var(--text)]"
+                            onClick={() => setOpenInvitationDialog(true)}
+                        >
+                            Invite member
+                        </Button>
+                    )}
 
                     <Dialog open={openInvitationDialog} onOpenChange={setOpenInvitationDialog}>
                         <DialogContent className="sm:max-w-sm">
@@ -426,8 +470,11 @@ const OrganizationPage = () => {
 
                                     {userOrganizationRole?.toLowerCase() === "admin" && (
                                         <Field>
-                                            <Label htmlFor="email">Role within organization</Label>
-                                            <Select defaultValue="member">
+                                            <Label htmlFor="role">Role within organization</Label>
+                                            <Select 
+                                                defaultValue="member"
+                                                onValueChange={setInvitationRoleSelected}    
+                                            >
                                                 <SelectTrigger>
                                                     <SelectValue/>
                                                 </SelectTrigger>
@@ -494,6 +541,79 @@ const OrganizationPage = () => {
                     >
                         View members
                     </Button>
+
+                    {/* CHANGE ACTION PERMISSIONS */}
+                    {userOrganizationRole === "admin" && (
+                        <Button
+                            variant="ghost"
+                            className="text-[var(--text)]"
+                            onClick={() => loadEditVariables()}
+                        >
+                            Change action permissions
+                        </Button>
+                    )}
+
+                    <Dialog open={openActionPermissionsEdit} onOpenChange={setOpenActionPermissionsEdit}>
+                        <DialogContent className="sm:max-w-sm">
+
+                            <DialogHeader>
+                            <DialogTitle>Add new field</DialogTitle>
+                            </DialogHeader>
+
+                            <FieldGroup>
+
+                            <Field>
+                                <Label>Who can create projects?</Label>
+                                <Select 
+                                    defaultValue={createActionPermissionsEdited}
+                                    onValueChange={(value) => setCreateActionPermissionsEdited(value as ActionPermission)}
+                                >
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+
+                                <SelectContent position="popper">
+                                    <SelectGroup>
+                                    <SelectItem value="admins">Only admins</SelectItem>
+                                    <SelectItem value="members">All members</SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                                </Select>
+                            </Field>
+
+                            <Field>
+                                <Label>Who can invite members?</Label>
+                                <Select 
+                                    defaultValue={inviteActionPermissionsEdited}
+                                    onValueChange={(value) => setInviteActionPermissionsEdited(value as ActionPermission)}
+                                >
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+
+                                <SelectContent position="popper">
+                                    <SelectGroup>
+                                    <SelectItem value="admins">Only admins</SelectItem>
+                                    <SelectItem value="members">All members</SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                                </Select>
+                            </Field>
+
+                            </FieldGroup>
+
+                            <DialogFooter>
+                            <DialogClose asChild>
+                                <Button variant="outline">Cancel</Button>
+                            </DialogClose>
+
+                            <Button onClick={handleEditActionPermissions}>
+                                Create
+                            </Button>
+                            </DialogFooter>
+
+                        </DialogContent>
+                    </Dialog>
                 
                 </div>
 

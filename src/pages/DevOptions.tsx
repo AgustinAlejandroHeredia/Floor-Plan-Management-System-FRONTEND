@@ -21,7 +21,7 @@ import { Field, FieldError, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label";
 import { useDevOptions } from "@/hooks/useDevOptions";
-import type { CreateOrganizationPayload, UpdateOrganizationPayload, OrganizationType } from "@/types/types";
+import type { CreateOrganizationPayload, UpdateOrganizationPayload, OrganizationType, ActionPermission } from "@/types/types";
 import { useState } from "react"
 import { DevOptionsService } from "@/services/DevOptionsService";
 
@@ -43,7 +43,9 @@ const DevOptions = () => {
     const [selectedAdminId, setSelectedAdminId] = useState<string>("");
     const [openCreateOrganization, setOpenCreateOrganization] = useState<boolean>(false)
     const [isCreatingOrganization, setIsCreatingOrganization] = useState<boolean>(false)
-    
+    const [creationPermission, setCreationPermission] = useState<ActionPermission>("admins")
+    const [invitationPermission, setInvitationPermission] = useState<ActionPermission>("admins")
+
     // DELETE VARIABLES
     const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false)
     const [isDeletingOrganization, setIsDeletingOrganization] = useState<boolean>(false)
@@ -64,6 +66,12 @@ const DevOptions = () => {
     // HOOK
     const { organizationsWithMembers, organizationBlueprintCounts, users, loading, error, refreshContent } = useDevOptions()
 
+    const closeCreateDialog = () => {
+        setSelectedAdminId("")
+        setCreationPermission("admins")
+        setInvitationPermission("admins")
+    }
+
     const handleCreateOrganization = async (e: React.SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault()
 
@@ -78,7 +86,7 @@ const DevOptions = () => {
 
         if(formData.get("maxBlueprints")){
             const maxBlueprints = Number(formData.get("maxBlueprints"))
-            if((maxBlueprints >= 1)! || (maxBlueprints <= 200)!){
+            if(maxBlueprints < 1 || maxBlueprints > 200){
                 setErrorMessage("Invalid maximum blueprints. The given number must be between 1 and 200.")
                 setOpenError(true)
                 return
@@ -102,8 +110,11 @@ const DevOptions = () => {
                 contactPhone: formData.get("contactPhone") as string,
                 record: formData.get("record") as string,
                 adminId: selectedAdminId,
+                createPermission: creationPermission,
+                invitePermission: invitationPermission,
             }
 
+            console.log("PAYLOAD : ", payload)
             await DevOptionsService.createOrganization(payload)
 
             form.reset()
@@ -128,6 +139,8 @@ const DevOptions = () => {
         }
         const { members, ...organizationData } = organization;
         setSelectedOrganization(organizationData)
+        setCreationPermission(organizationData.createPermission || "admins")
+        setInvitationPermission(organizationData.invitePermission || "admins")
         setOpenEditOrganization(true)
     };
  
@@ -160,17 +173,22 @@ const DevOptions = () => {
                 contactEmail: formData.get("contactEmail") as string,
                 contactPhone: formData.get("contactPhone") as string,
                 record: formData.get("record") as string,
-                maxBlueprints: formData.get("maxBlueprints") as string
+                maxBlueprints: formData.get("maxBlueprints") as string,
+                createPermission: creationPermission,
+                invitePermission: invitationPermission,
             }
 
             await DevOptionsService.updateOrganization(organizationId, payload)
 
             form.reset()
             setSelectedOrganization(undefined)
+            setCreationPermission("admins")
+            setInvitationPermission("admins")
             setIsSavingChanges(false)
             refreshContent()
 
         } catch (error) {
+            setIsSavingChanges(false)
             setErrorMessage("An error has occurred while saving changes. Please try again later.")
             setOpenError(true)
         }
@@ -213,7 +231,14 @@ const DevOptions = () => {
 
                 <h3 className="sub-heading">Create new organization</h3>
 
-                <Dialog open={openCreateOrganization} onOpenChange={setOpenCreateOrganization}>
+                <Dialog 
+                    open={openCreateOrganization} 
+                    onOpenChange={(open) => {
+                        if(!open){
+                            closeCreateDialog()
+                        }
+                        setOpenCreateOrganization(open)}}
+                >
                     <DialogTrigger asChild>
                         <Button
                             variant="ghost"
@@ -322,6 +347,42 @@ const DevOptions = () => {
                                     </Select>
                                 </Field>
 
+                                <Field>
+                                    <Label htmlFor="projectCreationPermission">Who can create projects?</Label>
+                                    <Select 
+                                        defaultValue="admins"
+                                        onValueChange={(value) => setCreationPermission(value as ActionPermission)}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue/>
+                                        </SelectTrigger>
+                                        <SelectContent position="popper">
+                                            <SelectGroup>
+                                                <SelectItem value="admins">Only admins</SelectItem>
+                                                <SelectItem value="members">All members</SelectItem>
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+                                </Field>
+
+                                <Field>
+                                    <Label htmlFor="inviteMembersPermission">Who can invite members?</Label>
+                                    <Select 
+                                        defaultValue="admins"
+                                        onValueChange={(value) => setInvitationPermission(value as ActionPermission)}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue/>
+                                        </SelectTrigger>
+                                        <SelectContent position="popper">
+                                            <SelectGroup>
+                                                <SelectItem value="admins">Only admins</SelectItem>
+                                                <SelectItem value="members">All members</SelectItem>
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+                                </Field>
+
                             </FieldGroup>
 
                             <DialogFooter>
@@ -377,7 +438,7 @@ const DevOptions = () => {
                         </CardTitle>
 
                         <CardTitle className="text-[var(--text-h)]">
-                        Blueprints uploaded: {organizationBlueprintCounts.find((item)=>item.organizationId === org._id)?.count ?? 9999}/{org.maxBlueprints}
+                        Blueprints uploaded: {organizationBlueprintCounts.find((item)=>item.organizationId === org._id)?.count ?? 0}/{org.maxBlueprints}
                         </CardTitle>
 
                         <div className="mt-4">
@@ -526,6 +587,55 @@ const DevOptions = () => {
                                                 maxLength={50}
                                                 defaultValue={selectedOrganization?.record}
                                             />
+                                        </Field>
+
+                                        <Field>
+                                            <Label htmlFor="maxBlueprints">Max. amount of blueprints (max: 200)</Label>
+                                            <Input
+                                                id="maxBlueprints"
+                                                name="maxBlueprints"
+                                                required
+                                                type="number"
+                                                min={1}
+                                                max={200}
+                                                defaultValue={selectedOrganization?.maxBlueprints}
+                                            />
+                                        </Field>
+
+                                        <Field>
+                                            <Label htmlFor="projectCreationPermission">Who can create projects?</Label>
+                                            <Select 
+                                                defaultValue={selectedOrganization?.createPermission}
+                                                onValueChange={(value) => setCreationPermission(value as ActionPermission)}
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue/>
+                                                </SelectTrigger>
+                                                <SelectContent position="popper">
+                                                    <SelectGroup>
+                                                        <SelectItem value="admins">Only admins</SelectItem>
+                                                        <SelectItem value="members">All members</SelectItem>
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                        </Field>
+
+                                        <Field>
+                                            <Label htmlFor="inviteMembersPermission">Who can invite members?</Label>
+                                            <Select 
+                                                defaultValue={selectedOrganization?.invitePermission}
+                                                onValueChange={(value) => setInvitationPermission(value as ActionPermission)}
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue/>
+                                                </SelectTrigger>
+                                                <SelectContent position="popper">
+                                                    <SelectGroup>
+                                                        <SelectItem value="admins">Only admins</SelectItem>
+                                                        <SelectItem value="members">All members</SelectItem>
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
                                         </Field>
 
                                     </FieldGroup>

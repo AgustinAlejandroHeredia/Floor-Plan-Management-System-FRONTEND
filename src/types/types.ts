@@ -2,6 +2,10 @@ export type OrganizationRole =
   | "admin"
   | "member" 
 
+export type ActionPermission = 
+  | "admins"
+  | "members"
+
 export interface OrganizationType {
   _id: string
   name: string
@@ -10,6 +14,8 @@ export interface OrganizationType {
   contactPhone: string
   record: string
   maxBlueprints: string
+  createPermission: ActionPermission
+  invitePermission: ActionPermission
 }
 
 export interface CreateOrganizationPayload {
@@ -19,6 +25,8 @@ export interface CreateOrganizationPayload {
   contactPhone: string
   record: string
   adminId: string
+  createPermission: ActionPermission
+  invitePermission: ActionPermission
 }
 
 export interface UpdateOrganizationPayload {
@@ -28,6 +36,13 @@ export interface UpdateOrganizationPayload {
   contactPhone: string
   record: string
   maxBlueprints: string
+  createPermission: ActionPermission
+  invitePermission: ActionPermission
+}
+
+export interface OrganizationActionPermissions {
+  createPermission: ActionPermission
+  invitePermission: ActionPermission
 }
 
 export interface OrganizationHomeType {

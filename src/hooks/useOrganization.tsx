@@ -1,10 +1,14 @@
-import type { OrganizationMembersList, OrganizationRole, ProjectOrganizationType } from "@/types/types";
+import type { OrganizationActionPermissions, OrganizationMembersList, OrganizationRole, ProjectOrganizationType } from "@/types/types";
 import { useEffect, useState, useCallback } from "react";
 import { OrganizationService } from "@/services/OrganizationService";
 
 export function useOrganization(organizationId: string) {
 
   const [error, setError] = useState<Error | null>(null);
+  const [organizationPermissions, setOrganizationPermissions] = useState<OrganizationActionPermissions>({
+    createPermission: "admins",
+    invitePermission: "admins",
+  })
   const [projects, setProjects] = useState<ProjectOrganizationType[]>([]);
   const [projectThumbnails, setProjectThumbnails] = useState<Record<string, string>>({})
   const [userOrganizationRole, setUserOrganizationRole] = useState<OrganizationRole>("member")
@@ -37,10 +41,11 @@ export function useOrganization(organizationId: string) {
 
       setProjectThumbnails(thumbnails)
 
-      if(userRole && userRole === "admin"){
-        const membersList = await OrganizationService.getOrganizationMembersAsAdmin(organizationId)
-        setOrganizationMembersList(membersList)
-      }
+      const permissionsData = await OrganizationService.getOrganizationActionPermissions(organizationId)
+      setOrganizationPermissions(permissionsData)
+
+      const membersList = await OrganizationService.getOrganizationMembersAsAdmin(organizationId)
+      setOrganizationMembersList(membersList)
 
     } catch (err: any) {
       setError(err);
@@ -56,6 +61,7 @@ export function useOrganization(organizationId: string) {
   }, [loadProjects, organizationId]);
 
   return {
+    organizationPermissions,
     projects,
     projectThumbnails,
     userOrganizationRole,

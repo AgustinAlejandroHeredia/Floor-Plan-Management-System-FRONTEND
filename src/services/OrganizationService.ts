@@ -1,4 +1,4 @@
-import type { CreateProjectPayload } from "@/types/types";
+import type { CreateProjectPayload, OrganizationActionPermissions } from "@/types/types";
 import { api } from "../api/api";
 
 export const OrganizationService = {
@@ -22,14 +22,24 @@ export const OrganizationService = {
         }
     },
 
+    getOrganizationActionPermissions: async (organizationId: string) => {
+        const response = await api.get(`/organizations/actionPermissions/${organizationId}`)
+        return response.data
+    },
+
     getOrganizationMembersAsAdmin: async (organizationId: string) => {
         const response = await api.get(`/organizations/allMembers/admin/${organizationId}`)
         return response.data
     },
 
+    updateOrganizationActionPermissionsAsAdmin: async (organizationId: string, payload: OrganizationActionPermissions) => {
+        const response = await api.patch(`/organizations/actionPermissions/admin/${organizationId}`, payload)
+        return response.data
+    },
+
     createNewProject: async (data: CreateProjectPayload): Promise<boolean> => {
         try {
-            const response = await api.post(`/projects`, data)
+            await api.post(`/projects`, data)
             return true
         } catch (error) {
             return false

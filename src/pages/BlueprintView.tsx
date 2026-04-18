@@ -346,117 +346,9 @@ const BlueprintView = () => {
                     {/* OPTIONS */}
                     <div className="flex flex-col gap-2 h-full justify-center">
 
-                        {/* EDIT PROJECT */}
-                        <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
-                            <DialogTrigger asChild>
-                                <Button variant="secondary">Edit blueprint</Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-sm">
-                                <form onSubmit={handleEditBlueprint}>
-
-                                    <DialogHeader>
-                                        <DialogTitle>Editing blueprint</DialogTitle>
-                                        <DialogDescription>Change the existing values for this blueprint.</DialogDescription>
-                                    </DialogHeader>
-
-                                    <FieldGroup>
-
-                                        <Field>
-                                            <Label htmlFor="blueprintName-1">Blueprint Name *</Label>
-                                            <Input
-                                                id="blueprintName-1"
-                                                name="blueprintName"
-                                                required
-                                                minLength={3}
-                                                maxLength={100}
-                                                defaultValue={blueprint?.blueprintName}
-                                            />
-                                        </Field>
-
-                                        <Field>
-                                            <Label htmlFor="tags"></Label>
-                                            <Input
-                                                id="tags"
-                                                name="tags"
-                                                placeholder="tag 1, tag 2, tag 3"
-                                                maxLength={100}
-                                                defaultValue={blueprint?.tags?.map(t => t.trim()).join(", ") || ""}
-                                            />
-                                        </Field>
-
-                                    </FieldGroup>
-
-                                    <DialogFooter>
-                                        <DialogClose asChild>
-                                            <Button variant="outline">Cancel</Button>
-                                        </DialogClose>
-                                        <Button type="submit">Save</Button>
-                                    </DialogFooter>
-
-                                </form>
-                            </DialogContent>
-                        </Dialog>
-
-                        {/* SAVING CHANGES */}
-                        <Toast
-                            open={isPatching}
-                            title="Saving changes"
-                            description="Please wait while your changes are saved..."
-                        />
-
-                        <Button variant="secondary" onClick={handleDownloadFile}>Download blueprint</Button>
-                        
-                        {/* DOWNLOADING BLUEPRINT */}
-                        <Toast
-                            open={isDownloading}
-                            title="Downloading blueprint"
-                            description="Please wait while the blueprint is download..."
-                        />
-
+                        <Button variant="secondary" onClick={() => setOpenEditDialog(true)}>Edit blueprint</Button>
                         <Button variant="secondary" onClick={handleCropMode}>Generate crop manually</Button>
                         <Button variant="secondary" onClick={handleMagicCrop}>Magic crop</Button>
-
-                        {/* UPLOADING BLUEPRINT CROP */}
-                        <Toast
-                            open={isUploadingCrop}
-                            title="Uploading crop"
-                            description="Please wait while the crop is being uploaded..."
-                        />
-
-                        {/* CROP SUCCESSFULY UPLOADED */}
-                        <InfoDialog
-                            open={cropSuccessfullyUploaded}
-                            onOpenChange={setCropSuccesfullyUploaded}
-                            title="Crop generated"
-                            description="The crop has been successfully created and is now available as a new blueprint within this project."
-                        />
-                    
-                        {/* DELETE BUTTON */}
-                        <Button variant="destructive" onClick={() => setOpenDeleteDialog(true)}>Delete blueprint</Button>
-
-                        {/* DELETE ALERT DIALOG */}
-                        <ConfirmDeleteDialog
-                            open={openDeleteDialog}
-                            onOpenChange={setOpenDeleteDialog}
-                            title="Delete blueprint"
-                            description="This action cannot be undone. This will permanently delete the blueprint."
-                            onConfirm={handleDeleteBlueprint}
-                        />
-
-                        {/* DELETING BLUEPRINT ALERT */}
-                        <Toast
-                            open={isDeleting}
-                            title="Deleting blueprint..."
-                            description="Please wait while this blueprint is being deleted..."
-                        />
-
-                        {/* ALERT ERROR */}
-                        <InfoDialog
-                            open={openErrorAlert}
-                            onOpenChange={setOpenErrorAlert}
-                            title="Error"
-                            description={errorAlertMessage}
-                        />
                     
                     </div>
                 </div>
@@ -604,64 +496,175 @@ const BlueprintView = () => {
                     </div>
                 )}
 
-                    {/* ================= DIALOG CREATE BLUEPRINT ================= */}
-                    <Dialog open={openBlueprintForm} onOpenChange={setOpenBlueprintForm}>
-                        <DialogContent className="sm:max-w-sm">
-                        <form onSubmit={handleConfirmCrop}>
+                </div>
+
+            </div>
+
+            {/* UI OVERLAYS */}
+            <div>
+
+                {/* EDIT PROJECT */}
+                <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
+                    <DialogContent className="sm:max-w-sm">
+                        <form onSubmit={handleEditBlueprint}>
 
                             <DialogHeader>
-                            <DialogTitle>Create crop</DialogTitle>
-                            <DialogDescription>
-                                Complete the fields and upload your crop.
-                            </DialogDescription>
+                                <DialogTitle>Editing blueprint</DialogTitle>
+                                <DialogDescription>Change the existing values for this blueprint.</DialogDescription>
                             </DialogHeader>
 
                             <FieldGroup>
 
-                            <Field>
-                                <Label htmlFor="blueprintName">Crop name *</Label>
-                                <Input
-                                id="blueprintName"
-                                name="blueprintName"
-                                required
-                                minLength={3}
-                                maxLength={100}
-                                placeholder={`${blueprint?.blueprintName}_crop` || "BlueprintName_crop"}
-                                />
-                            </Field>
+                                <Field>
+                                    <Label htmlFor="blueprintName-1">Blueprint Name *</Label>
+                                    <Input
+                                        id="blueprintName-1"
+                                        name="blueprintName"
+                                        required
+                                        minLength={3}
+                                        maxLength={100}
+                                        defaultValue={blueprint?.blueprintName}
+                                    />
+                                </Field>
 
-                            <Field>
-                                <Label htmlFor="tags">Tags *</Label>
-                                <Input
-                                id="tags"
-                                name="tags"
-                                placeholder="tag 1, tag 2, tag 3"
-                                minLength={3}
-                                maxLength={100}
-                                />
-                            </Field>
+                                <Field>
+                                    <Label htmlFor="tags"></Label>
+                                    <Input
+                                        id="tags"
+                                        name="tags"
+                                        placeholder="tag 1, tag 2, tag 3"
+                                        maxLength={100}
+                                        defaultValue={blueprint?.tags?.map(t => t.trim()).join(", ") || ""}
+                                    />
+                                </Field>
 
                             </FieldGroup>
 
                             <DialogFooter>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => handleCancelCrop()}
-                            >
-                                Cancel
-                            </Button>
-
-                            <Button type="submit">
-                                Upload
-                            </Button>
+                                <DialogClose asChild>
+                                    <Button variant="outline">Cancel</Button>
+                                </DialogClose>
+                                <Button type="submit">Save</Button>
                             </DialogFooter>
 
                         </form>
-                        </DialogContent>
-                    </Dialog>
+                    </DialogContent>
+                </Dialog>
 
-                </div>
+                {/* SAVING CHANGES */}
+                <Toast
+                    open={isPatching}
+                    title="Saving changes"
+                    description="Please wait while your changes are saved..."
+                />
+
+                <Button variant="secondary" onClick={handleDownloadFile}>Download blueprint</Button>
+                
+                {/* DOWNLOADING BLUEPRINT */}
+                <Toast
+                    open={isDownloading}
+                    title="Downloading blueprint"
+                    description="Please wait while the blueprint is download..."
+                />
+
+                {/* UPLOADING BLUEPRINT CROP */}
+                <Toast
+                    open={isUploadingCrop}
+                    title="Uploading crop"
+                    description="Please wait while the crop is being uploaded..."
+                />
+
+                {/* CROP SUCCESSFULY UPLOADED */}
+                <InfoDialog
+                    open={cropSuccessfullyUploaded}
+                    onOpenChange={setCropSuccesfullyUploaded}
+                    title="Crop generated"
+                    description="The crop has been successfully created and is now available as a new blueprint within this project."
+                />
+            
+                {/* DELETE BUTTON */}
+                <Button variant="destructive" onClick={() => setOpenDeleteDialog(true)}>Delete blueprint</Button>
+
+                {/* DELETE ALERT DIALOG */}
+                <ConfirmDeleteDialog
+                    open={openDeleteDialog}
+                    onOpenChange={setOpenDeleteDialog}
+                    title="Delete blueprint"
+                    description="This action cannot be undone. This will permanently delete the blueprint."
+                    onConfirm={handleDeleteBlueprint}
+                />
+
+                {/* DELETING BLUEPRINT ALERT */}
+                <Toast
+                    open={isDeleting}
+                    title="Deleting blueprint..."
+                    description="Please wait while this blueprint is being deleted..."
+                />
+
+                {/* ALERT ERROR */}
+                <InfoDialog
+                    open={openErrorAlert}
+                    onOpenChange={setOpenErrorAlert}
+                    title="Error"
+                    description={errorAlertMessage}
+                />
+
+                {/* ================= DIALOG CREATE BLUEPRINT ================= */}
+                <Dialog open={openBlueprintForm} onOpenChange={setOpenBlueprintForm}>
+                    <DialogContent className="sm:max-w-sm">
+                    <form onSubmit={handleConfirmCrop}>
+
+                        <DialogHeader>
+                        <DialogTitle>Create crop</DialogTitle>
+                        <DialogDescription>
+                            Complete the fields and upload your crop.
+                        </DialogDescription>
+                        </DialogHeader>
+
+                        <FieldGroup>
+
+                        <Field>
+                            <Label htmlFor="blueprintName">Crop name *</Label>
+                            <Input
+                            id="blueprintName"
+                            name="blueprintName"
+                            required
+                            minLength={3}
+                            maxLength={100}
+                            placeholder={`${blueprint?.blueprintName}_crop` || "BlueprintName_crop"}
+                            />
+                        </Field>
+
+                        <Field>
+                            <Label htmlFor="tags">Tags *</Label>
+                            <Input
+                            id="tags"
+                            name="tags"
+                            placeholder="tag 1, tag 2, tag 3"
+                            minLength={3}
+                            maxLength={100}
+                            />
+                        </Field>
+
+                        </FieldGroup>
+
+                        <DialogFooter>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => handleCancelCrop()}
+                        >
+                            Cancel
+                        </Button>
+
+                        <Button type="submit">
+                            Upload
+                        </Button>
+                        </DialogFooter>
+
+                    </form>
+                    </DialogContent>
+                </Dialog>
 
             </div>
 

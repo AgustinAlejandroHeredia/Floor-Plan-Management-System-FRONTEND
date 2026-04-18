@@ -157,6 +157,11 @@ const HomePage = () => {
           </>
         )}
 
+      </div>
+
+      {/* UI OVERLAYS */}
+      <div>
+
         {/* FIRST TOKEN DIALOG */}
         <Dialog open={openFirstTokenDialog} onOpenChange={setOpenFirstTokenDialog}>
           <DialogContent>
@@ -189,6 +194,7 @@ const HomePage = () => {
         </Dialog>
 
       </div>
+        
     </div>
   );
 };

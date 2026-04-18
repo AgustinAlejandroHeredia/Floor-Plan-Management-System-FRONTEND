@@ -347,90 +347,95 @@ const ProjectPage = () => {
 
       </div>
 
-      {/* ================= DIALOG CREATE BLUEPRINT ================= */}
-      <Dialog open={openCreation} onOpenChange={setOpenCreation}>
-        <DialogContent className="sm:max-w-sm">
-          <form onSubmit={handleCreateBlueprint}>
+      {/* UI OVERLAYS */}
+      <div>
 
-            <DialogHeader>
-              <DialogTitle>Create blueprint</DialogTitle>
-              <DialogDescription>
-                Complete the fields and upload your blueprint.
-                Tags field is optional.
-              </DialogDescription>
-            </DialogHeader>
+        {/* ================= DIALOG CREATE BLUEPRINT ================= */}
+        <Dialog open={openCreation} onOpenChange={setOpenCreation}>
+          <DialogContent className="sm:max-w-sm">
+            <form onSubmit={handleCreateBlueprint}>
 
-            <FieldGroup>
+              <DialogHeader>
+                <DialogTitle>Create blueprint</DialogTitle>
+                <DialogDescription>
+                  Complete the fields and upload your blueprint.
+                  Tags field is optional.
+                </DialogDescription>
+              </DialogHeader>
 
-              <Field>
-                <Label>Selected file</Label>
-                <Input value={selectedFile?.name || ""} disabled />
-              </Field>
+              <FieldGroup>
 
-              <Field>
-                <Label htmlFor="blueprintName">Blueprint name *</Label>
-                <Input
-                  id="blueprintName"
-                  name="blueprintName"
-                  required
-                  minLength={3}
-                  maxLength={100}
-                />
-              </Field>
-
-              {selectedFile?.type != "application/pdf" && (
                 <Field>
-                  <Label htmlFor="tags">Tags</Label>
+                  <Label>Selected file</Label>
+                  <Input value={selectedFile?.name || ""} disabled />
+                </Field>
+
+                <Field>
+                  <Label htmlFor="blueprintName">Blueprint name *</Label>
                   <Input
-                    id="tags"
-                    name="tags"
-                    placeholder="tag 1, tag 2, tag 3"
+                    id="blueprintName"
+                    name="blueprintName"
+                    required
+                    minLength={3}
                     maxLength={100}
                   />
                 </Field>
-              )}
 
-            </FieldGroup>
+                {selectedFile?.type != "application/pdf" && (
+                  <Field>
+                    <Label htmlFor="tags">Tags</Label>
+                    <Input
+                      id="tags"
+                      name="tags"
+                      placeholder="tag 1, tag 2, tag 3"
+                      maxLength={100}
+                    />
+                  </Field>
+                )}
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setOpenCreation(false)}
-              >
-                Cancel
-              </Button>
+              </FieldGroup>
 
-              <Button type="submit">
-                Upload
-              </Button>
-            </DialogFooter>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpenCreation(false)}
+                >
+                  Cancel
+                </Button>
 
-          </form>
-        </DialogContent>
-      </Dialog>
+                <Button type="submit">
+                  Upload
+                </Button>
+              </DialogFooter>
 
-      {/* ============== PROCESSING PDF ============== */}
-      <Toast
-        open={isProcessing}
-        title="Processing pdf"
-        description="Please wait while the pdf is being processed for upload..."
-      />
+            </form>
+          </DialogContent>
+        </Dialog>
 
-      {/* ================= UPLOADING ================= */}
-      <Toast
-        open={isUploading}
-        title="Uploading files"
-        description="Please wait while your files are being uploaded..."
-      />
+        {/* ============== PROCESSING PDF ============== */}
+        <Toast
+          open={isProcessing}
+          title="Processing pdf"
+          description="Please wait while the pdf is being processed for upload..."
+        />
 
-      {/* ================= ALERT ================= */}
-      <InfoDialog
-        open={openAlert}
-        onOpenChange={setOpenAlert}
-        title="Error"
-        description={alertMessage}
-      />
+        {/* ================= UPLOADING ================= */}
+        <Toast
+          open={isUploading}
+          title="Uploading files"
+          description="Please wait while your files are being uploaded..."
+        />
+
+        {/* ================= ALERT ================= */}
+        <InfoDialog
+          open={openAlert}
+          onOpenChange={setOpenAlert}
+          title="Error"
+          description={alertMessage}
+        />
+
+      </div>
 
     </div>
   );

@@ -85,6 +85,9 @@ const OrganizationPage = () => {
     const [inviteActionPermissionsEdited, setInviteActionPermissionsEdited] = useState<ActionPermission>("admins")
     const [isSavingChanges, setIsSavingChanges] = useState<boolean>(false)
 
+    // LEAVE ORGANIZATRION VARIABLES
+    const [openLeaveOrganizationDialog, setOpenLeaveOrganizationDialog] = useState<boolean>(false)
+
     // HOOK
     const { organizationPermissions, projects, projectThumbnails, userOrganizationRole, organizationMembersList, loadingOrganizationProjects, error, refreshProjects } = useOrganization(id!)
 
@@ -251,380 +254,58 @@ const OrganizationPage = () => {
 
         <div className="main-content">
 
-            {projects.length === 0 ? (
-            <EmptyProjects
-                userRole={userOrganizationRole} 
-                onCreateClick={() => setOpenCreationDialog(true)} 
-            />
-            ) : (
+            <div className="main-content-item flex gap-4">
 
-            <>
-
-                <div className="main-content-item flex gap-4">
-
-                    {(userOrganizationRole === "admin" || organizationPermissions.createPermission === "members") && (
-                        <Button
-                            variant="ghost"
-                            className="text-[var(--text)]"
-                            onClick={() => setOpenCreationDialog(true)}
-                        >
-                            Create project
-                        </Button>
-                    )}
-
-                    {/* PROJECT CREATION DIALOG */}
-                    <Dialog 
-                        open={openCreationDialog} 
-                        onOpenChange={(open) => {
-                            if(!open){
-                                closeCreateDialog()
-                            }
-                            setOpenCreationDialog(open)
-                        }}
-                    >
-                        <DialogContent className="sm:max-w-sm">
-
-                            <form onSubmit={handleCreateProject}>
-
-                            <DialogHeader>
-                                <DialogTitle>Creating new project</DialogTitle>
-                                <DialogDescription>
-                                Complete the next fields and press "Create".
-                                </DialogDescription>
-                            </DialogHeader>
-
-                            <FieldGroup className="space-y-4 my-6">
-
-                                {/* Project name */}
-                                <Field>
-                                <Label htmlFor="projectName">Project name *</Label>
-                                <Input
-                                    id="projectName"
-                                    name="projectName"
-                                    required
-                                    minLength={3}
-                                    maxLength={100}
-                                />
-                                </Field>
-
-                                {/* Dynamic fields */}
-                                {customFields.map((field, index) => (
-                                <Field key={index}>
-                                    <Label>{field.name}</Label>
-
-                                    {field.type === "text" && (
-                                    <Input
-                                        value={field.value}
-                                        onChange={(e) =>
-                                        handleCustomFieldChange(index, e.target.value)
-                                        }
-                                    />
-                                    )}
-
-                                    {field.type === "number" && (
-                                    <Input
-                                        type="number"
-                                        value={field.value}
-                                        onChange={(e) =>
-                                        handleCustomFieldChange(index, Number(e.target.value))
-                                        }
-                                    />
-                                    )}
-
-                                    {field.type === "date" && (
-                                    <DatePickerField
-                                        value={field.value}
-                                        onChange={(date) =>
-                                        handleCustomFieldChange(index, date)
-                                        }
-                                    />
-                                    )}
-                                </Field>
-                                ))}
-
-                                {/* Add field button */}
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => setOpenNewFieldDialog(true)}
-                                >
-                                    Add new field
-                                </Button>
-
-                            </FieldGroup>
-
-                            <DialogFooter>
-                                <DialogClose asChild>
-                                    <Button variant="outline">Cancel</Button>
-                                </DialogClose>
-                                <Button onClick={closeCreateDialog} type="submit">Create</Button>
-                            </DialogFooter>
-
-                            </form>
-                        </DialogContent>
-                    </Dialog>
-
-
-
-                    {/* CREATE FIELD DIALOG */}
-                    <Dialog open={openNewFieldDialog} onOpenChange={setOpenNewFieldDialog}>
-                        <DialogContent className="sm:max-w-sm">
-
-                            <DialogHeader>
-                            <DialogTitle>Add new field</DialogTitle>
-                            </DialogHeader>
-
-                            <FieldGroup>
-
-                            <Field>
-                                <Label>Field name</Label>
-                                <Input
-                                value={newFieldName}
-                                onChange={(e) => setNewFieldName(e.target.value)}
-                                />
-                            </Field>
-
-                            <Field>
-                                <Label>Field type</Label>
-                                <Select onValueChange={setNewFieldType}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select type" />
-                                </SelectTrigger>
-
-                                <SelectContent>
-                                    <SelectGroup>
-                                    <SelectItem value="text">Text</SelectItem>
-                                    <SelectItem value="number">Number</SelectItem>
-                                    <SelectItem value="date">Date</SelectItem>
-                                    </SelectGroup>
-                                </SelectContent>
-                                </Select>
-                            </Field>
-
-                            </FieldGroup>
-
-                            <DialogFooter>
-                            <DialogClose asChild>
-                                <Button variant="outline">Cancel</Button>
-                            </DialogClose>
-
-                            <Button onClick={handleAddField}>
-                                Create
-                            </Button>
-                            </DialogFooter>
-
-                        </DialogContent>
-                    </Dialog>
-
-                    {/* ERROR ALERT */}
-                    <AlertDialog open={errorOpen} onOpenChange={setErrorOpen}>
-                        <AlertDialogContent size="sm">
-                            <AlertDialogHeader>
-                            <AlertDialogTitle>Error</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                {errorMessage}
-                            </AlertDialogDescription>
-                            </AlertDialogHeader>
-
-                            <AlertDialogFooter>
-                                <div className="flex justify-end"></div>
-                                <AlertDialogAction onClick={() => setErrorOpen(false)}>
-                                    Ok
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
-                    
-                    {/* MEMBER INVITATION */}
-                    {(userOrganizationRole === "admin" || organizationPermissions.invitePermission === "members") && (
-                        <Button
-                            variant="ghost"
-                            className="text-[var(--text)]"
-                            onClick={() => setOpenInvitationDialog(true)}
-                        >
-                            Invite member
-                        </Button>
-                    )}
-
-                    <Dialog open={openInvitationDialog} onOpenChange={setOpenInvitationDialog}>
-                        <DialogContent className="sm:max-w-sm">
-                            <form onSubmit={handleSendInvitation}>
-                                <DialogHeader>
-                                    <DialogTitle>Send invitation</DialogTitle>
-                                    <DialogDescription>
-                                        Here you can send an invitation to the email you enter.
-                                    </DialogDescription>
-                                </DialogHeader>
-
-                                <FieldGroup className="space-y-4 my-6">
-
-                                    <Field>
-                                        <Label htmlFor="email">Email *</Label>
-                                        <Input 
-                                            id="email"
-                                            name="email"
-                                            required
-                                            minLength={6}
-                                            maxLength={100}
-                                        ></Input>
-                                    </Field>
-
-                                    {userOrganizationRole?.toLowerCase() === "admin" && (
-                                        <Field>
-                                            <Label htmlFor="role">Role within organization</Label>
-                                            <Select 
-                                                defaultValue="member"
-                                                onValueChange={setInvitationRoleSelected}    
-                                            >
-                                                <SelectTrigger>
-                                                    <SelectValue/>
-                                                </SelectTrigger>
-                                                <SelectContent
-                                                    position="popper"
-                                                >
-                                                    <SelectGroup>
-                                                        <SelectItem value="member">Member</SelectItem>
-                                                        <SelectItem value="admin">Admin</SelectItem>
-                                                    </SelectGroup>
-                                                </SelectContent>
-                                            </Select>
-                                        </Field>
-                                    )}
-
-                                </FieldGroup>
-                                
-                                {!showInvitationHelp && (
-                                    <Button
-                                        variant="link"
-                                        className="mb-4"
-                                        onClick={showOrHideSendInvitation}
-                                    >
-                                        More info
-                                    </Button>
-                                )}
-
-                                {showInvitationHelp && (
-                                    <div className="mb-4">
-                                        <p className="comment-text">
-                                            Once you enter the email address of the user you wish to invite and select the role they will have (Member by default), an email will be sent containing a code/token. The invited user can then enter this code/token in the "Home" section under "Join Organization." Upon entering the code/token, access to your organization will be granted. 
-                                        </p>
-                                        <Button
-                                            onClick={showOrHideSendInvitation}
-                                        >
-                                            Close information
-                                        </Button>
-                                    </div>
-                                )}
-
-                                <DialogFooter>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={() => setOpenInvitationDialog(false)}
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        type="submit"
-                                    >
-                                        Send
-                                    </Button>
-                                </DialogFooter>
-
-                            </form>
-                        </DialogContent>
-                    </Dialog>
-
+                {(userOrganizationRole === "admin" || organizationPermissions.createPermission === "members") && (
                     <Button
                         variant="ghost"
                         className="text-[var(--text)]"
-                        onClick={handleScrollToUsers}
+                        onClick={() => setOpenCreationDialog(true)}
                     >
-                        View members
+                        Create project
                     </Button>
+                )}
+                
+                {/* MEMBER INVITATION */}
+                {(userOrganizationRole === "admin" || organizationPermissions.invitePermission === "members") && (
+                    <Button
+                        variant="ghost"
+                        className="text-[var(--text)]"
+                        onClick={() => setOpenInvitationDialog(true)}
+                    >
+                        Invite member
+                    </Button>
+                )}
 
-                    {/* CHANGE ACTION PERMISSIONS */}
-                    {userOrganizationRole === "admin" && (
-                        <Button
-                            variant="ghost"
-                            className="text-[var(--text)]"
-                            onClick={() => loadEditVariables()}
-                        >
-                            Change action permissions
-                        </Button>
-                    )}
+                <Button
+                    variant="ghost"
+                    className="text-[var(--text)]"
+                    onClick={handleScrollToUsers}
+                >
+                    View members
+                </Button>
 
-                    <Dialog open={openActionPermissionsEdit} onOpenChange={setOpenActionPermissionsEdit}>
-                        <DialogContent className="sm:max-w-sm">
+                {/* CHANGE ACTION PERMISSIONS */}
+                {userOrganizationRole === "admin" && (
+                    <Button
+                        variant="ghost"
+                        className="text-[var(--text)]"
+                        onClick={() => loadEditVariables()}
+                    >
+                        Change action permissions
+                    </Button>
+                )}
 
-                            <DialogHeader>
-                            <DialogTitle>Add new field</DialogTitle>
-                            </DialogHeader>
+            </div>
 
-                            <FieldGroup>
+            {projects.length === 0 ? (
+                
+                <EmptyProjects
+                    userRole={userOrganizationRole} 
+                    onCreateClick={() => setOpenCreationDialog(true)} 
+                />
 
-                            <Field>
-                                <Label>Who can create projects?</Label>
-                                <Select 
-                                    defaultValue={createActionPermissionsEdited}
-                                    onValueChange={(value) => setCreateActionPermissionsEdited(value as ActionPermission)}
-                                >
-                                <SelectTrigger>
-                                    <SelectValue />
-                                </SelectTrigger>
-
-                                <SelectContent position="popper">
-                                    <SelectGroup>
-                                    <SelectItem value="admins">Only admins</SelectItem>
-                                    <SelectItem value="members">All members</SelectItem>
-                                    </SelectGroup>
-                                </SelectContent>
-                                </Select>
-                            </Field>
-
-                            <Field>
-                                <Label>Who can invite members?</Label>
-                                <Select 
-                                    defaultValue={inviteActionPermissionsEdited}
-                                    onValueChange={(value) => setInviteActionPermissionsEdited(value as ActionPermission)}
-                                >
-                                <SelectTrigger>
-                                    <SelectValue />
-                                </SelectTrigger>
-
-                                <SelectContent position="popper">
-                                    <SelectGroup>
-                                    <SelectItem value="admins">Only admins</SelectItem>
-                                    <SelectItem value="members">All members</SelectItem>
-                                    </SelectGroup>
-                                </SelectContent>
-                                </Select>
-                            </Field>
-
-                            </FieldGroup>
-
-                            <DialogFooter>
-                            <DialogClose asChild>
-                                <Button variant="outline">Cancel</Button>
-                            </DialogClose>
-
-                            <Button onClick={handleEditActionPermissions}>
-                                Create
-                            </Button>
-                            </DialogFooter>
-
-                        </DialogContent>
-                    </Dialog>
-
-                    {/* SAVING CHANGES */}
-                    <Toast
-                        open={isSavingChanges}
-                        title="Saving changes"
-                        description="Please wait while this the changes are being saved..."
-                    />
-
-                </div>
-
+            ) : (
 
                 <div className="main-content-item">
 
@@ -710,91 +391,416 @@ const OrganizationPage = () => {
                     </div>
 
                 </div>
-            </>
             )}
 
         </div>
 
-            <Separator />
+        <Separator />
 
-            <div className="main-content">
+        <div className="main-content">
 
-                {/* MEMBERS */}
-                <div
-                    ref={usersSectionRef}
-                    className="main-content-item"
-                >
+            {/* MEMBERS */}
+            <div
+                ref={usersSectionRef}
+                className="main-content-item"
+            >
 
-                <h3 className="sub-heading-2">
-                    Organization members ({organizationMembersList.length})
-                </h3>
+            <h3 className="sub-heading-2">
+                Organization members ({organizationMembersList.length})
+            </h3>
 
-                {organizationMembersList.length === 1 && (
-                    <OrganizationMemberItem
-                        key={organizationMembersList[0]._id}
-                        member={organizationMembersList[0]}
-                        onViewUser={handleViewUserProfile}
-                        onRemoveUser={handleQuickUser}
-                    />
-                )}
-                 
-                {organizationMembersList.length > 1 && (
-                    <div className="border rounded-lg">
-                        <ScrollArea className="h-[300px] w-full">
-                            <ItemGroup className="w-full p-2">
-                                {organizationMembersList.map((member) => (
-                                    <OrganizationMemberItem
-                                        key={member._id}
-                                        member={member}
-                                        onViewUser={handleViewUserProfile}
-                                        onRemoveUser={handleQuickUser}
-                                    />
-                                ))}
-                            </ItemGroup>
-                        </ScrollArea>
-                    </div>
-                )}
-
+            {organizationMembersList.length === 1 && (
+                <OrganizationMemberItem
+                    key={organizationMembersList[0]._id}
+                    member={organizationMembersList[0]}
+                    onViewUser={handleViewUserProfile}
+                    onRemoveUser={handleQuickUser}
+                />
+            )}
+                
+            {organizationMembersList.length > 1 && (
+                <div className="border rounded-lg">
+                    <ScrollArea className="h-[300px] w-full">
+                        <ItemGroup className="w-full p-2">
+                            {organizationMembersList.map((member) => (
+                                <OrganizationMemberItem
+                                    key={member._id}
+                                    member={member}
+                                    onViewUser={handleViewUserProfile}
+                                    onRemoveUser={handleQuickUser}
+                                />
+                            ))}
+                        </ItemGroup>
+                    </ScrollArea>
                 </div>
-
-                {/* LEAVE ORGANIZATION */}
-                <div className="main-content-item">
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                            <Button variant="destructive">
-                            Leave organization
-                            </Button>
-                        </AlertDialogTrigger>
-
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                            <AlertDialogTitle>
-                                Are you sure you want to leave this organization?
-                            </AlertDialogTitle>
-
-                            <AlertDialogDescription>
-                                You will lose access to all projects and data associated with this organization.
-                                This action cannot be undone.
-                            </AlertDialogDescription>
-                            </AlertDialogHeader>
-
-                            <AlertDialogFooter>
-                            <AlertDialogCancel>
-                                Cancel
-                            </AlertDialogCancel>
-
-                            <AlertDialogAction
-                                variant="destructive"
-                                onClick={handleLeaveOrganization}
-                            >
-                                Leave
-                            </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                        </AlertDialog>
-                </div>
+            )}
 
             </div>
+
+            <Button 
+                variant="destructive"
+                onClick={() => setOpenLeaveOrganizationDialog(true)}
+            >
+                Leave organization
+            </Button>
+
+        </div>
+
+        {/* UI OVERLAYS */}
+        <div>
+
+            {/* PROJECT CREATION DIALOG */}
+            <Dialog 
+                open={openCreationDialog} 
+                onOpenChange={(open) => {
+                    if(!open){
+                        closeCreateDialog()
+                    }
+                    setOpenCreationDialog(open)
+                }}
+            >
+                <DialogContent className="sm:max-w-sm">
+
+                    <form onSubmit={handleCreateProject}>
+
+                    <DialogHeader>
+                        <DialogTitle>Creating new project</DialogTitle>
+                        <DialogDescription>
+                        Complete the next fields and press "Create".
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <FieldGroup className="space-y-4 my-6">
+
+                        {/* Project name */}
+                        <Field>
+                        <Label htmlFor="projectName">Project name *</Label>
+                        <Input
+                            id="projectName"
+                            name="projectName"
+                            required
+                            minLength={3}
+                            maxLength={100}
+                        />
+                        </Field>
+
+                        {/* Dynamic fields */}
+                        {customFields.map((field, index) => (
+                        <Field key={index}>
+                            <Label>{field.name}</Label>
+
+                            {field.type === "text" && (
+                            <Input
+                                value={field.value}
+                                onChange={(e) =>
+                                handleCustomFieldChange(index, e.target.value)
+                                }
+                            />
+                            )}
+
+                            {field.type === "number" && (
+                            <Input
+                                type="number"
+                                value={field.value}
+                                onChange={(e) =>
+                                handleCustomFieldChange(index, Number(e.target.value))
+                                }
+                            />
+                            )}
+
+                            {field.type === "date" && (
+                            <DatePickerField
+                                value={field.value}
+                                onChange={(date) =>
+                                handleCustomFieldChange(index, date)
+                                }
+                            />
+                            )}
+                        </Field>
+                        ))}
+
+                        {/* Add field button */}
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setOpenNewFieldDialog(true)}
+                        >
+                            Add new field
+                        </Button>
+
+                    </FieldGroup>
+
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button variant="outline">Cancel</Button>
+                        </DialogClose>
+                        <Button onClick={closeCreateDialog} type="submit">Create</Button>
+                    </DialogFooter>
+
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* CREATE FIELD DIALOG */}
+            <Dialog open={openNewFieldDialog} onOpenChange={setOpenNewFieldDialog}>
+                <DialogContent className="sm:max-w-sm">
+
+                    <DialogHeader>
+                    <DialogTitle>Add new field</DialogTitle>
+                    </DialogHeader>
+
+                    <FieldGroup>
+
+                    <Field>
+                        <Label>Field name</Label>
+                        <Input
+                        value={newFieldName}
+                        onChange={(e) => setNewFieldName(e.target.value)}
+                        />
+                    </Field>
+
+                    <Field>
+                        <Label>Field type</Label>
+                        <Select onValueChange={setNewFieldType}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+
+                        <SelectContent>
+                            <SelectGroup>
+                            <SelectItem value="text">Text</SelectItem>
+                            <SelectItem value="number">Number</SelectItem>
+                            <SelectItem value="date">Date</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                        </Select>
+                    </Field>
+
+                    </FieldGroup>
+
+                    <DialogFooter>
+                    <DialogClose asChild>
+                        <Button variant="outline">Cancel</Button>
+                    </DialogClose>
+
+                    <Button onClick={handleAddField}>
+                        Create
+                    </Button>
+                    </DialogFooter>
+
+                </DialogContent>
+            </Dialog>
+
+            {/* ERROR ALERT */}
+            <AlertDialog open={errorOpen} onOpenChange={setErrorOpen}>
+                <AlertDialogContent size="sm">
+                    <AlertDialogHeader>
+                    <AlertDialogTitle>Error</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        {errorMessage}
+                    </AlertDialogDescription>
+                    </AlertDialogHeader>
+
+                    <AlertDialogFooter>
+                        <div className="flex justify-end"></div>
+                        <AlertDialogAction onClick={() => setErrorOpen(false)}>
+                            Ok
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* MEMBER INVITATION */}
+            <Dialog open={openInvitationDialog} onOpenChange={setOpenInvitationDialog}>
+                <DialogContent className="sm:max-w-sm">
+                    <form onSubmit={handleSendInvitation}>
+                        <DialogHeader>
+                            <DialogTitle>Send invitation</DialogTitle>
+                            <DialogDescription>
+                                Here you can send an invitation to the email you enter.
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <FieldGroup className="space-y-4 my-6">
+
+                            <Field>
+                                <Label htmlFor="email">Email *</Label>
+                                <Input 
+                                    id="email"
+                                    name="email"
+                                    required
+                                    minLength={6}
+                                    maxLength={100}
+                                ></Input>
+                            </Field>
+
+                            {userOrganizationRole?.toLowerCase() === "admin" && (
+                                <Field>
+                                    <Label htmlFor="role">Role within organization</Label>
+                                    <Select 
+                                        defaultValue="member"
+                                        onValueChange={setInvitationRoleSelected}    
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue/>
+                                        </SelectTrigger>
+                                        <SelectContent
+                                            position="popper"
+                                        >
+                                            <SelectGroup>
+                                                <SelectItem value="member">Member</SelectItem>
+                                                <SelectItem value="admin">Admin</SelectItem>
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+                                </Field>
+                            )}
+
+                        </FieldGroup>
+                        
+                        {!showInvitationHelp && (
+                            <Button
+                                variant="link"
+                                className="mb-4"
+                                onClick={showOrHideSendInvitation}
+                            >
+                                More info
+                            </Button>
+                        )}
+
+                        {showInvitationHelp && (
+                            <div className="mb-4">
+                                <p className="comment-text">
+                                    Once you enter the email address of the user you wish to invite and select the role they will have (Member by default), an email will be sent containing a code/token. The invited user can then enter this code/token in the "Home" section under "Join Organization." Upon entering the code/token, access to your organization will be granted. 
+                                </p>
+                                <Button
+                                    onClick={showOrHideSendInvitation}
+                                >
+                                    Close information
+                                </Button>
+                            </div>
+                        )}
+
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setOpenInvitationDialog(false)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                            >
+                                Send
+                            </Button>
+                        </DialogFooter>
+
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* CHANGE ACTION PERMISSIONS */}
+            <Dialog open={openActionPermissionsEdit} onOpenChange={setOpenActionPermissionsEdit}>
+                <DialogContent className="sm:max-w-sm">
+
+                    <DialogHeader>
+                    <DialogTitle>Add new field</DialogTitle>
+                    </DialogHeader>
+
+                    <FieldGroup>
+
+                    <Field>
+                        <Label>Who can create projects?</Label>
+                        <Select 
+                            defaultValue={createActionPermissionsEdited}
+                            onValueChange={(value) => setCreateActionPermissionsEdited(value as ActionPermission)}
+                        >
+                        <SelectTrigger>
+                            <SelectValue />
+                        </SelectTrigger>
+
+                        <SelectContent position="popper">
+                            <SelectGroup>
+                            <SelectItem value="admins">Only admins</SelectItem>
+                            <SelectItem value="members">All members</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                        </Select>
+                    </Field>
+
+                    <Field>
+                        <Label>Who can invite members?</Label>
+                        <Select 
+                            defaultValue={inviteActionPermissionsEdited}
+                            onValueChange={(value) => setInviteActionPermissionsEdited(value as ActionPermission)}
+                        >
+                        <SelectTrigger>
+                            <SelectValue />
+                        </SelectTrigger>
+
+                        <SelectContent position="popper">
+                            <SelectGroup>
+                            <SelectItem value="admins">Only admins</SelectItem>
+                            <SelectItem value="members">All members</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                        </Select>
+                    </Field>
+
+                    </FieldGroup>
+
+                    <DialogFooter>
+                    <DialogClose asChild>
+                        <Button variant="outline">Cancel</Button>
+                    </DialogClose>
+
+                    <Button onClick={handleEditActionPermissions}>
+                        Create
+                    </Button>
+                    </DialogFooter>
+
+                </DialogContent>
+            </Dialog>
+
+            {/* SAVING CHANGES */}
+            <Toast
+                open={isSavingChanges}
+                title="Saving changes"
+                description="Please wait while this the changes are being saved..."
+            />
+
+            {/* LEAVE ORGANIZATION */}
+            <AlertDialog open={openLeaveOrganizationDialog} onOpenChange={setOpenLeaveOrganizationDialog}>
+
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                    <AlertDialogTitle>
+                        Are you sure you want to leave this organization?
+                    </AlertDialogTitle>
+
+                    <AlertDialogDescription>
+                        You will lose access to all projects and data associated with this organization.
+                        This action cannot be undone.
+                    </AlertDialogDescription>
+                    </AlertDialogHeader>
+
+                    <AlertDialogFooter>
+                    <AlertDialogCancel>
+                        Cancel
+                    </AlertDialogCancel>
+
+                    <AlertDialogAction
+                        variant="destructive"
+                        onClick={handleLeaveOrganization}
+                    >
+                        Leave
+                    </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+        </div>
 
         </div>
     )

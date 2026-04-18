@@ -24,6 +24,7 @@ export interface CreateOrganizationPayload {
   contactEmail: string
   contactPhone: string
   record: string
+  maxBlueprints: string,
   adminId: string
   createPermission: ActionPermission
   invitePermission: ActionPermission

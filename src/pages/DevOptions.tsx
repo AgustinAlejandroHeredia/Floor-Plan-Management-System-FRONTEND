@@ -111,6 +111,7 @@ const DevOptions = () => {
                 contactEmail: formData.get("contactEmail") as string,
                 contactPhone: formData.get("contactPhone") as string,
                 record: formData.get("record") as string,
+                maxBlueprints: formData.get("maxBlueprints") as string,
                 adminId: selectedAdminId,
                 createPermission: creationPermission,
                 invitePermission: invitationPermission,

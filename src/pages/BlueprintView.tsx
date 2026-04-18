@@ -346,9 +346,11 @@ const BlueprintView = () => {
                     {/* OPTIONS */}
                     <div className="flex flex-col gap-2 h-full justify-center">
 
+                        <Button variant="secondary" onClick={handleDownloadFile}>Download blueprint</Button>
                         <Button variant="secondary" onClick={() => setOpenEditDialog(true)}>Edit blueprint</Button>
                         <Button variant="secondary" onClick={handleCropMode}>Generate crop manually</Button>
                         <Button variant="secondary" onClick={handleMagicCrop}>Magic crop</Button>
+                        <Button variant="destructive" onClick={() => setOpenDeleteDialog(true)}>Delete blueprint</Button>
                     
                     </div>
                 </div>
@@ -557,8 +559,6 @@ const BlueprintView = () => {
                     title="Saving changes"
                     description="Please wait while your changes are saved..."
                 />
-
-                <Button variant="secondary" onClick={handleDownloadFile}>Download blueprint</Button>
                 
                 {/* DOWNLOADING BLUEPRINT */}
                 <Toast
@@ -581,9 +581,6 @@ const BlueprintView = () => {
                     title="Crop generated"
                     description="The crop has been successfully created and is now available as a new blueprint within this project."
                 />
-            
-                {/* DELETE BUTTON */}
-                <Button variant="destructive" onClick={() => setOpenDeleteDialog(true)}>Delete blueprint</Button>
 
                 {/* DELETE ALERT DIALOG */}
                 <ConfirmDeleteDialog

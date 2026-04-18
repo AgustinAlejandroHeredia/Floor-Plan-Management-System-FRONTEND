@@ -61,6 +61,10 @@ export const BlueprintViewService = {
             formData.append("originalBlueprintId", data.originalBlueprintId)
             formData.append("width", String(data.width))
             formData.append("height", String(data.height))
+            
+            data.tags.forEach((tag) => {
+                formData.append("tags", tag);
+            });
 
             await api.post("/blueprints", formData)
 

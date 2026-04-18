@@ -245,6 +245,8 @@ const BlueprintView = () => {
             height: imageRes.height,
         };
 
+        console.log("PAYLOAD: ", payload)
+
         const success = await BlueprintViewService.createBlueprint(payload);
         setIsUploadingCrop(false);
 

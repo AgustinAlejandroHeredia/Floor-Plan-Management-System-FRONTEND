@@ -127,6 +127,10 @@ export interface BlueprintType {
   croppedFrom?: string
   height?: number
   width?: number
+  cropsMade?: {
+    blueprintId: string,
+    blueprintName: string,
+  }[]
 }
 
 export interface CreateBlueprintPayload {

@@ -4,6 +4,8 @@ import Loading from "@/components/Loading";
 import { useBlueprintView } from "@/hooks/useBlueprintView";
 import { useNavigate, useParams } from "react-router-dom";
 
+import { MdOpenInNew } from "react-icons/md";
+
 import {
   Card,
   CardHeader,
@@ -99,24 +101,44 @@ const BlueprintView = () => {
         .replace(/^./, (str) => str.toUpperCase());
 
     const filteredBlueprintEntries = blueprint
-        ? Object.entries(blueprint).filter(
-            ([key]) =>
-            key !== "creatorUserId" &&
-            key !== "organizationId" &&
-            key !== "projectId" &&
-            key !== "_id" &&
-            key !== "__v" &&
-            key !== "encoding" &&
-            key !== "storageId" &&
-            key !== "size" &&
-            key !== "downloadUrl" &&
-            key !== "mimetype" &&
-            key !== "uploadedBy" &&
-            key != "storageThumbnailId" &&
-            key != "originalBlueprintId" &&
-            key != "width" &&
-            key != "height"
-        )
+        ? Object.entries(blueprint)
+            .filter(
+                ([key]) =>
+                key !== "creatorUserId" &&
+                key !== "organizationId" &&
+                key !== "projectId" &&
+                key !== "_id" &&
+                key !== "__v" &&
+                key !== "encoding" &&
+                key !== "storageId" &&
+                key !== "size" &&
+                key !== "downloadUrl" &&
+                key !== "mimetype" &&
+                key !== "uploadedBy" &&
+                key !== "storageThumbnailId" &&
+                key !== "originalBlueprintId" &&
+                key !== "width" &&
+                key !== "height"
+            )
+            .sort(([keyA], [keyB]) => {
+                const order = [
+                "blueprintName",
+                "tags",
+                "creationDate",
+                "filename",
+                "croppedFrom",
+                "cropsMade",
+                ];
+
+                const indexA = order.indexOf(keyA);
+                const indexB = order.indexOf(keyB);
+
+                if (indexA === -1 && indexB === -1) return 0;
+                if (indexA === -1) return 1;
+                if (indexB === -1) return -1;
+
+                return indexA - indexB;
+            })
         : [];
 
     const getDisplayFileName = (filename: string) => {
@@ -245,8 +267,6 @@ const BlueprintView = () => {
             height: imageRes.height,
         };
 
-        console.log("PAYLOAD: ", payload)
-
         const success = await BlueprintViewService.createBlueprint(payload);
         setIsUploadingCrop(false);
 
@@ -258,6 +278,11 @@ const BlueprintView = () => {
         }
     };
 
+    const handleRefreshAfterCrop = () => {
+        setCropSuccesfullyUploaded(false)
+        refreshBlueprint()
+    }
+
     const handleCancelCrop = () => {
         setCropMode(false);
         setCompletedCrop(null);
@@ -268,6 +293,13 @@ const BlueprintView = () => {
             height: 0,
         })
     };
+
+    const handleOpenAnotherBlueprint = (blueprintId: string, blueprintName: string) => {
+        console.log("OPEN ANOTHER BLUEPRINT : ", blueprintId, ", ", blueprintName)
+        navigate(
+            `/BlueprintView/${organizationName}/${organizationId}/${projectName}/${projectId}/${blueprintName}/${blueprintId}`
+        )
+    }
 
     const handleMagicCrop = () => {
         console.log("Magic crop")
@@ -330,15 +362,68 @@ const BlueprintView = () => {
                             <span className="font-semibold">
                                 {formatKey(key)}:
                             </span>{" "}
-                            {key === "creationDate"
-                                ? new Date(value as string).toLocaleDateString("es-AR")
-                                : key === "filename"
-                                ? getDisplayFileName(value as string)
-                                : key === "tags"
-                                ? (value as string[]).length > 0
+
+                            {key === "creationDate" ? (
+                                new Date(value as string).toLocaleDateString("es-AR")
+
+                            ) : key === "filename" ? (
+                                getDisplayFileName(value as string)
+
+                            ) : key === "tags" ? (
+                                (value as string[]).length > 0
                                 ? (value as string[]).join(", ")
                                 : "no tags to show"
-                                : String(value)}
+
+                            ) : key === "croppedFrom" ? (
+                                value ? (
+                                    <>
+                                    {value}
+
+                                    {/*
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                        handleOpenAnotherBlueprint(
+                                            
+                                        )
+                                        }
+                                        className="inline-flex items-center ml-2 hover:opacity-70 transition"
+                                    >
+                                        <MdOpenInNew size={16} />
+                                    </button>
+                                    */}
+                                    </>
+                                ) : (
+                                    "none"
+                                )
+
+                            ) : key === "cropsMade" ? (
+                                Array.isArray(value) && value.length > 0 ? (
+                                    <div className="ml-4 mt-1 space-y-1">
+                                    {value.map((crop, index) => (
+                                        <div
+                                        key={index}
+                                        className="flex items-center gap-2"
+                                        >
+                                        <span>• {crop.blueprintName}</span>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => handleOpenAnotherBlueprint(crop.blueprintId, crop.blueprintName)}
+                                            className="hover:opacity-70 transition"
+                                        >
+                                            <MdOpenInNew size={16} />
+                                        </button>
+                                        </div>
+                                    ))}
+                                    </div>
+                                ) : (
+                                    "none"
+                                )
+
+                            ) : (
+                                String(value)
+                            )}
                             </CardDescription>
                         </div>
                         ))}
@@ -507,7 +592,7 @@ const BlueprintView = () => {
             {/* UI OVERLAYS */}
             <div>
 
-                {/* EDIT PROJECT */}
+                {/* EDIT BLUEPTINT */}
                 <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
                     <DialogContent className="sm:max-w-sm">
                         <form onSubmit={handleEditBlueprint}>
@@ -532,7 +617,7 @@ const BlueprintView = () => {
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="tags"></Label>
+                                    <Label htmlFor="tags">Tags *</Label>
                                     <Input
                                         id="tags"
                                         name="tags"
@@ -579,7 +664,7 @@ const BlueprintView = () => {
                 {/* CROP SUCCESSFULY UPLOADED */}
                 <InfoDialog
                     open={cropSuccessfullyUploaded}
-                    onOpenChange={setCropSuccesfullyUploaded}
+                    onOpenChange={handleRefreshAfterCrop}
                     title="Crop generated"
                     description="The crop has been successfully created and is now available as a new blueprint within this project."
                 />

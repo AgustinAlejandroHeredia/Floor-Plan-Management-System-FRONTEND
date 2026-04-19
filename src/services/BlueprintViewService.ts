@@ -5,6 +5,7 @@ export const BlueprintViewService = {
 
     getBlueprint: async (blueprintId: string): Promise<BlueprintType> => {
         const response = await api.get(`/blueprints/${blueprintId}`)
+        console.log("BLUEPRINT DATA RESPONSE : ", response.data)
         return response.data
     },
 
@@ -61,7 +62,7 @@ export const BlueprintViewService = {
             formData.append("originalBlueprintId", data.originalBlueprintId)
             formData.append("width", String(data.width))
             formData.append("height", String(data.height))
-            
+
             data.tags.forEach((tag) => {
                 formData.append("tags", tag);
             });

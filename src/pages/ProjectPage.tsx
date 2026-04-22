@@ -255,9 +255,14 @@ const ProjectPage = () => {
                       <span className="font-semibold capitalize">
                         {formatKey(key)}:
                       </span>{" "}
-                      {typeof value === "string" && !isNaN(Date.parse(value))
-                        ? new Date(value).toLocaleDateString()
-                        : String(value)}
+
+                      {key.toLowerCase() === "basement" ? (
+                        value === true ? "Yes" : "No"
+                      ) : key === "creationDate" && typeof value === "string" ? (
+                        new Date(value).toLocaleDateString()
+                      ) : (
+                        String(value)
+                      )}
                     </CardDescription>
                   </div>
                 ))}

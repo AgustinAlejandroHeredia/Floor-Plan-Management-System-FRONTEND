@@ -1,9 +1,11 @@
 import { api } from "../api/api";
-import type { BlueprintType, CreateCropPayload } from "@/types/types";
+import type { BlueprintResponseType, BlueprintType, BlueprintViewType, CreateCropPayload, SpecialtyTag } from "@/types/types";
+
+
 
 export const BlueprintViewService = {
 
-    getBlueprint: async (blueprintId: string): Promise<BlueprintType> => {
+    getBlueprint: async (blueprintId: string): Promise<BlueprintResponseType> => {
         const response = await api.get(`/blueprints/${blueprintId}`)
         console.log("BLUEPRINT DATA RESPONSE : ", response.data)
         return response.data
@@ -18,9 +20,14 @@ export const BlueprintViewService = {
         }
     },
 
-    updateBluperint: async (blueprintId: string, blueprintName: string, tags: string[]): Promise<BlueprintType | null> => {
+    updateBluperint: async (blueprintId: string, blueprintName: string, viewSelected: BlueprintViewType, specialties: SpecialtyTag[], levels: string[]): Promise<BlueprintType | null> => {
         try {
-            const response = await api.patch(`/blueprints/${blueprintId}`, {blueprintName, tags})
+            const response = await api.patch(`/blueprints/${blueprintId}`, {
+                blueprintName,
+                view: viewSelected,
+                specialties,
+                levels
+            })
             return response.data
         } catch (error) {
             return null
@@ -62,10 +69,6 @@ export const BlueprintViewService = {
             formData.append("originalBlueprintId", data.originalBlueprintId)
             formData.append("width", String(data.width))
             formData.append("height", String(data.height))
-
-            data.tags.forEach((tag) => {
-                formData.append("tags", tag);
-            });
 
             await api.post("/blueprints", formData)
 

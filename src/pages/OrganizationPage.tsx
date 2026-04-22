@@ -22,7 +22,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import {
   Dialog,
@@ -53,8 +52,9 @@ import { useState } from "react";
 
 import OrganizationMemberItem from "@/components/OrganizationMemberItem";
 import { Label } from "@/components/ui/label";
-import type { ActionPermission, CreateProjectPayload, OrganizationActionPermissions } from "@/types/types";
+import type { ActionPermission, CreateProjectPayload, OrganizationActionPermissions, ProjectOrganizationType } from "@/types/types";
 import Toast from "@/components/Toast";
+import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 
 const OrganizationPage = () => {
 
@@ -67,6 +67,7 @@ const OrganizationPage = () => {
     const [openCreationDialog, setOpenCreationDialog] = useState<boolean>(false);
     const [errorOpen, setErrorOpen] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
+    const [hasBasement, setHasBasement] = useState<string>("no")
 
     // CREATION VARIABLES / CUSTOM FIELDS
     const [customFields, setCustomFields] = useState<{ name: string; type: string; value: any }[]>([]);
@@ -84,6 +85,11 @@ const OrganizationPage = () => {
     const [createActionPermissionsEdited, setCreateActionPermissionsEdited] = useState<ActionPermission>("admins")
     const [inviteActionPermissionsEdited, setInviteActionPermissionsEdited] = useState<ActionPermission>("admins")
     const [isSavingChanges, setIsSavingChanges] = useState<boolean>(false)
+
+    // DELETE PROJECT VARIABLES
+    const [selectedProjectForDelete, setProjectForDelete] = useState<ProjectOrganizationType>()
+    const [openDeleteProjectDialog, setOpenDeleteProjectDialog] = useState<boolean>(false)
+    const [isDeletingProject, setIsDeletingProject] = useState<boolean>(false)
 
     // LEAVE ORGANIZATRION VARIABLES
     const [openLeaveOrganizationDialog, setOpenLeaveOrganizationDialog] = useState<boolean>(false)
@@ -141,13 +147,57 @@ const OrganizationPage = () => {
                 return
             }
 
+            console.log("PROJECT NAME : ", formData.get("projectName") as string)
+
+            if(!formData.get("projectName") || formData.get("projectName") === ""){
+                setErrorMessage("No name given for new project.")
+                setErrorOpen(true)
+                return
+            }
+            if((formData.get("projectName") as string).length < 3){
+                setErrorMessage("Project name too short (3 characters minimum).")
+                setErrorOpen(true)
+                return
+            }
+            if((formData.get("projectName") as string).length > 100){
+                setErrorMessage("Project name too long (100 characters maximum).")
+                setErrorOpen(true)
+                return
+            }
+
+            if(formData.get("levels")){
+                if(Number(formData.get("levels")) > 163){
+                    setErrorMessage("You choose a number of levels that exceed the maximum.")
+                    setErrorOpen(true)
+                    return
+                }
+                if(Number(formData.get("levels")) < 1){
+                    setErrorMessage("Minumum level is 1.")
+                    setErrorOpen(true)
+                    return
+                }
+            }else{
+                setErrorMessage("No levels selected.")
+                setErrorOpen(true)
+                return
+            }
+
             const customFieldsObject = Object.fromEntries(
                 customFields.map((field) => [field.name, field.value])
             )
 
+            var basement
+            if(hasBasement === "yes"){
+                basement = true
+            } else {
+                basement = false
+            }
+
             const payload: CreateProjectPayload = {
                 projectName: formData.get("projectName") as string,
                 organizationId: id,
+                levels: formData.get("levels") as string,
+                basement: basement,
                 customFields: customFieldsObject,
             };
 
@@ -164,7 +214,6 @@ const OrganizationPage = () => {
             form.reset()
 
             refreshProjects()
-
         } catch (error) {
             console.log("An unexpected error occurred")
             setErrorMessage("An unexpected error occurred");
@@ -239,6 +288,29 @@ const OrganizationPage = () => {
             setIsSavingChanges(false)
             setErrorMessage("Something went wrong saving the changes. Please try later.")
             setErrorOpen(true)
+        }
+    }
+
+    // DELETE
+    const handleSelectProjectForDelete = (projectId: string) => {
+        const project = projects.find(
+            (p) => p._id === projectId
+        )
+        setProjectForDelete(project)
+        setOpenDeleteProjectDialog(true)
+    }
+
+    const handleDeleteProject = async (projectId: string) => {
+        setOpenDeleteProjectDialog(false)
+        setIsDeletingProject(true)
+        try{
+            await OrganizationService.deleteProject(projectId)
+            refreshProjects()
+        } catch (error) {
+            setErrorMessage("An error has occurred while deleting project. Please try later.")
+            setErrorOpen(true)
+        } finally {
+            setIsDeletingProject(false)
         }
     }
 
@@ -323,6 +395,7 @@ const OrganizationPage = () => {
                     }}
                     >
                     {projects.map((project, index) => (
+                        <div>
                         <Card
                             key={index}
                             className="cursor-pointer transition-colors duration-200 bg-[var(--accent-bg)] hover:bg-[var(--accent-bg2)] max-w-md"
@@ -339,54 +412,65 @@ const OrganizationPage = () => {
                                     <span className="font-medium">Status:</span> {project.status}
                                 </div>
 
-                                {project.customFields &&
-                                    Object.entries(project.customFields).map(([key, value]) => (
-                                    <div key={key}>
-                                        <span className="font-medium capitalize">{key}:</span>{" "}
-                                        {typeof value === "string" && !isNaN(Date.parse(value))
-                                        ? new Date(value).toLocaleDateString()
-                                        : String(value)}
+                                {project.levels && (
+                                    <div>
+                                        <span className="font-medium">Levels:</span> {project.levels}
                                     </div>
-                                ))}
+                                )}
+
+                                {project.basement && (
+                                    <div>
+                                        <span className="font-medium">Basement:</span>{" "}
+                                        {project.basement ? "Yes" : "No"}
+                                    </div>
+                                )}
                             </div>
 
                             <div
-                            style={{
-                                width: "100%",
-                                height: "260px",
-                                overflow: "hidden",
-                                borderRadius: "6px",
-                                marginTop: "10px",
-                                marginBottom: "10px",
-                                background: "#eee",
-                            }}
-                            >
-                            {projectThumbnails[project._id] ? (
-                                <img
-                                src={projectThumbnails[project._id]}
-                                alt="project thumbnail"
                                 style={{
                                     width: "100%",
-                                    height: "100%",
-                                    objectFit: "cover",
-                                }}
-                                />
-                            ) : (
-                                <div
-                                style={{
-                                    textAlign: "center",
-                                    paddingTop: "60px",
-                                    fontSize: "12px",
-                                    color: "#999",
+                                    height: "260px",
+                                    overflow: "hidden",
+                                    borderRadius: "6px",
+                                    marginTop: "10px",
+                                    marginBottom: "10px",
+                                    background: "#eee",
                                 }}
                                 >
-                                No blueprint uploaded yet for this project
-                                </div>
-                            )}
+                                {projectThumbnails[project._id] ? (
+                                    <img
+                                    src={projectThumbnails[project._id]}
+                                    alt="project thumbnail"
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                    }}
+                                    />
+                                ) : (
+                                    <div
+                                    style={{
+                                        textAlign: "center",
+                                        paddingTop: "60px",
+                                        fontSize: "12px",
+                                        color: "#999",
+                                    }}
+                                    >
+                                    No blueprint uploaded yet for this project
+                                    </div>
+                                )}
                             </div>
-
                         </CardContent>
                         </Card>
+                        {(userOrganizationRole === "admin" || organizationPermissions.createPermission === "members") && (
+                            <Button
+                                variant="destructive"
+                                onClick={() => handleSelectProjectForDelete(project._id)}
+                            >
+                                Delete project
+                            </Button>
+                        )}
+                        </div>
                     ))}
                     </div>
 
@@ -482,6 +566,41 @@ const OrganizationPage = () => {
                             minLength={3}
                             maxLength={100}
                         />
+                        </Field>
+
+                        {/* Project levels / floors */}
+                        <Field>
+                        <Label htmlFor="levels">Levels/floors *</Label>
+                        <Input
+                            id="levels"
+                            name="levels"
+                            required
+                            type="number"
+                            min={1}
+                            max={163}
+                            defaultValue={1}
+                        />
+                        </Field>
+
+                        {/* Poject has basement */}
+                        <Field>
+                        <Label htmlFor="basement">Has basement</Label>
+                        <Select 
+                            defaultValue="no" 
+                            onValueChange={setHasBasement}
+                        >
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent
+                                position="popper"
+                            >
+                                <SelectGroup>
+                                    <SelectItem value="no">No</SelectItem>
+                                    <SelectItem value="yes">Yes</SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
                         </Field>
 
                         {/* Dynamic fields */}
@@ -705,7 +824,7 @@ const OrganizationPage = () => {
                 <DialogContent className="sm:max-w-sm">
 
                     <DialogHeader>
-                    <DialogTitle>Add new field</DialogTitle>
+                    <DialogTitle>Change actions permissions</DialogTitle>
                     </DialogHeader>
 
                     <FieldGroup>
@@ -799,6 +918,22 @@ const OrganizationPage = () => {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
+            {/* DELETE ALERT DIALOG */}
+            <ConfirmDeleteDialog
+                open={openDeleteProjectDialog}
+                onOpenChange={setOpenDeleteProjectDialog}
+                title={`Delete ${selectedProjectForDelete?.projectName ?? "project"}`}
+                description="This action cannot be undone. This will permanently delete this project, along with it's blueprints and files included."
+                onConfirm={() => handleDeleteProject(selectedProjectForDelete!._id)}
+            />
+
+            {/* DELETING ORGANIZATION */}
+            <Toast
+                open={isDeletingProject}
+                title="Deleting project"
+                description="Please wait while this project is being deleted..."
+            />
 
         </div>
 

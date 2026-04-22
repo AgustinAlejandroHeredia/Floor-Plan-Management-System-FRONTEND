@@ -27,10 +27,6 @@ export const ProjectService = {
             formData.append("projectId", data.projectId);
             formData.append("organizationId", data.organizationId);
 
-            data.tags.forEach((tag, index) => {
-                formData.append(`tags[${index}]`, tag);
-            });
-
             await api.post("/blueprints", formData);
 
             return true;

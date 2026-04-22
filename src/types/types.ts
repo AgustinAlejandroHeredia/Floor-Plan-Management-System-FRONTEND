@@ -95,6 +95,8 @@ export interface ProjectType {
 export interface ProjectOrganizationType {
   _id: string
   projectName: string
+  levels: string
+  basement: boolean
   status: StatusType
   customFields?: Record<string, any>
 }
@@ -102,6 +104,8 @@ export interface ProjectOrganizationType {
 export interface CreateProjectPayload {
   projectName: string
   organizationId: string
+  levels: string
+  basement: boolean
   customFields?: Record<string, any>
 };
 
@@ -110,47 +114,157 @@ export type ProjectStatusColor =
   | "yellow"
   | "green" 
 
+
+
+
+
+/* =========================================
+   BLUEPRINT TYPES
+========================================= */
+
+export type SpecialtyTag =
+  | 'structure'
+  | 'architecture'
+  | 'cold_water'
+  | 'hot_water'
+  | 'electrical'
+  | 'gas'
+  | 'sewage'
+  | 'rainwater'
+  | 'notes'
+  | 'tables'
+
+export type BlueprintViewType =
+  | 'front'
+  | 'rear'
+  | 'left_side'
+  | 'right_side'
+  | 'undefined'
+
+export interface SectionViewType {
+  name: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface CropMadeType {
+  blueprintId: string;
+  blueprintName: string;
+}
+
+export const specialtyTagOptions: SpecialtyTag[] = [
+  'structure',
+  'architecture',
+  'cold_water',
+  'hot_water',
+  'electrical',
+  'gas',
+  'sewage',
+  'rainwater',
+  'notes',
+  'tables',
+]
+
+export const blueprintViewOptions: BlueprintViewType[] = [
+  'front',
+  'rear',
+  'left_side',
+  'right_side',
+]
+
+export interface BlueprintResponseType {
+  _id: string;
+  blueprintName: string;
+  filename: string;
+  projectId: string;
+  organizationId: string;
+  storageId: string;
+  storageThumbnailId: string;
+  encoding: string;
+  mimetype: string;
+  size: number;
+  uploadedBy: string;
+  creationDate: string;
+  specialties: SpecialtyTag[];
+  levels: string[];
+  view?: BlueprintViewType;
+  sectionViews: SectionViewType[];
+  titleBlock?: string[];
+  downloadUrl?: string;
+  originalBlueprintId?: string;
+  width?: number;
+  height?: number;
+  cropsMade?: CropMadeType[];
+  projectFields: {
+    levels: string,
+    basement: boolean
+  }
+}
+
 export interface BlueprintType {
-  _id: string
-  blueprintName: string
-  filename: string
-  projectId: string
-  organizationId: string
-  storageId: string
-  encodign: string
-  mimetype: string
-  size: string
-  tags: string[]
-  uploadedBy: string
-  creationDate: string
-  downloadUrl?: string
-  croppedFrom?: string
-  height?: number
-  width?: number
-  cropsMade?: {
-    blueprintId: string,
-    blueprintName: string,
-  }[]
+  _id: string;
+  blueprintName: string;
+  filename: string;
+  projectId: string;
+  organizationId: string;
+  storageId: string;
+  storageThumbnailId: string;
+  encoding: string;
+  mimetype: string;
+  size: number;
+  uploadedBy: string;
+  creationDate: string;
+  specialties: SpecialtyTag[];
+  levels: string[];
+  view?: BlueprintViewType;
+  sectionViews: SectionViewType[];
+  titleBlock?: string[];
+  downloadUrl?: string;
+  originalBlueprintId?: string;
+  width?: number;
+  height?: number;
+  cropsMade?: CropMadeType[];
 }
 
 export interface CreateBlueprintPayload {
-  file: File
-  blueprintName: string
-  projectId: string
-  organizationId: string
-  tags: string[]
+  file: File;
+  blueprintName: string;
+  projectId: string;
+  organizationId: string;
+  // tags
+  specialties?: SpecialtyTag[];
+  levels?: string;
+  view?: BlueprintViewType;
 }
 
 export interface CreateCropPayload {
-  file: File
-  blueprintName: string
-  projectId: string
-  organizationId: string
-  tags: string[]
-  originalBlueprintId: string
-  height: number
-  width: number
+  file: File;
+  blueprintName: string;
+  projectId: string;
+  organizationId: string;
+  originalBlueprintId: string;
+  width: number;
+  height: number;
 }
+
+export interface UpdateBlueprintPayload {
+  blueprintName?: string;
+  cropsMade?: CropMadeType[];
+  //tags
+  specialties?: SpecialtyTag[];
+  levels?: string;
+  view?: BlueprintViewType;
+  titleBlock?: string[];
+  //areas
+  sectionViews?: SectionViewType[];
+}
+
+
+
+
+
 
 export type allowedTypes =
   | "image/png"

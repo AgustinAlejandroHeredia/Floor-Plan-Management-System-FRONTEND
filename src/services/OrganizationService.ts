@@ -47,4 +47,11 @@ export const OrganizationService = {
         }
     },
 
+    deleteProject: async (projectId: string): Promise<void> => {
+        console.log("PROJECT ID : ", projectId)
+        const response = await api.delete(`/deleteproject/${projectId}`)
+        console.log(response.data)
+        return response.data
+    }
+
 }

@@ -8,6 +8,13 @@ export function useBlueprintView(blueprintId: string) {
     const [loadingBlueprint, setLoadingBlueprint] = useState<boolean>(true)
     const [blueprtinImageUrl, setBlueprintImageUrl] = useState<string | null>(null)
     const [blueprint, setBlueprint] = useState<BlueprintType>()
+    const [projectInfo, setProjectInfo] = useState<{
+        levels: string,
+        basement: boolean,
+    }>({
+        levels: "1",
+        basement: false,
+    })
 
     const loadBlueprint = useCallback(async () => {
         try {
@@ -16,7 +23,9 @@ export function useBlueprintView(blueprintId: string) {
             setError(null)
 
             const data = await BlueprintViewService.getBlueprint(blueprintId)
-            setBlueprint(data)
+            const { projectFields, ...blueprintData } = data
+            setBlueprint(blueprintData)
+            setProjectInfo(projectFields)
 
             const blob = await BlueprintViewService.getRawImage(blueprintId)
             const imageUrl = URL.createObjectURL(blob)
@@ -37,6 +46,7 @@ export function useBlueprintView(blueprintId: string) {
 
     return {
         blueprint,
+        projectInfo,
         blueprtinImageUrl,
         loadingBlueprint,
         error,

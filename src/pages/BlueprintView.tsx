@@ -4,7 +4,10 @@ import Loading from "@/components/Loading";
 import { useBlueprintView } from "@/hooks/useBlueprintView";
 import { useNavigate, useParams } from "react-router-dom";
 
+// ICONS
 import { MdOpenInNew } from "react-icons/md";
+import { LuCirclePlus } from "react-icons/lu";
+import { IoIosClose } from "react-icons/io";
 
 import {
   Card,
@@ -14,7 +17,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { BlueprintViewService } from "@/services/BlueprintViewService";
 import { useState } from "react";
@@ -27,10 +30,13 @@ import ReactCrop, { type Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 
 import { getCroppedImg } from "@/utils/cropImage";
-import type { CreateCropPayload } from "@/types/types";
+import type { BlueprintViewType, CreateCropPayload, SpecialtyTag } from "@/types/types";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 import Toast from "@/components/Toast";
 import InfoDialog from "@/components/InfoDialog";
+import BlueprintSpecialtyPickerDialog from "@/components/BlueprintOptionPickerDialog";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { BlueprintLevelsDialog } from "@/components/BlueprintLevelsDialog";
 
 type ImageResolution = {
     width: number;
@@ -49,7 +55,7 @@ const BlueprintView = () => {
             blueprintId: string;
         }>();
 
-    const { blueprint, blueprtinImageUrl, loadingBlueprint, error, refreshBlueprint } = useBlueprintView(blueprintId!)
+    const { blueprint, projectInfo, blueprtinImageUrl, loadingBlueprint, error, refreshBlueprint } = useBlueprintView(blueprintId!)
 
     const navigate = useNavigate()
 
@@ -59,8 +65,16 @@ const BlueprintView = () => {
     // BLUEPRINT EDIT VARIABLES
     const [openEditDialog, setOpenEditDialog] = useState<boolean>(false)
     const [isPatching, setIsPatching] = useState<boolean>(false)
+        // LABELS
+        const [viewSelected, setViewSelected] = useState<BlueprintViewType>("undefined")
 
-    // BLUEPRINT EDIT VARIABLES
+        const [openEditSpecialtiesPicker, setOpenEditSpecialtiesPicker] = useState<boolean>(false)
+        const [specialtiesList, setSpecialtiesList] = useState<SpecialtyTag[]>([])
+
+        const [openEditLevels, setOpenEditLevels] = useState<boolean>(false)
+        const [levels, setLevels] = useState<string[]>([])
+
+    // BLUEPRINT DELETE VARIABLES
     const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false)
     const [isDeleting, setIsDeleting] = useState<boolean>(false)
 
@@ -100,6 +114,12 @@ const BlueprintView = () => {
         .replace(/([A-Z])/g, " $1")
         .replace(/^./, (str) => str.toUpperCase());
 
+    const formatLevelLabel = (value: string) => {
+        if (value === "basement") return "Basement"
+        if (value === "roof") return "Roof"
+        return `Level ${value}`
+    }
+
     const filteredBlueprintEntries = blueprint
         ? Object.entries(blueprint)
             .filter(
@@ -123,11 +143,15 @@ const BlueprintView = () => {
             .sort(([keyA], [keyB]) => {
                 const order = [
                 "blueprintName",
-                "tags",
                 "creationDate",
                 "filename",
                 "croppedFrom",
+                "view",
+                "specialties",
+                "labels",
+                "levels",
                 "cropsMade",
+                "sectionViews"
                 ];
 
                 const indexA = order.indexOf(keyA);
@@ -168,6 +192,32 @@ const BlueprintView = () => {
         setIsDownloading(false)
     };
 
+    const handleLoadLabels = () => {
+        setViewSelected(blueprint?.view || "undefined")
+        setSpecialtiesList(blueprint?.specialties || [])
+        setLevels(blueprint?.levels || [])
+        setOpenEditDialog(true)
+    }
+
+    const handleAddSpecialty = (
+        specialty: SpecialtyTag,
+    ) => {
+        setSpecialtiesList((prev) => 
+            prev.includes(specialty) ? prev : [...prev, specialty]
+        )
+    }
+
+    const handleRemoveSpecialty = (specialty: SpecialtyTag) => {
+        setSpecialtiesList((prev) =>
+            prev.filter((item) => item !== specialty)
+        )
+    }
+
+    const handleSaveLevelsList = (selectedLevels: string[]) => {
+        console.log("LEVELS SELECTED : ", selectedLevels)
+        setLevels(selectedLevels)
+    }
+
     const handleEditBlueprint = async (
         e: React.SyntheticEvent<HTMLFormElement>
     ) => {
@@ -180,17 +230,8 @@ const BlueprintView = () => {
         const formData = new FormData(form)
 
         const blueprintName = formData.get("blueprintName") as string;
-    
-        const tagsRaw = (formData.get("tags") as string) || "";
 
-        const tags = tagsRaw
-            .split(",")
-            .map((t) => t.trim())
-            .filter((t) => t.length > 0);
-
-        console.log("UPDATE DATA : ", blueprintName, ", ", tags)
-
-        const response = await BlueprintViewService.updateBluperint(blueprint!._id, blueprintName, tags)
+        const response = await BlueprintViewService.updateBluperint(blueprint!._id, blueprintName, viewSelected, specialtiesList, levels)
 
         setIsPatching(false)
 
@@ -241,14 +282,7 @@ const BlueprintView = () => {
         setIsUploadingCrop(true)
 
         const form = e.currentTarget;
-        const formData = new FormData(form);
-
-        const tagsRaw = (formData.get("tags") as string) || "";
-
-        const tags = tagsRaw
-            .split(",")
-            .map((t) => t.trim())
-            .filter((t) => t.length > 0);
+        const formData = new FormData(form)
 
         const file = await getCroppedImg(
             imageRef,
@@ -261,7 +295,6 @@ const BlueprintView = () => {
             blueprintName: formData.get("blueprintName") as string,
             projectId: projectId!,
             organizationId: organizationId!,
-            tags,
             originalBlueprintId: blueprint!._id,
             width: imageRes.width,
             height: imageRes.height,
@@ -305,6 +338,14 @@ const BlueprintView = () => {
         console.log("Magic crop")
     }
 
+    const handleAiProcess = () => {
+        if(blueprint?.view === "undefined" || blueprint?.specialties.length === 0 || blueprint?.levels.length === 0 ){
+            setErrorAlertMessage('You must edit this blueprint to set a value for the fields that says "Undefined" for the AI to process the blueprint.')
+            setOpenErrorAlert(true)
+            return
+        }
+    }
+
     if (loadingBlueprint) return <Loading/>
 
     if (error) {
@@ -337,7 +378,7 @@ const BlueprintView = () => {
 
             <div className="main-content">
 
-                {/* ================= INFO + UPLOAD ================= */}
+                {/* ================= INFO ================= */}
                 <div className="main-content-item">
                 <div
                     style={{
@@ -369,29 +410,30 @@ const BlueprintView = () => {
                             ) : key === "filename" ? (
                                 getDisplayFileName(value as string)
 
-                            ) : key === "tags" ? (
+                            ) : key === "view" ? (
+                                value === "undefined"
+                                ? "Unspecified"
+                                : (value as string)
+
+                            ) : key === "specialties" ? (
                                 (value as string[]).length > 0
                                 ? (value as string[]).join(", ")
-                                : "no tags to show"
+                                : "Unspecified"
+
+                            ) : key === "levels" ? (
+                                (value as string[]).length > 0
+                                ? (value as string[]).join(", ")
+                                : "Unspecified"
+
+                            ) : key === "specialties" ? (
+                                (value as string[]).length > 0
+                                ? (value as string[]).join(", ")
+                                : "Unspecified"
 
                             ) : key === "croppedFrom" ? (
                                 value ? (
                                     <>
                                     {value}
-
-                                    {/*
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                        handleOpenAnotherBlueprint(
-                                            
-                                        )
-                                        }
-                                        className="inline-flex items-center ml-2 hover:opacity-70 transition"
-                                    >
-                                        <MdOpenInNew size={16} />
-                                    </button>
-                                    */}
                                     </>
                                 ) : (
                                     "none"
@@ -418,7 +460,16 @@ const BlueprintView = () => {
                                     ))}
                                     </div>
                                 ) : (
-                                    "none"
+                                    "No crops made"
+                                )
+
+                            ) : key === "sectionViews" ? (
+                                Array.isArray(value) && value.length > 0 ? (
+                                    <div className="ml-4 mt-1 space-y-1">
+                                        <p>Area</p>
+                                    </div>
+                                ) : (
+                                    "No areas marked yet"
                                 )
 
                             ) : (
@@ -434,9 +485,10 @@ const BlueprintView = () => {
                     <div className="flex flex-col gap-2 h-full justify-center">
 
                         <Button variant="secondary" onClick={handleDownloadFile}>Download blueprint</Button>
-                        <Button variant="secondary" onClick={() => setOpenEditDialog(true)}>Edit blueprint</Button>
+                        <Button variant="secondary" onClick={handleLoadLabels}>Edit blueprint</Button>
                         <Button variant="secondary" onClick={handleCropMode}>Generate crop manually</Button>
                         <Button variant="secondary" onClick={handleMagicCrop}>Magic crop</Button>
+                        <Button variant="secondary" onClick={handleAiProcess}>Process blueprint with AI</Button>
                         <Button variant="destructive" onClick={() => setOpenDeleteDialog(true)}>Delete blueprint</Button>
                     
                     </div>
@@ -617,15 +669,109 @@ const BlueprintView = () => {
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="tags">Tags *</Label>
-                                    <Input
-                                        id="tags"
-                                        name="tags"
-                                        placeholder="tag 1, tag 2, tag 3"
-                                        maxLength={100}
-                                        defaultValue={blueprint?.tags?.map(t => t.trim()).join(", ") || ""}
-                                    />
-                                </Field>
+                                <Label htmlFor="view">Point of view *</Label>
+                                <Select
+                                    onValueChange={(value) => setViewSelected(value as BlueprintViewType)}
+                                >
+                                    <SelectTrigger className="w-full max-w-48">
+                                        <SelectValue placeholder={viewSelected === "undefined" ? "Select view" : viewSelected} />
+                                    </SelectTrigger>
+                                    <SelectContent position="popper">
+                                        <SelectGroup>
+                                            <SelectItem value="front">Front</SelectItem>
+                                            <SelectItem value="back">Back</SelectItem>
+                                            <SelectItem value="left_side">Left side</SelectItem>
+                                            <SelectItem value="right_side">Right side</SelectItem>
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                            </Field>
+
+                            <Field>
+                            <Label htmlFor="view">Specialties *</Label>
+
+                            <div>
+                                {specialtiesList.length > 0 ? (
+                                specialtiesList.map((specialty) => (
+                                    <div
+                                    key={specialty}
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "6px",
+                                        marginBottom: "4px",
+                                    }}
+                                    >
+                                    <span>
+                                        -{" "}
+                                        {specialty
+                                        .replaceAll("_", " ")
+                                        .replace(/\b\w/g, (l) => l.toUpperCase())}
+                                    </span>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveSpecialty(specialty)}
+                                        style={{
+                                        background: "transparent",
+                                        border: "none",
+                                        padding: "0",
+                                        cursor: "pointer",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        }}
+                                    >
+                                        <IoIosClose size={18} />
+                                    </button>
+                                    </div>
+                                ))
+                                ) : (
+                                <div className="text-muted-foreground">
+                                    - No specialties selected
+                                </div>
+                                )}
+                            </div>
+
+                            <Button
+                                type="button"
+                                onClick={() => setOpenEditSpecialtiesPicker(true)}
+                                style={{
+                                    width: "fit-content",
+                                    alignSelf: "flex-start",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "8px",
+                                }}
+                            >
+                                <LuCirclePlus className="mr-2" />
+                                Add specialty
+                            </Button>
+                            </Field>
+
+                            <Field>
+                                <Label htmlFor="view">Levels *</Label>
+                                <div>
+                                    {levels.length ? (
+                                        levels.map((level) => (
+                                            <div key={level}>- {formatLevelLabel(level)}</div>
+                                        ))
+                                    ) : (
+                                        <div className="text-muted-foreground">
+                                            - No levels selected
+                                        </div>
+                                    )}
+                                </div>
+                                <Button
+                                    style={{
+                                        width: "fit-content",
+                                        alignSelf: "flex-start",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "8px",
+                                    }}
+                                    type="button" 
+                                    onClick={() => setOpenEditLevels(true)}>Edit levels</Button>
+                            </Field>
 
                             </FieldGroup>
 
@@ -639,6 +785,22 @@ const BlueprintView = () => {
                         </form>
                     </DialogContent>
                 </Dialog>
+
+                {/* SPECIALTY SELECTOR */}
+                <BlueprintSpecialtyPickerDialog
+                    open={openEditSpecialtiesPicker}
+                    onOpenChange={setOpenEditSpecialtiesPicker}
+                    onSelect={handleAddSpecialty}
+                />
+
+                {/* LEVELS SELECTORS */}
+                <BlueprintLevelsDialog
+                    open={openEditLevels}
+                    onOpenChange={setOpenEditLevels}
+                    projectInfo={projectInfo}
+                    onSave={handleSaveLevelsList}
+                    initialSelection={levels}
+                />
 
                 {/* SAVING CHANGES */}
                 <Toast
@@ -693,7 +855,7 @@ const BlueprintView = () => {
                     description={errorAlertMessage}
                 />
 
-                {/* ================= DIALOG CREATE BLUEPRINT ================= */}
+                {/* ================= DIALOG CREATE CROP ================= */}
                 <Dialog open={openBlueprintForm} onOpenChange={setOpenBlueprintForm}>
                     <DialogContent className="sm:max-w-sm">
                     <form onSubmit={handleConfirmCrop}>
@@ -720,13 +882,30 @@ const BlueprintView = () => {
                         </Field>
 
                         <Field>
-                            <Label htmlFor="tags">Tags *</Label>
-                            <Input
-                            id="tags"
-                            name="tags"
-                            placeholder="tag 1, tag 2, tag 3"
-                            minLength={3}
-                            maxLength={100}
+                            <Label htmlFor="view">Point of view *</Label>
+                            <Select
+                                onValueChange={(value) => setViewSelected(value as BlueprintViewType)}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder={viewSelected === "undefined" ? "Select view" : viewSelected} />
+                                </SelectTrigger>
+                                <SelectContent position="popper">
+                                    <SelectGroup>
+                                        <SelectItem value="front">Front</SelectItem>
+                                        <SelectItem value="back">Back</SelectItem>
+                                        <SelectItem value="left_side">Left side</SelectItem>
+                                        <SelectItem value="right_side">Right side</SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+
+                        <Field>
+                            <Label htmlFor="view">Specialties *</Label>
+                            <BlueprintSpecialtyPickerDialog
+                                open={openEditSpecialtiesPicker}
+                                onOpenChange={setOpenEditSpecialtiesPicker}
+                                onSelect={handleAddSpecialty}
                             />
                         </Field>
 

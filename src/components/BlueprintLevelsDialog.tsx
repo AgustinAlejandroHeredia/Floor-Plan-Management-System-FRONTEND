@@ -44,22 +44,51 @@ export function BlueprintLevelsDialog({
 
   const toggleValue = (value: string, checked: boolean) => {
     setSelection((prev) => {
-      if (checked) return [...prev, value];
+      if (checked) {
+        // Si selecciona un nivel numérico, quitar roof y basement
+        const filtered = prev.filter(
+          (item) => item !== "roof" && item !== "basement"
+        );
+
+        if (filtered.includes(value)) return filtered;
+
+        return [...filtered, value];
+      }
+
+      // Desmarcar nivel
       return prev.filter((item) => item !== value);
     });
   };
 
   const handleBasement = (checked: boolean) => {
     setSelection((prev) => {
-      const filtered = prev.filter((v) => v !== "roof" && !/^\d+$/.test(v));
-      return checked ? [...filtered, "basement"] : filtered;
+      if (!checked) {
+        // Permitir desmarcar manualmente
+        return prev.filter((item) => item !== "basement");
+      }
+
+      // Si marca basement, quitar roof y niveles
+      const filtered = prev.filter(
+        (item) => item !== "roof" && !/^\d+$/.test(item)
+      );
+
+      return [...filtered, "basement"];
     });
   };
 
   const handleRoof = (checked: boolean) => {
     setSelection((prev) => {
-      const filtered = prev.filter((v) => v !== "basement" && !/^\d+$/.test(v));
-      return checked ? [...filtered, "roof"] : filtered;
+      if (!checked) {
+        // Permitir desmarcar manualmente
+        return prev.filter((item) => item !== "roof");
+      }
+
+      // Si marca roof, quitar basement y niveles
+      const filtered = prev.filter(
+        (item) => item !== "basement" && !/^\d+$/.test(item)
+      );
+
+      return [...filtered, "roof"];
     });
   };
 
@@ -76,13 +105,15 @@ export function BlueprintLevelsDialog({
             <Field orientation="horizontal">
               <Checkbox
                 checked={selection.includes("basement")}
-                onCheckedChange={handleBasement}
+                onCheckedChange={(val) =>
+                  handleBasement(Boolean(val))
+                }
               />
               <FieldLabel>Basement</FieldLabel>
             </Field>
           )}
 
-          {/* Levels (1, 2, 3...) */}
+          {/* Levels */}
           {Array.from({ length: levelCount }).map((_, i) => {
             const key = String(i + 1);
 
@@ -103,14 +134,19 @@ export function BlueprintLevelsDialog({
           <Field orientation="horizontal">
             <Checkbox
               checked={selection.includes("roof")}
-              onCheckedChange={handleRoof}
+              onCheckedChange={(val) =>
+                handleRoof(Boolean(val))
+              }
             />
             <FieldLabel>Roof</FieldLabel>
           </Field>
         </FieldGroup>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
             Cancel
           </Button>
 

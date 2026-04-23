@@ -554,7 +554,7 @@ const OrganizationPage = () => {
                         </DialogDescription>
                     </DialogHeader>
 
-                    <FieldGroup className="space-y-4 my-6">
+                    <FieldGroup className="space-y-2 my-6">
 
                         {/* Project name */}
                         <Field>
@@ -668,7 +668,7 @@ const OrganizationPage = () => {
                     <DialogTitle>Add new field</DialogTitle>
                     </DialogHeader>
 
-                    <FieldGroup>
+                    <FieldGroup className="space-y-2 my-2">
 
                     <Field>
                         <Label>Field name</Label>
@@ -740,7 +740,7 @@ const OrganizationPage = () => {
                             </DialogDescription>
                         </DialogHeader>
 
-                        <FieldGroup className="space-y-4 my-6">
+                        <FieldGroup className="space-y-2 my-6">
 
                             <Field>
                                 <Label htmlFor="email">Email *</Label>
@@ -827,7 +827,7 @@ const OrganizationPage = () => {
                     <DialogTitle>Change actions permissions</DialogTitle>
                     </DialogHeader>
 
-                    <FieldGroup>
+                    <FieldGroup className="space-y-2 my-2">
 
                     <Field>
                         <Label>Who can create projects?</Label>

@@ -368,7 +368,7 @@ const ProjectPage = () => {
                 </DialogDescription>
               </DialogHeader>
 
-              <FieldGroup>
+              <FieldGroup className="space-y-2 my-6">
 
                 <Field>
                   <Label>Selected file</Label>

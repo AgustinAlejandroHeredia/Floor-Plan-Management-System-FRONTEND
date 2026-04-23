@@ -82,6 +82,11 @@ const BlueprintView = () => {
     const [openErrorAlert, setOpenErrorAlert] = useState<boolean>(false)
     const [errorAlertMessage, setErrorAlertMessage] = useState<string>("")
 
+    // CREATE CROP FORM VARIABLES
+    const [openCropForm, setOpenCropForm] = useState<boolean>(false)
+    const [isUploadingCrop, setIsUploadingCrop] = useState<boolean>(false)
+    const [cropSuccessfullyUploaded, setCropSuccesfullyUploaded] = useState<boolean>(false)
+
     // CROP VARIABLES
     const [cropMode, setCropMode] = useState(false);
     const [crop, setCrop] = useState<Crop>({
@@ -99,14 +104,10 @@ const BlueprintView = () => {
         height: 0,
     })
 
-    // zoom manual
+    // CROP ZOOM
     const [cropZoom, setCropZoom] = useState(1);
-    const [isUploadingCrop, setIsUploadingCrop] = useState<boolean>(false)
-    const [cropSuccessfullyUploaded, setCropSuccesfullyUploaded] = useState<boolean>(false)
 
-    const [openBlueprintForm, setOpenBlueprintForm] = useState<boolean>(false)
-
-    // ZOOM
+    // GENERAL ZOOM
     const [imageZoom, setImageZoom] = useState(1);
 
     const formatKey = (key: string) =>
@@ -278,7 +279,7 @@ const BlueprintView = () => {
         if (!completedCrop || !imageRef) return;
 
         setCropMode(false)
-        setOpenBlueprintForm(false)
+        setOpenCropForm(false)
         setIsUploadingCrop(true)
 
         const form = e.currentTarget;
@@ -320,7 +321,7 @@ const BlueprintView = () => {
         setCropMode(false);
         setCompletedCrop(null);
         setCropZoom(1);
-        setOpenBlueprintForm(false);
+        setOpenCropForm(false);
         setImageRes({
             width: 0,
             height: 0,
@@ -627,7 +628,7 @@ const BlueprintView = () => {
 
                         {/* BOTONES */}
                         <div className="flex gap-2 mt-4">
-                            <Button onClick={() => setOpenBlueprintForm(true)}>
+                            <Button onClick={() => setOpenCropForm(true)}>
                                 Confirm crop
                             </Button>
                             <Button variant="outline" onClick={handleCancelCrop}>
@@ -654,7 +655,7 @@ const BlueprintView = () => {
                                 <DialogDescription>Change the existing values for this blueprint.</DialogDescription>
                             </DialogHeader>
 
-                            <FieldGroup>
+                            <FieldGroup className="space-y-4 my-6">
 
                                 <Field>
                                     <Label htmlFor="blueprintName-1">Blueprint Name *</Label>
@@ -786,14 +787,14 @@ const BlueprintView = () => {
                     </DialogContent>
                 </Dialog>
 
-                {/* SPECIALTY SELECTOR */}
+                {/* EDIT SPECIALTY SELECTOR */}
                 <BlueprintSpecialtyPickerDialog
                     open={openEditSpecialtiesPicker}
                     onOpenChange={setOpenEditSpecialtiesPicker}
                     onSelect={handleAddSpecialty}
                 />
 
-                {/* LEVELS SELECTORS */}
+                {/* EDIT LEVELS SELECTORS */}
                 <BlueprintLevelsDialog
                     open={openEditLevels}
                     onOpenChange={setOpenEditLevels}
@@ -856,7 +857,7 @@ const BlueprintView = () => {
                 />
 
                 {/* ================= DIALOG CREATE CROP ================= */}
-                <Dialog open={openBlueprintForm} onOpenChange={setOpenBlueprintForm}>
+                <Dialog open={openCropForm} onOpenChange={setOpenCropForm}>
                     <DialogContent className="sm:max-w-sm">
                     <form onSubmit={handleConfirmCrop}>
 
@@ -867,7 +868,7 @@ const BlueprintView = () => {
                         </DialogDescription>
                         </DialogHeader>
 
-                        <FieldGroup>
+                        <FieldGroup className="space-y-4 my-6">
 
                         <Field>
                             <Label htmlFor="blueprintName">Crop name *</Label>
@@ -878,34 +879,6 @@ const BlueprintView = () => {
                             minLength={3}
                             maxLength={100}
                             placeholder={`${blueprint?.blueprintName}_crop` || "BlueprintName_crop"}
-                            />
-                        </Field>
-
-                        <Field>
-                            <Label htmlFor="view">Point of view *</Label>
-                            <Select
-                                onValueChange={(value) => setViewSelected(value as BlueprintViewType)}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder={viewSelected === "undefined" ? "Select view" : viewSelected} />
-                                </SelectTrigger>
-                                <SelectContent position="popper">
-                                    <SelectGroup>
-                                        <SelectItem value="front">Front</SelectItem>
-                                        <SelectItem value="back">Back</SelectItem>
-                                        <SelectItem value="left_side">Left side</SelectItem>
-                                        <SelectItem value="right_side">Right side</SelectItem>
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                        </Field>
-
-                        <Field>
-                            <Label htmlFor="view">Specialties *</Label>
-                            <BlueprintSpecialtyPickerDialog
-                                open={openEditSpecialtiesPicker}
-                                onOpenChange={setOpenEditSpecialtiesPicker}
-                                onSelect={handleAddSpecialty}
                             />
                         </Field>
 

@@ -13,6 +13,7 @@ export function useOrganization(organizationId: string) {
   const [projectThumbnails, setProjectThumbnails] = useState<Record<string, string>>({})
   const [userOrganizationRole, setUserOrganizationRole] = useState<OrganizationRole>("member")
   const [organizationMembersList, setOrganizationMembersList] = useState<OrganizationMembersList[]>([])
+  const [hasMoreThanOneAdmin, setHasMoreThanOneAdmin] = useState<boolean>(false)
   const [loadingOrganizationProjects, setLoadingOrganizationProjects] = useState<boolean>(true);
 
   const loadProjects = useCallback(async () => {
@@ -47,6 +48,8 @@ export function useOrganization(organizationId: string) {
       const membersList = await OrganizationService.getOrganizationMembersAsAdmin(organizationId)
       setOrganizationMembersList(membersList)
 
+      setHasMoreThanOneAdmin(membersList.filter(member => member.organizationRole === "admin").length > 1)
+
     } catch (err: any) {
       setError(err);
     } finally {
@@ -66,6 +69,7 @@ export function useOrganization(organizationId: string) {
     projectThumbnails,
     userOrganizationRole,
     organizationMembersList,
+    hasMoreThanOneAdmin,
     loadingOrganizationProjects,
     error,
     refreshProjects: loadProjects,

@@ -1,4 +1,4 @@
-import type { CreateProjectPayload, OrganizationActionPermissions } from "@/types/types";
+import type { CreateProjectPayload, OrganizationActionPermissions, OrganizationMembersList } from "@/types/types";
 import { api } from "../api/api";
 
 export const OrganizationService = {
@@ -27,7 +27,7 @@ export const OrganizationService = {
         return response.data
     },
 
-    getOrganizationMembersAsAdmin: async (organizationId: string) => {
+    getOrganizationMembersAsAdmin: async (organizationId: string): Promise<OrganizationMembersList[]> => {
         const response = await api.get(`/organizations/allMembers/admin/${organizationId}`)
         return response.data
     },

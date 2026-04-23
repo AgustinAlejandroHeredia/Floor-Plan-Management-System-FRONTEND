@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 // Icons
-import { FaUserAlt } from "react-icons/fa";
+import { FaUserAlt, FaUserShield } from "react-icons/fa";
 import { GiExitDoor } from "react-icons/gi";
 
 type Member = {
@@ -30,14 +30,15 @@ type Props = {
   member: Member;
   onViewUser: (userId: string) => void;
   onRemoveUser?: (userId: string) => void;
+  onChangeRole?: (userId: string) => void;
 };
 
 const OrganizationMemberItem = ({
   member,
   onViewUser,
   onRemoveUser,
+  onChangeRole,
 }: Props) => {
-
   // 🔹 Determinar rol (organization > global > fallback)
   const role = member.organizationRole ?? member.globalRole ?? "unknown";
 
@@ -53,7 +54,7 @@ const OrganizationMemberItem = ({
   const formattedRole = role
     .toLowerCase()
     .split("_")
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 
   return (
@@ -93,6 +94,20 @@ const OrganizationMemberItem = ({
         >
           <FaUserAlt className="w-4 h-4 text-white group-hover/button:text-black transition-colors" />
         </Button>
+
+        {onChangeRole && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full hover:bg-blue-500"
+            onClick={(e) => {
+              e.stopPropagation();
+              onChangeRole(member._id);
+            }}
+          >
+            <FaUserShield className="w-4 h-4 text-blue-500 group-hover/button:text-white transition-colors" />
+          </Button>
+        )}
 
         {!cannotBeRemoved && onRemoveUser && (
           <Button

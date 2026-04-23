@@ -95,7 +95,7 @@ const OrganizationPage = () => {
     const [openLeaveOrganizationDialog, setOpenLeaveOrganizationDialog] = useState<boolean>(false)
 
     // HOOK
-    const { organizationPermissions, projects, projectThumbnails, userOrganizationRole, organizationMembersList, loadingOrganizationProjects, error, refreshProjects } = useOrganization(id!)
+    const { organizationPermissions, projects, projectThumbnails, userOrganizationRole, organizationMembersList, hasMoreThanOneAdmin, loadingOrganizationProjects, error, refreshProjects } = useOrganization(id!)
 
     const handleSelectProject = (projectName: string, projectId: string) => {
         console.log("LOADING A PROJECT : ", name, " ", id)
@@ -257,6 +257,10 @@ const OrganizationPage = () => {
 
     const handleQuickUser = (userId: string) => {
         console.log("QUICK USER: ", userId)
+    }
+
+    const handleChangeOrganizationRole = (userId: string) => {
+        console.log("CHANGE ROLE FOR USER ID : ", userId)
     }
 
     const handleLeaveOrganization = () => {
@@ -512,6 +516,7 @@ const OrganizationPage = () => {
                                     member={member}
                                     onViewUser={handleViewUserProfile}
                                     onRemoveUser={handleQuickUser}
+                                    onChangeRole={handleChangeOrganizationRole}
                                 />
                             ))}
                         </ItemGroup>
@@ -893,29 +898,53 @@ const OrganizationPage = () => {
             <AlertDialog open={openLeaveOrganizationDialog} onOpenChange={setOpenLeaveOrganizationDialog}>
 
                 <AlertDialogContent>
-                    <AlertDialogHeader>
-                    <AlertDialogTitle>
-                        Are you sure you want to leave this organization?
-                    </AlertDialogTitle>
 
-                    <AlertDialogDescription>
-                        You will lose access to all projects and data associated with this organization.
-                        This action cannot be undone.
-                    </AlertDialogDescription>
-                    </AlertDialogHeader>
+                    {hasMoreThanOneAdmin ? (
+                        <>
+                            <AlertDialogHeader>
+                            <AlertDialogTitle>
+                                Are you sure you want to leave this organization?
+                            </AlertDialogTitle>
 
-                    <AlertDialogFooter>
-                    <AlertDialogCancel>
-                        Cancel
-                    </AlertDialogCancel>
+                            <AlertDialogDescription>
+                                You will lose access to all projects and data associated with this
+                                organization. This action cannot be undone.
+                            </AlertDialogDescription>
+                            </AlertDialogHeader>
 
-                    <AlertDialogAction
-                        variant="destructive"
-                        onClick={handleLeaveOrganization}
-                    >
-                        Leave
-                    </AlertDialogAction>
-                    </AlertDialogFooter>
+                            <AlertDialogFooter>
+                            <AlertDialogCancel>
+                                Cancel
+                            </AlertDialogCancel>
+
+                            <AlertDialogAction
+                                variant="destructive"
+                                onClick={handleLeaveOrganization}
+                            >
+                                Leave
+                            </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </>
+                        ) : (
+                        <>
+                            <AlertDialogHeader>
+                            <AlertDialogTitle>
+                                Can't leave organization now
+                            </AlertDialogTitle>
+
+                            <AlertDialogDescription>
+                                You can't leave the organization now because you are the only admin available, if you want to leave, you have to give admin role to someone else.
+                                This can be done on the "Organization members" section with the options that are given for each of them.
+                            </AlertDialogDescription>
+                            </AlertDialogHeader>
+
+                            <AlertDialogFooter>
+
+                            <AlertDialogCancel>Ok</AlertDialogCancel>
+
+                            </AlertDialogFooter>
+                        </>
+                    )}
                 </AlertDialogContent>
             </AlertDialog>
 

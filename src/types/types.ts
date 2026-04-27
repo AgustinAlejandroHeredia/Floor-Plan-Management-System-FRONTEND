@@ -279,3 +279,10 @@ export interface UserType {
   pricture: string
   globalRole: string
 }
+
+export interface InvitationPayload {
+  organizationId: string
+  userEmail: string
+  duration?: number
+  userOrganizationRole?: OrganizationRole
+}

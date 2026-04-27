@@ -52,6 +52,18 @@ export const OrganizationService = {
         const response = await api.delete(`/deleteproject/${projectId}`)
         console.log(response.data)
         return response.data
-    }
+    },
+
+    leaveOrganization: async (organizationId: string) => {
+        console.log("Leavin organization with id ", organizationId)
+        const response = await api.delete(`/organizations/me/${organizationId}`)
+        return response
+    },
+
+    kickUser: async (organizationId: string, userId: string) => {
+        console.log("Kicking user ", userId,  " from organization ", organizationId)
+        const response = await api.delete(`/organizations/user/${userId}/${organizationId}`)
+        return response
+    },
 
 }

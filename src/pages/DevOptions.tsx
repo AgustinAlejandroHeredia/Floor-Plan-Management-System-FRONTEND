@@ -320,6 +320,7 @@ const DevOptions = () => {
                                         member={org.members[0]}
                                         onViewUser={() => handleViewUserProfile(org.members[0]._id)}
                                         onRemoveUser={() => handleKickUser(org.members[0]._id)}
+                                        currentUserOrganizationRole={"super_admin"}
                                     />
                                 </div>
                             )}
@@ -334,6 +335,7 @@ const DevOptions = () => {
                                                     member={member}
                                                     onViewUser={() => handleViewUserProfile(member._id)}
                                                     onRemoveUser={() => handleKickUser(member._id)}
+                                                    currentUserOrganizationRole={"super_admin"}
                                                 />
                                             ))}
                                         </ItemGroup>
@@ -405,6 +407,7 @@ const DevOptions = () => {
                                 key={users[0]._id}
                                 member={users[0]}
                                 onViewUser={() => handleViewUserProfile(users[0]._id)}
+                                currentUserOrganizationRole={"super_admin"}
                             />
                         )}
 
@@ -417,6 +420,7 @@ const DevOptions = () => {
                                                 key={user._id}
                                                 member={user}
                                                 onViewUser={() => handleViewUserProfile(user._id)}
+                                                currentUserOrganizationRole={"super_admin"}
                                             />
                                         ))}
                                     </ItemGroup>

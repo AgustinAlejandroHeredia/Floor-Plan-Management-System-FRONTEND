@@ -22,7 +22,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 
 import { Field } from "@/components/ui/field"
@@ -31,14 +30,19 @@ import { Button } from "@/components/ui/button";
 
 const HomePage = () => {
   const navigate = useNavigate()
-  const { organizations, loadingHomeOrganizations, error } = useHome();
+  const { organizations, loadingHomeOrganizations, error, refreshOrganizationList } = useHome();
 
+  // ERROR VARIABLES
+  const [errorOpen, setErrorOpen] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
+  // TOKEN / CODE VARIABLES
   const [token, setToken] = useState("");
   const [openFirstTokenDialog, setOpenFirstTokenDialog] = useState(false);
-
   const [noToken, setNoToken] = useState<boolean>(false)
   const [invalidToken, setInvalidToken] = useState<boolean>(false)
   const [validToken, setValidToken] = useState<boolean>(false)
+  const [isValidating, setIsValidating] = useState<boolean>(false)
 
   useEffect(() => {
     if (error) {
@@ -51,13 +55,25 @@ const HomePage = () => {
     setOpenFirstTokenDialog(true);
   }
 
-  const handleValidateToken = (token: string) => {
+  const handleValidateToken = async (token: string) => {
     console.log("TOKEN RECIVED : ", token)
-    InvitationService.validateInvitation(token)
-
-    // AÑADIR MAS LOGICA
-    setValidToken(true)
-
+    setNoToken(false)
+    setInvalidToken(false)
+    setValidToken(false)
+    if(!token){
+      setNoToken(true)
+      return
+    }
+    setIsValidating(true)
+    try {
+      await InvitationService.validateInvitation(token)
+      setValidToken(true)
+      refreshOrganizationList()
+    } catch (error) {
+      setInvalidToken(true)
+    } finally {
+      setIsValidating(false)
+    }
   }
 
   const handleSelectOrganization = (name: string, id: string) => {
@@ -76,6 +92,7 @@ const HomePage = () => {
           <EmptyOrganizations onJoinClick={handleJoinFirstOrganization} />
         ) : (
           <>
+
             {/* JOIN */}
             <div className="main-content-item">
               <h1 className="sub-heading">Join organization: </h1>
@@ -87,7 +104,7 @@ const HomePage = () => {
               <Field orientation="horizontal">
                 <Input 
                   type="search" 
-                  placeholder="Token / Example : 637873" 
+                  placeholder="Token , Example : 637873" 
                   className="w-full max-w-xs text-[var(--text-h)]"
                   value={token}
                   onChange={(e) => setToken(e.target.value)}
@@ -111,7 +128,7 @@ const HomePage = () => {
 
               {validToken && (
                 <p className="success-message-s">
-                  The token was correctly validated, you will be redirected to the organization you just joined
+                  The token was correctly validated, see down below the organization you just joined!
                 </p>
               )}
 

@@ -28,6 +28,7 @@ type Member = {
 
 type Props = {
   member: Member;
+  currentUserOrganizationRole: string; // NUEVO
   onViewUser: (userId: string) => void;
   onRemoveUser?: (userId: string) => void;
   onChangeRole?: (userId: string) => void;
@@ -35,11 +36,11 @@ type Props = {
 
 const OrganizationMemberItem = ({
   member,
+  currentUserOrganizationRole,
   onViewUser,
   onRemoveUser,
   onChangeRole,
 }: Props) => {
-  // 🔹 Determinar rol (organization > global > fallback)
   const role = member.organizationRole ?? member.globalRole ?? "unknown";
 
   const normalizedRole = role.toLowerCase();
@@ -47,10 +48,12 @@ const OrganizationMemberItem = ({
   const isAdmin = normalizedRole === "admin";
   const isSuperAdmin = normalizedRole === "super_admin";
 
-  // 🔹 No se puede eliminar admin ni super admin
   const cannotBeRemoved = isAdmin || isSuperAdmin;
 
-  // 🔹 Formatear rol (ej: super_admin → Super Admin)
+  // ROL DEL USUARIO ACTUAL
+  const currentUserIsMember =
+    currentUserOrganizationRole.toLowerCase() === "member";
+
   const formattedRole = role
     .toLowerCase()
     .split("_")
@@ -95,7 +98,8 @@ const OrganizationMemberItem = ({
           <FaUserAlt className="w-4 h-4 text-white group-hover/button:text-black transition-colors" />
         </Button>
 
-        {onChangeRole && (
+        {/* only for admins */}
+        {!currentUserIsMember && onChangeRole && (
           <Button
             variant="ghost"
             size="icon"
@@ -109,19 +113,22 @@ const OrganizationMemberItem = ({
           </Button>
         )}
 
-        {!cannotBeRemoved && onRemoveUser && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-full hover:bg-red-500"
-            onClick={(e) => {
-              e.stopPropagation();
-              onRemoveUser(member._id);
-            }}
-          >
-            <GiExitDoor className="w-4 h-4 text-red-500 group-hover/button:text-white transition-colors" />
-          </Button>
-        )}
+        {/* only for admins */}
+        {!currentUserIsMember &&
+          !cannotBeRemoved &&
+          onRemoveUser && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full hover:bg-red-500"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemoveUser(member._id);
+              }}
+            >
+              <GiExitDoor className="w-4 h-4 text-red-500 group-hover/button:text-white transition-colors" />
+            </Button>
+          )}
       </ItemActions>
     </Item>
   );

@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { OrganizationService } from "@/services/OrganizationService";
+import { InvitationService } from "@/services/InvitationService";
 import BreadcrumbBar from "@/components/BreadcrumbBar";
 import { useOrganization } from "@/hooks/useOrganization";
 import { useNavigate, useParams } from "react-router-dom";
@@ -52,21 +53,25 @@ import { useState } from "react";
 
 import OrganizationMemberItem from "@/components/OrganizationMemberItem";
 import { Label } from "@/components/ui/label";
-import type { ActionPermission, CreateProjectPayload, OrganizationActionPermissions, ProjectOrganizationType } from "@/types/types";
+import type { ActionPermission, CreateProjectPayload, InvitationPayload, OrganizationActionPermissions, OrganizationRole, ProjectOrganizationType } from "@/types/types";
 import Toast from "@/components/Toast";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
+import InfoDialog from "@/components/InfoDialog";
 
 const OrganizationPage = () => {
 
     const { name, id } = useParams<{ name: string, id: string }>()
 
     const navigate = useNavigate()
-    const usersSectionRef = useRef<HTMLDivElement | null>(null);
+    const usersSectionRef = useRef<HTMLDivElement | null>(null)
+    const invitationsSectionRef = useRef<HTMLDivElement | null>(null)
+
+    // ERROR VARIABLES
+    const [errorOpen, setErrorOpen] = useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = useState<string>("");
 
     // CREATION VARIABLES
     const [openCreationDialog, setOpenCreationDialog] = useState<boolean>(false);
-    const [errorOpen, setErrorOpen] = useState<boolean>(false);
-    const [errorMessage, setErrorMessage] = useState<string>("");
     const [hasBasement, setHasBasement] = useState<string>("no")
 
     // CREATION VARIABLES / CUSTOM FIELDS
@@ -78,7 +83,10 @@ const OrganizationPage = () => {
     // INVITATION VARIABLES
     const [openInvitationDialog, setOpenInvitationDialog] = useState<boolean>(false)
     const [showInvitationHelp, setShowInvitationHelp] = useState<boolean>(false)
-    const [invitationRoleSelected, setInvitationRoleSelected] = useState<string>("Member")
+    const [invitationRoleSelected, setInvitationRoleSelected] = useState<OrganizationRole>("member")
+    const [isSendingInvitation, setIsSendingInvitation] = useState<boolean>(false)
+    const [invitationSent, setInvitationSent] = useState<boolean>(false)
+    const [invitationExists, setInvitationExists] = useState<boolean>(false)
 
     // PERMISSIONS VARIABLES
     const [openActionPermissionsEdit, setOpenActionPermissionsEdit] = useState<boolean>(false)
@@ -93,6 +101,12 @@ const OrganizationPage = () => {
 
     // LEAVE ORGANIZATRION VARIABLES
     const [openLeaveOrganizationDialog, setOpenLeaveOrganizationDialog] = useState<boolean>(false)
+    const [isLeaving, setIsLeaving] = useState<boolean>(false)
+
+    // KICK USER VARIABLES
+    const [userIdForKick, setUserIdForKick] = useState<string>("")
+    const [openKickUserDialog, setOpenKickUserDialog] = useState<boolean>(false)
+    const [isKickingUser, setIsKickingUser] = useState<boolean>(false)
 
     // HOOK
     const { organizationPermissions, projects, projectThumbnails, userOrganizationRole, organizationMembersList, hasMoreThanOneAdmin, loadingOrganizationProjects, error, refreshProjects } = useOrganization(id!)
@@ -231,15 +245,48 @@ const OrganizationPage = () => {
         }
     }
 
-    const handleSendInvitation = (
+    const handleSendInvitation = async (
         e: React.SyntheticEvent<HTMLFormElement>,
     ) => {
         e.preventDefault()
 
+        setOpenInvitationDialog(false)
+        setShowInvitationHelp(false)
+
         const form = e.currentTarget
         const formData = new FormData(form)
 
+        const userEmail = formData.get("email") as string
+        if(!userEmail){
+            setErrorMessage("No user email given")
+            setErrorOpen(true)
+            return
+        }
+
         console.log("SENDS INVITATION EMAIL : ", formData.get("email"), " and ", invitationRoleSelected)
+    
+        setIsSendingInvitation(true)
+        try {
+            const durationValue = formData.get("duration")
+            const payload: InvitationPayload = {
+                organizationId: id!,
+                userEmail: userEmail,
+                userOrganizationRole: invitationRoleSelected as OrganizationRole,
+                ...(durationValue && { duration: Number(durationValue) })
+            }
+            console.log("INVITATION PAYLOAD : ", payload)
+            await InvitationService.createInvitation(payload)
+            setIsSendingInvitation(false)
+            setInvitationSent(true)
+        } catch (error: any) {
+            setIsSendingInvitation(false)
+            if(error.response?.status === 409){
+                setInvitationExists(true)
+                return
+            }
+            setErrorMessage("Error sending the invitation, please try again later.")
+            setErrorOpen(true)
+        }
     }
 
     // USERS
@@ -251,20 +298,56 @@ const OrganizationPage = () => {
         })
     }
 
+    const handleScrollToInvitations = () => {
+        setInvitationExists(false)
+        invitationsSectionRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        })
+    }
+
     const handleViewUserProfile = (userId: string) => {
         console.log("VIEW USER PROFILE : ", userId)
     }
 
-    const handleQuickUser = (userId: string) => {
-        console.log("QUICK USER: ", userId)
+    const selectUserForKick = (userId: string) => {
+        setUserIdForKick(userId)
+        setOpenKickUserDialog(true)
+    }
+
+    const handleKickUser = async () => {
+        setOpenKickUserDialog(false)
+        try {
+            if(!userIdForKick){
+                setErrorMessage("Tried to kick an user but no user selected.")
+                setErrorOpen(true)
+            }
+            setIsKickingUser(true)
+            await OrganizationService.kickUser(id!, userIdForKick)
+            setIsKickingUser(false)
+            refreshProjects()
+        } catch (error) {
+            setIsKickingUser(false)
+            setErrorMessage("An error has ocurred while kicking user, please again later.")
+            setErrorOpen(true)
+        }
     }
 
     const handleChangeOrganizationRole = (userId: string) => {
         console.log("CHANGE ROLE FOR USER ID : ", userId)
     }
 
-    const handleLeaveOrganization = () => {
-        console.log("LEAVING ORGANIZATION WITH ID : ", id)
+    const handleLeaveOrganization = async () => {
+        try {
+            setIsLeaving(true)
+            await OrganizationService.leaveOrganization(id!)
+            setIsLeaving(false)
+            navigate(`/`)
+        } catch (error) {
+            setIsLeaving(false)
+            setErrorMessage("An error has ocurred while leaving organization, please again later.")
+            setErrorOpen(true)
+        }
     }
 
     const loadEditVariables = async () => {
@@ -286,7 +369,7 @@ const OrganizationPage = () => {
             await OrganizationService.updateOrganizationActionPermissionsAsAdmin(id!, actionsPayload)
             setIsSavingChanges(false)
             setCreateActionPermissionsEdited("admins")
-            setInvitationRoleSelected("admins")
+            setInviteActionPermissionsEdited("admins")
             refreshProjects()
         } catch (error) {
             setIsSavingChanges(false)
@@ -502,7 +585,8 @@ const OrganizationPage = () => {
                     key={organizationMembersList[0]._id}
                     member={organizationMembersList[0]}
                     onViewUser={handleViewUserProfile}
-                    onRemoveUser={handleQuickUser}
+                    onRemoveUser={selectUserForKick}
+                    currentUserOrganizationRole={userOrganizationRole}
                 />
             )}
                 
@@ -515,8 +599,9 @@ const OrganizationPage = () => {
                                     key={member._id}
                                     member={member}
                                     onViewUser={handleViewUserProfile}
-                                    onRemoveUser={handleQuickUser}
-                                    onChangeRole={handleChangeOrganizationRole}
+                                    onRemoveUser={selectUserForKick}
+                                    onChangeRole={handleChangeOrganizationRole} 
+                                    currentUserOrganizationRole={userOrganizationRole}
                                 />
                             ))}
                         </ItemGroup>
@@ -534,6 +619,25 @@ const OrganizationPage = () => {
             </Button>
 
         </div>
+
+        {userOrganizationRole === "admin" && (
+        <>
+            <Separator />
+
+            <div className="main-content">
+                <div
+                    ref={invitationsSectionRef}
+                    className="main-content-item"
+                >
+
+                    <h3 className="sub-heading-2">
+                        Invitations sent
+                    </h3>
+
+                </div>
+            </div>
+        </>
+        )}
 
         {/* UI OVERLAYS */}
         <div>
@@ -763,7 +867,7 @@ const OrganizationPage = () => {
                                     <Label htmlFor="role">Role within organization</Label>
                                     <Select 
                                         defaultValue="member"
-                                        onValueChange={setInvitationRoleSelected}    
+                                        onValueChange={(value) => setInvitationRoleSelected(value as OrganizationRole)}    
                                     >
                                         <SelectTrigger>
                                             <SelectValue/>
@@ -894,12 +998,67 @@ const OrganizationPage = () => {
                 description="Please wait while this the changes are being saved..."
             />
 
-            {/* LEAVE ORGANIZATION */}
+            {/* KICK USER DIALOG */}
+            <AlertDialog open={openKickUserDialog} onOpenChange={setOpenKickUserDialog}>
+                <AlertDialogContent>
+
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>
+                                Kick user
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Are you sure you want to kick this user? This action cannot be undone.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>
+                                Cancel
+                            </AlertDialogCancel>
+
+                            <AlertDialogAction
+                                variant="destructive"
+                                onClick={handleKickUser}
+                            >
+                                Kick user
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* KICKING USER */}
+            <Toast
+                open={isKickingUser}
+                title="Kicking user"
+                description="Please wait while the user is being kicked from this organization..."
+            />
+
+            {/* LEAVE ORGANIZATION DIALOG */}
             <AlertDialog open={openLeaveOrganizationDialog} onOpenChange={setOpenLeaveOrganizationDialog}>
 
                 <AlertDialogContent>
 
-                    {hasMoreThanOneAdmin ? (
+                    {!hasMoreThanOneAdmin && userOrganizationRole === "admin" ? (
+                        <>
+                            <AlertDialogHeader>
+                            <AlertDialogTitle>
+                                Can't leave organization now
+                            </AlertDialogTitle>
+
+                            <AlertDialogDescription>
+                                You can't leave the organization now because you are the only admin available, if you want to leave, you have to give admin role to someone else.
+                                This can be done on the "Organization members" section with the options that are given for each of them.
+                            </AlertDialogDescription>
+                            </AlertDialogHeader>
+
+                            <AlertDialogFooter>
+
+                            <AlertDialogCancel>Ok</AlertDialogCancel>
+
+                            </AlertDialogFooter>
+                        </>
+                        ) : (
                         <>
                             <AlertDialogHeader>
                             <AlertDialogTitle>
@@ -925,28 +1084,16 @@ const OrganizationPage = () => {
                             </AlertDialogAction>
                             </AlertDialogFooter>
                         </>
-                        ) : (
-                        <>
-                            <AlertDialogHeader>
-                            <AlertDialogTitle>
-                                Can't leave organization now
-                            </AlertDialogTitle>
-
-                            <AlertDialogDescription>
-                                You can't leave the organization now because you are the only admin available, if you want to leave, you have to give admin role to someone else.
-                                This can be done on the "Organization members" section with the options that are given for each of them.
-                            </AlertDialogDescription>
-                            </AlertDialogHeader>
-
-                            <AlertDialogFooter>
-
-                            <AlertDialogCancel>Ok</AlertDialogCancel>
-
-                            </AlertDialogFooter>
-                        </>
                     )}
                 </AlertDialogContent>
             </AlertDialog>
+
+            {/* LEAVING ORGANIZATION */}
+            <Toast
+                open={isLeaving}
+                title="Leaving organization"
+                description="Please wait while you are leaving this organization..."
+            />
 
             {/* DELETE ALERT DIALOG */}
             <ConfirmDeleteDialog
@@ -963,6 +1110,56 @@ const OrganizationPage = () => {
                 title="Deleting project"
                 description="Please wait while this project is being deleted..."
             />
+
+            {/* SENDING INVITATION */}
+            <Toast
+                open={isSendingInvitation}
+                title="Sending invitation"
+                description="Please wait while the invitation is being sent..."
+            />
+
+            {/* INVITATION SENT SUCCESSFULLY */}
+            <InfoDialog
+                open={invitationSent}
+                onOpenChange={setInvitationSent}
+                title="Invitation sent successfuly"
+                description="The user will recive an email containing a six digit code that has to enter at the home section to gain access to the organization."
+            />
+
+            {/* INVITATION ALREDY EXISTS */}
+            <Dialog open={invitationExists} onOpenChange={setInvitationExists}>
+            <DialogContent className="sm:max-w-sm">
+                <DialogHeader>
+                    <DialogTitle>Invitation alredy exists</DialogTitle>
+                        <DialogDescription>
+                            An invitation for this email and organization alredy exists. 
+                            A pending invitation has by default a duration of 24h, if the user invited doesnt log in in that period of time the invitation expires. 
+                            If the invited user does not log in during that period, the invitation expires.
+                            {userOrganizationRole === "admin"
+                                ? ` If you want to send another invitation, it must expire, be used, or be deleted first from the Invitations section below Organization Members.`
+                                : ` If you want to send another invitation, it must expire or be used first.`}
+                        </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                    {userOrganizationRole === "admin" && organizationPermissions.invitePermission === "admins" && (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleScrollToInvitations}
+                        >
+                            View invitations
+                        </Button>
+                    )}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setInvitationExists(false)}
+                    >
+                        Ok
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+            </Dialog>
 
         </div>
 

@@ -1,73 +1,17 @@
-# React + TypeScript + Vite
+// FOR FRONTEND AND BACKEND
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+1 npm install
 
-Currently, two official plugins are available:
+2 Create Auth0 SPA aplication on Applications/Applications, setting "Allowed Callback URLs" your frontend base url and frontend url with slash, same thing for "Allowed Logout URLs" and "Allowed Web Origins"
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+3 Create Auth0 API on Application/APIs and grant acces to the SPA aplication on this API / "Aplication access". Your SPA aplication must appear as "AUTHORIZED"
 
-## React Compiler
+4 Once SPA aplication an API is created, use the information provided to complete the .env as the .env.example specifies
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+// FOR FRONTEND
 
-## Expanding the ESLint configuration
+5 Use your backend base url to complete the .env
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+// RUN PROJECT
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+6 Run the project with "npm run" or "npm run dev", last is recommended

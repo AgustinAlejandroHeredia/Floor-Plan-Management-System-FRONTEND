@@ -30,7 +30,7 @@ import ReactCrop, { type Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 
 import { getCroppedImg } from "@/utils/cropImage";
-import type { BlueprintViewType, CreateCropPayload, SpecialtyTag } from "@/types/types";
+import type { BlueprintViewType, CreateCropPayload, SectionView, SpecialtyTag } from "@/types/types";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 import Toast from "@/components/Toast";
 import InfoDialog from "@/components/InfoDialog";
@@ -81,6 +81,9 @@ const BlueprintView = () => {
     // ERROR ALERT
     const [openErrorAlert, setOpenErrorAlert] = useState<boolean>(false)
     const [errorAlertMessage, setErrorAlertMessage] = useState<string>("")
+
+    // SECTION VIEW VARIABLES
+    const [sectionViewsList, setSectionViewsList] = useState<SectionView[]>([])
 
     // CREATE CROP FORM VARIABLES
     const [openCropForm, setOpenCropForm] = useState<boolean>(false)
@@ -339,12 +342,18 @@ const BlueprintView = () => {
         console.log("Magic crop")
     }
 
-    const handleAiProcess = () => {
+    const handleAiProcess = async () => {
         if(blueprint?.view === "undefined" || blueprint?.specialties.length === 0 || blueprint?.levels.length === 0 ){
             setErrorAlertMessage('You must edit this blueprint to set a value for the fields that says "Undefined" for the AI to process the blueprint.')
             setOpenErrorAlert(true)
             return
         }
+        const list = await BlueprintViewService.getCoordsForTest(blueprint!._id)
+        setSectionViewsList(list)
+    }
+
+    const viewSelectedArea = (area: SectionView, index: number) => {
+        console.log("Se selecciona area con index ", index)
     }
 
     if (loadingBlueprint) return <Loading/>
@@ -534,18 +543,46 @@ const BlueprintView = () => {
                             transition: "transform 0.2s ease",
                         }}
                         >
-                        <img
-                            src={blueprtinImageUrl!}
-                            alt={blueprint!.filename}
+                        <div
                             style={{
-                                width: "70%",
-                                height: "70%",
-                                objectFit: "cover",
+                                position: "relative",
+                                width: "70%"
                             }}
-                            onError={(e) => {
-                                e.currentTarget.src = "/fallback.png";
-                            }}
-                        />
+                        >
+                            <img
+                                src={blueprtinImageUrl!}
+                                alt={blueprint!.filename}
+                                style={{
+                                    width: "100%",
+                                    height: "auto",
+                                    display: "block",
+                                    objectFit: "cover",
+                                }}
+                                onError={(e) => {
+                                    e.currentTarget.src = "/fallback.png";
+                                }}
+                            />
+
+                            {sectionViewsList.map((section, index) => (
+                                <div
+                                    key={index}
+                                    onClick={() => viewSelectedArea(section, index)}
+                                    style={{
+                                        position: "absolute",
+                                        left: `${section.coords.x}px`,
+                                        top: `${section.coords.y}px`,
+                                        width: `${section.size.width}px`,
+                                        height: `${section.size.height}px`,
+                                        backgroundColor: "rgba(0, 100, 255, 0.25)",
+                                        border: "2px solid rgba(0, 100, 255, 0.7)",
+                                        borderRadius: "4px",
+                                        pointerEvents: "auto",
+                                        cursor: "pointer",
+                                    }}
+                                />
+                            ))}
+
+                        </div>
                     </div>
                 )}
 

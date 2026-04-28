@@ -1,5 +1,5 @@
 import { api } from "../api/api";
-import type { BlueprintResponseType, BlueprintType, BlueprintViewType, CreateCropPayload, SpecialtyTag } from "@/types/types";
+import type { BlueprintResponseType, BlueprintType, BlueprintViewType, SectionCoords, CreateCropPayload, SectionSize, SectionView, SpecialtyTag } from "@/types/types";
 
 
 
@@ -79,5 +79,21 @@ export const BlueprintViewService = {
             return false
         }
     },
+
+    getCoordsForTest: async (blueprintId: string): Promise<SectionView[]> => {
+        const coords: SectionCoords = {
+            x: 30,
+            y: 30
+        }
+        const size: SectionSize = {
+            width: 30,
+            height: 50
+        }
+        const view: SectionView = {
+            coords,
+            size,
+        }
+        return [view]
+    }
 
 }

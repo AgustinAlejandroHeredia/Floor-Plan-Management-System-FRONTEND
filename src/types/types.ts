@@ -286,3 +286,18 @@ export interface InvitationPayload {
   duration?: number
   userOrganizationRole?: OrganizationRole
 }
+
+export interface SectionCoords {
+  x: number,
+  y: number,
+}
+
+export interface SectionSize {
+  width: number,
+  height: number,
+}
+
+export interface SectionView {
+  coords: SectionCoords,
+  size: SectionSize,
+}

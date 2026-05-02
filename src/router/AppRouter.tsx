@@ -12,6 +12,7 @@ import ErrorPage from "@/pages/ErrorPage";
 import MyProjectsPage from "@/pages/MyProjectsPage";
 import ProjectPage from "@/pages/ProjectPage";
 import BlueprintView from "@/pages/BlueprintView";
+import UserProfilePage from "@/pages/UserProfilePage";
 
 export function AppRouter() {
   return (
@@ -60,6 +61,13 @@ export function AppRouter() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/BlueprintView/:organizationName/:organizationId/:projectName/:projectId/:blueprintName/:blueprintId" element={<BlueprintView />} />
+        </Route>
+      </Route>
+
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route path="/UserProfile" element={<UserProfilePage />} />
+          <Route path="/UserProfile/:userId" element={<UserProfilePage />} />
         </Route>
       </Route>
 

@@ -54,6 +54,10 @@ const Sidebar = () => {
 
   const handleCancelLogout = () => setOpen(false)
 
+  const handleViewProfile = () => {
+    navigate("/UserProfile")
+  }
+
   if (lodaingUserContext) return null;
 
   return (
@@ -167,7 +171,12 @@ const Sidebar = () => {
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align="end" side="top" className="bg-[var(--bg)] border border-[var(--border)]">
-            <DropdownMenuItem className="text-[var(--text)]">
+            <DropdownMenuItem 
+              className="text-[var(--text)]"
+              onClick={() => {
+                handleViewProfile()
+              }}
+            >
               <UserIcon />
               My Profile
             </DropdownMenuItem>

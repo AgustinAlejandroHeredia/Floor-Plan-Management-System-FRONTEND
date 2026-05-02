@@ -66,6 +66,11 @@ export type OrganizationWithMembers = OrganizationType & {
   members: OrganizationMembersList[]
 }
 
+export interface OrganizationUserProfile {
+  organization: OrganizationType,
+  role: OrganizationRole,
+}
+
 export interface ProjectMembersList {
   _id: string
   name: string
@@ -276,7 +281,7 @@ export interface UserType {
   _id: string
   name: string
   email: string
-  pricture: string
+  picture: string
   globalRole: string
 }
 
@@ -297,7 +302,12 @@ export interface SectionSize {
   height: number,
 }
 
+export type SectionType = 
+  | "poligon"
+  | "rectangle"
+
 export interface SectionView {
-  coords: SectionCoords,
+  coordsList: SectionCoords[],
   size: SectionSize,
+  type: SectionType,
 }

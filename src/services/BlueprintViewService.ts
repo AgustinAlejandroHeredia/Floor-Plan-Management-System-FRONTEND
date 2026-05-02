@@ -85,15 +85,28 @@ export const BlueprintViewService = {
             x: 30,
             y: 30
         }
+        const coords1: SectionCoords = {
+            x: 40,
+            y: 40
+        }
+        const coords2: SectionCoords = {
+            x: 20,
+            y: 50
+        }
         const size: SectionSize = {
             width: 30,
             height: 50
         }
         const view: SectionView = {
-            coords,
             size,
+            coordsList: [
+                coords,
+                coords1,
+                coords2,
+            ],
+            type: "poligon"
         }
         return [view]
-    }
+    },
 
 }

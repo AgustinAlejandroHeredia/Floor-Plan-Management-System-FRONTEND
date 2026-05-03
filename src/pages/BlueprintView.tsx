@@ -348,8 +348,13 @@ const BlueprintView = () => {
             setOpenErrorAlert(true)
             return
         }
-        const list = await BlueprintViewService.getCoordsForTest(blueprint!._id)
-        setSectionViewsList(list)
+        try {
+            const list = await BlueprintViewService.getCoordsForTest()
+            setSectionViewsList(list)
+        } catch (error) {
+            setErrorAlertMessage("Something went wrong processing the blueprint, please again try later.")
+            setOpenErrorAlert(true)
+        }
     }
 
     const viewSelectedArea = (area: SectionView, index: number) => {
@@ -546,42 +551,124 @@ const BlueprintView = () => {
                         <div
                             style={{
                                 position: "relative",
-                                width: "70%"
+                                width: "70%",
                             }}
                         >
                             <img
                                 src={blueprtinImageUrl!}
                                 alt={blueprint!.filename}
                                 style={{
-                                    width: "100%",
-                                    height: "auto",
-                                    display: "block",
-                                    objectFit: "cover",
-                                }}
-                                onError={(e) => {
-                                    e.currentTarget.src = "/fallback.png";
+                                width: "100%",
+                                height: "auto",
+                                display: "block",
+                                objectFit: "cover",
                                 }}
                             />
 
-                            {sectionViewsList.map((section, index) => (
-                                <div
-                                    key={index}
-                                    onClick={() => viewSelectedArea(section, index)}
-                                    style={{
-                                        position: "absolute",
-                                        left: `${section.coords.x}px`,
-                                        top: `${section.coords.y}px`,
-                                        width: `${section.size.width}px`,
-                                        height: `${section.size.height}px`,
-                                        backgroundColor: "rgba(0, 100, 255, 0.25)",
-                                        border: "2px solid rgba(0, 100, 255, 0.7)",
-                                        borderRadius: "4px",
-                                        pointerEvents: "auto",
-                                        cursor: "pointer",
-                                    }}
-                                />
-                            ))}
+                            {/* SVG overlay */}
+                            <svg
+                                style={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                width: "100%",
+                                height: "100%",
+                                pointerEvents: "none", // importante
+                                }}
+                            >
+                                {sectionViewsList.map((section, index) => {
 
+                                    // POLIGON
+                                    if (section.type === "polygon") {
+                                        const points = section.coordsList
+                                        .map((c) => `${c.x},${c.y}`)
+                                        .join(" ");
+
+                                        return (
+                                        <polygon
+                                            key={index}
+                                            points={points}
+                                            fill="rgba(0, 100, 255, 0.25)"
+                                            stroke="rgba(0, 100, 255, 0.7)"
+                                            strokeWidth="2"
+                                            style={{ pointerEvents: "auto", cursor: "pointer" }}
+                                            onClick={() => viewSelectedArea(section, index)}
+                                        />
+                                        );
+                                    }
+
+                                    // RECTANGLE
+                                    if (section.type === "rectangle") {
+                                        const [p1, p2] = section.coordsList
+
+                                        if (!p1 || !p2) return null
+
+                                        const x = Math.min(p1.x, p2.x)
+                                        const y = Math.min(p1.y, p2.y)
+                                        const width = Math.abs(p2.x - p1.x)
+                                        const height = Math.abs(p2.y - p1.y)
+
+                                        return (
+                                            <rect
+                                            key={index}
+                                            x={x}
+                                            y={y}
+                                            width={width}
+                                            height={height}
+                                            fill="rgba(0, 100, 255, 0.25)"
+                                            stroke="rgba(0, 100, 255, 0.7)"
+                                            strokeWidth="2"
+                                            style={{ pointerEvents: "auto", cursor: "pointer" }}
+                                            onClick={() => viewSelectedArea(section, index)}
+                                            />
+                                        )
+                                    }
+
+                                    // CIRCLE
+                                    if (section.type === "circle") {
+                                        const center = section.coordsList[0]
+
+                                        if (!center || typeof section.radius !== "number") return null
+
+                                        return (
+                                            <circle
+                                                key={index}
+                                                cx={center.x}
+                                                cy={center.y}
+                                                r={section.radius}
+                                                fill="rgba(0, 100, 255, 0.25)"
+                                                stroke="rgba(0, 100, 255, 0.7)"
+                                                strokeWidth="2"
+                                                style={{ pointerEvents: "auto", cursor: "pointer" }}
+                                                onClick={() => viewSelectedArea(section, index)}
+                                            />
+                                        )
+                                    }
+
+                                    // POLYLINE
+                                    if (section.type === "polyline") {
+                                        if (!section.coordsList || section.coordsList.length < 2) return null
+
+                                        const points = section.coordsList
+                                            .map((c) => `${c.x},${c.y}`)
+                                            .join(" ")
+
+                                        return (
+                                            <polyline
+                                                key={index}
+                                                points={points}
+                                                fill="none"
+                                                stroke="rgba(0, 100, 255, 0.9)"
+                                                strokeWidth="3"
+                                                style={{ pointerEvents: "auto", cursor: "pointer" }}
+                                                onClick={() => viewSelectedArea(section, index)}
+                                            />
+                                        )
+                                    }
+
+                                    return null;
+                                })}
+                            </svg>
                         </div>
                     </div>
                 )}

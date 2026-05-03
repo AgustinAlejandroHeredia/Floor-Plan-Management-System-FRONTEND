@@ -303,11 +303,14 @@ export interface SectionSize {
 }
 
 export type SectionType = 
-  | "poligon"
+  | "polygon"
   | "rectangle"
+  | "circle"
+  | "polyline"
 
 export interface SectionView {
   coordsList: SectionCoords[],
   size: SectionSize,
+  radius?: number,
   type: SectionType,
 }

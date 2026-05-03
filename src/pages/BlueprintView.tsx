@@ -39,6 +39,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { BlueprintLevelsDialog } from "@/components/BlueprintLevelsDialog";
 import { Separator } from "@/components/ui/separator";
 import DrawnAreaItem from "@/components/DrawnAreaItem";
+import { Switch } from "@/components/ui/switch";
 
 type ImageResolution = {
     width: number;
@@ -91,6 +92,12 @@ const BlueprintView = () => {
     const [highlightedAreaIndex, setHighlightedAreaIndex] = useState<number | null>(null)
     const drawnAreaItemRef = useRef<(HTMLDivElement | null)[]>([])
     const [highlightedItemIndex, setHighlightedItemIndex] = useState<number | null>(null)
+    const [hideDrawnAreas, setHideDrawnAreas] = useState<boolean>(false)
+
+    // DELETE SECTION VIEW VARIABLES
+    const [areaForDelete, setAreaForDelete] = useState<SectionView>()
+    const [areaIndexForDelete, setAreaIndexForDelete] = useState<string>("")
+    const [openDeleteDrawnAreaDialog, setOpenDeleteDrawnAreaDialog] = useState<boolean>(false)
 
 
     // CREATE CROP FORM VARIABLES
@@ -380,7 +387,8 @@ const BlueprintView = () => {
         }, 1000)
     }
 
-    const handleDrawnViewArea = (section: SectionView, index: string) => {
+    const handleViewDrawnArea = (section: SectionView, index: string) => {
+        setHideDrawnAreas(false)
         blueprintImageRef.current?.scrollIntoView({
             behavior: "smooth",
             block: "center",
@@ -391,8 +399,25 @@ const BlueprintView = () => {
         }, 1000)
     }
 
-    const handleDeleteArea = (section: SectionView, index: string) => {
+    const selectAreaForDelete = (section: SectionView, index: string) => {
+        setAreaForDelete(section)
+        setAreaIndexForDelete(index)
+        setOpenDeleteDrawnAreaDialog(true)
+    }
 
+    const handleDeleteDrawnArea = () => {
+        setSectionViewsList((prev) =>
+            prev.filter((_, i) => i !== Number(areaIndexForDelete))
+        )
+        console.log("AVISA AL BACKEND QUE SE DECIDIO ELIMINAR UN AREA")
+    }
+
+    const handleSaveAreas = () => {
+        console.log("LE ENVIA AL BACKEND LAS AREAS QUE SE ACEPTARON")
+    }
+
+    const setOrderBySetting = (value: string) => {
+        
     }
 
     if (loadingBlueprint) return <Loading/>
@@ -601,6 +626,7 @@ const BlueprintView = () => {
                             />
 
                             {/* SVG overlay */}
+                            {!hideDrawnAreas && (
                             <svg
                                 style={{
                                 position: "absolute",
@@ -725,8 +751,25 @@ const BlueprintView = () => {
                                     return null;
                                 })}
                             </svg>
+                            )}
                         </div>
                     </div>
+                )}
+
+                {sectionViewsList.length > 0 && (
+                <div className="label-text flex items-center justify-center space-x-2 !my-4">
+                    <Label htmlFor="hidedrawnareas">Hide drawn areas</Label>
+                    <Switch 
+                        id="hidedrawnareas"
+                        checked={hideDrawnAreas}
+                        onCheckedChange={(value) => setHideDrawnAreas(value)}
+                    />
+                    {hideDrawnAreas ? (
+                        <Label htmlFor="hidedrawnareas">ON</Label>
+                    ) : (
+                        <Label htmlFor="hidedrawnareas">OFF</Label>
+                    )}
+                </div>
                 )}
 
                 {/* CROP MODE */}
@@ -826,11 +869,30 @@ const BlueprintView = () => {
 
                     <Separator/>
 
-                    <h3 className="sub-heading-2">
+                    <h3 className="sub-heading-2 mt-2">
                         Drawn areas ({sectionViewsList.length})
                     </h3>
 
-                    <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                        <p className="label-text">Order by</p>
+                        <Select 
+                            defaultValue="name"
+                            onValueChange={(value) => setOrderBySetting(value)}
+                        >
+                            <SelectTrigger className="!h-7 !px-2 text-sm w-[100px] bg-white text-black border border-gray-300">
+                                <SelectValue/>
+                            </SelectTrigger>
+                            <SelectContent position="item-aligned">
+                                <SelectGroup>
+                                    <SelectItem value="name">Name</SelectItem>
+                                    <SelectItem value="type">Type</SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="flex flex-col gap-2 mb-4 mt-4">
+
                         {sectionViewsList.map((section, index) => (
                             <div
                                 key={index}
@@ -846,12 +908,20 @@ const BlueprintView = () => {
                                 <DrawnAreaItem
                                     id={index.toString()}
                                     section={section}
-                                    onView={handleDrawnViewArea}
-                                    onDelete={handleDeleteArea}
+                                    onView={handleViewDrawnArea}
+                                    onDelete={selectAreaForDelete}
                                 />
                             </div>
                         ))}
+
                     </div>
+
+                    <Button 
+                        variant="secondary"
+                        onClick={handleSaveAreas}
+                    >
+                        Save marked areas
+                    </Button>
 
                 </div>
                 )}
@@ -1122,7 +1192,16 @@ const BlueprintView = () => {
                 <Toast
                     open={isProcessing}
                     title="Processing blueprint..."
-                    description="Please wait while this blueprint is being processed by IA..."
+                    description="Please wait while this blueprint is being processed by IA, this can take some minutes..."
+                />
+
+                {/* DELETE DRAWN AREA ALERT DIALOG */}
+                <ConfirmDeleteDialog
+                    open={openDeleteDrawnAreaDialog}
+                    onOpenChange={setOpenDeleteDrawnAreaDialog}
+                    title="Delete area"
+                    description="This action cannot be undone. This will permanently delete the area given by the AI."
+                    onConfirm={handleDeleteDrawnArea}
                 />
 
             </div>

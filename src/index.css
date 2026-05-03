@@ -234,6 +234,13 @@ body {
   line-height: 1.5;
 }
 
+.label-text {
+  font-size: 1rem;
+  color: var(--text);
+  margin: 0;
+  line-height: 1;
+}
+
 .info-text {
   text-align: left;
   font-size: 0.8rem;

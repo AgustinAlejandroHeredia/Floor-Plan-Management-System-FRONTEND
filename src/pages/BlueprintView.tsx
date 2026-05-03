@@ -20,7 +20,7 @@ import {
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { BlueprintViewService } from "@/services/BlueprintViewService";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Field, FieldGroup } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -37,6 +37,8 @@ import InfoDialog from "@/components/InfoDialog";
 import BlueprintSpecialtyPickerDialog from "@/components/BlueprintOptionPickerDialog";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BlueprintLevelsDialog } from "@/components/BlueprintLevelsDialog";
+import { Separator } from "@/components/ui/separator";
+import DrawnAreaItem from "@/components/DrawnAreaItem";
 
 type ImageResolution = {
     width: number;
@@ -84,6 +86,12 @@ const BlueprintView = () => {
 
     // SECTION VIEW VARIABLES
     const [sectionViewsList, setSectionViewsList] = useState<SectionView[]>([])
+    const [isProcessing, setIsProcessing] = useState<boolean>(false)
+    const blueprintImageRef = useRef<HTMLDivElement | null>(null)
+    const [highlightedAreaIndex, setHighlightedAreaIndex] = useState<number | null>(null)
+    const drawnAreaItemRef = useRef<(HTMLDivElement | null)[]>([])
+    const [highlightedItemIndex, setHighlightedItemIndex] = useState<number | null>(null)
+
 
     // CREATE CROP FORM VARIABLES
     const [openCropForm, setOpenCropForm] = useState<boolean>(false)
@@ -348,17 +356,43 @@ const BlueprintView = () => {
             setOpenErrorAlert(true)
             return
         }
+        setIsProcessing(true)
         try {
             const list = await BlueprintViewService.getCoordsForTest()
             setSectionViewsList(list)
+            setIsProcessing(false)
         } catch (error) {
+            setIsProcessing(false)
             setErrorAlertMessage("Something went wrong processing the blueprint, please again try later.")
             setOpenErrorAlert(true)
         }
     }
 
-    const viewSelectedArea = (area: SectionView, index: number) => {
+    const viewSelectedAreaItem = (area: SectionView, index: number) => {
         console.log("Se selecciona area con index ", index)
+        drawnAreaItemRef.current[index]?.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+        })
+        setHighlightedItemIndex(index)
+        setTimeout(() => {
+            setHighlightedItemIndex(null)
+        }, 1000)
+    }
+
+    const handleDrawnViewArea = (section: SectionView, index: string) => {
+        blueprintImageRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+        })
+        setHighlightedAreaIndex(Number(index))
+        setTimeout(() => {
+            setHighlightedAreaIndex(null)
+        }, 1000)
+    }
+
+    const handleDeleteArea = (section: SectionView, index: string) => {
+
     }
 
     if (loadingBlueprint) return <Loading/>
@@ -547,6 +581,7 @@ const BlueprintView = () => {
                             transform: `scale(${imageZoom})`,
                             transition: "transform 0.2s ease",
                         }}
+                        ref={blueprintImageRef}
                         >
                         <div
                             style={{
@@ -588,11 +623,17 @@ const BlueprintView = () => {
                                         <polygon
                                             key={index}
                                             points={points}
-                                            fill="rgba(0, 100, 255, 0.25)"
-                                            stroke="rgba(0, 100, 255, 0.7)"
-                                            strokeWidth="2"
+                                            fill={highlightedAreaIndex === index 
+                                                ? "rgba(0, 150, 255, 0.45)" 
+                                                : "rgba(0, 100, 255, 0.25)"
+                                            }
+                                            stroke={highlightedAreaIndex === index 
+                                                ? "rgba(0, 150, 255, 1)" 
+                                                : "rgba(0, 100, 255, 0.7)"
+                                            }
+                                            strokeWidth={highlightedAreaIndex === index ? "4" : "2"}
                                             style={{ pointerEvents: "auto", cursor: "pointer" }}
-                                            onClick={() => viewSelectedArea(section, index)}
+                                            onClick={() => viewSelectedAreaItem(section, index)}
                                         />
                                         );
                                     }
@@ -610,16 +651,22 @@ const BlueprintView = () => {
 
                                         return (
                                             <rect
-                                            key={index}
-                                            x={x}
-                                            y={y}
-                                            width={width}
-                                            height={height}
-                                            fill="rgba(0, 100, 255, 0.25)"
-                                            stroke="rgba(0, 100, 255, 0.7)"
-                                            strokeWidth="2"
-                                            style={{ pointerEvents: "auto", cursor: "pointer" }}
-                                            onClick={() => viewSelectedArea(section, index)}
+                                                key={index}
+                                                x={x}
+                                                y={y}
+                                                width={width}
+                                                height={height}
+                                                fill={highlightedAreaIndex === index 
+                                                    ? "rgba(0, 150, 255, 0.45)" 
+                                                    : "rgba(0, 100, 255, 0.25)"
+                                                }
+                                                stroke={highlightedAreaIndex === index 
+                                                    ? "rgba(0, 150, 255, 1)" 
+                                                    : "rgba(0, 100, 255, 0.7)"
+                                                }
+                                                strokeWidth={highlightedAreaIndex === index ? "4" : "2"}
+                                                style={{ pointerEvents: "auto", cursor: "pointer" }}
+                                                onClick={() => viewSelectedAreaItem(section, index)}
                                             />
                                         )
                                     }
@@ -636,11 +683,17 @@ const BlueprintView = () => {
                                                 cx={center.x}
                                                 cy={center.y}
                                                 r={section.radius}
-                                                fill="rgba(0, 100, 255, 0.25)"
-                                                stroke="rgba(0, 100, 255, 0.7)"
-                                                strokeWidth="2"
+                                                fill={highlightedAreaIndex === index 
+                                                    ? "rgba(0, 150, 255, 0.45)" 
+                                                    : "rgba(0, 100, 255, 0.25)"
+                                                }
+                                                stroke={highlightedAreaIndex === index 
+                                                    ? "rgba(0, 150, 255, 1)" 
+                                                    : "rgba(0, 100, 255, 0.7)"
+                                                }
+                                                strokeWidth={highlightedAreaIndex === index ? "4" : "2"}
                                                 style={{ pointerEvents: "auto", cursor: "pointer" }}
-                                                onClick={() => viewSelectedArea(section, index)}
+                                                onClick={() => viewSelectedAreaItem(section, index)}
                                             />
                                         )
                                     }
@@ -658,10 +711,13 @@ const BlueprintView = () => {
                                                 key={index}
                                                 points={points}
                                                 fill="none"
-                                                stroke="rgba(0, 100, 255, 0.9)"
-                                                strokeWidth="3"
+                                                stroke={highlightedAreaIndex === index 
+                                                    ? "rgba(0, 150, 255, 1)" 
+                                                    : "rgba(0, 100, 255, 0.9)"
+                                                }
+                                                strokeWidth={highlightedAreaIndex === index ? "5" : "3"}
                                                 style={{ pointerEvents: "auto", cursor: "pointer" }}
-                                                onClick={() => viewSelectedArea(section, index)}
+                                                onClick={() => viewSelectedAreaItem(section, index)}
                                             />
                                         )
                                     }
@@ -763,6 +819,42 @@ const BlueprintView = () => {
                 )}
 
                 </div>
+
+                {/* DRAWN AREAS */}
+                {sectionViewsList.length > 0 && (
+                <div className="main-content-item">
+
+                    <Separator/>
+
+                    <h3 className="sub-heading-2">
+                        Drawn areas ({sectionViewsList.length})
+                    </h3>
+
+                    <div className="flex flex-col gap-2">
+                        {sectionViewsList.map((section, index) => (
+                            <div
+                                key={index}
+                                ref={(item) => {(drawnAreaItemRef.current[index] = item)}}
+                                className={`
+                                    transition-all duration-300
+                                    ${highlightedItemIndex === index 
+                                    ? "ring-2 ring-blue-400 bg-blue-500/10 scale-[1.02]" 
+                                    : ""
+                                    }
+                                `}
+                            >
+                                <DrawnAreaItem
+                                    id={index.toString()}
+                                    section={section}
+                                    onView={handleDrawnViewArea}
+                                    onDelete={handleDeleteArea}
+                                />
+                            </div>
+                        ))}
+                    </div>
+
+                </div>
+                )}
 
             </div>
 
@@ -1025,6 +1117,13 @@ const BlueprintView = () => {
                     </form>
                     </DialogContent>
                 </Dialog>
+
+                {/* PROCESSING BLUEPRINT ALERT */}
+                <Toast
+                    open={isProcessing}
+                    title="Processing blueprint..."
+                    description="Please wait while this blueprint is being processed by IA..."
+                />
 
             </div>
 

@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 // Icons
 import { FaUserAlt, FaUserShield } from "react-icons/fa";
 import { GiExitDoor } from "react-icons/gi";
+import type { OrganizationMembersList, OrganizationRole } from "@/types/types";
 
 type Member = {
   _id: string;
@@ -31,7 +32,7 @@ type Props = {
   currentUserOrganizationRole: string; // NUEVO
   onViewUser: (userId: string) => void;
   onRemoveUser?: (userId: string) => void;
-  onChangeRole?: (userId: string) => void;
+  onChangeRole?: (user: OrganizationMembersList) => void;
 };
 
 const OrganizationMemberItem = ({
@@ -106,7 +107,14 @@ const OrganizationMemberItem = ({
             className="rounded-full hover:bg-blue-500"
             onClick={(e) => {
               e.stopPropagation();
-              onChangeRole(member._id);
+              const mappedMember: OrganizationMembersList = {
+                _id: member._id,
+                name: member.name,
+                email: member.email,
+                picture: member.picture ?? "", // por si viene undefined
+                organizationRole: member.organizationRole as OrganizationRole,
+              }
+              onChangeRole(mappedMember);
             }}
           >
             <FaUserShield className="w-4 h-4 text-blue-500 group-hover/button:text-white transition-colors" />

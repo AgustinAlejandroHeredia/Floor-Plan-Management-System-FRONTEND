@@ -176,6 +176,7 @@ const DevOptions = () => {
  
     const handleViewUserProfile = (userId: string) => {
         console.log("VIEW USER PROFILE : ", userId)
+        navigate(`/UserProfile/${userId}`)
     }
 
     const handleKickUser = (userId: string) => {

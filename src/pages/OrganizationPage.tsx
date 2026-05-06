@@ -53,7 +53,7 @@ import { useState } from "react";
 
 import OrganizationMemberItem from "@/components/OrganizationMemberItem";
 import { Label } from "@/components/ui/label";
-import type { ActionPermission, CreateProjectPayload, InvitationPayload, OrganizationActionPermissions, OrganizationRole, ProjectOrganizationType } from "@/types/types";
+import type { ActionPermission, CreateProjectPayload, InvitationPayload, OrganizationActionPermissions, OrganizationMembersList, OrganizationRole, ProjectOrganizationType } from "@/types/types";
 import Toast from "@/components/Toast";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 import InfoDialog from "@/components/InfoDialog";
@@ -63,6 +63,7 @@ const OrganizationPage = () => {
     const { name, id } = useParams<{ name: string, id: string }>()
 
     const navigate = useNavigate()
+
     const usersSectionRef = useRef<HTMLDivElement | null>(null)
     const invitationsSectionRef = useRef<HTMLDivElement | null>(null)
 
@@ -107,6 +108,11 @@ const OrganizationPage = () => {
     const [userIdForKick, setUserIdForKick] = useState<string>("")
     const [openKickUserDialog, setOpenKickUserDialog] = useState<boolean>(false)
     const [isKickingUser, setIsKickingUser] = useState<boolean>(false)
+
+    // CHANGE USER ROLE VARIABLES
+    const [userForRolechange, setUserForRoleChange] = useState<OrganizationMembersList | null>(null)
+    const [openNewRoleDialog, setOpenNewRoleDialog] = useState<boolean>(false)
+    const [isChangingRole, setIsChangingRole] = useState<boolean>(false)
 
     // HOOK
     const { organizationPermissions, projects, projectThumbnails, userOrganizationRole, organizationMembersList, hasMoreThanOneAdmin, loadingOrganizationProjects, error, refreshProjects } = useOrganization(id!)
@@ -308,6 +314,7 @@ const OrganizationPage = () => {
 
     const handleViewUserProfile = (userId: string) => {
         console.log("VIEW USER PROFILE : ", userId)
+        navigate(`/UserProfile/${userId}`)
     }
 
     const selectUserForKick = (userId: string) => {
@@ -333,8 +340,27 @@ const OrganizationPage = () => {
         }
     }
 
-    const handleChangeOrganizationRole = (userId: string) => {
-        console.log("CHANGE ROLE FOR USER ID : ", userId)
+    const openUserRoleEditDialog = (user: OrganizationMembersList) => {
+        setUserForRoleChange(user)
+        setOpenNewRoleDialog(true)
+    }
+
+    const handleChangeUserOrganizationRole = async () => {
+        if(!userForRolechange){
+            setErrorMessage("No user selected")
+            setErrorOpen(true)
+            return
+        }
+        try {
+            setIsChangingRole(true)
+            await OrganizationService.changeUserOrganizationRole(userForRolechange._id, id!)
+            setIsChangingRole(false)
+            refreshProjects()
+        } catch (error) {
+            setIsChangingRole(false)
+            setErrorMessage("Something went wrong changing user role, please try again later")
+            setErrorOpen(true)
+        }
     }
 
     const handleLeaveOrganization = async () => {
@@ -600,7 +626,7 @@ const OrganizationPage = () => {
                                     member={member}
                                     onViewUser={handleViewUserProfile}
                                     onRemoveUser={selectUserForKick}
-                                    onChangeRole={handleChangeOrganizationRole} 
+                                    onChangeRole={openUserRoleEditDialog} 
                                     currentUserOrganizationRole={userOrganizationRole}
                                 />
                             ))}
@@ -996,6 +1022,59 @@ const OrganizationPage = () => {
                 open={isSavingChanges}
                 title="Saving changes"
                 description="Please wait while this the changes are being saved..."
+            />
+
+            {/* CHANGE USER ROLE */}
+            <AlertDialog open={openNewRoleDialog} onOpenChange={setOpenNewRoleDialog}>
+                <AlertDialogContent>
+
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
+                            Change user role
+                        </AlertDialogTitle>
+                        {userForRolechange?.organizationRole === "admin" ? (
+                            <AlertDialogDescription>
+                                Are you sure you want to change this user's role? This user will loose the permissions allowed for admin role.
+                            </AlertDialogDescription>
+                        ) : (
+                            <AlertDialogDescription>
+                                Are you sure you want to change this user's role? This user will gain permissions like changing another user's role, delete projects and change action permissions for this organization.
+                            </AlertDialogDescription>
+                        )}
+                        <AlertDialogDescription>
+                            <span>
+                                Current user role: {userForRolechange?.organizationRole}
+                            </span>
+                            <br />
+                            <span>
+                                Will change to: {userForRolechange?.organizationRole === "admin"
+                                    ? "member"
+                                    : "admin"}
+                            </span>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>
+                            Cancel
+                        </AlertDialogCancel>
+
+                        <AlertDialogAction
+                            variant="destructive"
+                            onClick={handleChangeUserOrganizationRole}
+                        >
+                            Change user role
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* CHANGING ROLE */}
+            <Toast
+                open={isChangingRole}
+                title="Changing user role"
+                description="Please wait while this the changes are being applied..."
             />
 
             {/* KICK USER DIALOG */}

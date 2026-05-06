@@ -6,21 +6,33 @@ export function useUserProfilePage(userId?: string) {
 
     const [error, setError] = useState<Error | null>(null)
     const [loading, setLoading] = useState<boolean>(true)
-    const [myUser, setMyUser] = useState<UserType>()
+    const [user, setUser] = useState<UserType>()
     const [userOrganizationsAndRoles, setUserOrganizationsAndRoles] = useState<OrganizationUserProfile[]>([])
 
     const loadUserData = useCallback(async () => {
         try {
 
-            const [me, organizations] = await Promise.all([
-                UserProfileService.getMyData(),
-                UserProfileService.getUserOrganizationsAndRoles(userId)
-            ])
+            console.log("USER ID : ", userId)
 
-            setMyUser(me)
+            let userData
+            let organizations
+
+            if(userId) {
+                [userData, organizations] = await Promise.all([
+                    UserProfileService.getUserData(userId),
+                    UserProfileService.getUserOrganizationsAndRoles(userId)
+                ])
+            } else {
+                [userData, organizations] = await Promise.all([
+                    UserProfileService.getMyData(),
+                    UserProfileService.getUserOrganizationsAndRoles(userId)
+                ])
+            }
+
+            setUser(userData)
             setUserOrganizationsAndRoles(organizations)
 
-            console.log(me)
+            console.log(userData)
 
         } catch (error: any) {
             setError(error)
@@ -34,7 +46,7 @@ export function useUserProfilePage(userId?: string) {
     }, [loadUserData])
 
     return {
-        myUser,
+        user,
         userOrganizationsAndRoles, 
         loading,
         error,

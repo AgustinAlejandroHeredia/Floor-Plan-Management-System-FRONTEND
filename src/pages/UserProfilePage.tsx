@@ -8,7 +8,7 @@ const UserProfilePage = () => {
 
     const { userId } = useParams()
 
-    const { myUser, userOrganizationsAndRoles, loading, error } = useUserProfilePage(userId)
+    const { user, userOrganizationsAndRoles, loading, error } = useUserProfilePage(userId)
 
     if (loading) return <Loading/>
 
@@ -21,23 +21,23 @@ const UserProfilePage = () => {
                 
                 <Avatar className="h-24 w-24">
                 <AvatarImage
-                    src={myUser?.picture}
+                    src={user?.picture}
                     alt="user picture"
                 />
                 <AvatarFallback>
-                    {myUser?.name?.charAt(0) ?? "U"}
+                    {user?.name?.charAt(0) ?? "U"}
                 </AvatarFallback>
                 </Avatar>
 
                 <p className="text-xl font-semibold text-[var(--text-h)]">
-                {myUser?.name}
+                {user?.name}
                 </p>
 
                 <p className="text-[var(--text)] break-all">
-                {myUser?.email}
+                {user?.email}
                 </p>
 
-                {myUser?.globalRole === "super_admin" && (
+                {user?.globalRole === "super_admin" && (
                     <p className="text-sm text-[var(--text)]">
                         Platform Administrator
                     </p>

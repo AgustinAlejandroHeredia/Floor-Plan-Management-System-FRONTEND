@@ -66,4 +66,9 @@ export const OrganizationService = {
         return response
     },
 
+    changeUserOrganizationRole: async (userId: string, organizationId: string) => {
+        const response = await api.patch(`/organizations/membership/${organizationId}/${userId}/role`)
+        return response
+    },
+
 }

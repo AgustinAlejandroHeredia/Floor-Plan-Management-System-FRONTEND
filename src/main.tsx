@@ -9,6 +9,7 @@ import { api } from "./api/api";
 import { setupAuthInterceptor, registerAuthBridge } from "./api/auth-interceptor";
 import { useAuth0Bridge } from "./auth/auth0-bridge";
 import { UserProvider } from "./context/UserContext";
+import { InferenceNotificationProvider } from "./context/InferenceNotificationContext";
 
 function Bootstrap({ children }: { children: React.ReactNode }) {
   const authBridge = useAuth0Bridge();
@@ -26,7 +27,9 @@ createRoot(document.getElementById("root")!).render(
     <AuthProvider>
       <Bootstrap>
         <UserProvider>
-          <App />
+          <InferenceNotificationProvider>
+            <App />
+          </InferenceNotificationProvider>
         </UserProvider>
       </Bootstrap>
     </AuthProvider>

@@ -1,5 +1,5 @@
 import { api } from "../api/api";
-import type { BlueprintResponseType, BlueprintType, BlueprintViewType, SectionCoords, CreateCropPayload, SectionSize, SectionView, SpecialtyTag } from "@/types/types";
+import type { BlueprintResponseType, BlueprintType, BlueprintViewType, SectionCoords, CreateCropPayload, SectionSize, SectionView, SpecialtyTag, InferenceJobType } from "@/types/types";
 
 
 
@@ -80,8 +80,22 @@ export const BlueprintViewService = {
         }
     },
 
-    getCoordsForTest: async (): Promise<SectionView[]> => {
-        const response = await api.get("/ai-processing/exampleShapes")
+    getLatestInferenceJob: async (blueprintId: string): Promise<InferenceJobType | null> => {
+        try {
+            const response = await api.get(`/blueprints/${blueprintId}/inference-jobs/latest`)
+            return response.data
+        } catch {
+            return null
+        }
+    },
+
+    enqueueInference: async (blueprintId: string): Promise<InferenceJobType> => {
+        const response = await api.post(`/blueprints/${blueprintId}/inference-jobs`)
+        return response.data
+    },
+
+    getInferenceJob: async (jobId: string): Promise<InferenceJobType> => {
+        const response = await api.get(`/inference-jobs/${jobId}`)
         return response.data
     },
 

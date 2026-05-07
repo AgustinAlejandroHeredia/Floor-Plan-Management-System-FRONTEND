@@ -2,7 +2,7 @@ import BreadcrumbBar from "@/components/BreadcrumbBar";
 import Loading from "@/components/Loading";
 
 import { useBlueprintView } from "@/hooks/useBlueprintView";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 // ICONS
 import { MdOpenInNew } from "react-icons/md";
@@ -20,7 +20,9 @@ import {
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { BlueprintViewService } from "@/services/BlueprintViewService";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
+import { io, type Socket } from "socket.io-client";
 import { Field, FieldGroup } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -30,9 +32,10 @@ import ReactCrop, { type Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 
 import { getCroppedImg } from "@/utils/cropImage";
-import type { BlueprintViewType, CreateCropPayload, SectionView, SpecialtyTag } from "@/types/types";
+import type { BlueprintViewType, CreateCropPayload, InferenceJobResult, InferenceJobStatus, InferenceJobType, SectionView, SpecialtyTag, YoloPrediction } from "@/types/types";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 import Toast from "@/components/Toast";
+import { useInferenceNotification } from "@/context/InferenceNotificationContext";
 import InfoDialog from "@/components/InfoDialog";
 import BlueprintSpecialtyPickerDialog from "@/components/BlueprintOptionPickerDialog";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -48,6 +51,8 @@ type ImageResolution = {
 
 const BlueprintView = () => {
 
+    const { getAccessTokenSilently } = useAuth0()
+
     const { organizationName, organizationId, projectName, projectId, blueprintName, blueprintId } =
         useParams<{
             organizationName: string;
@@ -61,6 +66,8 @@ const BlueprintView = () => {
     const { blueprint, projectInfo, blueprtinImageUrl, loadingBlueprint, error, refreshBlueprint } = useBlueprintView(blueprintId!)
 
     const navigate = useNavigate()
+    const location = useLocation()
+    const { startTracking, clearNotification } = useInferenceNotification()
 
     // DOWNLOAD
     const [isDownloading, setIsDownloading] = useState<boolean>(false)
@@ -89,13 +96,32 @@ const BlueprintView = () => {
     const [sectionViewsList, setSectionViewsList] = useState<SectionView[]>([])
     const [isProcessing, setIsProcessing] = useState<boolean>(false)
     const blueprintImageRef = useRef<HTMLDivElement | null>(null)
+    const inferenceSocketRef = useRef<Socket | null>(null)
+    const isProcessingRef = useRef(false)
+    const pendingJobIdRef = useRef<string | null>(null)
+    const blueprintNameRef = useRef<string>('')
+    const startTrackingRef = useRef(startTracking)
+    useEffect(() => { startTrackingRef.current = startTracking }, [startTracking])
+
+    useEffect(() => {
+        clearNotification()
+        const path = location.pathname
+        return () => {
+            if (isProcessingRef.current && pendingJobIdRef.current) {
+                startTrackingRef.current(pendingJobIdRef.current, blueprintNameRef.current, path)
+            }
+            inferenceSocketRef.current?.disconnect()
+            inferenceSocketRef.current = null
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
     const [highlightedAreaIndex, setHighlightedAreaIndex] = useState<number | null>(null)
     const drawnAreaItemRef = useRef<(HTMLDivElement | null)[]>([])
     const [highlightedItemIndex, setHighlightedItemIndex] = useState<number | null>(null)
     const [hideDrawnAreas, setHideDrawnAreas] = useState<boolean>(false)
 
     // DELETE SECTION VIEW VARIABLES
-    const [areaForDelete, setAreaForDelete] = useState<SectionView>()
+    const [, setAreaForDelete] = useState<SectionView | null>(null)
     const [areaIndexForDelete, setAreaIndexForDelete] = useState<string>("")
     const [openDeleteDrawnAreaDialog, setOpenDeleteDrawnAreaDialog] = useState<boolean>(false)
 
@@ -357,21 +383,116 @@ const BlueprintView = () => {
         console.log("Magic crop")
     }
 
+    const handleNormalImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+        const img = e.currentTarget
+        setImageRes({ width: img.naturalWidth, height: img.naturalHeight })
+    }
+
+    const waitForInferenceJob = (jobId: string, token: string): Promise<InferenceJobType> => {
+        return new Promise((resolve, reject) => {
+            const TIMEOUT_MS = 6 * 60 * 1000
+
+            const socket = io(`${import.meta.env.VITE_API_URL}/inference`, {
+                auth: { token: `Bearer ${token}` },
+                transports: ['websocket'],
+            })
+            inferenceSocketRef.current = socket
+
+            const timer = setTimeout(() => {
+                socket.disconnect()
+                reject(new Error('Inference timed out'))
+            }, TIMEOUT_MS)
+
+            socket.on('connect', () => socket.emit('subscribe', jobId))
+
+            socket.on('inference:update', (data: { status: InferenceJobStatus; result: InferenceJobResult | null }) => {
+                if (data.status === 'Processed' || data.status === 'Error' || data.status === 'Cancelled') {
+                    clearTimeout(timer)
+                    socket.disconnect()
+                    inferenceSocketRef.current = null
+                    resolve({
+                        _id: jobId,
+                        blueprintId: blueprintId ?? '',
+                        status: data.status,
+                        result: data.result,
+                        createdAt: '',
+                        updatedAt: '',
+                    })
+                }
+            })
+
+            socket.on('connect_error', (err) => {
+                clearTimeout(timer)
+                socket.disconnect()
+                inferenceSocketRef.current = null
+                reject(err)
+            })
+        })
+    }
+
+    const predictionsToSectionViews = (predictions: YoloPrediction[]): SectionView[] =>
+        predictions.map(pred => ({
+            type: 'rectangle' as const,
+            coordsList: [
+                { x: pred.bbox.x - pred.bbox.width / 2,  y: pred.bbox.y - pred.bbox.height / 2 },
+                { x: pred.bbox.x + pred.bbox.width / 2,  y: pred.bbox.y + pred.bbox.height / 2 },
+            ],
+            size: { width: pred.bbox.width, height: pred.bbox.height },
+            label: pred.class,
+            confidence: pred.confidence,
+        }))
+
+    useEffect(() => {
+        if (blueprint?.blueprintName) blueprintNameRef.current = blueprint.blueprintName
+    }, [blueprint?.blueprintName])
+
+    // Once the image dimensions are known, fetch the latest processed inference result and render it.
+    // Running this after imageRes is set guarantees the SVG overlay has valid dimensions to render into.
+    useEffect(() => {
+        if (!blueprintId || imageRes.width === 0) return
+        let cancelled = false
+        BlueprintViewService.getLatestInferenceJob(blueprintId)
+            .then(job => {
+                if (cancelled) return
+                if (job?.status === 'Processed' && job.result?.predictions) {
+                    setSectionViewsList(predictionsToSectionViews(job.result.predictions as YoloPrediction[]))
+                }
+            })
+            .catch(() => {})
+        return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [imageRes.width])
+
     const handleAiProcess = async () => {
-        if(blueprint?.view === "undefined" || blueprint?.specialties.length === 0 || blueprint?.levels.length === 0 ){
+        if (blueprint?.view === "undefined" || blueprint?.specialties.length === 0 || blueprint?.levels.length === 0) {
             setErrorAlertMessage('You must edit this blueprint to set a value for the fields that says "Undefined" for the AI to process the blueprint.')
             setOpenErrorAlert(true)
             return
         }
         setIsProcessing(true)
+        isProcessingRef.current = true
         try {
-            const list = await BlueprintViewService.getCoordsForTest()
-            setSectionViewsList(list)
-            setIsProcessing(false)
+            const token = await getAccessTokenSilently()
+            const job = await BlueprintViewService.enqueueInference(blueprint!._id)
+            pendingJobIdRef.current = job._id
+            const completed = await waitForInferenceJob(job._id, token)
+            pendingJobIdRef.current = null
+
+            if (completed.status === 'Processed' && completed.result?.predictions) {
+                setSectionViewsList(predictionsToSectionViews(completed.result.predictions))
+            } else if (completed.status === 'Error') {
+                setErrorAlertMessage(completed.result?.error ?? 'The AI processing failed. Please try again.')
+                setOpenErrorAlert(true)
+            } else if (completed.status === 'Cancelled') {
+                setErrorAlertMessage('The inference job was cancelled.')
+                setOpenErrorAlert(true)
+            }
         } catch (error) {
-            setIsProcessing(false)
-            setErrorAlertMessage("Something went wrong processing the blueprint, please again try later.")
+            setErrorAlertMessage('Something went wrong processing the blueprint. Please try again later.')
             setOpenErrorAlert(true)
+        } finally {
+            setIsProcessing(false)
+            isProcessingRef.current = false
         }
     }
 
@@ -617,6 +738,7 @@ const BlueprintView = () => {
                             <img
                                 src={blueprtinImageUrl!}
                                 alt={blueprint!.filename}
+                                onLoad={handleNormalImageLoad}
                                 style={{
                                 width: "100%",
                                 height: "auto",
@@ -628,13 +750,15 @@ const BlueprintView = () => {
                             {/* SVG overlay */}
                             {!hideDrawnAreas && (
                             <svg
+                                viewBox={imageRes.width > 0 ? `0 0 ${imageRes.width} ${imageRes.height}` : undefined}
+                                preserveAspectRatio="none"
                                 style={{
                                 position: "absolute",
                                 top: 0,
                                 left: 0,
                                 width: "100%",
                                 height: "100%",
-                                pointerEvents: "none", // importante
+                                pointerEvents: "none",
                                 }}
                             >
                                 {sectionViewsList.map((section, index) => {
@@ -674,26 +798,38 @@ const BlueprintView = () => {
                                         const y = Math.min(p1.y, p2.y)
                                         const width = Math.abs(p2.x - p1.x)
                                         const height = Math.abs(p2.y - p1.y)
+                                        const isHighlighted = highlightedAreaIndex === index
+                                        const labelFontSize = imageRes.width > 0 ? Math.round(imageRes.width * 0.012) : 12
 
                                         return (
-                                            <rect
-                                                key={index}
-                                                x={x}
-                                                y={y}
-                                                width={width}
-                                                height={height}
-                                                fill={highlightedAreaIndex === index 
-                                                    ? "rgba(0, 150, 255, 0.45)" 
-                                                    : "rgba(0, 100, 255, 0.25)"
-                                                }
-                                                stroke={highlightedAreaIndex === index 
-                                                    ? "rgba(0, 150, 255, 1)" 
-                                                    : "rgba(0, 100, 255, 0.7)"
-                                                }
-                                                strokeWidth={highlightedAreaIndex === index ? "4" : "2"}
-                                                style={{ pointerEvents: "auto", cursor: "pointer" }}
-                                                onClick={() => viewSelectedAreaItem(section, index)}
-                                            />
+                                            <g key={index}>
+                                                <rect
+                                                    x={x}
+                                                    y={y}
+                                                    width={width}
+                                                    height={height}
+                                                    fill={isHighlighted ? "rgba(0, 150, 255, 0.45)" : "rgba(0, 100, 255, 0.25)"}
+                                                    stroke={isHighlighted ? "rgba(0, 150, 255, 1)" : "rgba(0, 100, 255, 0.7)"}
+                                                    strokeWidth={isHighlighted ? "4" : "2"}
+                                                    style={{ pointerEvents: "auto", cursor: "pointer" }}
+                                                    onClick={() => viewSelectedAreaItem(section, index)}
+                                                />
+                                                {section.label && (
+                                                    <text
+                                                        x={x + 3}
+                                                        y={y > labelFontSize + 4 ? y - 4 : y + height + labelFontSize + 2}
+                                                        fontSize={labelFontSize}
+                                                        fill="rgba(0, 80, 220, 1)"
+                                                        stroke="white"
+                                                        strokeWidth="0.4"
+                                                        fontWeight="bold"
+                                                        style={{ pointerEvents: "none" }}
+                                                    >
+                                                        {section.label}
+                                                        {section.confidence !== undefined && ` ${Math.round(section.confidence * 100)}%`}
+                                                    </text>
+                                                )}
+                                            </g>
                                         )
                                     }
 

@@ -313,4 +313,39 @@ export interface SectionView {
   size: SectionSize,
   radius?: number,
   type: SectionType,
+  label?: string,
+  confidence?: number,
+}
+
+export type InferenceJobStatus =
+  | 'Pending'
+  | 'Processing'
+  | 'Processed'
+  | 'Error'
+  | 'Cancelled'
+
+export interface YoloPrediction {
+  class: string
+  classId: number
+  confidence: number
+  bbox: {
+    x: number      // center x in original image pixels
+    y: number      // center y in original image pixels
+    width: number
+    height: number
+  }
+}
+
+export interface InferenceJobResult {
+  predictions?: YoloPrediction[]
+  error?: string
+}
+
+export interface InferenceJobType {
+  _id: string
+  blueprintId: string
+  status: InferenceJobStatus
+  result: InferenceJobResult | null
+  createdAt: string
+  updatedAt: string
 }

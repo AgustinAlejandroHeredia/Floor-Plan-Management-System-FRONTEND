@@ -94,9 +94,4 @@ export const BlueprintViewService = {
         return response.data
     },
 
-    getInferenceJob: async (jobId: string): Promise<InferenceJobType> => {
-        const response = await api.get(`/inference-jobs/${jobId}`)
-        return response.data
-    },
-
 }

@@ -43,6 +43,8 @@ import { BlueprintLevelsDialog } from "@/components/BlueprintLevelsDialog";
 import { Separator } from "@/components/ui/separator";
 import DrawnAreaItem from "@/components/DrawnAreaItem";
 import { Switch } from "@/components/ui/switch";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "@/components/ui/context-menu";
 
 type ImageResolution = {
     width: number;
@@ -116,14 +118,7 @@ const BlueprintView = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     const [highlightedAreaIndex, setHighlightedAreaIndex] = useState<number | null>(null)
-    const drawnAreaItemRef = useRef<(HTMLDivElement | null)[]>([])
-    const [highlightedItemIndex, setHighlightedItemIndex] = useState<number | null>(null)
     const [hideDrawnAreas, setHideDrawnAreas] = useState<boolean>(false)
-
-    // DELETE SECTION VIEW VARIABLES
-    const [, setAreaForDelete] = useState<SectionView | null>(null)
-    const [areaIndexForDelete, setAreaIndexForDelete] = useState<string>("")
-    const [openDeleteDrawnAreaDialog, setOpenDeleteDrawnAreaDialog] = useState<boolean>(false)
 
 
     // CREATE CROP FORM VARIABLES
@@ -478,6 +473,8 @@ const BlueprintView = () => {
             const completed = await waitForInferenceJob(job._id, token)
             pendingJobIdRef.current = null
 
+            console.log("RESULTADO DE INFERENCIA : ", completed.result?.predictions)
+
             if (completed.status === 'Processed' && completed.result?.predictions) {
                 setSectionViewsList(predictionsToSectionViews(completed.result.predictions))
             } else if (completed.status === 'Error') {
@@ -496,49 +493,8 @@ const BlueprintView = () => {
         }
     }
 
-    const viewSelectedAreaItem = (area: SectionView, index: number) => {
-        console.log("Se selecciona area con index ", index)
-        drawnAreaItemRef.current[index]?.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-        })
-        setHighlightedItemIndex(index)
-        setTimeout(() => {
-            setHighlightedItemIndex(null)
-        }, 1000)
-    }
-
-    const handleViewDrawnArea = (section: SectionView, index: string) => {
-        setHideDrawnAreas(false)
-        blueprintImageRef.current?.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-        })
-        setHighlightedAreaIndex(Number(index))
-        setTimeout(() => {
-            setHighlightedAreaIndex(null)
-        }, 1000)
-    }
-
-    const selectAreaForDelete = (section: SectionView, index: string) => {
-        setAreaForDelete(section)
-        setAreaIndexForDelete(index)
-        setOpenDeleteDrawnAreaDialog(true)
-    }
-
-    const handleDeleteDrawnArea = () => {
-        setSectionViewsList((prev) =>
-            prev.filter((_, i) => i !== Number(areaIndexForDelete))
-        )
-        console.log("AVISA AL BACKEND QUE SE DECIDIO ELIMINAR UN AREA")
-    }
-
     const handleSaveAreas = () => {
         console.log("LE ENVIA AL BACKEND LAS AREAS QUE SE ACEPTARON")
-    }
-
-    const setOrderBySetting = (value: string) => {
-        
     }
 
     if (loadingBlueprint) return <Loading/>
@@ -763,31 +719,6 @@ const BlueprintView = () => {
                             >
                                 {sectionViewsList.map((section, index) => {
 
-                                    // POLIGON
-                                    if (section.type === "polygon") {
-                                        const points = section.coordsList
-                                        .map((c) => `${c.x},${c.y}`)
-                                        .join(" ");
-
-                                        return (
-                                        <polygon
-                                            key={index}
-                                            points={points}
-                                            fill={highlightedAreaIndex === index 
-                                                ? "rgba(0, 150, 255, 0.45)" 
-                                                : "rgba(0, 100, 255, 0.25)"
-                                            }
-                                            stroke={highlightedAreaIndex === index 
-                                                ? "rgba(0, 150, 255, 1)" 
-                                                : "rgba(0, 100, 255, 0.7)"
-                                            }
-                                            strokeWidth={highlightedAreaIndex === index ? "4" : "2"}
-                                            style={{ pointerEvents: "auto", cursor: "pointer" }}
-                                            onClick={() => viewSelectedAreaItem(section, index)}
-                                        />
-                                        );
-                                    }
-
                                     // RECTANGLE
                                     if (section.type === "rectangle") {
                                         const [p1, p2] = section.coordsList
@@ -802,34 +733,159 @@ const BlueprintView = () => {
                                         const labelFontSize = imageRes.width > 0 ? Math.round(imageRes.width * 0.012) : 12
 
                                         return (
-                                            <g key={index}>
-                                                <rect
-                                                    x={x}
-                                                    y={y}
-                                                    width={width}
-                                                    height={height}
-                                                    fill={isHighlighted ? "rgba(0, 150, 255, 0.45)" : "rgba(0, 100, 255, 0.25)"}
-                                                    stroke={isHighlighted ? "rgba(0, 150, 255, 1)" : "rgba(0, 100, 255, 0.7)"}
-                                                    strokeWidth={isHighlighted ? "4" : "2"}
-                                                    style={{ pointerEvents: "auto", cursor: "pointer" }}
-                                                    onClick={() => viewSelectedAreaItem(section, index)}
-                                                />
-                                                {section.label && (
-                                                    <text
-                                                        x={x + 3}
-                                                        y={y > labelFontSize + 4 ? y - 4 : y + height + labelFontSize + 2}
-                                                        fontSize={labelFontSize}
-                                                        fill="rgba(0, 80, 220, 1)"
-                                                        stroke="white"
-                                                        strokeWidth="0.4"
-                                                        fontWeight="bold"
-                                                        style={{ pointerEvents: "none" }}
-                                                    >
-                                                        {section.label}
-                                                        {section.confidence !== undefined && ` ${Math.round(section.confidence * 100)}%`}
-                                                    </text>
-                                                )}
-                                            </g>
+                                            <TooltipProvider key={index}>
+                                                <ContextMenu>
+
+                                                    <Tooltip>
+
+                                                        <ContextMenuTrigger asChild>
+                                                            <TooltipTrigger asChild>
+                                                                <g>
+                                                                    <rect
+                                                                        x={x}
+                                                                        y={y}
+                                                                        width={width}
+                                                                        height={height}
+                                                                        fill={
+                                                                            isHighlighted
+                                                                                ? "rgba(0, 150, 255, 0.45)"
+                                                                                : "rgba(0, 100, 255, 0.25)"
+                                                                        }
+                                                                        stroke={
+                                                                            isHighlighted
+                                                                                ? "rgba(0, 150, 255, 1)"
+                                                                                : "rgba(0, 100, 255, 0.7)"
+                                                                        }
+                                                                        strokeWidth={isHighlighted ? "4" : "2"}
+                                                                        style={{
+                                                                            pointerEvents: "auto",
+                                                                            cursor: "pointer",
+                                                                        }}
+                                                                    />
+                                                                </g>
+                                                            </TooltipTrigger>
+                                                        </ContextMenuTrigger>
+
+                                                        {section.label && (
+                                                            <TooltipContent>
+                                                                <p>
+                                                                    {section.label}
+                                                                    {section.confidence !== undefined &&
+                                                                        ` ${Math.round(section.confidence * 100)}%`}
+                                                                </p>
+                                                            </TooltipContent>
+                                                        )}
+
+                                                    </Tooltip>
+
+                                                    <ContextMenuContent className="w-48">
+
+                                                        <ContextMenuItem
+                                                            onClick={() => {
+                                                                console.log("Edit area", section)
+                                                            }}
+                                                        >
+                                                            Edit
+                                                        </ContextMenuItem>
+
+                                                        <ContextMenuItem
+                                                            onClick={() => {
+                                                                console.log("Delete area", section)
+                                                            }}
+                                                        >
+                                                            Delete
+                                                        </ContextMenuItem>
+
+                                                        <ContextMenuSeparator />
+
+                                                        <ContextMenuItem
+                                                            onClick={() => {
+                                                                console.log("Focus area", section)
+                                                            }}
+                                                        >
+                                                            Focus
+                                                        </ContextMenuItem>
+
+                                                    </ContextMenuContent>
+
+                                                </ContextMenu>
+                                            </TooltipProvider>
+                                        )
+                                    }
+
+                                    // POLYGON
+                                    if (section.type === "polygon") {
+                                        const points = section.coordsList
+                                            .map((c) => `${c.x},${c.y}`)
+                                            .join(" ")
+
+                                        const isHighlighted = highlightedAreaIndex === index
+
+                                        return (
+                                            <TooltipProvider key={index}>
+                                                <ContextMenu>
+
+                                                    <Tooltip>
+
+                                                        <ContextMenuTrigger asChild>
+                                                            <TooltipTrigger asChild>
+                                                                <g>
+                                                                    <polygon
+                                                                        points={points}
+                                                                        fill={
+                                                                            isHighlighted
+                                                                                ? "rgba(0, 150, 255, 0.45)"
+                                                                                : "rgba(0, 100, 255, 0.25)"
+                                                                        }
+                                                                        stroke={
+                                                                            isHighlighted
+                                                                                ? "rgba(0, 150, 255, 1)"
+                                                                                : "rgba(0, 100, 255, 0.7)"
+                                                                        }
+                                                                        strokeWidth={isHighlighted ? "4" : "2"}
+                                                                        style={{
+                                                                            pointerEvents: "auto",
+                                                                            cursor: "pointer",
+                                                                        }}
+                                                                    />
+                                                                </g>
+                                                            </TooltipTrigger>
+                                                        </ContextMenuTrigger>
+
+                                                        {section.label && (
+                                                            <TooltipContent>
+                                                                <p>
+                                                                    {section.label}
+                                                                    {section.confidence !== undefined &&
+                                                                        ` ${Math.round(section.confidence * 100)}%`}
+                                                                </p>
+                                                            </TooltipContent>
+                                                        )}
+
+                                                    </Tooltip>
+
+                                                    <ContextMenuContent className="w-48">
+
+                                                        <ContextMenuItem
+                                                            onClick={() => {
+                                                                console.log("Edit area", section)
+                                                            }}
+                                                        >
+                                                            Edit
+                                                        </ContextMenuItem>
+
+                                                        <ContextMenuItem
+                                                            onClick={() => {
+                                                                console.log("Delete area", section)
+                                                            }}
+                                                        >
+                                                            Delete
+                                                        </ContextMenuItem>
+
+                                                    </ContextMenuContent>
+
+                                                </ContextMenu>
+                                            </TooltipProvider>
                                         )
                                     }
 
@@ -839,24 +895,75 @@ const BlueprintView = () => {
 
                                         if (!center || typeof section.radius !== "number") return null
 
+                                        const isHighlighted = highlightedAreaIndex === index
+
                                         return (
-                                            <circle
-                                                key={index}
-                                                cx={center.x}
-                                                cy={center.y}
-                                                r={section.radius}
-                                                fill={highlightedAreaIndex === index 
-                                                    ? "rgba(0, 150, 255, 0.45)" 
-                                                    : "rgba(0, 100, 255, 0.25)"
-                                                }
-                                                stroke={highlightedAreaIndex === index 
-                                                    ? "rgba(0, 150, 255, 1)" 
-                                                    : "rgba(0, 100, 255, 0.7)"
-                                                }
-                                                strokeWidth={highlightedAreaIndex === index ? "4" : "2"}
-                                                style={{ pointerEvents: "auto", cursor: "pointer" }}
-                                                onClick={() => viewSelectedAreaItem(section, index)}
-                                            />
+                                            <TooltipProvider key={index}>
+                                                <ContextMenu>
+
+                                                    <Tooltip>
+
+                                                        <ContextMenuTrigger asChild>
+                                                            <TooltipTrigger asChild>
+                                                                <g>
+                                                                    <circle
+                                                                        cx={center.x}
+                                                                        cy={center.y}
+                                                                        r={section.radius}
+                                                                        fill={
+                                                                            isHighlighted
+                                                                                ? "rgba(0, 150, 255, 0.45)"
+                                                                                : "rgba(0, 100, 255, 0.25)"
+                                                                        }
+                                                                        stroke={
+                                                                            isHighlighted
+                                                                                ? "rgba(0, 150, 255, 1)"
+                                                                                : "rgba(0, 100, 255, 0.7)"
+                                                                        }
+                                                                        strokeWidth={isHighlighted ? "4" : "2"}
+                                                                        style={{
+                                                                            pointerEvents: "auto",
+                                                                            cursor: "pointer",
+                                                                        }}
+                                                                    />
+                                                                </g>
+                                                            </TooltipTrigger>
+                                                        </ContextMenuTrigger>
+
+                                                        {section.label && (
+                                                            <TooltipContent>
+                                                                <p>
+                                                                    {section.label}
+                                                                    {section.confidence !== undefined &&
+                                                                        ` ${Math.round(section.confidence * 100)}%`}
+                                                                </p>
+                                                            </TooltipContent>
+                                                        )}
+
+                                                    </Tooltip>
+
+                                                    <ContextMenuContent className="w-48">
+
+                                                        <ContextMenuItem
+                                                            onClick={() => {
+                                                                console.log("Edit area", section)
+                                                            }}
+                                                        >
+                                                            Edit
+                                                        </ContextMenuItem>
+
+                                                        <ContextMenuItem
+                                                            onClick={() => {
+                                                                console.log("Delete area", section)
+                                                            }}
+                                                        >
+                                                            Delete
+                                                        </ContextMenuItem>
+
+                                                    </ContextMenuContent>
+
+                                                </ContextMenu>
+                                            </TooltipProvider>
                                         )
                                     }
 
@@ -868,19 +975,69 @@ const BlueprintView = () => {
                                             .map((c) => `${c.x},${c.y}`)
                                             .join(" ")
 
+                                        const isHighlighted = highlightedAreaIndex === index
+
                                         return (
-                                            <polyline
-                                                key={index}
-                                                points={points}
-                                                fill="none"
-                                                stroke={highlightedAreaIndex === index 
-                                                    ? "rgba(0, 150, 255, 1)" 
-                                                    : "rgba(0, 100, 255, 0.9)"
-                                                }
-                                                strokeWidth={highlightedAreaIndex === index ? "5" : "3"}
-                                                style={{ pointerEvents: "auto", cursor: "pointer" }}
-                                                onClick={() => viewSelectedAreaItem(section, index)}
-                                            />
+                                            <TooltipProvider key={index}>
+                                                <ContextMenu>
+
+                                                    <Tooltip>
+
+                                                        <ContextMenuTrigger asChild>
+                                                            <TooltipTrigger asChild>
+                                                                <g>
+                                                                    <polyline
+                                                                        points={points}
+                                                                        fill="none"
+                                                                        stroke={
+                                                                            isHighlighted
+                                                                                ? "rgba(0, 150, 255, 1)"
+                                                                                : "rgba(0, 100, 255, 0.9)"
+                                                                        }
+                                                                        strokeWidth={isHighlighted ? "5" : "3"}
+                                                                        style={{
+                                                                            pointerEvents: "auto",
+                                                                            cursor: "pointer",
+                                                                        }}
+                                                                    />
+                                                                </g>
+                                                            </TooltipTrigger>
+                                                        </ContextMenuTrigger>
+
+                                                        {section.label && (
+                                                            <TooltipContent>
+                                                                <p>
+                                                                    {section.label}
+                                                                    {section.confidence !== undefined &&
+                                                                        ` ${Math.round(section.confidence * 100)}%`}
+                                                                </p>
+                                                            </TooltipContent>
+                                                        )}
+
+                                                    </Tooltip>
+
+                                                    <ContextMenuContent className="w-48">
+
+                                                        <ContextMenuItem
+                                                            onClick={() => {
+                                                                console.log("Edit area", section)
+                                                            }}
+                                                        >
+                                                            Edit
+                                                        </ContextMenuItem>
+
+                                                        <ContextMenuItem
+                                                            onClick={() => {
+                                                                console.log("Delete area", section)
+                                                            }}
+                                                        >
+                                                            Delete
+                                                        </ContextMenuItem>
+
+                                                    </ContextMenuContent>
+
+                                                </ContextMenu>
+                                            </TooltipProvider>
                                         )
                                     }
 
@@ -999,58 +1156,9 @@ const BlueprintView = () => {
 
                 </div>
 
-                {/* DRAWN AREAS */}
+                {/* SAVE AREAS */}
                 {sectionViewsList.length > 0 && (
                 <div className="main-content-item">
-
-                    <Separator/>
-
-                    <h3 className="sub-heading-2 mt-2">
-                        Drawn areas ({sectionViewsList.length})
-                    </h3>
-
-                    <div className="flex items-center gap-2">
-                        <p className="label-text">Order by</p>
-                        <Select 
-                            defaultValue="name"
-                            onValueChange={(value) => setOrderBySetting(value)}
-                        >
-                            <SelectTrigger className="!h-7 !px-2 text-sm w-[100px] bg-white text-black border border-gray-300">
-                                <SelectValue/>
-                            </SelectTrigger>
-                            <SelectContent position="item-aligned">
-                                <SelectGroup>
-                                    <SelectItem value="name">Name</SelectItem>
-                                    <SelectItem value="type">Type</SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="flex flex-col gap-2 mb-4 mt-4">
-
-                        {sectionViewsList.map((section, index) => (
-                            <div
-                                key={index}
-                                ref={(item) => {(drawnAreaItemRef.current[index] = item)}}
-                                className={`
-                                    transition-all duration-300
-                                    ${highlightedItemIndex === index 
-                                    ? "ring-2 ring-blue-400 bg-blue-500/10 scale-[1.02]" 
-                                    : ""
-                                    }
-                                `}
-                            >
-                                <DrawnAreaItem
-                                    id={index.toString()}
-                                    section={section}
-                                    onView={handleViewDrawnArea}
-                                    onDelete={selectAreaForDelete}
-                                />
-                            </div>
-                        ))}
-
-                    </div>
 
                     <Button 
                         variant="secondary"
@@ -1329,15 +1437,6 @@ const BlueprintView = () => {
                     open={isProcessing}
                     title="Processing blueprint..."
                     description="Please wait while this blueprint is being processed by IA, this can take some minutes..."
-                />
-
-                {/* DELETE DRAWN AREA ALERT DIALOG */}
-                <ConfirmDeleteDialog
-                    open={openDeleteDrawnAreaDialog}
-                    onOpenChange={setOpenDeleteDrawnAreaDialog}
-                    title="Delete area"
-                    description="This action cannot be undone. This will permanently delete the area given by the AI."
-                    onConfirm={handleDeleteDrawnArea}
                 />
 
             </div>

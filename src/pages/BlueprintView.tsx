@@ -647,29 +647,23 @@ const BlueprintView = () => {
 
                 {/* ZOOM SELECTOR */}
                 {!cropMode && (
-                <div
-                    style={{
+                    <div style={{
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
-                        justifyContent: "center",
                         marginTop: "10px",
-                    }}
-                >
-                    <p className="info-text">Zoom Level</p>
-                    <input
-                        type="range"
-                        min={0.5}
-                        max={1}
-                        step={0.1}
-                        value={imageZoom}
-                        onChange={(e) => setImageZoom(Number(e.target.value))}
-                        style={{
-                            accentColor: "var(--text-h)",
-                            width: "300px",
-                        }}
-                    />
-                </div>
+                    }}>
+                        <p className="info-text">Zoom Level: {Math.round(imageZoom * 100)}%</p>
+                        <input
+                            type="range"
+                            min={0.5}   // 50% de su tamaño
+                            max={3}     // 300% de su tamaño (puedes subirlo a 5 si quieres más zoom)
+                            step={0.1}
+                            value={imageZoom}
+                            onChange={(e) => setImageZoom(Number(e.target.value))}
+                            style={{ accentColor: "var(--text-h)", width: "300px" }}
+                        />
+                    </div>
                 )}
 
                 {/* BLUEPRINT PICTURE */}
@@ -677,29 +671,34 @@ const BlueprintView = () => {
                     <div
                         style={{
                             marginTop: "25px",
-                            overflow: "hidden",
+                            overflow: "auto",      // Permite barras de scroll
                             display: "flex",
-                            justifyContent: "center",
-                            transform: `scale(${imageZoom})`,
-                            transition: "transform 0.2s ease",
+                            justifyContent: "center", // Mantiene centrado si es pequeño
+                            alignItems: "flex-start", // Alinea arriba para que el scroll funcione bien
+                            maxHeight: "80vh",     // Ajusta esto según el alto de tu pantalla
+                            position: "relative"
                         }}
-                        ref={blueprintImageRef}
                         >
                         <div
                             style={{
                                 position: "relative",
-                                width: "70%",
+                                // Aquí ocurre la magia: el ancho depende del zoom
+                                // Si el zoom es 1, ocupa el 70%. Si es 2, ocupa el 140%.
+                                width: `${70 * imageZoom}%`, 
+                                minWidth: "unset", 
+                                transition: "width 0.2s ease", // Transición suave de tamaño
+                                flexShrink: 0, // Evita que Flexbox colapse el contenedor
                             }}
+                            ref={blueprintImageRef}
                         >
                             <img
                                 src={blueprtinImageUrl!}
                                 alt={blueprint!.filename}
                                 onLoad={handleNormalImageLoad}
                                 style={{
-                                width: "100%",
-                                height: "auto",
-                                display: "block",
-                                objectFit: "cover",
+                                    width: "100%",
+                                    height: "auto",
+                                    display: "block",
                                 }}
                             />
 

@@ -94,4 +94,11 @@ export const BlueprintViewService = {
         return response.data
     },
 
+    saveAreas: async (blueprintId: string, sectionViews: SectionView[]) => {
+        const response = await api.patch(`/blueprints/${blueprintId}/section-views`, 
+            {sectionViews}
+        )
+        return response.data
+    }
+
 }

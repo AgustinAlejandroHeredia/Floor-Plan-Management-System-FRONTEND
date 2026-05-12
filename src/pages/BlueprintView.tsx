@@ -44,7 +44,7 @@ import { Separator } from "@/components/ui/separator";
 import DrawnAreaItem from "@/components/DrawnAreaItem";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "@/components/ui/context-menu";
+import { ContextMenu, ContextMenuContent, ContextMenuGroup, ContextMenuItem, ContextMenuLabel, ContextMenuSeparator, ContextMenuTrigger } from "@/components/ui/context-menu";
 
 type ImageResolution = {
     width: number;
@@ -104,6 +104,15 @@ const BlueprintView = () => {
     const blueprintNameRef = useRef<string>('')
     const startTrackingRef = useRef(startTracking)
     useEffect(() => { startTrackingRef.current = startTracking }, [startTracking])
+
+    // SECTION VIEW DELETE VARIABLES
+    const [indexAreaForDelete, setIndexAreaForDelete] = useState<number | null>(null)
+    const [areaForDelete, setAreaForDelete] = useState<SectionView | null>(null)
+    const [openDeleteAreaDialog, setOpenDeleteAreaDialog] = useState<boolean>(false)
+
+    // SAVE AREAS
+    const [openSaveAreasDialog, setOpenSaveAreasDialog] = useState<boolean>(false)
+    const [isSavingAreas, setIsSavingAreas] = useState<boolean>(false)
 
     useEffect(() => {
         clearNotification()
@@ -178,7 +187,8 @@ const BlueprintView = () => {
                 key !== "storageThumbnailId" &&
                 key !== "originalBlueprintId" &&
                 key !== "width" &&
-                key !== "height"
+                key !== "height" &&
+                key != "sectionViews"
             )
             .sort(([keyA], [keyB]) => {
                 const order = [
@@ -473,10 +483,9 @@ const BlueprintView = () => {
             const completed = await waitForInferenceJob(job._id, token)
             pendingJobIdRef.current = null
 
-            console.log("RESULTADO DE INFERENCIA : ", completed.result?.predictions)
-
             if (completed.status === 'Processed' && completed.result?.predictions) {
-                setSectionViewsList(predictionsToSectionViews(completed.result.predictions))
+                const convetionToSectionView = predictionsToSectionViews(completed.result.predictions)
+                setSectionViewsList(convetionToSectionView)
             } else if (completed.status === 'Error') {
                 setErrorAlertMessage(completed.result?.error ?? 'The AI processing failed. Please try again.')
                 setOpenErrorAlert(true)
@@ -493,8 +502,38 @@ const BlueprintView = () => {
         }
     }
 
-    const handleSaveAreas = () => {
-        console.log("LE ENVIA AL BACKEND LAS AREAS QUE SE ACEPTARON")
+    const selectAreaForDelete = (section: SectionView, index: number) => {
+        setIndexAreaForDelete(index)
+        setAreaForDelete(section)
+        setOpenDeleteAreaDialog(true)
+    }
+
+    const handleDeleteArea = () => {
+        if(indexAreaForDelete !== null){
+            setSectionViewsList((prev) =>
+                prev.filter((_, index) => index !== indexAreaForDelete)
+            )
+        }else{
+            setErrorAlertMessage("No selected area")
+            setOpenErrorAlert(true)
+            return
+        }
+        setIndexAreaForDelete(null)
+        setAreaForDelete(null)
+    }
+
+    const handleSaveAreas = async () => {
+        setOpenSaveAreasDialog(false)
+        setIsSavingAreas(true)
+        try{
+            await BlueprintViewService.saveAreas(blueprintId!, sectionViewsList)
+            setIsSavingAreas(false)
+        }catch(error){
+            setIsSavingAreas(false)
+            setErrorAlertMessage("An error has occurred while saving areas, please try again later.")
+            setOpenErrorAlert(true)
+            return
+        }
     }
 
     if (loadingBlueprint) return <Loading/>
@@ -779,31 +818,27 @@ const BlueprintView = () => {
 
                                                     <ContextMenuContent className="w-48">
 
-                                                        <ContextMenuItem
-                                                            onClick={() => {
-                                                                console.log("Edit area", section)
-                                                            }}
-                                                        >
-                                                            Edit
-                                                        </ContextMenuItem>
+                                                        <ContextMenuGroup>
 
-                                                        <ContextMenuItem
-                                                            onClick={() => {
-                                                                console.log("Delete area", section)
-                                                            }}
-                                                        >
-                                                            Delete
-                                                        </ContextMenuItem>
+                                                            <ContextMenuLabel>Area: {section.label}</ContextMenuLabel>
 
-                                                        <ContextMenuSeparator />
+                                                            <ContextMenuItem
+                                                                onClick={() => {
+                                                                    console.log("Edit area", section)
+                                                                }}
+                                                            >
+                                                                Edit
+                                                            </ContextMenuItem>
 
-                                                        <ContextMenuItem
-                                                            onClick={() => {
-                                                                console.log("Focus area", section)
-                                                            }}
-                                                        >
-                                                            Focus
-                                                        </ContextMenuItem>
+                                                            <ContextMenuItem
+                                                                onClick={() => {
+                                                                    selectAreaForDelete(section, index)
+                                                                }}
+                                                            >
+                                                                Delete
+                                                            </ContextMenuItem>
+
+                                                        </ContextMenuGroup>
 
                                                     </ContextMenuContent>
 
@@ -865,21 +900,27 @@ const BlueprintView = () => {
 
                                                     <ContextMenuContent className="w-48">
 
-                                                        <ContextMenuItem
-                                                            onClick={() => {
-                                                                console.log("Edit area", section)
-                                                            }}
-                                                        >
-                                                            Edit
-                                                        </ContextMenuItem>
+                                                        <ContextMenuGroup>
 
-                                                        <ContextMenuItem
-                                                            onClick={() => {
-                                                                console.log("Delete area", section)
-                                                            }}
-                                                        >
-                                                            Delete
-                                                        </ContextMenuItem>
+                                                            <ContextMenuLabel>Area: {section.label}</ContextMenuLabel>
+
+                                                            <ContextMenuItem
+                                                                onClick={() => {
+                                                                    console.log("Edit area", section)
+                                                                }}
+                                                            >
+                                                                Edit
+                                                            </ContextMenuItem>
+
+                                                            <ContextMenuItem
+                                                                onClick={() => {
+                                                                    console.log("Delete area", section)
+                                                                }}
+                                                            >
+                                                                Delete
+                                                            </ContextMenuItem>
+
+                                                        </ContextMenuGroup>
 
                                                     </ContextMenuContent>
 
@@ -943,21 +984,27 @@ const BlueprintView = () => {
 
                                                     <ContextMenuContent className="w-48">
 
-                                                        <ContextMenuItem
-                                                            onClick={() => {
-                                                                console.log("Edit area", section)
-                                                            }}
-                                                        >
-                                                            Edit
-                                                        </ContextMenuItem>
+                                                        <ContextMenuGroup>
 
-                                                        <ContextMenuItem
-                                                            onClick={() => {
-                                                                console.log("Delete area", section)
-                                                            }}
-                                                        >
-                                                            Delete
-                                                        </ContextMenuItem>
+                                                            <ContextMenuLabel>Area: {section.label}</ContextMenuLabel>
+
+                                                            <ContextMenuItem
+                                                                onClick={() => {
+                                                                    console.log("Edit area", section)
+                                                                }}
+                                                            >
+                                                                Edit
+                                                            </ContextMenuItem>
+
+                                                            <ContextMenuItem
+                                                                onClick={() => {
+                                                                    console.log("Delete area", section)
+                                                                }}
+                                                            >
+                                                                Delete
+                                                            </ContextMenuItem>
+
+                                                        </ContextMenuGroup>
 
                                                     </ContextMenuContent>
 
@@ -1017,21 +1064,27 @@ const BlueprintView = () => {
 
                                                     <ContextMenuContent className="w-48">
 
-                                                        <ContextMenuItem
-                                                            onClick={() => {
-                                                                console.log("Edit area", section)
-                                                            }}
-                                                        >
-                                                            Edit
-                                                        </ContextMenuItem>
+                                                        <ContextMenuGroup>
 
-                                                        <ContextMenuItem
-                                                            onClick={() => {
-                                                                console.log("Delete area", section)
-                                                            }}
-                                                        >
-                                                            Delete
-                                                        </ContextMenuItem>
+                                                            <ContextMenuLabel>Area: {section.label}</ContextMenuLabel>
+
+                                                            <ContextMenuItem
+                                                                onClick={() => {
+                                                                    console.log("Edit area", section)
+                                                                }}
+                                                            >
+                                                                Edit
+                                                            </ContextMenuItem>
+
+                                                            <ContextMenuItem
+                                                                onClick={() => {
+                                                                    console.log("Delete area", section)
+                                                                }}
+                                                            >
+                                                                Delete
+                                                            </ContextMenuItem>
+
+                                                        </ContextMenuGroup>
 
                                                     </ContextMenuContent>
 
@@ -1161,7 +1214,7 @@ const BlueprintView = () => {
 
                     <Button 
                         variant="secondary"
-                        onClick={handleSaveAreas}
+                        onClick={() => setOpenSaveAreasDialog(true)}
                     >
                         Save marked areas
                     </Button>
@@ -1436,6 +1489,49 @@ const BlueprintView = () => {
                     open={isProcessing}
                     title="Processing blueprint..."
                     description="Please wait while this blueprint is being processed by IA, this can take some minutes..."
+                />
+
+                {/* DELETE AREA ALERT DIALOG */}
+                <ConfirmDeleteDialog
+                    open={openDeleteAreaDialog}
+                    onOpenChange={setOpenDeleteAreaDialog}
+                    title={`Delete area "${areaForDelete?.label}"`}
+                    description="This action cannot be undone. This will permanently delete the blueprint."
+                    onConfirm={handleDeleteArea}
+                />
+
+                {/* CONFIRM SAVE AREAS */}
+                <Dialog open={openSaveAreasDialog} onOpenChange={setOpenSaveAreasDialog}>
+                    <DialogContent className="sm:max-w-sm">
+
+                        <DialogHeader>
+                        <DialogTitle>Save generated areas?</DialogTitle>
+                        <DialogDescription>
+                            Do you want to save the areas that the AI has made? You can edit or delete them individualy, this areas will replce the once already existing ones if there was.
+                        </DialogDescription>
+                        </DialogHeader>
+
+                        <DialogFooter>
+                        <DialogClose asChild>
+                            <Button variant="outline">Cancel</Button>
+                        </DialogClose>
+
+                        <Button 
+                            type="submit"
+                            onClick={() => handleSaveAreas()}
+                        >
+                            Save
+                        </Button>
+                        </DialogFooter>
+
+                    </DialogContent>
+                </Dialog>
+
+                {/* SAVING AREAS */}
+                <Toast
+                    open={isSavingAreas}
+                    title="Saving areas..."
+                    description="Please wait while this areas are being saved..."
                 />
 
             </div>

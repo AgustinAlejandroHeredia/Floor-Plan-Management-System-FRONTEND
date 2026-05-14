@@ -1,50 +1,67 @@
-import BreadcrumbBar from "@/components/BreadcrumbBar";
-import Loading from "@/components/Loading";
+// REACT
+import { useEffect, useRef, useState } from "react";
 
+// HOOK
 import { useBlueprintView } from "@/hooks/useBlueprintView";
+
+// ROUTER
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
+// SERVICES
+import { BlueprintViewService } from "@/services/BlueprintViewService";
+
 // ICONS
-import { MdOpenInNew } from "react-icons/md";
+import { MdEdit } from "react-icons/md";
 import { LuCirclePlus } from "react-icons/lu";
 import { IoIosClose } from "react-icons/io";
+import { FaFileDownload, FaMagic } from "react-icons/fa";
+import { BsScissors } from "react-icons/bs";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import { GrFormView, GrFormViewHide } from "react-icons/gr";
+import { TfiSave } from "react-icons/tfi";
 
+// UI COMPONENTS
+import BreadcrumbBar from "@/components/BreadcrumbBar";
+import Loading from "@/components/Loading";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
-  CardDescription,
 } from "@/components/ui/card";
-
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { BlueprintViewService } from "@/services/BlueprintViewService";
-import { useEffect, useRef, useState } from "react";
-import { useAuth0 } from "@auth0/auth0-react";
-import { io, type Socket } from "socket.io-client";
 import { Field, FieldGroup } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import InfoDialog from "@/components/InfoDialog";
+import BlueprintSpecialtyPickerDialog from "@/components/BlueprintOptionPickerDialog";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { BlueprintLevelsDialog } from "@/components/BlueprintLevelsDialog";
+import { Switch } from "@/components/ui/switch";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ContextMenu, ContextMenuContent, ContextMenuGroup, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger } from "@/components/ui/context-menu";
+import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
+import Toast from "@/components/Toast";
+
+// SOCKET
+import { io, type Socket } from "socket.io-client";
+
+// AUTH0
+import { useAuth0 } from "@auth0/auth0-react";
 
 // IMAGE CROP
 import ReactCrop, { type Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 
+// UTILS
 import { getCroppedImg } from "@/utils/cropImage";
+
+// TYPES
 import type { BlueprintViewType, CreateCropPayload, InferenceJobResult, InferenceJobStatus, InferenceJobType, SectionView, SpecialtyTag, YoloPrediction } from "@/types/types";
-import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
-import Toast from "@/components/Toast";
+
+// CONTEXT
 import { useInferenceNotification } from "@/context/InferenceNotificationContext";
-import InfoDialog from "@/components/InfoDialog";
-import BlueprintSpecialtyPickerDialog from "@/components/BlueprintOptionPickerDialog";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BlueprintLevelsDialog } from "@/components/BlueprintLevelsDialog";
-import { Separator } from "@/components/ui/separator";
-import DrawnAreaItem from "@/components/DrawnAreaItem";
-import { Switch } from "@/components/ui/switch";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ContextMenu, ContextMenuContent, ContextMenuGroup, ContextMenuItem, ContextMenuLabel, ContextMenuSeparator, ContextMenuTrigger } from "@/components/ui/context-menu";
 
 type ImageResolution = {
     width: number;
@@ -568,658 +585,821 @@ const BlueprintView = () => {
 
             <div className="main-content">
 
-                {/* ================= INFO ================= */}
+                {/* ================= INFO CARD ================= */}
                 <div className="main-content-item">
-                <div
-                    style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
-                        gap: "16px",
-                        alignItems: "start",
-                    }}
-                >
-                    {/* INFO */}
-                    <Card className="border border-[var(--border)] bg-transparent">
+                <Card className="border border-[var(--border)] bg-transparent w-full">
                     <CardHeader>
-                        <CardTitle className="text-[var(--text-h)]">
-                        Blueprint information
+                        <CardTitle className="text-[var(--text-h)] text-[25px]">
+                            Blueprint information
                         </CardTitle>
                     </CardHeader>
 
                     <CardContent>
-                        {filteredBlueprintEntries.map(([key, value]) => (
-                        <div key={key} className="mb-2 text-left">
-                            <CardDescription className="text-[var(--text-h)]">
-                            <span className="font-semibold">
-                                {formatKey(key)}:
-                            </span>{" "}
 
-                            {key === "creationDate" ? (
-                                new Date(value as string).toLocaleDateString("es-AR")
+                        <div className="flex flex-row gap-10">
 
-                            ) : key === "filename" ? (
-                                getDisplayFileName(value as string)
+                            <div>
+                                <p className="text-sm text-muted-foreground">
+                                    Name
+                                </p>
 
-                            ) : key === "view" ? (
-                                value === "undefined"
-                                ? "Unspecified"
-                                : (value as string)
+                                <p className="font-semibold text-[var(--text-h)]">
+                                    {blueprint?.blueprintName}
+                                </p>
+                            </div>
 
-                            ) : key === "specialties" ? (
-                                (value as string[]).length > 0
-                                ? (value as string[]).join(", ")
-                                : "Unspecified"
+                            <div>
+                                <p className="text-sm text-muted-foreground">
+                                    Creation date
+                                </p>
 
-                            ) : key === "levels" ? (
-                                (value as string[]).length > 0
-                                ? (value as string[]).join(", ")
-                                : "Unspecified"
+                                <p className="font-semibold text-[var(--text-h)]">
+                                    {new Date(blueprint!.creationDate).toLocaleDateString("es-AR")}
+                                </p>
+                            </div>
 
-                            ) : key === "specialties" ? (
-                                (value as string[]).length > 0
-                                ? (value as string[]).join(", ")
-                                : "Unspecified"
+                            <div>
+                                <p className="text-sm text-muted-foreground">
+                                    View
+                                </p>
 
-                            ) : key === "croppedFrom" ? (
-                                value ? (
-                                    <>
-                                    {value}
-                                    </>
-                                ) : (
-                                    "none"
-                                )
+                                <p className="font-semibold text-[var(--text-h)]">
+                                    {blueprint?.view || "Unspecified"}
+                                </p>
+                            </div>
 
-                            ) : key === "cropsMade" ? (
-                                Array.isArray(value) && value.length > 0 ? (
-                                    <div className="ml-4 mt-1 space-y-1">
-                                    {value.map((crop, index) => (
-                                        <div
-                                        key={index}
-                                        className="flex items-center gap-2"
-                                        >
-                                        <span>• {crop.blueprintName}</span>
+                            <div>
+                                <p className="text-sm text-muted-foreground">
+                                    Specialties
+                                </p>
 
-                                        <button
-                                            type="button"
-                                            onClick={() => handleOpenAnotherBlueprint(crop.blueprintId, crop.blueprintName)}
-                                            className="hover:opacity-70 transition"
-                                        >
-                                            <MdOpenInNew size={16} />
-                                        </button>
-                                        </div>
-                                    ))}
-                                    </div>
-                                ) : (
-                                    "No crops made"
-                                )
+                                <p className="font-semibold text-[var(--text-h)]">
+                                    {blueprint?.specialties?.join(", ") || "Unspecified"}
+                                </p>
+                            </div>
 
-                            ) : key === "sectionViews" ? (
-                                Array.isArray(value) && value.length > 0 ? (
-                                    <div className="ml-4 mt-1 space-y-1">
-                                        <p>Area</p>
-                                    </div>
-                                ) : (
-                                    "No areas marked yet"
-                                )
+                            <div>
+                                <p className="text-sm text-muted-foreground">
+                                    Levels
+                                </p>
 
-                            ) : (
-                                String(value)
+                                <p className="font-semibold text-[var(--text-h)]">
+                                    {blueprint?.levels?.join(", ") || "Unspecified"}
+                                </p>
+                            </div>
+
+                            {blueprint?.croppedFrom && (
+                                <div>
+                                    <p className="text-sm text-muted-foreground">
+                                        Cropped from
+                                    </p>
+
+                                    <p className="font-semibold text-[var(--text-h)]">
+                                        {blueprint?.croppedFrom || "None"}
+                                    </p>
+                                </div>
                             )}
-                            </CardDescription>
+
+                            {blueprint?.sectionViews.length !== 0 && (
+                                <div>
+                                    <p className="text-sm text-muted-foreground">
+                                        Areas
+                                    </p>
+
+                                    <p className="font-semibold text-[var(--text-h)] text-center">
+                                        {blueprint?.sectionViews.length}
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* CROPS MADE */}
+                            <div>
+
+                                <p className="text-sm text-muted-foreground">
+                                    Crops made
+                                </p>
+
+                                {blueprint?.cropsMade?.length ? (
+
+                                    <div className="flex flex-wrap gap-2">
+
+                                        {blueprint.cropsMade.map((crop, index) => (
+                                            <Button 
+                                                variant="ghost"
+                                                className="text-[var(--text)]" 
+                                                key={index}
+                                                onClick={() => handleOpenAnotherBlueprint(crop.blueprintId, crop.blueprintName)}
+                                            >
+                                                {crop.blueprintName}
+                                            </Button>
+                                        ))}
+
+                                    </div>
+
+                                ) : (
+
+                                    <p className="font-semibold text-[var(--text-h)]">
+                                        No crops made
+                                    </p>
+
+                                )}
+
+                            </div>
+
                         </div>
-                        ))}
+
                     </CardContent>
-                    </Card>
+                </Card>
 
-                    {/* OPTIONS */}
-                    <div className="flex flex-col gap-2 h-full justify-center">
-
-                        <Button variant="secondary" onClick={handleDownloadFile}>Download blueprint</Button>
-                        <Button variant="secondary" onClick={handleLoadLabels}>Edit blueprint</Button>
-                        <Button variant="secondary" onClick={handleCropMode}>Generate crop manually</Button>
-                        <Button variant="secondary" onClick={handleMagicCrop}>Magic crop</Button>
-                        <Button variant="secondary" onClick={handleAiProcess}>Process blueprint with AI</Button>
-                        <Button variant="destructive" onClick={() => setOpenDeleteDialog(true)}>Delete blueprint</Button>
-                    
-                    </div>
-                </div>
-
-                {/* ZOOM SELECTOR */}
+                {/* CONTROLS */}
                 {!cropMode && (
-                    <div style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        marginTop: "10px",
-                    }}>
-                        <p className="info-text">Zoom Level: {Math.round(imageZoom * 100)}%</p>
+                <div className="flex items-center justify-center gap-x-15 mt-2">
+
+                    {/* ZOOM SELECTOR */}
+                    <div className="flex flex-col items-center">
+                        <p className="info-text">
+                            Zoom Level: {Math.round(imageZoom * 100)}%
+                        </p>
+
                         <input
                             type="range"
-                            min={0.5}   // 50% de su tamaño
-                            max={3}     // 300% de su tamaño (puedes subirlo a 5 si quieres más zoom)
+                            min={0.5}
+                            max={3}
                             step={0.1}
                             value={imageZoom}
                             onChange={(e) => setImageZoom(Number(e.target.value))}
-                            style={{ accentColor: "var(--text-h)", width: "300px" }}
+                            style={{
+                                accentColor: "var(--text-h)",
+                                width: "300px",
+                            }}
                         />
                     </div>
-                )}
 
-                {/* BLUEPRINT PICTURE */}
-                {!cropMode && (
-                    <div
-                        style={{
-                            marginTop: "25px",
-                            overflow: "auto",      // Permite barras de scroll
-                            display: "flex",
-                            justifyContent: "center", // Mantiene centrado si es pequeño
-                            alignItems: "flex-start", // Alinea arriba para que el scroll funcione bien
-                            maxHeight: "80vh",     // Ajusta esto según el alto de tu pantalla
-                            position: "relative"
-                        }}
-                        >
-                        <div
-                            style={{
-                                position: "relative",
-                                // Aquí ocurre la magia: el ancho depende del zoom
-                                // Si el zoom es 1, ocupa el 70%. Si es 2, ocupa el 140%.
-                                width: `${70 * imageZoom}%`, 
-                                minWidth: "unset", 
-                                transition: "width 0.2s ease", // Transición suave de tamaño
-                                flexShrink: 0, // Evita que Flexbox colapse el contenedor
-                            }}
-                            ref={blueprintImageRef}
-                        >
-                            <img
-                                src={blueprtinImageUrl!}
-                                alt={blueprint!.filename}
-                                onLoad={handleNormalImageLoad}
-                                style={{
-                                    width: "100%",
-                                    height: "auto",
-                                    display: "block",
-                                }}
-                            />
+                    {/* HIDE / SHOW DRAWN AREAS */}
+                    {sectionViewsList.length > 0 && (
+                        <div className="flex flex-col items-center">
 
-                            {/* SVG overlay */}
-                            {!hideDrawnAreas && (
-                            <svg
-                                viewBox={imageRes.width > 0 ? `0 0 ${imageRes.width} ${imageRes.height}` : undefined}
-                                preserveAspectRatio="none"
-                                style={{
-                                position: "absolute",
-                                top: 0,
-                                left: 0,
-                                width: "100%",
-                                height: "100%",
-                                pointerEvents: "none",
-                                }}
-                            >
-                                {sectionViewsList.map((section, index) => {
+                            <Label className="info-text">
+                                Hide drawn areas
+                            </Label>
 
-                                    // RECTANGLE
-                                    if (section.type === "rectangle") {
-                                        const [p1, p2] = section.coordsList
+                            <div className="flex items-center space-x-2">
 
-                                        if (!p1 || !p2) return null
+                                <Switch
+                                    id="hidedrawnareas"
+                                    checked={hideDrawnAreas}
+                                    onCheckedChange={(value) => setHideDrawnAreas(value)}
+                                />
 
-                                        const x = Math.min(p1.x, p2.x)
-                                        const y = Math.min(p1.y, p2.y)
-                                        const width = Math.abs(p2.x - p1.x)
-                                        const height = Math.abs(p2.y - p1.y)
-                                        const isHighlighted = highlightedAreaIndex === index
-                                        const labelFontSize = imageRes.width > 0 ? Math.round(imageRes.width * 0.012) : 12
-
-                                        return (
-                                            <TooltipProvider key={index}>
-                                                <ContextMenu>
-
-                                                    <Tooltip>
-
-                                                        <ContextMenuTrigger asChild>
-                                                            <TooltipTrigger asChild>
-                                                                <g>
-                                                                    <rect
-                                                                        x={x}
-                                                                        y={y}
-                                                                        width={width}
-                                                                        height={height}
-                                                                        fill={
-                                                                            isHighlighted
-                                                                                ? "rgba(0, 150, 255, 0.45)"
-                                                                                : "rgba(0, 100, 255, 0.25)"
-                                                                        }
-                                                                        stroke={
-                                                                            isHighlighted
-                                                                                ? "rgba(0, 150, 255, 1)"
-                                                                                : "rgba(0, 100, 255, 0.7)"
-                                                                        }
-                                                                        strokeWidth={isHighlighted ? "4" : "2"}
-                                                                        style={{
-                                                                            pointerEvents: "auto",
-                                                                            cursor: "pointer",
-                                                                        }}
-                                                                    />
-                                                                </g>
-                                                            </TooltipTrigger>
-                                                        </ContextMenuTrigger>
-
-                                                        {section.label && (
-                                                            <TooltipContent>
-                                                                <p>
-                                                                    {section.label}
-                                                                    {section.confidence !== undefined &&
-                                                                        ` ${Math.round(section.confidence * 100)}%`}
-                                                                </p>
-                                                            </TooltipContent>
-                                                        )}
-
-                                                    </Tooltip>
-
-                                                    <ContextMenuContent className="w-48">
-
-                                                        <ContextMenuGroup>
-
-                                                            <ContextMenuLabel>Area: {section.label}</ContextMenuLabel>
-
-                                                            <ContextMenuItem
-                                                                onClick={() => {
-                                                                    console.log("Edit area", section)
-                                                                }}
-                                                            >
-                                                                Edit
-                                                            </ContextMenuItem>
-
-                                                            <ContextMenuItem
-                                                                onClick={() => {
-                                                                    selectAreaForDelete(section, index)
-                                                                }}
-                                                            >
-                                                                Delete
-                                                            </ContextMenuItem>
-
-                                                        </ContextMenuGroup>
-
-                                                    </ContextMenuContent>
-
-                                                </ContextMenu>
-                                            </TooltipProvider>
-                                        )
+                                <Label htmlFor="hidedrawnareas">
+                                    {hideDrawnAreas ? 
+                                        <GrFormViewHide className="text-white text-xl"/> 
+                                        : 
+                                        <GrFormView className="text-white text-xl"/>
                                     }
+                                </Label>
 
-                                    // POLYGON
-                                    if (section.type === "polygon") {
-                                        const points = section.coordsList
-                                            .map((c) => `${c.x},${c.y}`)
-                                            .join(" ")
+                            </div>
 
-                                        const isHighlighted = highlightedAreaIndex === index
-
-                                        return (
-                                            <TooltipProvider key={index}>
-                                                <ContextMenu>
-
-                                                    <Tooltip>
-
-                                                        <ContextMenuTrigger asChild>
-                                                            <TooltipTrigger asChild>
-                                                                <g>
-                                                                    <polygon
-                                                                        points={points}
-                                                                        fill={
-                                                                            isHighlighted
-                                                                                ? "rgba(0, 150, 255, 0.45)"
-                                                                                : "rgba(0, 100, 255, 0.25)"
-                                                                        }
-                                                                        stroke={
-                                                                            isHighlighted
-                                                                                ? "rgba(0, 150, 255, 1)"
-                                                                                : "rgba(0, 100, 255, 0.7)"
-                                                                        }
-                                                                        strokeWidth={isHighlighted ? "4" : "2"}
-                                                                        style={{
-                                                                            pointerEvents: "auto",
-                                                                            cursor: "pointer",
-                                                                        }}
-                                                                    />
-                                                                </g>
-                                                            </TooltipTrigger>
-                                                        </ContextMenuTrigger>
-
-                                                        {section.label && (
-                                                            <TooltipContent>
-                                                                <p>
-                                                                    {section.label}
-                                                                    {section.confidence !== undefined &&
-                                                                        ` ${Math.round(section.confidence * 100)}%`}
-                                                                </p>
-                                                            </TooltipContent>
-                                                        )}
-
-                                                    </Tooltip>
-
-                                                    <ContextMenuContent className="w-48">
-
-                                                        <ContextMenuGroup>
-
-                                                            <ContextMenuLabel>Area: {section.label}</ContextMenuLabel>
-
-                                                            <ContextMenuItem
-                                                                onClick={() => {
-                                                                    console.log("Edit area", section)
-                                                                }}
-                                                            >
-                                                                Edit
-                                                            </ContextMenuItem>
-
-                                                            <ContextMenuItem
-                                                                onClick={() => {
-                                                                    console.log("Delete area", section)
-                                                                }}
-                                                            >
-                                                                Delete
-                                                            </ContextMenuItem>
-
-                                                        </ContextMenuGroup>
-
-                                                    </ContextMenuContent>
-
-                                                </ContextMenu>
-                                            </TooltipProvider>
-                                        )
-                                    }
-
-                                    // CIRCLE
-                                    if (section.type === "circle") {
-                                        const center = section.coordsList[0]
-
-                                        if (!center || typeof section.radius !== "number") return null
-
-                                        const isHighlighted = highlightedAreaIndex === index
-
-                                        return (
-                                            <TooltipProvider key={index}>
-                                                <ContextMenu>
-
-                                                    <Tooltip>
-
-                                                        <ContextMenuTrigger asChild>
-                                                            <TooltipTrigger asChild>
-                                                                <g>
-                                                                    <circle
-                                                                        cx={center.x}
-                                                                        cy={center.y}
-                                                                        r={section.radius}
-                                                                        fill={
-                                                                            isHighlighted
-                                                                                ? "rgba(0, 150, 255, 0.45)"
-                                                                                : "rgba(0, 100, 255, 0.25)"
-                                                                        }
-                                                                        stroke={
-                                                                            isHighlighted
-                                                                                ? "rgba(0, 150, 255, 1)"
-                                                                                : "rgba(0, 100, 255, 0.7)"
-                                                                        }
-                                                                        strokeWidth={isHighlighted ? "4" : "2"}
-                                                                        style={{
-                                                                            pointerEvents: "auto",
-                                                                            cursor: "pointer",
-                                                                        }}
-                                                                    />
-                                                                </g>
-                                                            </TooltipTrigger>
-                                                        </ContextMenuTrigger>
-
-                                                        {section.label && (
-                                                            <TooltipContent>
-                                                                <p>
-                                                                    {section.label}
-                                                                    {section.confidence !== undefined &&
-                                                                        ` ${Math.round(section.confidence * 100)}%`}
-                                                                </p>
-                                                            </TooltipContent>
-                                                        )}
-
-                                                    </Tooltip>
-
-                                                    <ContextMenuContent className="w-48">
-
-                                                        <ContextMenuGroup>
-
-                                                            <ContextMenuLabel>Area: {section.label}</ContextMenuLabel>
-
-                                                            <ContextMenuItem
-                                                                onClick={() => {
-                                                                    console.log("Edit area", section)
-                                                                }}
-                                                            >
-                                                                Edit
-                                                            </ContextMenuItem>
-
-                                                            <ContextMenuItem
-                                                                onClick={() => {
-                                                                    console.log("Delete area", section)
-                                                                }}
-                                                            >
-                                                                Delete
-                                                            </ContextMenuItem>
-
-                                                        </ContextMenuGroup>
-
-                                                    </ContextMenuContent>
-
-                                                </ContextMenu>
-                                            </TooltipProvider>
-                                        )
-                                    }
-
-                                    // POLYLINE
-                                    if (section.type === "polyline") {
-                                        if (!section.coordsList || section.coordsList.length < 2) return null
-
-                                        const points = section.coordsList
-                                            .map((c) => `${c.x},${c.y}`)
-                                            .join(" ")
-
-                                        const isHighlighted = highlightedAreaIndex === index
-
-                                        return (
-                                            <TooltipProvider key={index}>
-                                                <ContextMenu>
-
-                                                    <Tooltip>
-
-                                                        <ContextMenuTrigger asChild>
-                                                            <TooltipTrigger asChild>
-                                                                <g>
-                                                                    <polyline
-                                                                        points={points}
-                                                                        fill="none"
-                                                                        stroke={
-                                                                            isHighlighted
-                                                                                ? "rgba(0, 150, 255, 1)"
-                                                                                : "rgba(0, 100, 255, 0.9)"
-                                                                        }
-                                                                        strokeWidth={isHighlighted ? "5" : "3"}
-                                                                        style={{
-                                                                            pointerEvents: "auto",
-                                                                            cursor: "pointer",
-                                                                        }}
-                                                                    />
-                                                                </g>
-                                                            </TooltipTrigger>
-                                                        </ContextMenuTrigger>
-
-                                                        {section.label && (
-                                                            <TooltipContent>
-                                                                <p>
-                                                                    {section.label}
-                                                                    {section.confidence !== undefined &&
-                                                                        ` ${Math.round(section.confidence * 100)}%`}
-                                                                </p>
-                                                            </TooltipContent>
-                                                        )}
-
-                                                    </Tooltip>
-
-                                                    <ContextMenuContent className="w-48">
-
-                                                        <ContextMenuGroup>
-
-                                                            <ContextMenuLabel>Area: {section.label}</ContextMenuLabel>
-
-                                                            <ContextMenuItem
-                                                                onClick={() => {
-                                                                    console.log("Edit area", section)
-                                                                }}
-                                                            >
-                                                                Edit
-                                                            </ContextMenuItem>
-
-                                                            <ContextMenuItem
-                                                                onClick={() => {
-                                                                    console.log("Delete area", section)
-                                                                }}
-                                                            >
-                                                                Delete
-                                                            </ContextMenuItem>
-
-                                                        </ContextMenuGroup>
-
-                                                    </ContextMenuContent>
-
-                                                </ContextMenu>
-                                            </TooltipProvider>
-                                        )
-                                    }
-
-                                    return null;
-                                })}
-                            </svg>
-                            )}
                         </div>
-                    </div>
-                )}
-
-                {sectionViewsList.length > 0 && (
-                <div className="label-text flex items-center justify-center space-x-2 !my-4">
-                    <Label htmlFor="hidedrawnareas">Hide drawn areas</Label>
-                    <Switch 
-                        id="hidedrawnareas"
-                        checked={hideDrawnAreas}
-                        onCheckedChange={(value) => setHideDrawnAreas(value)}
-                    />
-                    {hideDrawnAreas ? (
-                        <Label htmlFor="hidedrawnareas">ON</Label>
-                    ) : (
-                        <Label htmlFor="hidedrawnareas">OFF</Label>
                     )}
+
                 </div>
                 )}
 
-                {/* CROP MODE */}
-                {cropMode && (
-                    <div
-                        style={{
-                            marginTop: "25px",
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            gap: "10px",
-                            width: "100%",
-                        }}
-                    >
-                        {/* ZOOM */}
-                        <div>
-                            <p className="info-text" style={{ textAlign: "center" }}>Crop Zoom Level</p>
-                            <input
-                                type="range"
-                                min={1}
-                                max={3}
-                                step={0.1}
-                                value={cropZoom}
-                                onChange={(e) => setCropZoom(Number(e.target.value))}
-                                style={{
-                                    accentColor: "var(--text-h)",
-                                    width: "300px",
-                                }}
-                            />
-                        </div>
+                {/* ================= WORKSPACE ================= */}
+                <div className="flex gap-4 mt-4 items-start">
 
-                        {/* CONTENEDOR CON SCROLL */}
-                        <div
-                            style={{
-                                width: "100%",
-                                maxWidth: "900px",
-                                height: "70vh",
-                                border: "1px solid var(--border)",
-                                borderRadius: "8px",
-                                overflowX: "auto",
-                                overflowY: "auto",
-                                background: "var(--bg)",
-                                position: "relative",
-                                display: "block",
-                            }}
-                        >
-                            {/* WRAPPER DE ANCHO DINÁMICO */}
-                            <div 
-                                style={{ 
-                                    width: `${cropZoom * 100}%`,
-                                    minWidth: "100%",
-                                    display: "block",
+                    {/* BLUEPRINT AREA */}
+                    <div className="flex-1">
+
+                        {/* BLUEPRINT PICTURE */}
+                        {!cropMode && (
+                            <div
+                                style={{
+                                    marginTop: "25px",
+                                    overflow: "auto",      // Permite barras de scroll
+                                    display: "flex",
+                                    justifyContent: "center", // Mantiene centrado si es pequeño
+                                    alignItems: "flex-start", // Alinea arriba para que el scroll funcione bien
+                                    maxHeight: "80vh",     // Ajusta esto según el alto de tu pantalla
+                                    position: "relative"
                                 }}
-                            >
-                                <ReactCrop
-                                    crop={crop}
-                                    onChange={(c) => setCrop(c)}
-                                    onComplete={(c) => setCompletedCrop(c)}
-                                    style={{ 
-                                        display: "block",
-                                        width: "100%"
-                                    }} 
+                                >
+                                <div
+                                    style={{
+                                        position: "relative",
+                                        // Aquí ocurre la magia: el ancho depende del zoom
+                                        // Si el zoom es 1, ocupa el 70%. Si es 2, ocupa el 140%.
+                                        width: `${70 * imageZoom}%`, 
+                                        minWidth: "unset", 
+                                        transition: "width 0.2s ease", // Transición suave de tamaño
+                                        flexShrink: 0, // Evita que Flexbox colapse el contenedor
+                                    }}
+                                    ref={blueprintImageRef}
                                 >
                                     <img
                                         src={blueprtinImageUrl!}
-                                        onLoad={onImageLoad}
+                                        alt={blueprint!.filename}
+                                        onLoad={handleNormalImageLoad}
                                         style={{
-                                            display: "block",
                                             width: "100%",
                                             height: "auto",
-                                            maxWidth: "none",
-                                            minWidth: "none",
-                                            border: "none",
+                                            display: "block",
                                         }}
                                     />
-                                </ReactCrop>
-                            </div>
-                        </div>
 
-                        {/* BOTONES */}
-                        <div className="flex gap-2 mt-4">
-                            <Button onClick={() => setOpenCropForm(true)}>
-                                Confirm crop
-                            </Button>
-                            <Button variant="outline" onClick={handleCancelCrop}>
-                                Cancel
-                            </Button>
-                        </div>
+                                    {/* SVG overlay */}
+                                    {!hideDrawnAreas && (
+                                    <svg
+                                        viewBox={imageRes.width > 0 ? `0 0 ${imageRes.width} ${imageRes.height}` : undefined}
+                                        preserveAspectRatio="none"
+                                        style={{
+                                        position: "absolute",
+                                        top: 0,
+                                        left: 0,
+                                        width: "100%",
+                                        height: "100%",
+                                        pointerEvents: "none",
+                                        }}
+                                    >
+                                        {sectionViewsList.map((section, index) => {
+
+                                            // RECTANGLE
+                                            if (section.type === "rectangle") {
+                                                const [p1, p2] = section.coordsList
+
+                                                if (!p1 || !p2) return null
+
+                                                const x = Math.min(p1.x, p2.x)
+                                                const y = Math.min(p1.y, p2.y)
+                                                const width = Math.abs(p2.x - p1.x)
+                                                const height = Math.abs(p2.y - p1.y)
+                                                const isHighlighted = highlightedAreaIndex === index
+                                                const labelFontSize = imageRes.width > 0 ? Math.round(imageRes.width * 0.012) : 12
+
+                                                return (
+                                                    <TooltipProvider key={index}>
+                                                        <ContextMenu>
+
+                                                            <Tooltip>
+
+                                                                <ContextMenuTrigger asChild>
+                                                                    <TooltipTrigger asChild>
+                                                                        <g>
+                                                                            <rect
+                                                                                x={x}
+                                                                                y={y}
+                                                                                width={width}
+                                                                                height={height}
+                                                                                fill={
+                                                                                    isHighlighted
+                                                                                        ? "rgba(0, 150, 255, 0.45)"
+                                                                                        : "rgba(0, 100, 255, 0.25)"
+                                                                                }
+                                                                                stroke={
+                                                                                    isHighlighted
+                                                                                        ? "rgba(0, 150, 255, 1)"
+                                                                                        : "rgba(0, 100, 255, 0.7)"
+                                                                                }
+                                                                                strokeWidth={isHighlighted ? "4" : "2"}
+                                                                                style={{
+                                                                                    pointerEvents: "auto",
+                                                                                    cursor: "pointer",
+                                                                                }}
+                                                                            />
+                                                                        </g>
+                                                                    </TooltipTrigger>
+                                                                </ContextMenuTrigger>
+
+                                                                {section.label && (
+                                                                    <TooltipContent>
+                                                                        <p>
+                                                                            {section.label}
+                                                                            {section.confidence !== undefined &&
+                                                                                ` ${Math.round(section.confidence * 100)}%`}
+                                                                        </p>
+                                                                    </TooltipContent>
+                                                                )}
+
+                                                            </Tooltip>
+
+                                                            <ContextMenuContent className="w-48">
+
+                                                                <ContextMenuGroup>
+
+                                                                    <ContextMenuLabel>Area: {section.label}</ContextMenuLabel>
+
+                                                                    <ContextMenuItem
+                                                                        onClick={() => {
+                                                                            console.log("Edit area", section)
+                                                                        }}
+                                                                    >
+                                                                        Edit
+                                                                    </ContextMenuItem>
+
+                                                                    <ContextMenuItem
+                                                                        onClick={() => {
+                                                                            selectAreaForDelete(section, index)
+                                                                        }}
+                                                                    >
+                                                                        Delete
+                                                                    </ContextMenuItem>
+
+                                                                </ContextMenuGroup>
+
+                                                            </ContextMenuContent>
+
+                                                        </ContextMenu>
+                                                    </TooltipProvider>
+                                                )
+                                            }
+
+                                            // POLYGON
+                                            if (section.type === "polygon") {
+                                                const points = section.coordsList
+                                                    .map((c) => `${c.x},${c.y}`)
+                                                    .join(" ")
+
+                                                const isHighlighted = highlightedAreaIndex === index
+
+                                                return (
+                                                    <TooltipProvider key={index}>
+                                                        <ContextMenu>
+
+                                                            <Tooltip>
+
+                                                                <ContextMenuTrigger asChild>
+                                                                    <TooltipTrigger asChild>
+                                                                        <g>
+                                                                            <polygon
+                                                                                points={points}
+                                                                                fill={
+                                                                                    isHighlighted
+                                                                                        ? "rgba(0, 150, 255, 0.45)"
+                                                                                        : "rgba(0, 100, 255, 0.25)"
+                                                                                }
+                                                                                stroke={
+                                                                                    isHighlighted
+                                                                                        ? "rgba(0, 150, 255, 1)"
+                                                                                        : "rgba(0, 100, 255, 0.7)"
+                                                                                }
+                                                                                strokeWidth={isHighlighted ? "4" : "2"}
+                                                                                style={{
+                                                                                    pointerEvents: "auto",
+                                                                                    cursor: "pointer",
+                                                                                }}
+                                                                            />
+                                                                        </g>
+                                                                    </TooltipTrigger>
+                                                                </ContextMenuTrigger>
+
+                                                                {section.label && (
+                                                                    <TooltipContent>
+                                                                        <p>
+                                                                            {section.label}
+                                                                            {section.confidence !== undefined &&
+                                                                                ` ${Math.round(section.confidence * 100)}%`}
+                                                                        </p>
+                                                                    </TooltipContent>
+                                                                )}
+
+                                                            </Tooltip>
+
+                                                            <ContextMenuContent className="w-48">
+
+                                                                <ContextMenuGroup>
+
+                                                                    <ContextMenuLabel>Area: {section.label}</ContextMenuLabel>
+
+                                                                    <ContextMenuItem
+                                                                        onClick={() => {
+                                                                            console.log("Edit area", section)
+                                                                        }}
+                                                                    >
+                                                                        Edit
+                                                                    </ContextMenuItem>
+
+                                                                    <ContextMenuItem
+                                                                        onClick={() => {
+                                                                            console.log("Delete area", section)
+                                                                        }}
+                                                                    >
+                                                                        Delete
+                                                                    </ContextMenuItem>
+
+                                                                </ContextMenuGroup>
+
+                                                            </ContextMenuContent>
+
+                                                        </ContextMenu>
+                                                    </TooltipProvider>
+                                                )
+                                            }
+
+                                            // CIRCLE
+                                            if (section.type === "circle") {
+                                                const center = section.coordsList[0]
+
+                                                if (!center || typeof section.radius !== "number") return null
+
+                                                const isHighlighted = highlightedAreaIndex === index
+
+                                                return (
+                                                    <TooltipProvider key={index}>
+                                                        <ContextMenu>
+
+                                                            <Tooltip>
+
+                                                                <ContextMenuTrigger asChild>
+                                                                    <TooltipTrigger asChild>
+                                                                        <g>
+                                                                            <circle
+                                                                                cx={center.x}
+                                                                                cy={center.y}
+                                                                                r={section.radius}
+                                                                                fill={
+                                                                                    isHighlighted
+                                                                                        ? "rgba(0, 150, 255, 0.45)"
+                                                                                        : "rgba(0, 100, 255, 0.25)"
+                                                                                }
+                                                                                stroke={
+                                                                                    isHighlighted
+                                                                                        ? "rgba(0, 150, 255, 1)"
+                                                                                        : "rgba(0, 100, 255, 0.7)"
+                                                                                }
+                                                                                strokeWidth={isHighlighted ? "4" : "2"}
+                                                                                style={{
+                                                                                    pointerEvents: "auto",
+                                                                                    cursor: "pointer",
+                                                                                }}
+                                                                            />
+                                                                        </g>
+                                                                    </TooltipTrigger>
+                                                                </ContextMenuTrigger>
+
+                                                                {section.label && (
+                                                                    <TooltipContent>
+                                                                        <p>
+                                                                            {section.label}
+                                                                            {section.confidence !== undefined &&
+                                                                                ` ${Math.round(section.confidence * 100)}%`}
+                                                                        </p>
+                                                                    </TooltipContent>
+                                                                )}
+
+                                                            </Tooltip>
+
+                                                            <ContextMenuContent className="w-48">
+
+                                                                <ContextMenuGroup>
+
+                                                                    <ContextMenuLabel>Area: {section.label}</ContextMenuLabel>
+
+                                                                    <ContextMenuItem
+                                                                        onClick={() => {
+                                                                            console.log("Edit area", section)
+                                                                        }}
+                                                                    >
+                                                                        Edit
+                                                                    </ContextMenuItem>
+
+                                                                    <ContextMenuItem
+                                                                        onClick={() => {
+                                                                            console.log("Delete area", section)
+                                                                        }}
+                                                                    >
+                                                                        Delete
+                                                                    </ContextMenuItem>
+
+                                                                </ContextMenuGroup>
+
+                                                            </ContextMenuContent>
+
+                                                        </ContextMenu>
+                                                    </TooltipProvider>
+                                                )
+                                            }
+
+                                            // POLYLINE
+                                            if (section.type === "polyline") {
+                                                if (!section.coordsList || section.coordsList.length < 2) return null
+
+                                                const points = section.coordsList
+                                                    .map((c) => `${c.x},${c.y}`)
+                                                    .join(" ")
+
+                                                const isHighlighted = highlightedAreaIndex === index
+
+                                                return (
+                                                    <TooltipProvider key={index}>
+                                                        <ContextMenu>
+
+                                                            <Tooltip>
+
+                                                                <ContextMenuTrigger asChild>
+                                                                    <TooltipTrigger asChild>
+                                                                        <g>
+                                                                            <polyline
+                                                                                points={points}
+                                                                                fill="none"
+                                                                                stroke={
+                                                                                    isHighlighted
+                                                                                        ? "rgba(0, 150, 255, 1)"
+                                                                                        : "rgba(0, 100, 255, 0.9)"
+                                                                                }
+                                                                                strokeWidth={isHighlighted ? "5" : "3"}
+                                                                                style={{
+                                                                                    pointerEvents: "auto",
+                                                                                    cursor: "pointer",
+                                                                                }}
+                                                                            />
+                                                                        </g>
+                                                                    </TooltipTrigger>
+                                                                </ContextMenuTrigger>
+
+                                                                {section.label && (
+                                                                    <TooltipContent>
+                                                                        <p>
+                                                                            {section.label}
+                                                                            {section.confidence !== undefined &&
+                                                                                ` ${Math.round(section.confidence * 100)}%`}
+                                                                        </p>
+                                                                    </TooltipContent>
+                                                                )}
+
+                                                            </Tooltip>
+
+                                                            <ContextMenuContent className="w-48">
+
+                                                                <ContextMenuGroup>
+
+                                                                    <ContextMenuLabel>Area: {section.label}</ContextMenuLabel>
+
+                                                                    <ContextMenuItem
+                                                                        onClick={() => {
+                                                                            console.log("Edit area", section)
+                                                                        }}
+                                                                    >
+                                                                        Edit
+                                                                    </ContextMenuItem>
+
+                                                                    <ContextMenuItem
+                                                                        onClick={() => {
+                                                                            console.log("Delete area", section)
+                                                                        }}
+                                                                    >
+                                                                        Delete
+                                                                    </ContextMenuItem>
+
+                                                                </ContextMenuGroup>
+
+                                                            </ContextMenuContent>
+
+                                                        </ContextMenu>
+                                                    </TooltipProvider>
+                                                )
+                                            }
+
+                                            return null;
+                                        })}
+                                    </svg>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* CROP MODE */}
+                        {cropMode && (
+                            <div
+                                style={{
+                                    marginTop: "25px",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    gap: "10px",
+                                    width: "100%",
+                                }}
+                            >
+                                {/* ZOOM */}
+                                <div>
+                                    <p className="info-text" style={{ textAlign: "center" }}>Crop Zoom Level</p>
+                                    <input
+                                        type="range"
+                                        min={1}
+                                        max={3}
+                                        step={0.1}
+                                        value={cropZoom}
+                                        onChange={(e) => setCropZoom(Number(e.target.value))}
+                                        style={{
+                                            accentColor: "var(--text-h)",
+                                            width: "300px",
+                                        }}
+                                    />
+                                </div>
+
+                                {/* CONTENEDOR CON SCROLL */}
+                                <div
+                                    style={{
+                                        width: "100%",
+                                        maxWidth: "900px",
+                                        height: "70vh",
+                                        border: "1px solid var(--border)",
+                                        borderRadius: "8px",
+                                        overflowX: "auto",
+                                        overflowY: "auto",
+                                        background: "var(--bg)",
+                                        position: "relative",
+                                        display: "block",
+                                    }}
+                                >
+                                    {/* WRAPPER DE ANCHO DINÁMICO */}
+                                    <div 
+                                        style={{ 
+                                            width: `${cropZoom * 100}%`,
+                                            minWidth: "100%",
+                                            display: "block",
+                                        }}
+                                    >
+                                        <ReactCrop
+                                            crop={crop}
+                                            onChange={(c) => setCrop(c)}
+                                            onComplete={(c) => setCompletedCrop(c)}
+                                            style={{ 
+                                                display: "block",
+                                                width: "100%"
+                                            }} 
+                                        >
+                                            <img
+                                                src={blueprtinImageUrl!}
+                                                onLoad={onImageLoad}
+                                                style={{
+                                                    display: "block",
+                                                    width: "100%",
+                                                    height: "auto",
+                                                    maxWidth: "none",
+                                                    minWidth: "none",
+                                                    border: "none",
+                                                }}
+                                            />
+                                        </ReactCrop>
+                                    </div>
+                                    </div>
+
+                                    {/* BOTONES */}
+                                    <div className="flex gap-2 mt-4">
+                                        <Button onClick={() => setOpenCropForm(true)}>
+                                            Confirm crop
+                                        </Button>
+                                        <Button variant="outline" onClick={handleCancelCrop}>
+                                            Cancel
+                                        </Button>
+                                    </div>
+                            </div>
+                        )}
+
                     </div>
-                )}
+
+                    <TooltipProvider>
+                        {/* ACTIONS SIDEBAR */}
+                        <Card className="w-[50px] shrink-0 border border-[var(--border)] bg-transparent mt-5">
+                            <CardContent className="flex flex-col items-center gap-3 py-0">
+
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            size="icon"
+                                            variant="secondary"
+                                            onClick={handleDownloadFile}
+                                        >
+                                            <FaFileDownload className="text-black text-xl"/>
+                                        </Button>
+                                    </TooltipTrigger>
+
+                                    <TooltipContent side="left">
+                                        <p>Download blueprint</p>
+                                    </TooltipContent>
+                                </Tooltip>
+
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            size="icon"
+                                            variant="secondary"
+                                            onClick={handleLoadLabels}
+                                        >
+                                            <MdEdit className="text-black text-xl"/>
+                                        </Button>
+                                    </TooltipTrigger>
+
+                                    <TooltipContent side="left">
+                                        <p>Edit blueprint</p>
+                                    </TooltipContent>
+                                </Tooltip>
+
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            size="icon"
+                                            variant="secondary"
+                                            onClick={handleCropMode}
+                                        >
+                                            <BsScissors className="text-black text-xl"/>
+                                        </Button>
+                                    </TooltipTrigger>
+
+                                    <TooltipContent side="left">
+                                        <p>Generate crop manually</p>
+                                    </TooltipContent>
+                                </Tooltip>
+
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            size="icon"
+                                            variant="secondary"
+                                            onClick={handleMagicCrop}
+                                        >
+                                            <FaMagic className="text-black text-xl"/>
+                                        </Button>
+                                    </TooltipTrigger>
+
+                                    <TooltipContent side="left">
+                                        <p>Magic crop</p>
+                                    </TooltipContent>
+                                </Tooltip>
+
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            size="icon"
+                                            variant="secondary"
+                                            onClick={handleAiProcess}
+                                        >
+                                            AI
+                                        </Button>
+                                    </TooltipTrigger>
+
+                                    <TooltipContent side="left">
+                                        <p>Process blueprint with AI</p>
+                                    </TooltipContent>
+                                </Tooltip>
+
+                                {sectionViewsList.length > 0 && (
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Button
+                                                size="icon"
+                                                variant="secondary"
+                                                onClick={() => setOpenSaveAreasDialog(true)}
+                                            >
+                                                <TfiSave className="text-black text-xl"/>
+                                            </Button>
+                                        </TooltipTrigger>
+
+                                        <TooltipContent side="left">
+                                            <p>Save generated areas</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                )}
+
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            size="icon"
+                                            variant="destructive"
+                                            onClick={() => setOpenDeleteDialog(true)}
+                                        >
+                                            <RiDeleteBin6Line />
+                                        </Button>
+                                    </TooltipTrigger>
+
+                                    <TooltipContent side="left">
+                                        <p>Delete blueprint</p>
+                                    </TooltipContent>
+                                </Tooltip>
+
+                            </CardContent>
+                        </Card>
+                    </TooltipProvider>
+
+                </div>
 
                 </div>
 
                 {/* SAVE AREAS */}
                 {sectionViewsList.length > 0 && (
-                <div className="main-content-item">
+                    <div className="main-content-item">
 
-                    <Button 
-                        variant="secondary"
-                        onClick={() => setOpenSaveAreasDialog(true)}
-                    >
-                        Save marked areas
-                    </Button>
+                        <Button 
+                            variant="secondary"
+                            onClick={() => setOpenSaveAreasDialog(true)}
+                        >
+                            <TfiSave className="text-black text-xl"/>
+                            Save generated areas
+                        </Button>
 
-                </div>
+                    </div>
                 )}
 
             </div>

@@ -230,6 +230,7 @@ export interface BlueprintType {
   originalBlueprintId?: string;
   width?: number;
   height?: number;
+  croppedFrom?: string;
   cropsMade?: CropMadeType[];
 }
 

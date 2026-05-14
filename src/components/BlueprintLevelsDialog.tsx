@@ -45,50 +45,36 @@ export function BlueprintLevelsDialog({
   const toggleValue = (value: string, checked: boolean) => {
     setSelection((prev) => {
       if (checked) {
-        // Si selecciona un nivel numérico, quitar roof y basement
-        const filtered = prev.filter(
-          (item) => item !== "roof" && item !== "basement"
-        );
+        if (prev.includes(value)) return prev;
 
-        if (filtered.includes(value)) return filtered;
-
-        return [...filtered, value];
+        return [...prev, value];
       }
 
-      // Desmarcar nivel
       return prev.filter((item) => item !== value);
     });
   };
 
   const handleBasement = (checked: boolean) => {
     setSelection((prev) => {
-      if (!checked) {
-        // Permitir desmarcar manualmente
-        return prev.filter((item) => item !== "basement");
+      if (checked) {
+        if (prev.includes("basement")) return prev;
+
+        return [...prev, "basement"];
       }
 
-      // Si marca basement, quitar roof y niveles
-      const filtered = prev.filter(
-        (item) => item !== "roof" && !/^\d+$/.test(item)
-      );
-
-      return [...filtered, "basement"];
+      return prev.filter((item) => item !== "basement");
     });
   };
 
   const handleRoof = (checked: boolean) => {
     setSelection((prev) => {
-      if (!checked) {
-        // Permitir desmarcar manualmente
-        return prev.filter((item) => item !== "roof");
+      if (checked) {
+        if (prev.includes("roof")) return prev;
+
+        return [...prev, "roof"];
       }
 
-      // Si marca roof, quitar basement y niveles
-      const filtered = prev.filter(
-        (item) => item !== "basement" && !/^\d+$/.test(item)
-      );
-
-      return [...filtered, "roof"];
+      return prev.filter((item) => item !== "roof");
     });
   };
 
@@ -100,6 +86,7 @@ export function BlueprintLevelsDialog({
         </DialogHeader>
 
         <FieldGroup className="space-y-3">
+
           {/* Basement */}
           {"basement" in projectInfo && projectInfo.basement && (
             <Field orientation="horizontal">
@@ -109,7 +96,10 @@ export function BlueprintLevelsDialog({
                   handleBasement(Boolean(val))
                 }
               />
-              <FieldLabel>Basement</FieldLabel>
+
+              <FieldLabel>
+                Basement
+              </FieldLabel>
             </Field>
           )}
 
@@ -125,7 +115,10 @@ export function BlueprintLevelsDialog({
                     toggleValue(key, Boolean(val))
                   }
                 />
-                <FieldLabel>Level {key}</FieldLabel>
+
+                <FieldLabel>
+                  Level {key}
+                </FieldLabel>
               </Field>
             );
           })}
@@ -138,11 +131,16 @@ export function BlueprintLevelsDialog({
                 handleRoof(Boolean(val))
               }
             />
-            <FieldLabel>Roof</FieldLabel>
+
+            <FieldLabel>
+              Roof
+            </FieldLabel>
           </Field>
+
         </FieldGroup>
 
         <DialogFooter>
+
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
@@ -159,6 +157,7 @@ export function BlueprintLevelsDialog({
           >
             Save
           </Button>
+
         </DialogFooter>
       </DialogContent>
     </Dialog>

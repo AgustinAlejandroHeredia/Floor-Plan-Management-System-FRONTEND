@@ -624,7 +624,11 @@ const BlueprintView = () => {
                                 </p>
 
                                 <p className="font-semibold text-[var(--text-h)]">
-                                    {blueprint?.view || "Unspecified"}
+                                    {
+                                        blueprint?.view
+                                            ? blueprint.view.charAt(0).toUpperCase() + blueprint.view.slice(1)
+                                            : "Unspecified"
+                                    }
                                 </p>
                             </div>
 
@@ -1437,10 +1441,11 @@ const BlueprintView = () => {
                                     onValueChange={(value) => setViewSelected(value as BlueprintViewType)}
                                 >
                                     <SelectTrigger className="w-full max-w-48">
-                                        <SelectValue placeholder={viewSelected === "undefined" ? "Select view" : viewSelected} />
+                                        <SelectValue placeholder={viewSelected === "undefined" ? "Select view" : viewSelected.charAt(0).toUpperCase() + viewSelected.slice(1)} />
                                     </SelectTrigger>
                                     <SelectContent position="popper">
                                         <SelectGroup>
+                                            <SelectItem value="top">Top</SelectItem>
                                             <SelectItem value="front">Front</SelectItem>
                                             <SelectItem value="back">Back</SelectItem>
                                             <SelectItem value="left_side">Left side</SelectItem>

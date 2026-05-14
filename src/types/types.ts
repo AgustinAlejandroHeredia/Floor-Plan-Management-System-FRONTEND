@@ -140,6 +140,7 @@ export type SpecialtyTag =
   | 'tables'
 
 export type BlueprintViewType =
+  | 'top'
   | 'front'
   | 'rear'
   | 'left_side'

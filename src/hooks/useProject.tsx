@@ -1,11 +1,16 @@
 import { ProjectService } from "@/services/ProjectService";
-import type { ProjectMembersList, ProjectRole, ProjectType } from "@/types/types";
+import type { OrganizationActionPermissions, OrganizationRole, ProjectMembersList, ProjectType } from "@/types/types";
 import { useCallback, useEffect, useState } from "react";
 
-export function useProject(projectId: string) {
+export function useProject(organizationId: string, projectId: string) {
 
     const [error, setError] = useState<Error | null>(null);
     const [project, setProject] = useState<ProjectType>();
+    const [userOrganizationRole, setUserOrganizationRole] = useState<OrganizationRole>("member");
+    const [organizationPermissions, setOrganizationPermissions] = useState<OrganizationActionPermissions>({
+        createPermission: "admins",
+        invitePermission: "admins",
+    })
     const [projectMembersList, setProjectMembersList] = useState<ProjectMembersList[]>([])
     const [blueprints, setBlueprints] = useState<any[]>([]);
     const [loadingProject, setLoadingProject] = useState<boolean>(true);
@@ -21,6 +26,12 @@ export function useProject(projectId: string) {
 
             const blueprintsData = await ProjectService.getProjectBlueprints(projectId)
             setBlueprints(blueprintsData)
+
+            const userRole = await ProjectService.getOrganizationMyRole(organizationId)
+            setUserOrganizationRole(userRole)
+
+            const permissionsData = await ProjectService.getOrganizationActionPermissions(organizationId)
+            setOrganizationPermissions(permissionsData)
 
         } catch (err : any) {
             setError(err)
@@ -38,6 +49,8 @@ export function useProject(projectId: string) {
     return {
         project,
         blueprints,
+        userOrganizationRole,
+        organizationPermissions,
         loadingProject,
         error,
         refreshProject: loadProject,

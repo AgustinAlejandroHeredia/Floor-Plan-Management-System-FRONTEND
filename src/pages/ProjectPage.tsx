@@ -31,6 +31,9 @@ import { Label } from "@/components/ui/label";
 import { convertPdfToImages } from "@/utils/pdfToImage";
 import Toast from "@/components/Toast";
 import InfoDialog from "@/components/InfoDialog";
+import { Separator } from "@/components/ui/separator";
+import type { ProjectOrganizationType } from "@/types/types";
+import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 
 const ProjectPage = () => {
   const { organizationName, organizationId, projectName, projectId } =
@@ -43,6 +46,10 @@ const ProjectPage = () => {
 
   const navigate = useNavigate();
 
+  // ERROR VARIABLES
+  const [errorOpen, setErrorOpen] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
   // DIALOG STATE
   const [openCreation, setOpenCreation] = useState(false);
 
@@ -54,16 +61,24 @@ const ProjectPage = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagesFromPdf, setImagesFromPdf] = useState<File[]>([]);
 
+  // DELETE PROJECT VARIABLES
+  const [selectedProjectForDelete, setProjectForDelete] = useState<ProjectOrganizationType>()
+  const [openDeleteProjectDialog, setOpenDeleteProjectDialog] = useState<boolean>(false)
+  const [isDeletingProject, setIsDeletingProject] = useState<boolean>(false)
+
+  // PORCESS & UPLOAD
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [isUploading, setIsUploading] = useState(false);
 
   const {
     project,
     blueprints,
+    userOrganizationRole,
+    organizationPermissions,
     loadingProject,
     error,
     refreshProject,
-  } = useProject(projectId!);
+  } = useProject(organizationId!, projectId!);
 
   const formatKey = (key: string) =>
     key
@@ -204,6 +219,26 @@ const ProjectPage = () => {
       `/BlueprintView/${organizationName}/${organizationId}/${projectName}/${projectId}/${blueprintName}/${blueprintId}`
     );
   };
+
+  // DELETE PROJECT
+
+  const handleSelectProjectForDelete = () => {
+      setOpenDeleteProjectDialog(true)
+  }
+
+  const handleDeleteProject = async () => {
+      setOpenDeleteProjectDialog(false)
+      setIsDeletingProject(true)
+      try{
+          await ProjectService.deleteProject(projectId!)
+          setIsDeletingProject(false)
+          navigate(`/OrganizationPage/${organizationName}/${organizationId}`)
+      } catch (error) {
+          setIsDeletingProject(false)
+          setErrorMessage("An error has occurred while deleting this project. Please try again later.")
+          setErrorOpen(true)
+      }
+  }
 
   if (loadingProject) return <Loading />;
 
@@ -350,6 +385,20 @@ const ProjectPage = () => {
           </div>
         </div>
 
+        {/* DABNGER ZONE */}
+        {(organizationPermissions.createPermission === "members" || (organizationPermissions.createPermission === "admins" && userOrganizationRole === "admin")) && (
+        <div className="main-content-item">
+          <Separator/>
+          <p className="info-text">Danger zone</p>
+          <Button
+              variant="destructive"
+              onClick={() => handleSelectProjectForDelete()}
+          >
+              Delete project
+          </Button>
+        </div>
+        )}
+
       </div>
 
       {/* UI OVERLAYS */}
@@ -438,6 +487,22 @@ const ProjectPage = () => {
           onOpenChange={setOpenAlert}
           title="Error"
           description={alertMessage}
+        />
+
+        {/* DELETE ALERT DIALOG */}
+        <ConfirmDeleteDialog
+            open={openDeleteProjectDialog}
+            onOpenChange={setOpenDeleteProjectDialog}
+            title={`Delete ${selectedProjectForDelete?.projectName ?? "project"}`}
+            description="This action cannot be undone. This will permanently delete this project, along with it's blueprints and files included."
+            onConfirm={() => handleDeleteProject()}
+        />
+
+        {/* IS DELETING PROJECT */}
+        <Toast
+          open={isDeletingProject}
+          title="Deleting this project"
+          description="Please wait while this project is being deleted..."
         />
 
       </div>

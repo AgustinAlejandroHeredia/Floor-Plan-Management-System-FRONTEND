@@ -55,7 +55,6 @@ import OrganizationMemberItem from "@/components/OrganizationMemberItem";
 import { Label } from "@/components/ui/label";
 import type { ActionPermission, CreateProjectPayload, InvitationPayload, OrganizationActionPermissions, OrganizationMembersList, OrganizationRole, ProjectOrganizationType } from "@/types/types";
 import Toast from "@/components/Toast";
-import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 import InfoDialog from "@/components/InfoDialog";
 
 const OrganizationPage = () => {
@@ -94,11 +93,6 @@ const OrganizationPage = () => {
     const [createActionPermissionsEdited, setCreateActionPermissionsEdited] = useState<ActionPermission>("admins")
     const [inviteActionPermissionsEdited, setInviteActionPermissionsEdited] = useState<ActionPermission>("admins")
     const [isSavingChanges, setIsSavingChanges] = useState<boolean>(false)
-
-    // DELETE PROJECT VARIABLES
-    const [selectedProjectForDelete, setProjectForDelete] = useState<ProjectOrganizationType>()
-    const [openDeleteProjectDialog, setOpenDeleteProjectDialog] = useState<boolean>(false)
-    const [isDeletingProject, setIsDeletingProject] = useState<boolean>(false)
 
     // LEAVE ORGANIZATRION VARIABLES
     const [openLeaveOrganizationDialog, setOpenLeaveOrganizationDialog] = useState<boolean>(false)
@@ -404,29 +398,6 @@ const OrganizationPage = () => {
         }
     }
 
-    // DELETE
-    const handleSelectProjectForDelete = (projectId: string) => {
-        const project = projects.find(
-            (p) => p._id === projectId
-        )
-        setProjectForDelete(project)
-        setOpenDeleteProjectDialog(true)
-    }
-
-    const handleDeleteProject = async (projectId: string) => {
-        setOpenDeleteProjectDialog(false)
-        setIsDeletingProject(true)
-        try{
-            await OrganizationService.deleteProject(projectId)
-            refreshProjects()
-        } catch (error) {
-            setErrorMessage("An error has occurred while deleting project. Please try later.")
-            setErrorOpen(true)
-        } finally {
-            setIsDeletingProject(false)
-        }
-    }
-
     if(loadingOrganizationProjects) return <Loading/>
 
     return (
@@ -438,6 +409,8 @@ const OrganizationPage = () => {
         ]} />
 
         <div className="main-content">
+
+            <h1 className="sub-heading">{name}'s projects</h1>
 
             <div className="main-content-item flex gap-4">
 
@@ -493,8 +466,6 @@ const OrganizationPage = () => {
             ) : (
 
                 <div className="main-content-item">
-
-                    <h1 className="sub-heading">{name}'s projects</h1>
 
                     <div
                     style={{
@@ -575,14 +546,6 @@ const OrganizationPage = () => {
                             </div>
                         </CardContent>
                         </Card>
-                        {(userOrganizationRole === "admin" || organizationPermissions.createPermission === "members") && (
-                            <Button
-                                variant="destructive"
-                                onClick={() => handleSelectProjectForDelete(project._id)}
-                            >
-                                Delete project
-                            </Button>
-                        )}
                         </div>
                     ))}
                     </div>
@@ -1172,22 +1135,6 @@ const OrganizationPage = () => {
                 open={isLeaving}
                 title="Leaving organization"
                 description="Please wait while you are leaving this organization..."
-            />
-
-            {/* DELETE ALERT DIALOG */}
-            <ConfirmDeleteDialog
-                open={openDeleteProjectDialog}
-                onOpenChange={setOpenDeleteProjectDialog}
-                title={`Delete ${selectedProjectForDelete?.projectName ?? "project"}`}
-                description="This action cannot be undone. This will permanently delete this project, along with it's blueprints and files included."
-                onConfirm={() => handleDeleteProject(selectedProjectForDelete!._id)}
-            />
-
-            {/* DELETING ORGANIZATION */}
-            <Toast
-                open={isDeletingProject}
-                title="Deleting project"
-                description="Please wait while this project is being deleted..."
             />
 
             {/* SENDING INVITATION */}

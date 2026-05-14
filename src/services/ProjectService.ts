@@ -36,5 +36,22 @@ export const ProjectService = {
             return false;
         }
     },
+
+    getOrganizationMyRole: async (organizationId: string) => {
+        const response = await api.get(`/organizations/me/role/${organizationId}`)
+        return response.data
+    },
+
+    getOrganizationActionPermissions: async (organizationId: string) => {
+        const response = await api.get(`/organizations/actionPermissions/${organizationId}`)
+        return response.data
+    },
+
+    deleteProject: async (projectId: string): Promise<void> => {
+        console.log("PROJECT ID : ", projectId)
+        const response = await api.delete(`/deleteproject/${projectId}`)
+        console.log(response.data)
+        return response.data
+    },
     
 }

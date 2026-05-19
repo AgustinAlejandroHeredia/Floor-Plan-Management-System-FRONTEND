@@ -1,5 +1,5 @@
 import { api } from "../api/api";
-import type { BlueprintResponseType, BlueprintType, BlueprintViewType, SectionCoords, CreateCropPayload, SectionSize, SectionView, SpecialtyTag, InferenceJobType } from "@/types/types";
+import type { BlueprintResponseType, BlueprintType, BlueprintViewType, SectionCoords, CreateCropPayload, SectionSize, SectionView, SpecialtyTag, InferenceJobType, AvailableModel } from "@/types/types";
 
 
 
@@ -18,6 +18,11 @@ export const BlueprintViewService = {
         } catch (error) {
             return ""
         }
+    },
+
+    getAvailableModels: async (): Promise<AvailableModel> => {
+        const response = await api.get("/availableModels")
+        return response.data
     },
 
     updateBluperint: async (blueprintId: string, blueprintName: string, viewSelected: BlueprintViewType, specialties: SpecialtyTag[], levels: string[]): Promise<BlueprintType | null> => {
@@ -89,8 +94,10 @@ export const BlueprintViewService = {
         }
     },
 
-    enqueueInference: async (blueprintId: string): Promise<InferenceJobType> => {
-        const response = await api.post(`/blueprints/${blueprintId}/inference-jobs`)
+    enqueueInference: async (blueprintId: string, selectedModels: string[]): Promise<InferenceJobType> => {
+        const response = await api.post(`/blueprints/${blueprintId}/inference-jobs`, 
+            {selectedModels}
+        )
         return response.data
     },
 

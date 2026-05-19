@@ -82,7 +82,7 @@ const BlueprintView = () => {
             blueprintId: string;
         }>();
 
-    const { blueprint, projectInfo, blueprtinImageUrl, loadingBlueprint, error, refreshBlueprint } = useBlueprintView(blueprintId!)
+    const { blueprint, projectInfo, blueprtinImageUrl, availableModels, loadingBlueprint, error, refreshBlueprint } = useBlueprintView(blueprintId!)
 
     const navigate = useNavigate()
     const location = useLocation()
@@ -126,6 +126,10 @@ const BlueprintView = () => {
     const [indexAreaForDelete, setIndexAreaForDelete] = useState<number | null>(null)
     const [areaForDelete, setAreaForDelete] = useState<SectionView | null>(null)
     const [openDeleteAreaDialog, setOpenDeleteAreaDialog] = useState<boolean>(false)
+
+    // AI PROCESSING MODELS
+    const [openModelsSelectionDialog, setOpenModelsSelectionDialog] = useState<boolean>(false)
+    const [selectedModels, setSelectedModels] = useState<Record<string, string>>({})
 
     // SAVE AREAS
     const [openSaveAreasDialog, setOpenSaveAreasDialog] = useState<boolean>(false)
@@ -485,17 +489,64 @@ const BlueprintView = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [imageRes.width])
 
+    const handleAiCall = () => {
+
+        if (!blueprint?.specialties?.length) {
+            setErrorAlertMessage(
+                'No specialties selected for this blueprint. Edit this blueprint first.'
+            );
+            setOpenErrorAlert(true);
+            return;
+        }
+
+        const modelKeyMap = Object.keys(availableModels).reduce((acc, key) => {
+            acc[key.toLowerCase()] = key;
+            return acc;
+        }, {} as Record<string, string>);
+
+        const specialtiesWithModels = blueprint.specialties.filter((specialty) =>
+            modelKeyMap[specialty.toLowerCase()]
+        );
+
+        if (specialtiesWithModels.length === 0) {
+            setErrorAlertMessage(
+                'Sorry, there are no AI models available for these specialties.'
+            );
+            setOpenErrorAlert(true);
+            return;
+        }
+
+        setOpenModelsSelectionDialog(true);
+    };
+
     const handleAiProcess = async () => {
         if (blueprint?.view === "undefined" || blueprint?.specialties.length === 0 || blueprint?.levels.length === 0) {
             setErrorAlertMessage('You must edit this blueprint to set a value for the fields that says "Undefined" for the AI to process the blueprint.')
             setOpenErrorAlert(true)
             return
         }
+        const countMatches = () => {
+            if (!blueprint?.specialties?.length) return 0;
+
+            const modelKeys = Object.keys(availableModels).map(k =>
+                k.toLowerCase()
+            );
+
+            return blueprint.specialties.filter((specialty) =>
+                modelKeys.includes(specialty.toLowerCase())
+            ).length;
+        }
+        if(countMatches() != Object.values(selectedModels).length){
+            setErrorAlertMessage('You must select a model for each specialty shown here.')
+            setOpenErrorAlert(true)
+            return
+        }
+        setOpenModelsSelectionDialog(false)
         setIsProcessing(true)
         isProcessingRef.current = true
         try {
             const token = await getAccessTokenSilently()
-            const job = await BlueprintViewService.enqueueInference(blueprint!._id)
+            const job = await BlueprintViewService.enqueueInference(blueprint!._id, Object.values(selectedModels))
             pendingJobIdRef.current = job._id
             const completed = await waitForInferenceJob(job._id, token)
             pendingJobIdRef.current = null
@@ -503,6 +554,7 @@ const BlueprintView = () => {
             if (completed.status === 'Processed' && completed.result?.predictions) {
                 const convetionToSectionView = predictionsToSectionViews(completed.result.predictions)
                 setSectionViewsList(convetionToSectionView)
+                blueprint!.sectionViews = convetionToSectionView
             } else if (completed.status === 'Error') {
                 setErrorAlertMessage(completed.result?.error ?? 'The AI processing failed. Please try again.')
                 setOpenErrorAlert(true)
@@ -553,7 +605,7 @@ const BlueprintView = () => {
         }
     }
 
-    if (loadingBlueprint) return <Loading/>
+    if (loadingBlueprint || !blueprint) return <Loading/>
 
     if (error) {
         return (
@@ -740,7 +792,7 @@ const BlueprintView = () => {
                     </div>
 
                     {/* HIDE / SHOW DRAWN AREAS */}
-                    {sectionViewsList.length > 0 && (
+                    {blueprint?.sectionViews?.length > 0 && (
                         <div className="flex flex-col items-center">
 
                             <Label className="info-text">
@@ -827,7 +879,7 @@ const BlueprintView = () => {
                                         pointerEvents: "none",
                                         }}
                                     >
-                                        {sectionViewsList.map((section, index) => {
+                                        {blueprint.sectionViews.map((section, index) => {
 
                                             // RECTANGLE
                                             if (section.type === "rectangle") {
@@ -1338,7 +1390,7 @@ const BlueprintView = () => {
                                         <Button
                                             size="icon"
                                             variant="secondary"
-                                            onClick={handleAiProcess}
+                                            onClick={() => handleAiCall()}
                                         >
                                             AI
                                         </Button>
@@ -1349,7 +1401,7 @@ const BlueprintView = () => {
                                     </TooltipContent>
                                 </Tooltip>
 
-                                {sectionViewsList.length > 0 && (
+                                {blueprint.sectionViews.length > 0 && (
                                     <Tooltip>
                                         <TooltipTrigger asChild>
                                             <Button
@@ -1392,7 +1444,7 @@ const BlueprintView = () => {
                 </div>
 
                 {/* SAVE AREAS */}
-                {sectionViewsList.length > 0 && (
+                {blueprint.sectionViews.length > 0 && (
                     <div className="main-content-item">
 
                         <Button 
@@ -1453,83 +1505,56 @@ const BlueprintView = () => {
                                         </SelectGroup>
                                     </SelectContent>
                                 </Select>
-                            </Field>
+                                </Field>
 
-                            <Field>
-                            <Label htmlFor="view">Specialties *</Label>
+                                <Field>
+                                <Label htmlFor="view">Specialties *</Label>
 
-                            <div>
-                                {specialtiesList.length > 0 ? (
-                                specialtiesList.map((specialty) => (
-                                    <div
-                                    key={specialty}
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "6px",
-                                        marginBottom: "4px",
-                                    }}
-                                    >
-                                    <span>
-                                        -{" "}
-                                        {specialty
-                                        .replaceAll("_", " ")
-                                        .replace(/\b\w/g, (l) => l.toUpperCase())}
-                                    </span>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => handleRemoveSpecialty(specialty)}
-                                        style={{
-                                        background: "transparent",
-                                        border: "none",
-                                        padding: "0",
-                                        cursor: "pointer",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        }}
-                                    >
-                                        <IoIosClose size={18} />
-                                    </button>
-                                    </div>
-                                ))
-                                ) : (
-                                <div className="text-muted-foreground">
-                                    - No specialties selected
-                                </div>
-                                )}
-                            </div>
-
-                            <Button
-                                type="button"
-                                onClick={() => setOpenEditSpecialtiesPicker(true)}
-                                style={{
-                                    width: "fit-content",
-                                    alignSelf: "flex-start",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "8px",
-                                }}
-                            >
-                                <LuCirclePlus className="mr-2" />
-                                Add specialty
-                            </Button>
-                            </Field>
-
-                            <Field>
-                                <Label htmlFor="view">Levels *</Label>
                                 <div>
-                                    {levels.length ? (
-                                        levels.map((level) => (
-                                            <div key={level}>- {formatLevelLabel(level)}</div>
-                                        ))
-                                    ) : (
-                                        <div className="text-muted-foreground">
-                                            - No levels selected
+                                    {specialtiesList.length > 0 ? (
+                                    specialtiesList.map((specialty) => (
+                                        <div
+                                        key={specialty}
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "6px",
+                                            marginBottom: "4px",
+                                        }}
+                                        >
+                                        <span>
+                                            -{" "}
+                                            {specialty
+                                            .replaceAll("_", " ")
+                                            .replace(/\b\w/g, (l) => l.toUpperCase())}
+                                        </span>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => handleRemoveSpecialty(specialty)}
+                                            style={{
+                                            background: "transparent",
+                                            border: "none",
+                                            padding: "0",
+                                            cursor: "pointer",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            }}
+                                        >
+                                            <IoIosClose size={18} />
+                                        </button>
                                         </div>
+                                    ))
+                                    ) : (
+                                    <div className="text-muted-foreground">
+                                        - No specialties selected
+                                    </div>
                                     )}
                                 </div>
+
                                 <Button
+                                    type="button"
+                                    onClick={() => setOpenEditSpecialtiesPicker(true)}
                                     style={{
                                         width: "fit-content",
                                         alignSelf: "flex-start",
@@ -1537,9 +1562,36 @@ const BlueprintView = () => {
                                         alignItems: "center",
                                         gap: "8px",
                                     }}
-                                    type="button" 
-                                    onClick={() => setOpenEditLevels(true)}>Edit levels</Button>
-                            </Field>
+                                >
+                                    <LuCirclePlus className="mr-2" />
+                                    Add specialty
+                                </Button>
+                                </Field>
+
+                                <Field>
+                                    <Label htmlFor="view">Levels *</Label>
+                                    <div>
+                                        {levels.length ? (
+                                            levels.map((level) => (
+                                                <div key={level}>- {formatLevelLabel(level)}</div>
+                                            ))
+                                        ) : (
+                                            <div className="text-muted-foreground">
+                                                - No levels selected
+                                            </div>
+                                        )}
+                                    </div>
+                                    <Button
+                                        style={{
+                                            width: "fit-content",
+                                            alignSelf: "flex-start",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "8px",
+                                        }}
+                                        type="button" 
+                                        onClick={() => setOpenEditLevels(true)}>Edit levels</Button>
+                                </Field>
 
                             </FieldGroup>
 
@@ -1718,6 +1770,116 @@ const BlueprintView = () => {
                     title="Saving areas..."
                     description="Please wait while this areas are being saved..."
                 />
+
+                {/* SELECT AI MODELS */}
+                <Dialog
+                    open={openModelsSelectionDialog}
+                    onOpenChange={setOpenModelsSelectionDialog}
+                >
+                    <DialogContent className="sm:max-w-sm">
+
+                        <DialogHeader>
+
+                            <DialogTitle>
+                                Select AI processing model
+                            </DialogTitle>
+
+                            <DialogDescription>
+                                Select the models the AI will use to process the blueprint for each specialty assign.
+                            </DialogDescription>
+
+                        </DialogHeader>
+
+                        <div className="flex flex-col gap-4 py-2">
+
+                            {blueprint?.specialties.map((specialty) => {
+
+                                // buscar key compatible
+                                const matchingKey = Object.keys(availableModels).find(
+                                    (key) =>
+                                        key.toLowerCase() === specialty.toLowerCase()
+                                )
+
+                                // no hay modelos para esa especialidad
+                                if (!matchingKey) return null
+
+                                const models = availableModels[matchingKey]
+
+                                return (
+
+                                    <Field key={specialty}>
+
+                                        <Label htmlFor={specialty}>
+                                            {matchingKey} model
+                                        </Label>
+
+                                        <Select
+                                            value={selectedModels[specialty] || ""}
+                                            onValueChange={(value) =>
+                                                setSelectedModels((prev) => ({
+                                                    ...prev,
+                                                    [specialty]: value,
+                                                }))
+                                            }
+                                        >
+
+                                            <SelectTrigger className="w-full max-w-[350px]">
+
+                                                <SelectValue
+                                                    placeholder={`Select ${matchingKey} model`}
+                                                    className="truncate"
+                                                />
+
+                                            </SelectTrigger>
+
+                                            <SelectContent position="popper">
+
+                                                <SelectGroup>
+
+                                                    {models.map((model) => (
+
+                                                        <SelectItem
+                                                            key={model}
+                                                            value={model}
+                                                        >
+                                                            {model}
+                                                        </SelectItem>
+
+                                                    ))}
+
+                                                </SelectGroup>
+
+                                            </SelectContent>
+
+                                        </Select>
+
+                                    </Field>
+                                )
+                            })}
+
+                        </div>
+
+                        <DialogFooter>
+
+                            <DialogClose asChild>
+
+                                <Button variant="outline">
+                                    Cancel
+                                </Button>
+
+                            </DialogClose>
+
+                            <Button
+                                type="button"
+                                onClick={() => handleAiProcess()}
+                            >
+                                Process
+                            </Button>
+
+                        </DialogFooter>
+
+                    </DialogContent>
+                </Dialog>
 
             </div>
 

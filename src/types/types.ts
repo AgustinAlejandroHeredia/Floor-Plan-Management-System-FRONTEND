@@ -147,14 +147,6 @@ export type BlueprintViewType =
   | 'right_side'
   | 'undefined'
 
-export interface SectionViewType {
-  name: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
 export interface CropMadeType {
   blueprintId: string;
   blueprintName: string;
@@ -196,7 +188,7 @@ export interface BlueprintResponseType {
   specialties: SpecialtyTag[];
   levels: string[];
   view?: BlueprintViewType;
-  sectionViews: SectionViewType[];
+  sectionViews: SectionView[];
   titleBlock?: string[];
   downloadUrl?: string;
   originalBlueprintId?: string;
@@ -225,7 +217,7 @@ export interface BlueprintType {
   specialties: SpecialtyTag[];
   levels: string[];
   view?: BlueprintViewType;
-  sectionViews: SectionViewType[];
+  sectionViews: SectionView[];
   titleBlock?: string[];
   downloadUrl?: string;
   originalBlueprintId?: string;
@@ -265,7 +257,7 @@ export interface UpdateBlueprintPayload {
   view?: BlueprintViewType;
   titleBlock?: string[];
   //areas
-  sectionViews?: SectionViewType[];
+  sectionViews?: SectionView[];
 }
 
 
@@ -350,4 +342,8 @@ export interface InferenceJobType {
   result: InferenceJobResult | null
   createdAt: string
   updatedAt: string
+}
+
+export interface AvailableModel {
+  [speciality: string]: string[]
 }

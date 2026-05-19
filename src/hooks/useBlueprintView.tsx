@@ -1,5 +1,5 @@
 import { BlueprintViewService } from "@/services/BlueprintViewService";
-import type { BlueprintType } from "@/types/types";
+import type { AvailableModel, BlueprintType } from "@/types/types";
 import { useCallback, useEffect, useState } from "react";
 
 export function useBlueprintView(blueprintId: string) {
@@ -15,6 +15,7 @@ export function useBlueprintView(blueprintId: string) {
         levels: "1",
         basement: false,
     })
+    const [availableModels, setAvailableModels] = useState<AvailableModel>({})
 
     const loadBlueprint = useCallback(async () => {
         try {
@@ -30,6 +31,9 @@ export function useBlueprintView(blueprintId: string) {
             const blob = await BlueprintViewService.getRawImage(blueprintId)
             const imageUrl = URL.createObjectURL(blob)
             setBlueprintImageUrl(imageUrl)
+
+            const models = await BlueprintViewService.getAvailableModels()
+            setAvailableModels(models)
 
         } catch (err: any) {
             setError(err)
@@ -48,6 +52,7 @@ export function useBlueprintView(blueprintId: string) {
         blueprint,
         projectInfo,
         blueprtinImageUrl,
+        availableModels,
         loadingBlueprint,
         error,
         refreshBlueprint: loadBlueprint,

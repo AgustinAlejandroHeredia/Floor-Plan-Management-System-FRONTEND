@@ -62,6 +62,7 @@ import type { BlueprintViewType, CreateCropPayload, InferenceJobResult, Inferenc
 
 // CONTEXT
 import { useInferenceNotification } from "@/context/InferenceNotificationContext";
+import React from "react";
 
 type ImageResolution = {
     width: number;
@@ -134,6 +135,9 @@ const BlueprintView = () => {
     // SAVE AREAS
     const [openSaveAreasDialog, setOpenSaveAreasDialog] = useState<boolean>(false)
     const [isSavingAreas, setIsSavingAreas] = useState<boolean>(false)
+    
+    // CURRENT LABEL FILTER
+    const [labelFilter, setLabelFilter] = useState<string>("All")
 
     useEffect(() => {
         clearNotification()
@@ -605,6 +609,36 @@ const BlueprintView = () => {
         }
     }
 
+    // LABEL FILTER FUNCTIONS
+    const labelOptions = React.useMemo(() => {
+        if (!blueprint?.sectionViews) return []
+
+        const counts: Record<string, number> = {}
+
+        blueprint.sectionViews.forEach((section) => {
+            if (!section.label) return
+
+            counts[section.label] = (counts[section.label] || 0) + 1
+        })
+
+        return Object.entries(counts).map(([label, count]) => ({
+            label,
+            count,
+        }))
+    }, [blueprint?.sectionViews])
+
+    const filteredSectionViews = React.useMemo(() => {
+        if (!blueprint?.sectionViews) return []
+
+        if (labelFilter === "All") {
+            return blueprint.sectionViews
+        }
+
+        return blueprint.sectionViews.filter(
+            (section) => section.label === labelFilter
+        )
+    }, [blueprint?.sectionViews, labelFilter])
+
     if (loadingBlueprint || !blueprint) return <Loading/>
 
     if (error) {
@@ -791,6 +825,47 @@ const BlueprintView = () => {
                         />
                     </div>
 
+                    {/* LABEL FILETER AND COUNT */}
+                    {blueprint?.sectionViews?.length > 0 && (
+                        <div className="flex flex-col items-center">
+
+                            <Label className="info-text">
+                                Label filter
+                            </Label>
+
+                            <Select
+                                value={labelFilter}
+                                onValueChange={(value) => setLabelFilter(value)}
+                            >
+                                <SelectTrigger className="w-[150px] bg-white text-black">
+                                    <SelectValue />
+                                </SelectTrigger>
+
+                                <SelectContent
+                                    position="popper"
+                                >
+
+                                    {/* ALL */}
+                                    <SelectItem value="All">
+                                        Show all labels
+                                    </SelectItem>
+
+                                    {/* LABELS */}
+                                    {labelOptions.map((item) => (
+                                        <SelectItem
+                                            key={item.label}
+                                            value={item.label}
+                                        >
+                                            {item.label} ({item.count})
+                                        </SelectItem>
+                                    ))}
+
+                                </SelectContent>
+                            </Select>
+
+                        </div>
+                    )}
+
                     {/* HIDE / SHOW DRAWN AREAS */}
                     {blueprint?.sectionViews?.length > 0 && (
                         <div className="flex flex-col items-center">
@@ -879,7 +954,7 @@ const BlueprintView = () => {
                                         pointerEvents: "none",
                                         }}
                                     >
-                                        {blueprint.sectionViews.map((section, index) => {
+                                        {filteredSectionViews.map((section, index) => {
 
                                             // RECTANGLE
                                             if (section.type === "rectangle") {
@@ -960,6 +1035,16 @@ const BlueprintView = () => {
                                                                         }}
                                                                     >
                                                                         Delete
+                                                                    </ContextMenuItem>
+
+                                                                    <ContextMenuItem
+                                                                        onClick={() => {
+                                                                            if (section.label) {
+                                                                                setLabelFilter(section.label)
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        Select label as filter
                                                                     </ContextMenuItem>
 
                                                                 </ContextMenuGroup>

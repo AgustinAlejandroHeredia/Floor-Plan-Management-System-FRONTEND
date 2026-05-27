@@ -5,16 +5,15 @@ export function useAuth0Bridge(): AuthBridge {
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
 
   const getAccessToken = async () => {
+
     if (!isAuthenticated) return null;
 
     try {
       const res = await getAccessTokenSilently();
-
       
       if(import.meta.env.DEV){
         console.log("AUTH0-BRIDGE RESPONSE : ", res)
       }
-      
 
       return res
     } catch (error) {

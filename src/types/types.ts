@@ -311,6 +311,11 @@ export interface SectionView {
   confidence?: number,
 }
 
+export type LabelList = {
+    label: string
+    count: number
+}[]
+
 export type InferenceJobStatus =
   | 'Pending'
   | 'Processing'

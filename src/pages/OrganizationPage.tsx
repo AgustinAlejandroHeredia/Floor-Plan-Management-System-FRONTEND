@@ -326,6 +326,7 @@ const OrganizationPage = () => {
             setIsKickingUser(true)
             await OrganizationService.kickUser(id!, userIdForKick)
             setIsKickingUser(false)
+            setUserIdForKick("")
             refreshProjects()
         } catch (error) {
             setIsKickingUser(false)

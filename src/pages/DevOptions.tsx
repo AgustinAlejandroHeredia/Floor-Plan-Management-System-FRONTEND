@@ -20,7 +20,7 @@ import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label";
 import { useDevOptions } from "@/hooks/useDevOptions";
-import type { CreateOrganizationPayload, UpdateOrganizationPayload, OrganizationType, ActionPermission } from "@/types/types";
+import type { CreateOrganizationPayload, UpdateOrganizationPayload, OrganizationType, ActionPermission, InvitationPayload, OrganizationRole } from "@/types/types";
 import { useState } from "react"
 import { DevOptionsService } from "@/services/DevOptionsService";
 
@@ -33,6 +33,8 @@ import { ItemGroup } from "@/components/ui/item";
 import OrganizationMemberItem from "@/components/OrganizationMemberItem";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 import { useNavigate } from "react-router-dom"
+import { InvitationService } from "@/services/InvitationService"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 
 const DevOptions = () => {
 
@@ -59,7 +61,16 @@ const DevOptions = () => {
     const [selectedOrganizationForInvitation, setSelectedOrganizationForInvitation] = useState<OrganizationType>()
     const [openInvitationDialog, setOpenInvitationDialog] = useState<boolean>(false)
     const [showInvitationHelp, setShowInvitationHelp] = useState<boolean>(false)
-    const [isInviting, setIsInviting] = useState<boolean>(false)
+    const [invitationRoleSelected, setInvitationRoleSelected] = useState<OrganizationRole>("member")
+    const [isSendingInvitation, setIsSendingInvitation] = useState<boolean>(false)
+    const [invitationSent, setInvitationSent] = useState<boolean>(false)
+    const [invitationExists, setInvitationExists] = useState<boolean>(false)
+
+    // KICK USER VARIABLES
+    const [userIdForKick, setUserIdForKick] = useState<string>("")
+    const [userOrganizationIdForKick, setUserOrganizationIdForKick] = useState<string>("")
+    const [openKickUserDialog, setOpenKickUserDialog] = useState<boolean>(false)
+    const [isKickingUser, setIsKickingUser] = useState<boolean>(false)
 
     const [openError, setOpenError ] = useState<boolean>(false)
     const [errorMessage, setErrorMessage] = useState<string>("")
@@ -179,10 +190,6 @@ const DevOptions = () => {
         navigate(`/UserProfile/${userId}`)
     }
 
-    const handleKickUser = (userId: string) => {
-        console.log("KICK USER : ", userId)
-    }
-
     const handleViewOrganization = (organizationId: string, organizationName: string) => {
         navigate(`/OrganizationPage/${organizationName}/${organizationId}`)
     }
@@ -226,6 +233,8 @@ const DevOptions = () => {
 
     }
 
+    // INVITATION
+
     const showOrHideSendInvitation = () => {
         if(showInvitationHelp) {
             setShowInvitationHelp(false)
@@ -234,9 +243,81 @@ const DevOptions = () => {
         }
     }
 
-    const handleSendInvitation = (organizationId: string, e: React.SyntheticEvent<HTMLFormElement>) => {
+    const handleSendInvitation = async (
+        organizationId: string, 
+        e: React.SyntheticEvent<HTMLFormElement>
+    ) => {
         e.preventDefault()
-        console.log("ORGANIZATION ID SELECTED : ", organizationId)
+        
+        setOpenInvitationDialog(false)
+        setShowInvitationHelp(false)
+
+        const form = e.currentTarget
+        const formData = new FormData(form)
+
+        const userEmail = formData.get("email") as string
+        if(!userEmail){
+            setErrorMessage("No user email given")
+            setOpenError(true)
+            return
+        }
+
+        console.log("SENDS INVITATION EMAIL : ", formData.get("email"), " and ", invitationRoleSelected)
+    
+        setIsSendingInvitation(true)
+        try {
+            const durationValue = formData.get("duration")
+            const payload: InvitationPayload = {
+                organizationId: organizationId,
+                userEmail: userEmail,
+                userOrganizationRole: invitationRoleSelected as OrganizationRole,
+                ...(durationValue && { duration: Number(durationValue) })
+            }
+            console.log("INVITATION PAYLOAD : ", payload)
+            await InvitationService.createInvitation(payload)
+            setIsSendingInvitation(false)
+            setInvitationSent(true)
+        } catch (error: any) {
+            setIsSendingInvitation(false)
+            if(error.response?.status === 409){
+                setInvitationExists(true)
+                return
+            }
+            setErrorMessage("Error sending the invitation, please try again later.")
+            setOpenError(true)
+        }
+    }
+
+    // KICK USER
+
+    const selectUserForKick = (userId: string, organizationId: string) => {
+        setUserIdForKick(userId)
+        setUserOrganizationIdForKick(organizationId)
+        setOpenKickUserDialog(true)
+    }
+
+    const handleKickUser = async () => {
+        setOpenKickUserDialog(false)
+        try {
+            if(!userIdForKick){
+                setErrorMessage("Tried to kick an user but no user was selected.")
+                setOpenError(true)
+            }
+            if(!userOrganizationIdForKick){
+                setErrorMessage("Tried to kick an user but no organization was selected.")
+                setOpenError(true)
+            }
+            setIsKickingUser(true)
+            await DevOptionsService.kickUser(userOrganizationIdForKick, userIdForKick)
+            setIsKickingUser(false)
+            setUserIdForKick("")
+            setUserOrganizationIdForKick("")
+            refreshContent()
+        } catch (error) {
+            setIsKickingUser(false)
+            setErrorMessage("An error has ocurred while kicking user, please again later.")
+            setOpenError(true)
+        }
     }
 
     const handleDeleteOrganization = async (organizationId: string) => {
@@ -319,7 +400,7 @@ const DevOptions = () => {
                                         key={org.members[0]._id}
                                         member={org.members[0]}
                                         onViewUser={() => handleViewUserProfile(org.members[0]._id)}
-                                        onRemoveUser={() => handleKickUser(org.members[0]._id)}
+                                        onRemoveUser={() => selectUserForKick(org.members[0]._id, org._id)}
                                         currentUserOrganizationRole={"super_admin"}
                                     />
                                 </div>
@@ -334,7 +415,7 @@ const DevOptions = () => {
                                                     key={member._id}
                                                     member={member}
                                                     onViewUser={() => handleViewUserProfile(member._id)}
-                                                    onRemoveUser={() => handleKickUser(member._id)}
+                                                    onRemoveUser={() => selectUserForKick(member._id, org._id)}
                                                     currentUserOrganizationRole={"super_admin"}
                                                 />
                                             ))}
@@ -739,7 +820,7 @@ const DevOptions = () => {
                     description="Please wait while your changes are saved..."
                 />
 
-                {/* USER INVITATION DIALOG */}
+                {/* MEMBER INVITATION */}
                 <Dialog open={openInvitationDialog} onOpenChange={setOpenInvitationDialog}>
                 <DialogContent className="sm:max-w-sm">
                     <form onSubmit={(e) => handleSendInvitation(selectedOrganizationForInvitation!._id, e)}>
@@ -766,7 +847,10 @@ const DevOptions = () => {
 
                             <Field>
                                 <Label htmlFor="email">Role within organization</Label>
-                                <Select defaultValue="member">
+                                <Select 
+                                    defaultValue="member"
+                                    onValueChange={(value) => setInvitationRoleSelected(value as OrganizationRole)} 
+                                >
                                     <SelectTrigger>
                                         <SelectValue/>
                                     </SelectTrigger>
@@ -827,10 +911,41 @@ const DevOptions = () => {
 
                 {/* SENDING INVITATION */}
                 <Toast
-                    open={isInviting}
+                    open={isSendingInvitation}
                     title="Sending invite"
                     description="Please wait while your invitations is being sent..."
                 />
+
+                {/* INVITATION SENT SUCCESSFULLY */}
+                <InfoDialog
+                    open={invitationSent}
+                    onOpenChange={setInvitationSent}
+                    title="Invitation sent successfuly"
+                    description="The user will recive an email containing a six digit code that has to enter at the home section to gain access to the organization."
+                />
+
+                {/* INVITATION ALREDY EXISTS */}
+                <Dialog open={invitationExists} onOpenChange={setInvitationExists}>
+                <DialogContent className="sm:max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle>Invitation alredy exists</DialogTitle>
+                            <DialogDescription>
+                                An invitation for this email and organization alredy exists. 
+                                A pending invitation has by default a duration of 24h, if the user invited doesnt log in in that period of time the invitation expires. 
+                                If the invited user does not log in during that period, the invitation expires.
+                            </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setInvitationExists(false)}
+                        >
+                            Ok
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+                </Dialog>
 
                 {/* DELETE ALERT DIALOG */}
                 <ConfirmDeleteDialog
@@ -854,6 +969,42 @@ const DevOptions = () => {
                     onOpenChange={setOpenError}
                     title="Error"
                     description={errorMessage}
+                />
+
+                {/* KICK USER DIALOG */}
+                <AlertDialog open={openKickUserDialog} onOpenChange={setOpenKickUserDialog}>
+                    <AlertDialogContent>
+
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                    Kick user
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Are you sure you want to kick this user? This action cannot be undone.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>
+                                    Cancel
+                                </AlertDialogCancel>
+
+                                <AlertDialogAction
+                                    variant="destructive"
+                                    onClick={handleKickUser}
+                                >
+                                    Kick user
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+
+                    </AlertDialogContent>
+                </AlertDialog>
+
+                {/* KICKING USER */}
+                <Toast
+                    open={isKickingUser}
+                    title="Kicking user"
+                    description="Please wait while the user is being kicked from this organization..."
                 />
 
             </div>

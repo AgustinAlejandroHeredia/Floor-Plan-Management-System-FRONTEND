@@ -54,4 +54,10 @@ export const DevOptionsService = {
         return response.data
     },
 
+    kickUser: async (organizationId: string, userId: string) => {
+        console.log("Kicking user ", userId,  " from organization ", organizationId)
+        const response = await api.delete(`/organizations/user/${userId}/${organizationId}`)
+        return response
+    },
+
 }

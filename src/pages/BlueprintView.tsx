@@ -58,7 +58,7 @@ import "react-image-crop/dist/ReactCrop.css";
 import { getCroppedImg } from "@/utils/cropImage";
 
 // TYPES
-import type { BlueprintViewType, CreateCropPayload, InferenceJobResult, InferenceJobStatus, InferenceJobType, SectionView, SpecialtyTag, YoloPrediction } from "@/types/types";
+import type { AreaColor, BlueprintViewType, CreateCropPayload, InferenceJobResult, InferenceJobStatus, InferenceJobType, SectionView, SpecialtyTag, YoloPrediction } from "@/types/types";
 
 // CONTEXT
 import { useInferenceNotification } from "@/context/InferenceNotificationContext";
@@ -122,6 +122,9 @@ const BlueprintView = () => {
     const blueprintNameRef = useRef<string>('')
     const startTrackingRef = useRef(startTracking)
     useEffect(() => { startTrackingRef.current = startTracking }, [startTracking])
+
+    // SECTION VIEW RANDOM COLOR VALUES
+    const colorMapRef = useRef<Record<string, AreaColor>>({})
 
     // SECTION VIEW DELETE VARIABLES
     const [indexAreaForDelete, setIndexAreaForDelete] = useState<number | null>(null)
@@ -639,6 +642,29 @@ const BlueprintView = () => {
         )
     }, [blueprint?.sectionViews, labelFilter])
 
+    // RANDOM AREA COLORS
+    const generateRandomColor = (): AreaColor => {
+        const hue = Math.floor(Math.random() * 360)
+
+        return {
+            fill: `hsla(${hue}, 70%, 50%, 0.25)`,
+            stroke: `hsl(${hue}, 70%, 50%)`,
+        }
+    }
+
+    const getColor = (label: string): AreaColor => {
+
+        if (colorMapRef.current[label]) {
+            return colorMapRef.current[label]
+        }
+
+        const newColor = generateRandomColor()
+
+        colorMapRef.current[label] = newColor
+
+        return newColor
+    }
+
     if (loadingBlueprint || !blueprint) return <Loading/>
 
     if (error) {
@@ -969,6 +995,8 @@ const BlueprintView = () => {
                                                 const isHighlighted = highlightedAreaIndex === index
                                                 const labelFontSize = imageRes.width > 0 ? Math.round(imageRes.width * 0.012) : 12
 
+                                                const color = getColor(section.label ?? "unknown")
+
                                                 return (
                                                     <TooltipProvider key={index}>
                                                         <ContextMenu>
@@ -983,16 +1011,8 @@ const BlueprintView = () => {
                                                                                 y={y}
                                                                                 width={width}
                                                                                 height={height}
-                                                                                fill={
-                                                                                    isHighlighted
-                                                                                        ? "rgba(0, 150, 255, 0.45)"
-                                                                                        : "rgba(0, 100, 255, 0.25)"
-                                                                                }
-                                                                                stroke={
-                                                                                    isHighlighted
-                                                                                        ? "rgba(0, 150, 255, 1)"
-                                                                                        : "rgba(0, 100, 255, 0.7)"
-                                                                                }
+                                                                                fill={color.fill}
+                                                                                stroke={color.stroke}
                                                                                 strokeWidth={isHighlighted ? "4" : "2"}
                                                                                 style={{
                                                                                     pointerEvents: "auto",
@@ -1064,6 +1084,8 @@ const BlueprintView = () => {
 
                                                 const isHighlighted = highlightedAreaIndex === index
 
+                                                const color = getColor(section.label ?? "unknown")
+
                                                 return (
                                                     <TooltipProvider key={index}>
                                                         <ContextMenu>
@@ -1075,16 +1097,8 @@ const BlueprintView = () => {
                                                                         <g>
                                                                             <polygon
                                                                                 points={points}
-                                                                                fill={
-                                                                                    isHighlighted
-                                                                                        ? "rgba(0, 150, 255, 0.45)"
-                                                                                        : "rgba(0, 100, 255, 0.25)"
-                                                                                }
-                                                                                stroke={
-                                                                                    isHighlighted
-                                                                                        ? "rgba(0, 150, 255, 1)"
-                                                                                        : "rgba(0, 100, 255, 0.7)"
-                                                                                }
+                                                                                fill={color.fill}
+                                                                                stroke={color.stroke}
                                                                                 strokeWidth={isHighlighted ? "4" : "2"}
                                                                                 style={{
                                                                                     pointerEvents: "auto",
@@ -1146,6 +1160,8 @@ const BlueprintView = () => {
 
                                                 const isHighlighted = highlightedAreaIndex === index
 
+                                                const color = getColor(section.label ?? "unknown")
+
                                                 return (
                                                     <TooltipProvider key={index}>
                                                         <ContextMenu>
@@ -1159,16 +1175,8 @@ const BlueprintView = () => {
                                                                                 cx={center.x}
                                                                                 cy={center.y}
                                                                                 r={section.radius}
-                                                                                fill={
-                                                                                    isHighlighted
-                                                                                        ? "rgba(0, 150, 255, 0.45)"
-                                                                                        : "rgba(0, 100, 255, 0.25)"
-                                                                                }
-                                                                                stroke={
-                                                                                    isHighlighted
-                                                                                        ? "rgba(0, 150, 255, 1)"
-                                                                                        : "rgba(0, 100, 255, 0.7)"
-                                                                                }
+                                                                                fill={color.fill}
+                                                                                stroke={color.stroke}
                                                                                 strokeWidth={isHighlighted ? "4" : "2"}
                                                                                 style={{
                                                                                     pointerEvents: "auto",
@@ -1232,6 +1240,8 @@ const BlueprintView = () => {
 
                                                 const isHighlighted = highlightedAreaIndex === index
 
+                                                const color = getColor(section.label ?? "unknown")
+
                                                 return (
                                                     <TooltipProvider key={index}>
                                                         <ContextMenu>
@@ -1244,11 +1254,7 @@ const BlueprintView = () => {
                                                                             <polyline
                                                                                 points={points}
                                                                                 fill="none"
-                                                                                stroke={
-                                                                                    isHighlighted
-                                                                                        ? "rgba(0, 150, 255, 1)"
-                                                                                        : "rgba(0, 100, 255, 0.9)"
-                                                                                }
+                                                                                stroke={color.stroke}
                                                                                 strokeWidth={isHighlighted ? "5" : "3"}
                                                                                 style={{
                                                                                     pointerEvents: "auto",

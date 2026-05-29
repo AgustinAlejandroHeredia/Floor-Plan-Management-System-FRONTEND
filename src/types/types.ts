@@ -311,6 +311,11 @@ export interface SectionView {
   confidence?: number,
 }
 
+export type AreaColor = {
+    fill: string
+    stroke: string
+}
+
 export type LabelList = {
     label: string
     count: number

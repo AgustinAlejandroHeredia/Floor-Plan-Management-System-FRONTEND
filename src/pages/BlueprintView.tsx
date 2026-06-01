@@ -63,6 +63,8 @@ import type { AreaColor, BlueprintViewType, CreateCropPayload, InferenceJobResul
 // CONTEXT
 import { useInferenceNotification } from "@/context/InferenceNotificationContext";
 import React from "react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 type ImageResolution = {
     width: number;
@@ -125,6 +127,7 @@ const BlueprintView = () => {
 
     // SECTION VIEW RANDOM COLOR VALUES
     const colorMapRef = useRef<Record<string, AreaColor>>({})
+    const colorIndexRef = useRef(0)
 
     // SECTION VIEW DELETE VARIABLES
     const [indexAreaForDelete, setIndexAreaForDelete] = useState<number | null>(null)
@@ -140,7 +143,8 @@ const BlueprintView = () => {
     const [isSavingAreas, setIsSavingAreas] = useState<boolean>(false)
     
     // CURRENT LABEL FILTER
-    const [labelFilter, setLabelFilter] = useState<string>("All")
+    //const [labelFilter, setLabelFilter] = useState<string>("All")
+    const [selectedLabels, setSelectedLabels] = useState<string[]>([])
 
     useEffect(() => {
         clearNotification()
@@ -185,6 +189,9 @@ const BlueprintView = () => {
 
     // GENERAL ZOOM
     const [imageZoom, setImageZoom] = useState(1);
+
+    // CONFIDENCE SELECTOR
+    const [confidenceSelection, setConfidenceSelection] = useState(0.3)
 
     const formatKey = (key: string) =>
         key
@@ -633,36 +640,50 @@ const BlueprintView = () => {
     const filteredSectionViews = React.useMemo(() => {
         if (!blueprint?.sectionViews) return []
 
-        if (labelFilter === "All") {
-            return blueprint.sectionViews
-        }
-
-        return blueprint.sectionViews.filter(
-            (section) => section.label === labelFilter
+        return blueprint.sectionViews.filter(section =>
+            section.label &&
+            !selectedLabels.includes(section.label) &&
+            (section.confidence ?? 1) >= confidenceSelection
         )
-    }, [blueprint?.sectionViews, labelFilter])
+    }, [blueprint?.sectionViews, selectedLabels, confidenceSelection])
 
-    // RANDOM AREA COLORS
-    const generateRandomColor = (): AreaColor => {
-        const hue = Math.floor(Math.random() * 360)
+    const toggleLabel = (label: string) => {
+        setSelectedLabels(current => {
 
-        return {
-            fill: `hsla(${hue}, 70%, 50%, 0.25)`,
-            stroke: `hsl(${hue}, 70%, 50%)`,
-        }
+            if (current.includes(label)) {
+                return current.filter(l => l !== label)
+            }
+
+            return [...current, label]
+        })
     }
 
+    // RANDOM AREA COLORS
     const getColor = (label: string): AreaColor => {
-
         if (colorMapRef.current[label]) {
             return colorMapRef.current[label]
         }
 
-        const newColor = generateRandomColor()
+        const index = colorIndexRef.current++
 
-        colorMapRef.current[label] = newColor
+        const hue = (index * 137.508) % 360
 
-        return newColor
+        const lightnessOptions = [45, 55, 65]
+        const lightness =
+            lightnessOptions[Math.floor(index / 12) % lightnessOptions.length]
+
+        const saturationOptions = [65, 75, 85]
+        const saturation =
+            saturationOptions[Math.floor(index / 36) % saturationOptions.length]
+
+        const color: AreaColor = {
+            fill: `hsla(${hue}, ${saturation}%, ${lightness}%, 0.25)`,
+            stroke: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
+        }
+
+        colorMapRef.current[label] = color
+
+        return color
     }
 
     if (loadingBlueprint || !blueprint) return <Loading/>
@@ -829,7 +850,7 @@ const BlueprintView = () => {
 
                 {/* CONTROLS */}
                 {!cropMode && (
-                <div className="flex items-center justify-center gap-x-15 mt-2">
+                <div className="flex items-center justify-center gap-x-8 mt-2">
 
                     {/* ZOOM SELECTOR */}
                     <div className="flex flex-col items-center">
@@ -846,7 +867,28 @@ const BlueprintView = () => {
                             onChange={(e) => setImageZoom(Number(e.target.value))}
                             style={{
                                 accentColor: "var(--text-h)",
-                                width: "300px",
+                                width: "250px",
+                            }}
+                        />
+                    </div>
+
+                    {/* CONFIDENCE SELECTION */}
+                    <div className="flex flex-col items-center">
+                        <p className="info-text">
+                            Confidence level: {Math.round(confidenceSelection * 100)}%
+                        </p>
+                        <input
+                            type="range"
+                            min={0.1}
+                            max={1}
+                            step={0.1}
+                            value={confidenceSelection}
+                            onChange={(e) => {
+                                setConfidenceSelection(Number(e.target.value))
+                            }}
+                            style={{
+                                accentColor: "var(--text-h)",
+                                width: "250px",
                             }}
                         />
                     </div>
@@ -859,35 +901,46 @@ const BlueprintView = () => {
                                 Label filter
                             </Label>
 
-                            <Select
-                                value={labelFilter}
-                                onValueChange={(value) => setLabelFilter(value)}
-                            >
-                                <SelectTrigger className="w-[150px] bg-white text-black">
-                                    <SelectValue />
-                                </SelectTrigger>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="outline">
+                                        Select
+                                    </Button>
+                                </DropdownMenuTrigger>
 
-                                <SelectContent
-                                    position="popper"
-                                >
+                                <DropdownMenuContent className="w-64">
+                                    <DropdownMenuLabel>
+                                        Visible labels
+                                    </DropdownMenuLabel>
 
-                                    {/* ALL */}
-                                    <SelectItem value="All">
-                                        Show all labels
-                                    </SelectItem>
+                                    <DropdownMenuSeparator />
 
-                                    {/* LABELS */}
+                                    <DropdownMenuItem
+                                        onSelect={(e) => {
+                                            e.preventDefault()
+                                            setSelectedLabels([])
+                                        }}
+                                    >
+                                        Show all areas
+                                    </DropdownMenuItem>
+
                                     {labelOptions.map((item) => (
-                                        <SelectItem
+                                        <div
                                             key={item.label}
-                                            value={item.label}
+                                            className="flex items-center gap-2 px-2 py-1"
                                         >
-                                            {item.label} ({item.count})
-                                        </SelectItem>
-                                    ))}
+                                            <Checkbox
+                                                checked={!selectedLabels.includes(item.label)}
+                                                onCheckedChange={() => toggleLabel(item.label)}
+                                            />
 
-                                </SelectContent>
-                            </Select>
+                                            <span className="text-sm">
+                                                {item.label} ({item.count})
+                                            </span>
+                                        </div>
+                                    ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
 
                         </div>
                     )}
@@ -1059,12 +1112,11 @@ const BlueprintView = () => {
 
                                                                     <ContextMenuItem
                                                                         onClick={() => {
-                                                                            if (section.label) {
-                                                                                setLabelFilter(section.label)
-                                                                            }
+                                                                            if (!section.label) return
+                                                                            toggleLabel(section.label)
                                                                         }}
                                                                     >
-                                                                        Select label as filter
+                                                                        Hide type of area ({section.label})
                                                                     </ContextMenuItem>
 
                                                                 </ContextMenuGroup>
@@ -1141,6 +1193,15 @@ const BlueprintView = () => {
                                                                         }}
                                                                     >
                                                                         Delete
+                                                                    </ContextMenuItem>
+
+                                                                    <ContextMenuItem
+                                                                        onClick={() => {
+                                                                            if (!section.label) return
+                                                                            toggleLabel(section.label)
+                                                                        }}
+                                                                    >
+                                                                        Hide type of area ({section.label})
                                                                     </ContextMenuItem>
 
                                                                 </ContextMenuGroup>
@@ -1221,6 +1282,15 @@ const BlueprintView = () => {
                                                                         Delete
                                                                     </ContextMenuItem>
 
+                                                                    <ContextMenuItem
+                                                                        onClick={() => {
+                                                                            if (!section.label) return
+                                                                            toggleLabel(section.label)
+                                                                        }}
+                                                                    >
+                                                                        Hide type of area ({section.label})
+                                                                    </ContextMenuItem>
+
                                                                 </ContextMenuGroup>
 
                                                             </ContextMenuContent>
@@ -1297,6 +1367,15 @@ const BlueprintView = () => {
                                                                         }}
                                                                     >
                                                                         Delete
+                                                                    </ContextMenuItem>
+
+                                                                    <ContextMenuItem
+                                                                        onClick={() => {
+                                                                            if (!section.label) return
+                                                                            toggleLabel(section.label)
+                                                                        }}
+                                                                    >
+                                                                        Hide type of area ({section.label})
                                                                     </ContextMenuItem>
 
                                                                 </ContextMenuGroup>

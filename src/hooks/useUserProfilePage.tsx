@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { UserProfileService } from "@/services/UserProfileService";
-import type { OrganizationUserProfile, UserType } from "@/types/types";
+import type { OrganizationUserProfile, UserProjectListItem, UserType } from "@/types/types";
 
 export function useUserProfilePage(userId?: string) {
 
@@ -8,6 +8,7 @@ export function useUserProfilePage(userId?: string) {
     const [loading, setLoading] = useState<boolean>(true)
     const [user, setUser] = useState<UserType>()
     const [userOrganizationsAndRoles, setUserOrganizationsAndRoles] = useState<OrganizationUserProfile[]>([])
+    const [userProjectsList, setUserProjectsList] = useState<UserProjectListItem[]>([])
 
     const loadUserData = useCallback(async () => {
         try {
@@ -16,21 +17,25 @@ export function useUserProfilePage(userId?: string) {
 
             let userData
             let organizations
+            let userProjects
 
             if(userId) {
-                [userData, organizations] = await Promise.all([
+                [userData, organizations, userProjects] = await Promise.all([
                     UserProfileService.getUserData(userId),
-                    UserProfileService.getUserOrganizationsAndRoles(userId)
+                    UserProfileService.getUserOrganizationsAndRoles(userId),
+                    UserProfileService.getUserProjects(userId),
                 ])
             } else {
-                [userData, organizations] = await Promise.all([
+                [userData, organizations, userProjects] = await Promise.all([
                     UserProfileService.getMyData(),
-                    UserProfileService.getUserOrganizationsAndRoles(userId)
+                    UserProfileService.getUserOrganizationsAndRoles(userId),
+                    UserProfileService.getUserProjects(userId),
                 ])
             }
 
             setUser(userData)
             setUserOrganizationsAndRoles(organizations)
+            setUserProjectsList(userProjects)
 
             console.log(userData)
 
@@ -47,7 +52,8 @@ export function useUserProfilePage(userId?: string) {
 
     return {
         user,
-        userOrganizationsAndRoles, 
+        userOrganizationsAndRoles,
+        userProjectsList,
         loading,
         error,
     }

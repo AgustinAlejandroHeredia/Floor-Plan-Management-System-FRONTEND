@@ -119,6 +119,15 @@ export type ProjectStatusColor =
   | "yellow"
   | "green" 
 
+export interface UserProjectListItem {
+  _id: string
+  projectName: string
+  status: StatusType
+  uploads: string
+  organizationId: string
+  organizationName: string
+}
+
 
 
 

@@ -1,4 +1,4 @@
-import type { OrganizationUserProfile, UserType } from "@/types/types";
+import type { OrganizationUserProfile, UserProjectListItem, UserType } from "@/types/types";
 import { api } from "../api/api";
 
 export const UserProfileService = {
@@ -9,11 +9,10 @@ export const UserProfileService = {
     },
 
     getUserData: async (userId: string): Promise<UserType> => {
-        console.log("CONSULTA POR ID ", userId)
         const response = await api.get("/user/profile", {
             params: userId ? {userId} : {}
         })
-        console.log("RESPONSE : ", response.data)
+        console.log("RETORNA USER DATA : ", response.data)
         return response.data
     },
 
@@ -21,6 +20,15 @@ export const UserProfileService = {
         const response = await api.get("/organizations/me/organizationsAndRoles/", {
             params: userId ? {userId} : {}
         })
+        console.log("RETORNA USER ORG Y ROLES : ", response.data)
+        return response.data
+    },
+
+    getUserProjects: async (userId?: string): Promise<UserProjectListItem[]> => {
+        const response = await api.get("/projects/userProjects", {
+            params: userId ? {userId} : {}
+        })
+        console.log("RETORNA DATA DE PROJECTS : ", response.data)
         return response.data
     },
 

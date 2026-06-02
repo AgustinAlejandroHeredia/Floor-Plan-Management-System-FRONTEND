@@ -13,6 +13,8 @@ import MyProjectsPage from "@/pages/MyProjectsPage";
 import ProjectPage from "@/pages/ProjectPage";
 import BlueprintView from "@/pages/BlueprintView";
 import UserProfilePage from "@/pages/UserProfilePage";
+import MyUploadsPage from "@/pages/MyUploadsPage";
+import RecentActivityPage from "@/pages/RecentActivityPage";
 
 export function AppRouter() {
   return (
@@ -49,6 +51,18 @@ export function AppRouter() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/MyProjects" element={<MyProjectsPage />} />
+        </Route>
+      </Route>
+
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route path="/MyUploads" element={<MyUploadsPage />} />
+        </Route>
+      </Route>
+
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route path="/RecentActivity" element={<RecentActivityPage />} />
         </Route>
       </Route>
 

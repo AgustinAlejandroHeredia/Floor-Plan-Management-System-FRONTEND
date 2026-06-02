@@ -109,7 +109,11 @@ const HomePage = () => {
                   value={token}
                   onChange={(e) => setToken(e.target.value)}
                 />
-                <Button onClick={() => handleValidateToken(token)}>
+                <Button 
+                  variant="ghost"
+                  className="text-[var(--text)]"
+                  onClick={() => handleValidateToken(token)}
+                >
                   Join
                 </Button>
               </Field>
@@ -139,22 +143,16 @@ const HomePage = () => {
               <h1 className="sub-heading">Your organizations: </h1>
 
               <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, 320px)",
-                  gap: "16px",
-                  justifyContent: "start",
-                  margin: "0 auto",
-                }}
+                className="grid grid-cols-1 md:grid-cols-2 gap-4"
               >
                 {organizations.map((org, index) => (
                   <Card
                     key={index}
-                    className="cursor-pointer transition-colors duration-200 bg-[var(--accent-bg)] hover:bg-[var(--accent-bg2)] max-w-md"
+                    className="cursor-pointer transition-colors duration-200 hover:bg-[var(--accent-bg2)] bg-[var(--accent-bg)] w-full"
                     onClick={() => handleSelectOrganization(org.name, org._id)}
                   >
-                    <CardContent>
-                      <CardTitle className="text-[var(--text-h)]">
+                    <CardContent className="flex flex-col items-center text-center">
+                      <CardTitle className="text-2xl font-bold text-[var(--text-h)] mb-6">
                         {org.name}
                       </CardTitle>
                       <CardDescription className="text-[var(--text)]">
@@ -197,7 +195,9 @@ const HomePage = () => {
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
               />
-              <Button onClick={() => handleValidateToken(token)}>
+              <Button
+                onClick={() => handleValidateToken(token)}
+              >
                 Join
               </Button>
             </Field>

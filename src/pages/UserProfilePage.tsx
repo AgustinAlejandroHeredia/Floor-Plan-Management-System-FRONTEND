@@ -5,6 +5,7 @@ import { useUserProfilePage } from "@/hooks/useUserProfilePage"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useNavigate, useParams } from "react-router-dom"
 import { ItemGroup } from "@/components/ui/item"
+import { Button } from "@/components/ui/button"
 
 const UserProfilePage = () => {
 
@@ -20,6 +21,14 @@ const UserProfilePage = () => {
 
     const handleSelectProject = (orgName: string, orgId: string, projectName: string, projectId: string) => {
         navigate(`/Project/${orgName}/${orgId}/${projectName}/${projectId}`)
+    }
+
+    const handleGoToRecentActivity = () => {
+        navigate("/RecentActivity")
+    }
+
+    const handleGoToMyUploads = () => {
+        navigate("/MyUploads")
     }
 
     if (loading) return <Loading/>
@@ -60,7 +69,7 @@ const UserProfilePage = () => {
 
             <div className="main-content-item">
 
-                <h3 className="sub-heading">My organizations ({userOrganizationsAndRoles.length}): </h3>
+                <h3 className="sub-heading">Your organizations ({userOrganizationsAndRoles.length}): </h3>
 
                 {userOrganizationsAndRoles.length === 0 ? (
 
@@ -152,7 +161,7 @@ const UserProfilePage = () => {
 
             <div className="main-content-item">
 
-                <h3 className="sub-heading">Projects where this user has participated ({userProjectsList.length}):</h3>
+                <h3 className="sub-heading">Projects where you have participated ({userProjectsList.length}):</h3>
 
                 {userProjectsList.length === 0 ? (
 
@@ -229,6 +238,27 @@ const UserProfilePage = () => {
                     </div>
 
                 )}
+
+            </div>
+
+            <div className="main-content-item">
+                <h3 className="sub-heading">More options</h3>
+
+                <Button
+                    variant="ghost"
+                    className="text-[var(--text)]"
+                    onClick={() => handleGoToRecentActivity()}
+                >
+                    View my recent activity
+                </Button>
+
+                <Button
+                    variant="ghost"
+                    className="text-[var(--text)]"
+                    onClick={() => handleGoToMyUploads()}
+                >
+                    View my uploads
+                </Button>
 
             </div>
 

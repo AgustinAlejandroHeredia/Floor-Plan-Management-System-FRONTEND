@@ -27,14 +27,11 @@ import {
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button";
+import Toast from "@/components/Toast";
 
 const HomePage = () => {
   const navigate = useNavigate()
   const { organizations, loadingHomeOrganizations, error, refreshOrganizationList } = useHome();
-
-  // ERROR VARIABLES
-  const [errorOpen, setErrorOpen] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string>("");
 
   // TOKEN / CODE VARIABLES
   const [token, setToken] = useState("");
@@ -69,10 +66,10 @@ const HomePage = () => {
       await InvitationService.validateInvitation(token)
       setValidToken(true)
       refreshOrganizationList()
-    } catch (error) {
-      setInvalidToken(true)
-    } finally {
       setIsValidating(false)
+    } catch (error) {
+      setIsValidating(false)
+      setInvalidToken(true)
     }
   }
 
@@ -209,6 +206,12 @@ const HomePage = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        <Toast
+          open={isValidating}
+          title="Validating token..."
+          description="Please wait while your token is validated..."
+        />
 
       </div>
         

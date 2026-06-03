@@ -286,6 +286,7 @@ export interface UserType {
   email: string
   picture: string
   globalRole: string
+  joinedAt: Date
 }
 
 export interface InvitationPayload {

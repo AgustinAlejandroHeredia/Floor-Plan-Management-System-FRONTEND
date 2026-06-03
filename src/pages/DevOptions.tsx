@@ -20,7 +20,7 @@ import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label";
 import { useDevOptions } from "@/hooks/useDevOptions";
-import type { CreateOrganizationPayload, UpdateOrganizationPayload, OrganizationType, ActionPermission, InvitationPayload, OrganizationRole } from "@/types/types";
+import type { CreateOrganizationPayload, UpdateOrganizationPayload, OrganizationType, ActionPermission, InvitationPayload, OrganizationRole, UserType } from "@/types/types";
 import { useState } from "react"
 import { DevOptionsService } from "@/services/DevOptionsService";
 
@@ -35,6 +35,7 @@ import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 import { useNavigate } from "react-router-dom"
 import { InvitationService } from "@/services/InvitationService"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import BreadcrumbBar from "@/components/BreadcrumbBar"
 
 const DevOptions = () => {
 
@@ -65,6 +66,14 @@ const DevOptions = () => {
     const [isSendingInvitation, setIsSendingInvitation] = useState<boolean>(false)
     const [invitationSent, setInvitationSent] = useState<boolean>(false)
     const [invitationExists, setInvitationExists] = useState<boolean>(false)
+
+    // ADD USER VARIABLES
+    const [selectedOrganizationForAddUser, setSelectedOrganizationForAddUser] = useState<OrganizationType>()
+    const [selectedUserForAddUserId, setSelectedUserForAddUserId] = useState<string>("")
+    const [selectedOrganizationAvailableUsersList, setSelectedOrganizationAvailableUsersList] = useState<UserType[]>([])
+    const [openAddUserDialog, setOpenAddUserDialog] = useState<boolean>(false)
+    const [addRoleSelected, setAddRoleSelected] = useState<OrganizationRole>("member")
+    const [isAddingUser, setIsAddingUser] = useState<boolean>(false)
 
     // KICK USER VARIABLES
     const [userIdForKick, setUserIdForKick] = useState<string>("")
@@ -171,6 +180,29 @@ const DevOptions = () => {
         setOpenInvitationDialog(true)
     }
 
+    const handleSelectOrganizationForAddUser = (organizationId: string) => {
+        const organization = organizationsWithMembers.find(
+            (org) => org._id === organizationId
+        )
+        if(!organization){
+            console.log("ERROR")
+            setOpenError(true)
+            return
+        }
+        const { members, ...organizationData } = organization;
+        setSelectedOrganizationForAddUser(organizationData)
+        const availableUsers = users
+            .filter(
+                (user) =>
+                    !members.some(
+                        (member) => member._id === user._id
+                    )
+            )
+            .sort((a, b) => a.name.localeCompare(b.name))
+        setSelectedOrganizationAvailableUsersList(availableUsers)
+        setOpenAddUserDialog(true)
+    }
+
     const handleSelectOrganizationForDelete = (organizationId: string) => {
         const organization = organizationsWithMembers.find(
             (org) => org._id === organizationId
@@ -235,7 +267,7 @@ const DevOptions = () => {
 
     // INVITATION
 
-    const showOrHideSendInvitation = () => {
+    const showOrHideSendInvitationHelp = () => {
         if(showInvitationHelp) {
             setShowInvitationHelp(false)
         } else {
@@ -275,6 +307,7 @@ const DevOptions = () => {
             }
             console.log("INVITATION PAYLOAD : ", payload)
             await InvitationService.createInvitation(payload)
+            setSelectedOrganizationForInvitation(undefined)
             setIsSendingInvitation(false)
             setInvitationSent(true)
         } catch (error: any) {
@@ -285,6 +318,30 @@ const DevOptions = () => {
             }
             setErrorMessage("Error sending the invitation, please try again later.")
             setOpenError(true)
+        }
+    }
+
+    // ADD USER
+
+    const handleAddUser = async () => {
+
+        setOpenAddUserDialog(false)
+
+        if(!selectedOrganizationForAddUser){
+            setErrorMessage("No organization selected to add user")
+            setOpenError(true)
+            return
+        }
+
+        setIsAddingUser(true)
+        try {
+            await DevOptionsService.addUser(selectedOrganizationForAddUser._id, selectedUserForAddUserId, addRoleSelected)
+            setIsAddingUser(false)
+            refreshContent()
+        } catch (error: any) {
+            setErrorMessage("Something went wrong adding this user, please try again later.")
+            setOpenError(true)
+            setIsAddingUser(false)
         }
     }
 
@@ -337,6 +394,8 @@ const DevOptions = () => {
     if(loading) return <Loading/>
 
     return (
+        <div>
+        <BreadcrumbBar items={[{ label: "Developer Options" }]} />
         <div className="main-content">
 
             <div className="main-content-item">
@@ -453,6 +512,12 @@ const DevOptions = () => {
                                 Invite user
                             </Button>
                             <Button
+                                variant="outline"
+                                onClick={() => handleSelectOrganizationForAddUser(org._id)}
+                            >
+                                Add user
+                            </Button>
+                            <Button
                                 variant="destructive"
                                 onClick={() => handleSelectOrganizationForDelete(org._id)}
                             >
@@ -512,6 +577,12 @@ const DevOptions = () => {
                     </CardContent>
                 </Card>
 
+            </div>
+
+            <div className="main-content-item">
+
+                <h3 className="sub-heading">All available invitation: </h3>
+                
             </div>
 
             {/* UI OVERLAYS */}
@@ -827,7 +898,7 @@ const DevOptions = () => {
                         <DialogHeader>
                             <DialogTitle>Send invitation</DialogTitle>
                             <DialogDescription>
-                                You are currently invitating an user to the ortanization "{selectedOrganizationForInvitation?.name}".
+                                You are currently invitating an user to the organization "{selectedOrganizationForInvitation?.name}".
                                 Enter the email of the user that you want to invite.
                             </DialogDescription>
                         </DialogHeader>
@@ -871,7 +942,7 @@ const DevOptions = () => {
                             <Button
                                 variant="link"
                                 className="mb-4"
-                                onClick={showOrHideSendInvitation}
+                                onClick={showOrHideSendInvitationHelp}
                             >
                                 More info
                             </Button>
@@ -883,7 +954,7 @@ const DevOptions = () => {
                                     Once you enter the email address of the user you wish to invite and select the role they will have (Member by default), an email will be sent containing a code/token. The invited user can then enter this code/token in the "Home" section under "Join Organization." Upon entering the code/token, access to your organization will be granted. 
                                 </p>
                                 <Button
-                                    onClick={showOrHideSendInvitation}
+                                    onClick={showOrHideSendInvitationHelp}
                                 >
                                     Close information
                                 </Button>
@@ -894,7 +965,10 @@ const DevOptions = () => {
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={() => setOpenInvitationDialog(false)}
+                                onClick={() => {
+                                    setOpenInvitationDialog(false)
+                                    setInvitationRoleSelected("member")
+                                }}
                             >
                                 Cancel
                             </Button>
@@ -944,6 +1018,93 @@ const DevOptions = () => {
                             Ok
                         </Button>
                     </DialogFooter>
+                </DialogContent>
+                </Dialog>
+
+                {/* ADD USER */}
+                <Dialog open={openAddUserDialog} onOpenChange={setOpenAddUserDialog}>
+                <DialogContent className="sm:max-w-sm">
+                    
+                    <DialogHeader>
+                        <DialogTitle>Add user</DialogTitle>
+                        <DialogDescription>
+                            You will add an user to the organization "{selectedOrganizationForAddUser?.name}" directly, without sending an invitation.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <FieldGroup className="space-y-4 my-6">
+
+                        <Field>
+                            <Label htmlFor="users">Platform users (minus current members)</Label>
+                            <Select
+                                value={selectedUserForAddUserId}
+                                onValueChange={setSelectedUserForAddUserId}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a user"></SelectValue>
+                                </SelectTrigger>
+
+                                <SelectContent position="popper">
+                                    <SelectGroup>
+                                        {selectedOrganizationAvailableUsersList.map((user) => (
+                                            <SelectItem
+                                                key={user._id}
+                                                value={user._id}
+                                            >
+                                                {user.name} - {user.email}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectGroup>
+                                </SelectContent>
+
+                            </Select>
+                        </Field>
+
+
+                        <Field>
+                            <Label htmlFor="email">Role within organization</Label>
+                            <Select 
+                                defaultValue="member"
+                                onValueChange={(value) => setInvitationRoleSelected(value as OrganizationRole)} 
+                            >
+                                <SelectTrigger>
+                                    <SelectValue/>
+                                </SelectTrigger>
+                                <SelectContent
+                                    position="popper"
+                                >
+                                    <SelectGroup>
+                                        <SelectItem value="member">Member</SelectItem>
+                                        <SelectItem value="admin">Admin</SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+
+                    </FieldGroup>
+
+                    <DialogFooter>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                                setOpenAddUserDialog(false)
+                                setAddRoleSelected("member")
+                                setSelectedOrganizationForAddUser(undefined)
+                                setSelectedUserForAddUserId("")
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => handleAddUser()}
+                        >
+                            Add user
+                        </Button>
+                    </DialogFooter>
+
                 </DialogContent>
                 </Dialog>
 
@@ -1009,6 +1170,7 @@ const DevOptions = () => {
 
             </div>
         
+        </div>
         </div>
     )
 

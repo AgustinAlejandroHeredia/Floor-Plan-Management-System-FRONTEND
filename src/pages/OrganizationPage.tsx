@@ -998,7 +998,7 @@ const OrganizationPage = () => {
                         </AlertDialogTitle>
                         {userForRolechange?.organizationRole === "admin" ? (
                             <AlertDialogDescription>
-                                Are you sure you want to change this user's role? This user will loose the permissions allowed for admin role.
+                                Are you sure you want to change this user's role? This user will lose the permissions allowed for admin role.
                             </AlertDialogDescription>
                         ) : (
                             <AlertDialogDescription>
@@ -1012,8 +1012,8 @@ const OrganizationPage = () => {
                             <br />
                             <span>
                                 Will change to: {userForRolechange?.organizationRole === "admin"
-                                    ? "member"
-                                    : "admin"}
+                                    ? "Admin"
+                                    : "Member"}
                             </span>
                         </AlertDialogDescription>
                     </AlertDialogHeader>

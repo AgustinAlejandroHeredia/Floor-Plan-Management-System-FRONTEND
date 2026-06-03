@@ -1,8 +1,11 @@
+import BreadcrumbBar from "@/components/BreadcrumbBar"
 
 const MyUploadsPage = () => {
 
     return (
-        <div>uploads</div>
+        <div>
+        <BreadcrumbBar items={[{ label: "My Uploads" }]} />
+        </div>
     )
 }
 

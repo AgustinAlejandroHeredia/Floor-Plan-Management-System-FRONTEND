@@ -1,5 +1,5 @@
 import { api } from "../api/api";
-import type { CreateOrganizationPayload, OrganizationType, OrganizationWithMembers, UpdateOrganizationPayload } from "@/types/types";
+import type { CreateOrganizationPayload, OrganizationRole, OrganizationType, OrganizationWithMembers, UpdateOrganizationPayload } from "@/types/types";
 
 export const DevOptionsService = {
 
@@ -20,6 +20,7 @@ export const DevOptionsService = {
 
     getAllUsers: async () => {
         const response = await api.get("/user/allUsers/superadmin")
+        console.log("ALL USERS DATA : ", response.data)
         return response.data
     },
 
@@ -51,6 +52,13 @@ export const DevOptionsService = {
         organizationIds: string[]
     ): Promise<{ organizationId: string; count: number }[]> => {
         const response = await api.get(`/blueprints/counts/${organizationIds}`)
+        return response.data
+    },
+
+    addUser: async (organizationId: string, userId: string, organizationRole?: OrganizationRole) => {
+        const response = await api.post(`/organizations/addUser/${organizationId}/${userId}`, 
+            {organizationRole}
+        )
         return response.data
     },
 

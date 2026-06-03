@@ -58,8 +58,15 @@ const UserProfilePage = () => {
                 {user?.email}
                 </p>
 
+                <p className="text-sm text-[var(--text)]">
+                    Joined at{" "}
+                    {user?.joinedAt
+                        ? new Date(user.joinedAt).toLocaleDateString()
+                        : ""}
+                </p>
+
                 {user?.globalRole === "super_admin" && (
-                    <p className="text-sm text-[var(--text)]">
+                    <p className="text-xl font-semibold text-[var(--text-h)]">
                         Platform Administrator
                     </p>
                 )}

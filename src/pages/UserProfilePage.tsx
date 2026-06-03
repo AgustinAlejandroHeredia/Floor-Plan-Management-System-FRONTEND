@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { useNavigate, useParams } from "react-router-dom"
 import { ItemGroup } from "@/components/ui/item"
 import { Button } from "@/components/ui/button"
+import BreadcrumbBar from "@/components/BreadcrumbBar"
 
 const UserProfilePage = () => {
 
@@ -34,6 +35,11 @@ const UserProfilePage = () => {
     if (loading) return <Loading/>
 
     return (
+        <div>
+        <BreadcrumbBar items={[ 
+            {label: "My Profile"},
+        ]} />
+
         <div className="main-content">
 
             {/* PICTURE AND INFO */}
@@ -269,6 +275,7 @@ const UserProfilePage = () => {
 
             </div>
 
+        </div>
         </div>
     )
 

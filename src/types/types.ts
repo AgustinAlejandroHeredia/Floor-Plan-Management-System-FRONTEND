@@ -367,3 +367,15 @@ export interface InferenceJobType {
 export interface AvailableModel {
   [speciality: string]: string[]
 }
+
+
+
+export interface MyUploadsBlurpintType {
+  _id: string
+  blueprintName: string
+  creationDate: string
+  organizationId: string
+  organizationName: string
+  thumbnailUrl: string
+  processed: boolean
+}

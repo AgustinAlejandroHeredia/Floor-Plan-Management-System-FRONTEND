@@ -139,6 +139,8 @@ const HomePage = () => {
             <div className="main-content-item">
               <h1 className="sub-heading">Your organizations: </h1>
 
+              <p className="comment-text">Total organizations {organizations.length}</p>
+
               <div
                 className="grid grid-cols-1 md:grid-cols-2 gap-4"
               >

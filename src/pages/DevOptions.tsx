@@ -414,7 +414,9 @@ const DevOptions = () => {
 
             <div className="main-content-item">
 
-                <h3 className="sub-heading">Organizations ({organizationsWithMembers.length}): </h3>
+                <h3 className="sub-heading">Organizations: </h3>
+
+                <p className="comment-text">Total organizations {organizationsWithMembers.length}</p>
 
                 <div className="space-y-4">
                 {organizationsWithMembers.map((org) => (
@@ -541,7 +543,9 @@ const DevOptions = () => {
 
             <div className="main-content-item">
 
-                <h3 className="sub-heading">Platform users ({users.length}): </h3>
+                <h3 className="sub-heading">Platform users: </h3>
+
+                <p className="comment-text">Total users {users.length}</p>
 
                 <Card
                     className="bg-[var(--accent-bg)] w-full"
@@ -582,6 +586,8 @@ const DevOptions = () => {
             <div className="main-content-item">
 
                 <h3 className="sub-heading">All available invitation: </h3>
+
+                <p className="comment-text">Total invitations</p>
                 
             </div>
 

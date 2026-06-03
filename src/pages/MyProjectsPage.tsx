@@ -27,7 +27,9 @@ const MyProjectsPage = () => {
 
                 <div className="main-content-item">
 
-                    <h3 className="sub-heading">The projects where you participated in ({userProjectsList.length}): </h3>
+                    <h3 className="sub-heading">The projects where you participated in: </h3>
+
+                    <p className="comment-text">Total projects {userProjectsList.length}</p>
 
                     {userProjectsList.length === 0 ? (
                         <p>No projects yet</p>

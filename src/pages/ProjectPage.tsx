@@ -314,7 +314,9 @@ const ProjectPage = () => {
 
         {/* ================= BLUEPRINTS ================= */}
         <div className="main-content-item">
-          <h1 className="sub-heading">Uploaded blueprints ({blueprints.length})</h1>
+          <h1 className="sub-heading">Uploaded blueprints</h1>
+
+          <p className="comment-text">Total blueprints {blueprints.length}</p>
 
           <div
             style={{

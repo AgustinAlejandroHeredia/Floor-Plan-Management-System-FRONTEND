@@ -974,7 +974,7 @@ const OrganizationPage = () => {
                     </DialogClose>
 
                     <Button onClick={handleEditActionPermissions}>
-                        Create
+                        Update
                     </Button>
                     </DialogFooter>
 

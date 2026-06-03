@@ -379,3 +379,13 @@ export interface MyUploadsBlurpintType {
   thumbnailUrl: string
   processed: boolean
 }
+
+export interface RecentActivityItem {
+  _id: string,
+  userId: string,
+  action: string,
+  description: string,
+  targetName: string,
+  targetId: string,
+  timestamp: Date,
+}

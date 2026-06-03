@@ -42,7 +42,9 @@ const MyUploadsPage = () => {
             
             <div className="main-content-item">
 
-                <h3 className="sub-heading">Your uploads ({userUploadsList.length}): </h3>
+                <h3 className="sub-heading">Your uploads: </h3>
+
+                <p className="comment-text">Total uploads {userUploadsList.length}</p>
 
                 <div className="flex flex-wrap gap-4 justify-start">
                     {userUploadsList.map((upload) => (

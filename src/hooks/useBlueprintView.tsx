@@ -19,20 +19,27 @@ export function useBlueprintView(blueprintId: string) {
 
     const loadBlueprint = useCallback(async () => {
         try {
-
             setLoadingBlueprint(true)
             setError(null)
 
-            const data = await BlueprintViewService.getBlueprint(blueprintId)
+            const [
+                data,
+                blob,
+                models,
+            ] = await Promise.all([
+                BlueprintViewService.getBlueprint(blueprintId),
+                BlueprintViewService.getRawImage(blueprintId),
+                BlueprintViewService.getAvailableModels(),
+            ])
+
             const { projectFields, ...blueprintData } = data
+
             setBlueprint(blueprintData)
             setProjectInfo(projectFields)
 
-            const blob = await BlueprintViewService.getRawImage(blueprintId)
             const imageUrl = URL.createObjectURL(blob)
             setBlueprintImageUrl(imageUrl)
 
-            const models = await BlueprintViewService.getAvailableModels()
             setAvailableModels(models)
 
         } catch (err: any) {

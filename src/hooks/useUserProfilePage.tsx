@@ -37,8 +37,6 @@ export function useUserProfilePage(userId?: string) {
             setUserOrganizationsAndRoles(organizations)
             setUserProjectsList(userProjects)
 
-            console.log(userData)
-
         } catch (error: any) {
             setError(error)
         } finally {

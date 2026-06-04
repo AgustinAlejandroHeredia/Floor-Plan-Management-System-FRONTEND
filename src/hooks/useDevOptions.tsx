@@ -20,23 +20,39 @@ export function useDevOptions() {
     const [invitationsList, setInvitationsList] = useState<InvitationItemData[]>([])
 
     const loadDevOptions = useCallback(async () => {
-        try{
-
+        try {
             setLoading(true)
             setError(null)
 
-            const organizationsData = await DevOptionsService.getOrganizationsWithMembers()
+            const organizationsPromise =
+                DevOptionsService.getOrganizationsWithMembers()
+
+            const usersPromise =
+                DevOptionsService.getAllUsers()
+
+            const invitationsPromise =
+                DevOptionsService.getAllInvitations()
+
+            const organizationsData = await organizationsPromise
+
+            const countsPromise =
+                DevOptionsService.getBlueprintCountsByOrganizationIds(
+                    organizationsData.map(org => org._id)
+                )
+
+            const [
+                usersData,
+                allInvitations,
+                counts,
+            ] = await Promise.all([
+                usersPromise,
+                invitationsPromise,
+                countsPromise,
+            ])
+
             setOrganizationsWithMembers(organizationsData)
-
-            const usersData = await DevOptionsService.getAllUsers()
             setUsers(usersData)
-
-            const counts = await DevOptionsService.getBlueprintCountsByOrganizationIds(
-                organizationsData.map(org => org._id)
-            )
             setOrganizationBlueprintCounts(counts)
-
-            const allInvitations = await DevOptionsService.getAllInvitations()
             setInvitationsList(allInvitations)
 
         } catch (err: any) {

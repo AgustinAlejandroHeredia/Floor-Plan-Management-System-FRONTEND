@@ -1,5 +1,5 @@
 import { ProjectService } from "@/services/ProjectService";
-import type { OrganizationActionPermissions, OrganizationRole, ProjectMembersList, ProjectType } from "@/types/types";
+import type { OrganizationActionPermissions, OrganizationRole, ProjectType } from "@/types/types";
 import { useCallback, useEffect, useState } from "react";
 
 export function useProject(organizationId: string, projectId: string) {
@@ -11,7 +11,6 @@ export function useProject(organizationId: string, projectId: string) {
         createPermission: "admins",
         invitePermission: "admins",
     })
-    const [projectMembersList, setProjectMembersList] = useState<ProjectMembersList[]>([])
     const [blueprints, setBlueprints] = useState<any[]>([]);
     const [loadingProject, setLoadingProject] = useState<boolean>(true);
 
@@ -21,24 +20,29 @@ export function useProject(organizationId: string, projectId: string) {
             setLoadingProject(true)
             setError(null)
 
-            const data: ProjectType = await ProjectService.getProject(projectId)
-            setProject(data)
+            const [
+                projectData,
+                blueprintsData,
+                userRole,
+                permissionsData,
+            ] = await Promise.all([
+                ProjectService.getProject(projectId),
+                ProjectService.getProjectBlueprints(projectId),
+                ProjectService.getOrganizationMyRole(organizationId),
+                ProjectService.getOrganizationActionPermissions(organizationId),
+            ])
 
-            const blueprintsData = await ProjectService.getProjectBlueprints(projectId)
+            setProject(projectData)
             setBlueprints(blueprintsData)
-
-            const userRole = await ProjectService.getOrganizationMyRole(organizationId)
             setUserOrganizationRole(userRole)
-
-            const permissionsData = await ProjectService.getOrganizationActionPermissions(organizationId)
             setOrganizationPermissions(permissionsData)
 
-        } catch (err : any) {
+        } catch (err: any) {
             setError(err)
         } finally {
             setLoadingProject(false)
         }
-    }, [projectId])
+    }, [projectId, organizationId])
 
     useEffect(() => {
         if(projectId){

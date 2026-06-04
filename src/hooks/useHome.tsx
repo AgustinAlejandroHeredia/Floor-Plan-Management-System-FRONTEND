@@ -22,13 +22,12 @@ export function useHome() {
         contactPhone: org.contactPhone,
       }));
 
-      setOrganizations(homeOrganizations);
-      //setOrganizations([]);
+      setOrganizations(homeOrganizations)
 
     } catch (err: any) {
-      setError(err);
+      setError(err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }, []);
 

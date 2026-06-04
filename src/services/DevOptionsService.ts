@@ -1,5 +1,5 @@
 import { api } from "../api/api";
-import type { CreateOrganizationPayload, OrganizationRole, OrganizationType, OrganizationWithMembers, UpdateOrganizationPayload } from "@/types/types";
+import type { CreateOrganizationPayload, InvitationItemData, OrganizationRole, OrganizationType, OrganizationWithMembers, UpdateOrganizationPayload } from "@/types/types";
 
 export const DevOptionsService = {
 
@@ -67,5 +67,10 @@ export const DevOptionsService = {
         const response = await api.delete(`/organizations/user/${userId}/${organizationId}`)
         return response
     },
+
+    getAllInvitations: async (): Promise<InvitationItemData[]> => {
+        const response = await api.get("invitation/superadmin/allInvitations")
+        return response.data
+    }
 
 }

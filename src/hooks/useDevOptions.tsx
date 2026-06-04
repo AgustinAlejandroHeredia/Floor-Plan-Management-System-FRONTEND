@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 // TYPES
-import type { OrganizationWithMembers, UserType } from "@/types/types";
+import type { InvitationItemData, OrganizationWithMembers, UserType } from "@/types/types";
 
 import { DevOptionsService } from "@/services/DevOptionsService";
 
@@ -16,6 +16,8 @@ export function useDevOptions() {
     const [organizationBlueprintCounts, setOrganizationBlueprintCounts] = useState<
         { organizationId: string; count: number }[]
     >([])
+
+    const [invitationsList, setInvitationsList] = useState<InvitationItemData[]>([])
 
     const loadDevOptions = useCallback(async () => {
         try{
@@ -34,6 +36,9 @@ export function useDevOptions() {
             )
             setOrganizationBlueprintCounts(counts)
 
+            const allInvitations = await DevOptionsService.getAllInvitations()
+            setInvitationsList(allInvitations)
+
         } catch (err: any) {
             setError(err)
         } finally {
@@ -49,6 +54,7 @@ export function useDevOptions() {
         organizationsWithMembers,
         organizationBlueprintCounts,
         users,
+        invitationsList,
         loading,
         error,
         refreshContent: loadDevOptions,

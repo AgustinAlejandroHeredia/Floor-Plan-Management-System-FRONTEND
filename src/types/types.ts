@@ -296,6 +296,19 @@ export interface InvitationPayload {
   userOrganizationRole?: OrganizationRole
 }
 
+export interface InvitationItemData {
+  _id: string
+  organizationId: string
+  organizationName: string
+  userEmail: string
+  sentByUserId: string
+  sentByUserName: string
+  creationDate: Date
+  duration: number
+  userOrganizationRole: OrganizationRole
+  expired: boolean
+}
+
 export interface SectionCoords {
   x: number,
   y: number,

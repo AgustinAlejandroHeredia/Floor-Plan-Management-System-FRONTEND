@@ -36,6 +36,7 @@ import { useNavigate } from "react-router-dom"
 import { InvitationService } from "@/services/InvitationService"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import BreadcrumbBar from "@/components/BreadcrumbBar"
+import InvitationItem from "@/components/InvitationItem"
 
 const DevOptions = () => {
 
@@ -85,7 +86,7 @@ const DevOptions = () => {
     const [errorMessage, setErrorMessage] = useState<string>("")
 
     // HOOK
-    const { organizationsWithMembers, organizationBlueprintCounts, users, loading, error, refreshContent } = useDevOptions()
+    const { organizationsWithMembers, organizationBlueprintCounts, users, invitationsList, loading, error, refreshContent } = useDevOptions()
 
     const closeCreateDialog = () => {
         setSelectedAdminId("")
@@ -377,6 +378,16 @@ const DevOptions = () => {
         }
     }
 
+    // INVITATION FUNCIONS
+
+    const handleRefreshInvitation = (invitationId: string) => {
+
+    }
+
+    const handleDeleteInvitation = (invitationId: string) => {
+
+    }
+
     const handleDeleteOrganization = async (organizationId: string) => {
         setIsDeletingOrganization(true)
         try {
@@ -585,9 +596,20 @@ const DevOptions = () => {
 
             <div className="main-content-item">
 
-                <h3 className="sub-heading">All available invitation: </h3>
+                <h3 className="sub-heading">Available invitation: </h3>
 
-                <p className="comment-text">Total invitations</p>
+                <p className="comment-text">Total invitations {invitationsList.length}</p>
+
+                <div className="flex flex-col gap-4">
+                    {invitationsList.map((invitation) => (
+                        <InvitationItem
+                            key={invitation._id}
+                            invitation={invitation}
+                            onRefresh={() => handleRefreshInvitation(invitation._id)}
+                            onDelete={() => handleDeleteInvitation(invitation._id)}
+                        />
+                    ))}
+                </div>
                 
             </div>
 
@@ -1173,6 +1195,16 @@ const DevOptions = () => {
                     title="Kicking user"
                     description="Please wait while the user is being kicked from this organization..."
                 />
+
+                {/* REFRESH INVITATION DIALOG */}
+                <Dialog>
+
+                </Dialog>
+
+                {/* DELETE INVITATION DIALOG */}
+                <Dialog>
+                    
+                </Dialog>
 
             </div>
         

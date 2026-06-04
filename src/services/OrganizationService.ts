@@ -1,4 +1,4 @@
-import type { CreateProjectPayload, OrganizationActionPermissions, OrganizationMembersList } from "@/types/types";
+import type { CreateProjectPayload, InvitationItemData, OrganizationActionPermissions, OrganizationMembersList } from "@/types/types";
 import { api } from "../api/api";
 
 export const OrganizationService = {
@@ -48,14 +48,11 @@ export const OrganizationService = {
     },
 
     deleteProject: async (projectId: string): Promise<void> => {
-        console.log("PROJECT ID : ", projectId)
         const response = await api.delete(`/deleteproject/${projectId}`)
-        console.log(response.data)
         return response.data
     },
 
     leaveOrganization: async (organizationId: string) => {
-        console.log("Leavin organization with id ", organizationId)
         const response = await api.delete(`/organizations/me/${organizationId}`)
         return response
     },
@@ -69,6 +66,21 @@ export const OrganizationService = {
     changeUserOrganizationRole: async (userId: string, organizationId: string) => {
         const response = await api.patch(`/organizations/membership/${organizationId}/${userId}/role`)
         return response
+    },
+
+    getAllOrganizationInvitations: async (organizationId: string): Promise<InvitationItemData[]> => {
+        const response = await api.get(`/invitation/admin/organizationInvitations/${organizationId}`)
+        return response.data
+    },
+
+    refreshInvitation: async (invitationId: string) => {
+        const response = await api.patch(`/invitation/superadmin/refresInvitation/${invitationId}`)
+        return response.data
+    },
+
+    deleteInvitation: async (invitationId: string) => {
+        const response = await api.delete(`/invitation/${invitationId}`)
+        return response.data
     },
 
 }

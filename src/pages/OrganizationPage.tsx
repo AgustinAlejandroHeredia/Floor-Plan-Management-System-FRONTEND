@@ -53,9 +53,10 @@ import { useState } from "react";
 
 import OrganizationMemberItem from "@/components/OrganizationMemberItem";
 import { Label } from "@/components/ui/label";
-import type { ActionPermission, CreateProjectPayload, InvitationPayload, OrganizationActionPermissions, OrganizationMembersList, OrganizationRole, ProjectOrganizationType } from "@/types/types";
+import type { ActionPermission, CreateProjectPayload, InvitationItemData, InvitationPayload, OrganizationActionPermissions, OrganizationMembersList, OrganizationRole, ProjectOrganizationType } from "@/types/types";
 import Toast from "@/components/Toast";
 import InfoDialog from "@/components/InfoDialog";
+import InvitationItem from "@/components/InvitationItem";
 
 const OrganizationPage = () => {
 
@@ -88,6 +89,11 @@ const OrganizationPage = () => {
     const [invitationSent, setInvitationSent] = useState<boolean>(false)
     const [invitationExists, setInvitationExists] = useState<boolean>(false)
 
+    // INVITATIONS LIST VARIABLES
+    const [selectedInvitation, setSelectedInvitation] = useState<InvitationItemData>()
+    const [openRefreshInvitationDialog, setOpenRefreshInvitationDialog] = useState<boolean>(false)
+    const [openDeleteInvitationDialog, setOpenDeleteInvitationDialog] = useState<boolean>(false)
+
     // PERMISSIONS VARIABLES
     const [openActionPermissionsEdit, setOpenActionPermissionsEdit] = useState<boolean>(false)
     const [createActionPermissionsEdited, setCreateActionPermissionsEdited] = useState<ActionPermission>("admins")
@@ -109,7 +115,7 @@ const OrganizationPage = () => {
     const [isChangingRole, setIsChangingRole] = useState<boolean>(false)
 
     // HOOK
-    const { organizationPermissions, projects, projectThumbnails, userOrganizationRole, organizationMembersList, hasMoreThanOneAdmin, loadingOrganizationProjects, error, refreshProjects } = useOrganization(id!)
+    const { organizationPermissions, projects, projectThumbnails, userOrganizationRole, organizationMembersList, organizationInvitationsList, hasMoreThanOneAdmin, loadingOrganizationProjects, error, refreshProjects } = useOrganization(id!)
 
     const handleSelectProject = (projectName: string, projectId: string) => {
         console.log("LOADING A PROJECT : ", name, " ", id)
@@ -285,6 +291,46 @@ const OrganizationPage = () => {
                 return
             }
             setErrorMessage("Error sending the invitation, please try again later.")
+            setErrorOpen(true)
+        }
+    }
+
+    const selectIvitationsForRefresh = (invitation: InvitationItemData) => {
+        setSelectedInvitation(invitation)
+        setOpenRefreshInvitationDialog(true)
+    }
+
+    const selectIvitationsForDelete = (invitation: InvitationItemData) => {
+        setSelectedInvitation(invitation)
+        setOpenDeleteInvitationDialog(true)
+    }
+
+    const handleRefreshInvitation = async () => {
+        try {
+            if(!selectedInvitation){
+                setErrorMessage("No invitation selected.")
+                setErrorOpen(true)
+                return
+            }
+            await OrganizationService.refreshInvitation(selectedInvitation._id)
+            refreshProjects()
+        } catch (error: any) {
+            setErrorMessage("Something went wrong refreshing the invitation, please try again later.")
+            setErrorOpen(true)
+        }
+    }
+
+    const handleDeleteInvitation = async () => {
+        try {
+            if(!selectedInvitation){
+                setErrorMessage("No invitation selected.")
+                setErrorOpen(true)
+                return
+            }
+            await OrganizationService.deleteInvitation(selectedInvitation._id)
+            refreshProjects()
+        } catch (error: any) {
+            setErrorMessage("Something went wrong refreshing the invitation, please try again later.")
             setErrorOpen(true)
         }
     }
@@ -620,9 +666,20 @@ const OrganizationPage = () => {
                     className="main-content-item"
                 >
 
-                    <h3 className="sub-heading-2">
-                        Invitations sent
-                    </h3>
+                    <h3 className="sub-heading-2">Invitations sent: </h3>
+
+                    <p className="comment-text">Total invitations {organizationInvitationsList.length}</p>
+
+                    <div className="flex flex-col gap-4">
+                        {organizationInvitationsList.map((invitation) => (
+                            <InvitationItem
+                                key={invitation._id}
+                                invitation={invitation}
+                                onRefresh={() => selectIvitationsForRefresh(invitation)}
+                                onDelete={() => selectIvitationsForDelete(invitation)}
+                            />
+                        ))}
+                    </div>
 
                 </div>
             </div>
@@ -1187,6 +1244,110 @@ const OrganizationPage = () => {
                 </DialogFooter>
             </DialogContent>
             </Dialog>
+
+            {/* REFRESH INVITATION DIALOG */}
+            <AlertDialog open={openRefreshInvitationDialog} onOpenChange={setOpenRefreshInvitationDialog}>
+                <AlertDialogContent>
+
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
+                            Refresh invitation
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            You will reset the duration of this invitation making it valid for another 24h without the need of sending another invitation.
+                            <br />
+                            <br />
+                            Invitation data
+                            <br />
+                            - Email: {selectedInvitation?.userEmail}
+                            <br />
+                            - Sent by: {selectedInvitation?.sentByUserName}
+                            <br />
+                            - Organization: {selectedInvitation?.organizationName}
+                            <br />
+                            - Creation date:{" "}
+                                {selectedInvitation?.creationDate
+                                ? new Date(selectedInvitation.creationDate).toLocaleDateString()
+                                : ""}
+                            <br />
+                            - Current status: {
+                                selectedInvitation
+                                    ? (selectedInvitation.expired ? "Expired" : "Valid")
+                                    : ""
+                                }
+                            <br />
+                            <br />
+                            Are you sure you want to procede?
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>
+                            Cancel
+                        </AlertDialogCancel>
+
+                        <AlertDialogAction
+                            variant="outline"
+                            onClick={handleRefreshInvitation}
+                        >
+                            Refresh invitation
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* DELETE INVITATION DIALOG */}
+            <AlertDialog open={openDeleteInvitationDialog} onOpenChange={setOpenDeleteInvitationDialog}>
+                <AlertDialogContent>
+
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
+                            Delete invitation
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            You will delete this invitation and the user will not be able to enter the organization that was invited to.
+                            <br />
+                            <br />
+                            Invitation data
+                            <br />
+                            - Email: {selectedInvitation?.userEmail}
+                            <br />
+                            - Sent by: {selectedInvitation?.sentByUserName}
+                            <br />
+                            - Organization: {selectedInvitation?.organizationName}
+                            <br />
+                            - Creation date:{" "}
+                                {selectedInvitation?.creationDate
+                                ? new Date(selectedInvitation.creationDate).toLocaleDateString()
+                                : ""}
+                            <br />
+                            - Current status: {
+                                selectedInvitation
+                                    ? (selectedInvitation.expired ? "Expired" : "Valid")
+                                    : ""
+                                }
+                            <br />
+                            <br />
+                            Are you sure you want to procede? This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>
+                            Cancel
+                        </AlertDialogCancel>
+
+                        <AlertDialogAction
+                            variant="destructive"
+                            onClick={handleDeleteInvitation}
+                        >
+                            Delete invitation
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+
+                </AlertDialogContent>
+            </AlertDialog>
 
         </div>
 

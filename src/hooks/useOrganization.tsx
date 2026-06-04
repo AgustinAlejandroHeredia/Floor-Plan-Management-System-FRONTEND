@@ -1,4 +1,4 @@
-import type { OrganizationActionPermissions, OrganizationMembersList, OrganizationRole, ProjectOrganizationType } from "@/types/types";
+import type { InvitationItemData, OrganizationActionPermissions, OrganizationMembersList, OrganizationRole, ProjectOrganizationType } from "@/types/types";
 import { useEffect, useState, useCallback } from "react";
 import { OrganizationService } from "@/services/OrganizationService";
 
@@ -15,6 +15,7 @@ export function useOrganization(organizationId: string) {
   const [organizationMembersList, setOrganizationMembersList] = useState<OrganizationMembersList[]>([])
   const [hasMoreThanOneAdmin, setHasMoreThanOneAdmin] = useState<boolean>(false)
   const [loadingOrganizationProjects, setLoadingOrganizationProjects] = useState<boolean>(true);
+  const [organizationInvitationsList, setOrganizationInvitationsList] = useState<InvitationItemData[]>([])
 
   const loadProjects = useCallback(async () => {
     try {
@@ -50,6 +51,9 @@ export function useOrganization(organizationId: string) {
 
       setHasMoreThanOneAdmin(membersList.filter(member => member.organizationRole === "admin").length > 1)
 
+      const allOrganizationInvitations = await OrganizationService.getAllOrganizationInvitations(organizationId)
+      setOrganizationInvitationsList(allOrganizationInvitations)
+
     } catch (err: any) {
       setError(err);
     } finally {
@@ -69,6 +73,7 @@ export function useOrganization(organizationId: string) {
     projectThumbnails,
     userOrganizationRole,
     organizationMembersList,
+    organizationInvitationsList,
     hasMoreThanOneAdmin,
     loadingOrganizationProjects,
     error,

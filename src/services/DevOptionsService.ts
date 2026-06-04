@@ -71,6 +71,16 @@ export const DevOptionsService = {
     getAllInvitations: async (): Promise<InvitationItemData[]> => {
         const response = await api.get("invitation/superadmin/allInvitations")
         return response.data
-    }
+    },
+
+    refreshInvitation: async (invitationId: string) => {
+        const response = await api.patch(`/invitation/superadmin/refresInvitation/${invitationId}`)
+        return response.data
+    },
+
+    deleteInvitation: async (invitationId: string) => {
+        const response = await api.delete(`/invitation/${invitationId}`)
+        return response.data
+    },
 
 }

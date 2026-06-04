@@ -20,7 +20,7 @@ import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label";
 import { useDevOptions } from "@/hooks/useDevOptions";
-import type { CreateOrganizationPayload, UpdateOrganizationPayload, OrganizationType, ActionPermission, InvitationPayload, OrganizationRole, UserType } from "@/types/types";
+import type { CreateOrganizationPayload, UpdateOrganizationPayload, OrganizationType, ActionPermission, InvitationPayload, OrganizationRole, UserType, InvitationItemData } from "@/types/types";
 import { useState } from "react"
 import { DevOptionsService } from "@/services/DevOptionsService";
 
@@ -67,6 +67,11 @@ const DevOptions = () => {
     const [isSendingInvitation, setIsSendingInvitation] = useState<boolean>(false)
     const [invitationSent, setInvitationSent] = useState<boolean>(false)
     const [invitationExists, setInvitationExists] = useState<boolean>(false)
+
+    // INVITATIONS VARIABLES
+    const [selectedInvitation, setSelectedInvitation] = useState<InvitationItemData>()
+    const [openRefreshInvitationDialog, setOpenRefreshInvitationDialog] = useState<boolean>(false)
+    const [openDeleteInvitationDialog, setOpenDeleteInvitationDialog] = useState<boolean>(false)
 
     // ADD USER VARIABLES
     const [selectedOrganizationForAddUser, setSelectedOrganizationForAddUser] = useState<OrganizationType>()
@@ -380,12 +385,44 @@ const DevOptions = () => {
 
     // INVITATION FUNCIONS
 
-    const handleRefreshInvitation = (invitationId: string) => {
-
+    const selectIvitationsForRefresh = (invitation: InvitationItemData) => {
+        setSelectedInvitation(invitation)
+        setOpenRefreshInvitationDialog(true)
     }
 
-    const handleDeleteInvitation = (invitationId: string) => {
+    const selectIvitationsForDelete = (invitation: InvitationItemData) => {
+        setSelectedInvitation(invitation)
+        setOpenDeleteInvitationDialog(true)
+    }
 
+    const handleRefreshInvitation = async () => {
+        try {
+            if(!selectedInvitation){
+                setErrorMessage("No invitation selected.")
+                setOpenError(true)
+                return
+            }
+            await DevOptionsService.refreshInvitation(selectedInvitation._id)
+            refreshContent()
+        } catch (error: any) {
+            setErrorMessage("Something went wrong refreshing the invitation, please try again later.")
+            setOpenError(true)
+        }
+    }
+
+    const handleDeleteInvitation = async () => {
+        try {
+            if(!selectedInvitation){
+                setErrorMessage("No invitation selected.")
+                setOpenError(true)
+                return
+            }
+            await DevOptionsService.deleteInvitation(selectedInvitation._id)
+            refreshContent()
+        } catch (error: any) {
+            setErrorMessage("Something went wrong refreshing the invitation, please try again later.")
+            setOpenError(true)
+        }
     }
 
     const handleDeleteOrganization = async (organizationId: string) => {
@@ -605,8 +642,8 @@ const DevOptions = () => {
                         <InvitationItem
                             key={invitation._id}
                             invitation={invitation}
-                            onRefresh={() => handleRefreshInvitation(invitation._id)}
-                            onDelete={() => handleDeleteInvitation(invitation._id)}
+                            onRefresh={() => selectIvitationsForRefresh(invitation)}
+                            onDelete={() => selectIvitationsForDelete(invitation)}
                         />
                     ))}
                 </div>
@@ -1197,14 +1234,108 @@ const DevOptions = () => {
                 />
 
                 {/* REFRESH INVITATION DIALOG */}
-                <Dialog>
+                <AlertDialog open={openRefreshInvitationDialog} onOpenChange={setOpenRefreshInvitationDialog}>
+                    <AlertDialogContent>
 
-                </Dialog>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>
+                                Refresh invitation
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                                You will reset the duration of this invitation making it valid for another 24h without the need of sending another invitation.
+                                <br />
+                                <br />
+                                Invitation data
+                                <br />
+                                - Email: {selectedInvitation?.userEmail}
+                                <br />
+                                - Sent by: {selectedInvitation?.sentByUserName}
+                                <br />
+                                - Organization: {selectedInvitation?.organizationName}
+                                <br />
+                                - Creation date:{" "}
+                                    {selectedInvitation?.creationDate
+                                    ? new Date(selectedInvitation.creationDate).toLocaleDateString()
+                                    : ""}
+                                <br />
+                                - Current status: {
+                                    selectedInvitation
+                                        ? (selectedInvitation.expired ? "Expired" : "Valid")
+                                        : ""
+                                    }
+                                <br />
+                                <br />
+                                Are you sure you want to procede?
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>
+                                Cancel
+                            </AlertDialogCancel>
+
+                            <AlertDialogAction
+                                variant="outline"
+                                onClick={handleRefreshInvitation}
+                            >
+                                Refresh invitation
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+
+                    </AlertDialogContent>
+                </AlertDialog>
 
                 {/* DELETE INVITATION DIALOG */}
-                <Dialog>
-                    
-                </Dialog>
+                <AlertDialog open={openDeleteInvitationDialog} onOpenChange={setOpenDeleteInvitationDialog}>
+                    <AlertDialogContent>
+
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>
+                                Delete invitation
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                                You will delete this invitation and the user will not be able to enter the organization that was invited to.
+                                <br />
+                                <br />
+                                Invitation data
+                                <br />
+                                - Email: {selectedInvitation?.userEmail}
+                                <br />
+                                - Sent by: {selectedInvitation?.sentByUserName}
+                                <br />
+                                - Organization: {selectedInvitation?.organizationName}
+                                <br />
+                                - Creation date:{" "}
+                                    {selectedInvitation?.creationDate
+                                    ? new Date(selectedInvitation.creationDate).toLocaleDateString()
+                                    : ""}
+                                <br />
+                                - Current status: {
+                                    selectedInvitation
+                                        ? (selectedInvitation.expired ? "Expired" : "Valid")
+                                        : ""
+                                    }
+                                <br />
+                                <br />
+                                Are you sure you want to procede? This action cannot be undone.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>
+                                Cancel
+                            </AlertDialogCancel>
+
+                            <AlertDialogAction
+                                variant="destructive"
+                                onClick={handleDeleteInvitation}
+                            >
+                                Delete invitation
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+
+                    </AlertDialogContent>
+                </AlertDialog>
 
             </div>
         

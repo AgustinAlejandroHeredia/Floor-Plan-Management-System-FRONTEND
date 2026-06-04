@@ -68,7 +68,7 @@ const InvitationItem = ({
       <ItemContent className="flex flex-col gap-2">
 
         <span className="font-medium text-[var(--text-h)]">
-          {invitation.userEmail}
+          To: {invitation.userEmail}
         </span>
 
         <span className="text-[var(--text)]">

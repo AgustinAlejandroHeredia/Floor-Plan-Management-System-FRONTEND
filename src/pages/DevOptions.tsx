@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label";
 import { useDevOptions } from "@/hooks/useDevOptions";
 import type { CreateOrganizationPayload, UpdateOrganizationPayload, OrganizationType, ActionPermission, InvitationPayload, OrganizationRole, UserType, InvitationItemData } from "@/types/types";
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { DevOptionsService } from "@/services/DevOptionsService";
 
 import Toast from "@/components/Toast";
@@ -37,10 +37,21 @@ import { InvitationService } from "@/services/InvitationService"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import BreadcrumbBar from "@/components/BreadcrumbBar"
 import InvitationItem from "@/components/InvitationItem"
+import SectionNavigation from "@/components/SectionNavigation"
 
 const DevOptions = () => {
 
     const navigate = useNavigate()
+
+    // INDEX
+    const organizationsSectionRef = useRef<HTMLDivElement | null>(null)
+    const usersSectionRef = useRef<HTMLDivElement | null>(null)
+    const invitationsSectionRef = useRef<HTMLDivElement | null>(null)
+    const topSectionRef = useRef<HTMLDivElement | null>(null)
+
+    // FLOATING INDEX
+    const navigationRef = useRef<HTMLDivElement | null>(null)
+    const [showFloatingNavigation, setShowFloatingNavigation] = useState<boolean>(false)
 
     // CREATION VARIABLES
     const [selectedAdminId, setSelectedAdminId] = useState<string>("");
@@ -92,6 +103,23 @@ const DevOptions = () => {
 
     // HOOK
     const { organizationsWithMembers, organizationBlueprintCounts, users, invitationsList, loading, error, refreshContent } = useDevOptions()
+
+    // FLOATIN INDEX USE EFFECT
+    useEffect(() => {
+        if (!navigationRef.current) return
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                setShowFloatingNavigation(
+                    !entry.isIntersecting,
+                )
+            },
+        )
+
+        observer.observe(navigationRef.current)
+
+        return () => observer.disconnect()
+    })
 
     const closeCreateDialog = () => {
         setSelectedAdminId("")
@@ -439,12 +467,107 @@ const DevOptions = () => {
         }
     }
 
+    // INDEX
+
+    const scrollToOrganizations = () => {
+        organizationsSectionRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        })
+    }
+
+    const scrollToUsers = () => {
+        usersSectionRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        })
+    }
+
+    const scrollToInvitations = () => {
+        invitationsSectionRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        })
+    }
+
     if(loading) return <Loading/>
 
     return (
-        <div>
+        <div ref={topSectionRef}>
+
         <BreadcrumbBar items={[{ label: "Developer Options" }]} />
+        
+        <div
+            className={`
+                fixed
+                top-4
+                right-5
+                z-50
+                transform
+                transition-all
+                duration-500
+                ease-out
+
+                ${
+                showFloatingNavigation
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 -translate-y-12 pointer-events-none"
+                }
+            `}
+        >
+            <SectionNavigation
+                sections={[
+                {
+                    label: "Top",
+                    ref: topSectionRef,
+                },
+                {
+                    label: "Organizations",
+                    ref: organizationsSectionRef,
+                },
+                {
+                    label: "Users",
+                    ref: usersSectionRef,
+                },
+                {
+                    label: "Invitations",
+                    ref: invitationsSectionRef,
+                },
+                ]}
+            />
+        </div>
+        
         <div className="main-content">
+
+            <div className="flex items-center gap-4">
+
+                <div
+                    ref={navigationRef} 
+                    className="main-content-item flex gap-4"
+                >
+                    <Button
+                        variant="ghost"
+                        className="text-[var(--text)]"
+                        onClick={scrollToOrganizations}
+                    >
+                        Organization list
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        className="text-[var(--text)]"
+                        onClick={scrollToUsers}
+                    >
+                        Platform users
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        className="text-[var(--text)]"
+                        onClick={scrollToInvitations}
+                    >
+                        Invitations
+                    </Button>
+                </div>
+            </div>
 
             <div className="main-content-item">
 
@@ -460,7 +583,10 @@ const DevOptions = () => {
 
             </div>
 
-            <div className="main-content-item">
+            <div 
+                className="main-content-item"
+                ref={organizationsSectionRef}
+            >
 
                 <h3 className="sub-heading">Organizations: </h3>
 
@@ -589,7 +715,10 @@ const DevOptions = () => {
 
             </div>
 
-            <div className="main-content-item">
+            <div 
+                className="main-content-item"
+                ref={usersSectionRef}    
+            >
 
                 <h3 className="sub-heading">Platform users: </h3>
 
@@ -631,7 +760,10 @@ const DevOptions = () => {
 
             </div>
 
-            <div className="main-content-item">
+            <div 
+                className="main-content-item"
+                ref={invitationsSectionRef}
+            >
 
                 <h3 className="sub-heading">Available invitation: </h3>
 

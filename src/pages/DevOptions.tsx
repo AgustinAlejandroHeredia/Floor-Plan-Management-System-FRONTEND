@@ -108,7 +108,7 @@ const DevOptions = () => {
     const [errorMessage, setErrorMessage] = useState<string>("")
 
     // HOOK
-    const { organizationsWithMembers, organizationBlueprintCounts, users, invitationsList, organizationPages, userPages, invitationPages, organizationsCount, usersCount, invitationsCount, loading, error, refreshContent } = useDevOptions()
+    const { organizationsWithMembers, organizationBlueprintCounts, users, invitationsList, organizationPages, userPages, invitationPages, organizationsCount, usersCount, invitationsCount, refreshOrganizations, refreshUsers, refreshInvitations, loading, error } = useDevOptions()
 
     // FLOATIN INDEX USE EFFECT
     useEffect(() => {
@@ -181,7 +181,7 @@ const DevOptions = () => {
             form.reset()
             setSelectedAdminId("")
             setIsCreatingOrganization(false)
-            refreshContent()
+            refreshOrganizations(currentOrganizationPage)
 
         } catch (error) {
             setErrorMessage("An error has occurred while creating new organization.")
@@ -294,7 +294,7 @@ const DevOptions = () => {
             setCreationPermission("admins")
             setInvitationPermission("admins")
             setIsSavingChanges(false)
-            refreshContent()
+            refreshOrganizations(currentOrganizationPage)
 
         } catch (error) {
             setIsSavingChanges(false)
@@ -376,7 +376,7 @@ const DevOptions = () => {
         try {
             await DevOptionsService.addUser(selectedOrganizationForAddUser._id, selectedUserForAddUserId, addRoleSelected)
             setIsAddingUser(false)
-            refreshContent()
+            refreshUsers(currentUserPage)
         } catch (error: any) {
             setErrorMessage("Something went wrong adding this user, please try again later.")
             setOpenError(true)
@@ -408,7 +408,7 @@ const DevOptions = () => {
             setIsKickingUser(false)
             setUserIdForKick("")
             setUserOrganizationIdForKick("")
-            refreshContent()
+            refreshUsers(currentUserPage)
         } catch (error) {
             setIsKickingUser(false)
             setErrorMessage("An error has ocurred while kicking user, please again later.")
@@ -436,7 +436,7 @@ const DevOptions = () => {
                 return
             }
             await DevOptionsService.refreshInvitation(selectedInvitation._id)
-            refreshContent()
+            refreshInvitations(currentInvitationPage)
         } catch (error: any) {
             setErrorMessage("Something went wrong refreshing the invitation, please try again later.")
             setOpenError(true)
@@ -451,7 +451,7 @@ const DevOptions = () => {
                 return
             }
             await DevOptionsService.deleteInvitation(selectedInvitation._id)
-            refreshContent()
+            refreshInvitations(currentInvitationPage)
         } catch (error: any) {
             setErrorMessage("Something went wrong refreshing the invitation, please try again later.")
             setOpenError(true)
@@ -468,7 +468,7 @@ const DevOptions = () => {
             setOpenError(true)
         } finally {
             setIsDeletingOrganization(false)
-            refreshContent()
+            refreshOrganizations(currentOrganizationPage)
         }
     }
 
@@ -497,25 +497,31 @@ const DevOptions = () => {
 
     // PAGE SELECTION
 
-    const selectOrganizationPage = (selectedPage: number) => {
-        if(selectedPage === currentOrganizationPage){
-            console.log("ORG PAGE DOES NOT CHANGE")
+    const selectOrganizationPage = async (selectedPage: number) => {
+        if(selectedPage !== currentOrganizationPage){
+            await refreshOrganizations(selectedPage)
+            if(!error){
+                setCurrentOrganizationPage(selectedPage)
+            }
         }
-        console.log("PAGINA SELECCIONADA : ", selectedPage)
     }
 
-    const selectUserPage = (selectedPage: number) => {
-        if(selectedPage === currentUserPage){
-            console.log("ORG PAGE DOES NOT CHANGE")
+    const selectUserPage = async (selectedPage: number) => {
+        if(selectedPage !== currentUserPage){
+            await refreshUsers(selectedPage)
+            if(!error){
+                setCurrentUserPage(selectedPage)
+            }
         }
-        console.log("PAGINA SELECCIONADA : ", selectedPage)
     }
 
-    const selectInvitationPage = (selectedPage: number) => {
-        if(selectedPage === currentInvitationPage){
-            console.log("ORG PAGE DOES NOT CHANGE")
+    const selectInvitationPage = async (selectedPage: number) => {
+        if(selectedPage !== currentOrganizationPage){
+            await refreshInvitations(selectedPage)
+            if(!error){
+                setCurrentInvitationPage(selectedPage)
+            }
         }
-        console.log("PAGINA SELECCIONADA : ", selectedPage)
     }
 
     if(loading) return <Loading/>

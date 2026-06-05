@@ -13,93 +13,216 @@ export function useDevOptions() {
   const [error, setError] = useState<Error | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // ORGANIZATIONS
+
   const [organizationsWithMembers, setOrganizationsWithMembers] =
     useState<OrganizationWithMembers[]>([])
-  const [organizationPages, setOrganizationPages] = useState(1)
-  const [organizationsCount, setOrganizationsCount] = useState(0)
 
-  const [users, setUsers] = useState<UserType[]>([])
-  const [userPages, setUserPages] = useState(1)
-  const [usersCount, setUsersCount] = useState(0)
+  const [organizationPages, setOrganizationPages] =
+    useState(1)
 
-  const [organizationBlueprintCounts, setOrganizationBlueprintCounts] =
-    useState<{ organizationId: string; count: number }[]>([])
+  const [organizationsCount, setOrganizationsCount] =
+    useState(0)
+
+  const [currentOrganizationPage, setCurrentOrganizationPage] =
+    useState(1)
+
+  // USERS
+
+  const [users, setUsers] =
+    useState<UserType[]>([])
+
+  const [userPages, setUserPages] =
+    useState(1)
+
+  const [usersCount, setUsersCount] =
+    useState(0)
+
+  const [currentUserPage, setCurrentUserPage] =
+    useState(1)
+
+  // INVITATIONS
 
   const [invitationsList, setInvitationsList] =
     useState<InvitationItemData[]>([])
-  const [invitationPages, setInvitationPages] = useState(1)
-  const [invitationsCount, setInvitationsCount] = useState(0)
 
-  const loadDevOptions = useCallback(async () => {
-    try {
-      setLoading(true)
-      setError(null)
+  const [invitationPages, setInvitationPages] =
+    useState(1)
 
-      const [
-        organizationsResponse,
-        usersResponse,
-        invitationsResponse,
-      ] = await Promise.all([
-        DevOptionsService.getOrganizationsWithMembers(1),
-        DevOptionsService.getAllUsers(1),
-        DevOptionsService.getAllInvitations(1),
-      ])
+  const [invitationsCount, setInvitationsCount] =
+    useState(0)
 
-      const counts =
-        await DevOptionsService.getBlueprintCountsByOrganizationIds(
-          organizationsResponse.list.map(
-            (org) => org._id,
-          ),
+  const [currentInvitationPage, setCurrentInvitationPage] =
+    useState(1)
+
+  // COUNTS
+
+  const [organizationBlueprintCounts, setOrganizationBlueprintCounts] =
+    useState<
+      {
+        organizationId: string
+        count: number
+      }[]
+    >([])
+
+  // --------------------------
+  // ORGANIZATIONS
+  // --------------------------
+
+  const loadOrganizations = useCallback(
+    async (page: number = currentOrganizationPage) => {
+      try {
+        const response =
+          await DevOptionsService.getOrganizationsWithMembers(
+            page,
+          )
+
+        setOrganizationsWithMembers(
+          response.list,
         )
 
-      setOrganizationsWithMembers(
-        organizationsResponse.list,
-      )
+        setOrganizationPages(
+          response.totalPages,
+        )
 
-      setUsers(usersResponse.list)
+        setOrganizationsCount(
+          response.totalItems,
+        )
 
-      setInvitationsList(
-        invitationsResponse.list,
-      )
+        const counts =
+          await DevOptionsService.getBlueprintCountsByOrganizationIds(
+            response.list.map(
+              (org) => org._id,
+            ),
+          )
 
-      setOrganizationBlueprintCounts(
-        counts,
-      )
+        setOrganizationBlueprintCounts(
+          counts,
+        )
 
-      setOrganizationPages(
-        organizationsResponse.totalPages,
-      )
+      } catch (err: any) {
+        setError(err)
+      }
+    },
+    [currentOrganizationPage],
+  )
 
-      setUserPages(
-        usersResponse.totalPages,
-      )
+  // --------------------------
+  // USERS
+  // --------------------------
 
-      setInvitationPages(
-        invitationsResponse.totalPages,
-      )
+  const loadUsers = useCallback(
+    async (page: number = currentUserPage) => {
+      try {
+        const response =
+          await DevOptionsService.getAllUsers(
+            page,
+          )
 
-      setOrganizationsCount(
-        organizationsResponse.totalItems,
-      )
+        setUsers(response.list)
 
-      setUsersCount(
-        usersResponse.totalItems,
-      )
+        setUserPages(
+          response.totalPages,
+        )
 
-      setInvitationsCount(
-        invitationsResponse.totalItems,
-      )
+        setUsersCount(
+          response.totalItems,
+        )
 
-    } catch (err: any) {
-      setError(err)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+      } catch (err: any) {
+        setError(err)
+      }
+    },
+    [currentUserPage],
+  )
+
+  // --------------------------
+  // INVITATIONS
+  // --------------------------
+
+  const loadInvitations = useCallback(
+    async (
+      page: number = currentInvitationPage,
+    ) => {
+      try {
+        const response =
+          await DevOptionsService.getAllInvitations(
+            page,
+          )
+
+        setInvitationsList(
+          response.list,
+        )
+
+        setInvitationPages(
+          response.totalPages,
+        )
+
+        setInvitationsCount(
+          response.totalItems,
+        )
+
+      } catch (err: any) {
+        setError(err)
+      }
+    },
+    [currentInvitationPage],
+  )
+
+  // --------------------------
+  // INITIAL LOAD
+  // --------------------------
 
   useEffect(() => {
-    loadDevOptions()
-  }, [loadDevOptions])
+    const initialize = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+
+        await Promise.all([
+          loadOrganizations(1),
+          loadUsers(1),
+          loadInvitations(1),
+        ])
+
+      } catch (err: any) {
+        setError(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    initialize()
+  }, [])
+
+  // --------------------------
+  // PAGE CHANGES
+  // --------------------------
+
+  useEffect(() => {
+    loadOrganizations(
+      currentOrganizationPage,
+    )
+  }, [
+    currentOrganizationPage,
+    loadOrganizations,
+  ])
+
+  useEffect(() => {
+    loadUsers(currentUserPage)
+  }, [
+    currentUserPage,
+    loadUsers,
+  ])
+
+  useEffect(() => {
+    loadInvitations(
+      currentInvitationPage,
+    )
+  }, [
+    currentInvitationPage,
+    loadInvitations,
+  ])
 
   return {
     organizationsWithMembers,
@@ -115,9 +238,24 @@ export function useDevOptions() {
     usersCount,
     invitationsCount,
 
+    currentOrganizationPage,
+    currentUserPage,
+    currentInvitationPage,
+
+    setCurrentOrganizationPage,
+    setCurrentUserPage,
+    setCurrentInvitationPage,
+
+    refreshOrganizations:
+      loadOrganizations,
+
+    refreshUsers:
+      loadUsers,
+
+    refreshInvitations:
+      loadInvitations,
+
     loading,
     error,
-
-    refreshContent: loadDevOptions,
   }
 }

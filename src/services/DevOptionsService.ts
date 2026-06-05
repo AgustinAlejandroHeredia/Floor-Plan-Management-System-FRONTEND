@@ -1,5 +1,5 @@
 import { api } from "../api/api";
-import type { CreateOrganizationPayload, InvitationItemData, InvitationsResponse, OrganizationRole, OrganizationType, OrganizationWithMembers, OrganizationWithMembersResponse, UpdateOrganizationPayload, UserListResponse } from "@/types/types";
+import type { CreateOrganizationPayload, InvitationsResponse, OrganizationRole, OrganizationWithMembersResponse, UpdateOrganizationPayload, UserListResponse } from "@/types/types";
 
 export const DevOptionsService = {
 
@@ -27,7 +27,6 @@ export const DevOptionsService = {
                 }
             }
         )
-        console.log("ALL USERS DATA : ", response.data)
         return response.data
     },
 
@@ -40,7 +39,6 @@ export const DevOptionsService = {
                 }
             }
         )
-        console.log("ORGANIZATIONS WITH MEMBERS DATA : ", response.data)
         return response.data
     },
 

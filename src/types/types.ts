@@ -66,6 +66,14 @@ export type OrganizationWithMembers = OrganizationType & {
   members: OrganizationMembersList[]
 }
 
+export type OrganizationWithMembersResponse = {
+  list: OrganizationWithMembers[]
+  page: number
+  limit: number
+  totalItems: number
+  totalPages: number
+}
+
 export interface OrganizationUserProfile {
   organization: OrganizationType,
   role: OrganizationRole,
@@ -77,6 +85,14 @@ export interface ProjectMembersList {
   email: string
   picture: string
   projectRole: ProjectRole
+}
+
+export interface ProjectMemberListResponse {
+  list: ProjectMembersList[]
+  page: number
+  limit: number
+  totalItems: number
+  totalPages: number
 }
 
 export type StatusType =
@@ -289,6 +305,14 @@ export interface UserType {
   joinedAt: Date
 }
 
+export interface UserListResponse {
+  list: UserType[]
+  page: number
+  limit: number
+  totalItems: number
+  totalPages: number
+}
+
 export interface InvitationPayload {
   organizationId: string
   userEmail: string
@@ -307,6 +331,14 @@ export interface InvitationItemData {
   duration: number
   userOrganizationRole: OrganizationRole
   expired: boolean
+}
+
+export interface InvitationsResponse {
+  list: InvitationItemData[]
+  page: number
+  limit: number
+  totalItems: number
+  totalPages: number
 }
 
 export interface SectionCoords {

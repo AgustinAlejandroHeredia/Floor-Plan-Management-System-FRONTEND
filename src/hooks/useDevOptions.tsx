@@ -11,13 +11,20 @@ export function useDevOptions() {
     const [loading, setLoading] = useState<boolean>(true)
 
     const [organizationsWithMembers, setOrganizationsWithMembers] = useState<OrganizationWithMembers[]>([])
+    const [organizationPages, setOrganizationPages] = useState(1)
+    const [organizationsCount, setOrganizationsCount] = useState(1)
+
     const [users, setUsers] = useState<UserType[]>([])
+    const [userPages, setUserPages] = useState(1)
+    const [usersCount, setUsersCount] = useState(1)
 
     const [organizationBlueprintCounts, setOrganizationBlueprintCounts] = useState<
         { organizationId: string; count: number }[]
     >([])
 
     const [invitationsList, setInvitationsList] = useState<InvitationItemData[]>([])
+    const [invitationPages, setInvitationPages] = useState(1)
+    const [invitationsCount, setInvitationsCount] = useState(1)
 
     const loadDevOptions = useCallback(async () => {
         try {
@@ -25,15 +32,22 @@ export function useDevOptions() {
             setError(null)
 
             const organizationsPromise =
-                DevOptionsService.getOrganizationsWithMembers()
+                DevOptionsService.getOrganizationsWithMembers(1)
 
             const usersPromise =
-                DevOptionsService.getAllUsers()
+                DevOptionsService.getAllUsers(1)
 
             const invitationsPromise =
-                DevOptionsService.getAllInvitations()
+                DevOptionsService.getAllInvitations(1)
 
-            const organizationsData = await organizationsPromise
+            const organizationsResponse = await organizationsPromise
+            const organizationsData = organizationsResponse.list
+
+            const usersResponse = await usersPromise
+            const usersListData = usersResponse.list
+
+            const invitationsResponse = await invitationsPromise
+            const invitationsListData = invitationsResponse.list
 
             const countsPromise =
                 DevOptionsService.getBlueprintCountsByOrganizationIds(
@@ -41,19 +55,23 @@ export function useDevOptions() {
                 )
 
             const [
-                usersData,
-                allInvitations,
                 counts,
             ] = await Promise.all([
-                usersPromise,
-                invitationsPromise,
                 countsPromise,
             ])
 
             setOrganizationsWithMembers(organizationsData)
-            setUsers(usersData)
+            setUsers(usersListData)
             setOrganizationBlueprintCounts(counts)
-            setInvitationsList(allInvitations)
+            setInvitationsList(invitationsListData)
+
+            setOrganizationPages(organizationsResponse.totalPages)
+            setUserPages(usersResponse.totalPages)
+            setInvitationPages(invitationsResponse.totalPages)
+
+            setOrganizationsCount(organizationsResponse.totalItems)
+            setUsersCount(usersResponse.totalItems)
+            setInvitationsCount(invitationsResponse.totalItems)
 
         } catch (err: any) {
             setError(err)
@@ -71,6 +89,12 @@ export function useDevOptions() {
         organizationBlueprintCounts,
         users,
         invitationsList,
+        organizationPages,
+        userPages,
+        invitationPages,
+        organizationsCount,
+        usersCount,
+        invitationsCount,
         loading,
         error,
         refreshContent: loadDevOptions,

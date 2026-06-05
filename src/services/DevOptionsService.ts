@@ -1,5 +1,5 @@
 import { api } from "../api/api";
-import type { CreateOrganizationPayload, InvitationItemData, OrganizationRole, OrganizationType, OrganizationWithMembers, UpdateOrganizationPayload } from "@/types/types";
+import type { CreateOrganizationPayload, InvitationItemData, InvitationsResponse, OrganizationRole, OrganizationType, OrganizationWithMembers, OrganizationWithMembersResponse, UpdateOrganizationPayload, UserListResponse } from "@/types/types";
 
 export const DevOptionsService = {
 
@@ -18,34 +18,30 @@ export const DevOptionsService = {
         return response.data
     },
 
-    getAllUsers: async () => {
-        const response = await api.get("/user/allUsers/superadmin")
+    getAllUsers: async (page: number): Promise<UserListResponse> => {
+        const response = await api.get("/user/allUsers/superadmin",
+            {
+                params: {
+                    page: page,
+                    limit: 30, // change here
+                }
+            }
+        )
         console.log("ALL USERS DATA : ", response.data)
         return response.data
     },
 
-    getOrganizationsWithMembers: async (): Promise<OrganizationWithMembers[]> => {
-        const organizationsRes = await api.get("/organizations/allOrganizations/superadmin")
-        const organizations: OrganizationType[] = organizationsRes.data
-
-        const orgsWithMembers = await Promise.all(
-            organizations.map(async (org) => {
-                try {
-
-                    const membersRes = await api.get(`/organizations/allMembers/admin/${org._id}`)
-                    return {
-                        ...org,
-                        members: membersRes.data
-                    }
-                } catch (error) {
-                    return {
-                        ...org,
-                        members: []
-                    }
+    getOrganizationsWithMembers: async (page: number): Promise<OrganizationWithMembersResponse> => {
+        const response = await api.get("/organizations/superadmin/organizations-with-members",
+            {
+                params: {
+                    page: page,
+                    limit: 20, // change here
                 }
-            })
+            }
         )
-        return orgsWithMembers
+        console.log("ORGANIZATIONS WITH MEMBERS DATA : ", response.data)
+        return response.data
     },
 
     getBlueprintCountsByOrganizationIds: async (
@@ -68,8 +64,16 @@ export const DevOptionsService = {
         return response
     },
 
-    getAllInvitations: async (): Promise<InvitationItemData[]> => {
-        const response = await api.get("invitation/superadmin/allInvitations")
+    // LIMIT : 20
+    getAllInvitations: async (page: number): Promise<InvitationsResponse> => {
+        const response = await api.get("invitation/superadmin/allInvitations", 
+            {
+                params: {
+                    page: page,
+                    limit: 20, // change here
+                }
+            }
+        )
         return response.data
     },
 

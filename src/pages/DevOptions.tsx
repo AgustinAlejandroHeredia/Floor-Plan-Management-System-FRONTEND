@@ -38,6 +38,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import BreadcrumbBar from "@/components/BreadcrumbBar"
 import InvitationItem from "@/components/InvitationItem"
 import SectionNavigation from "@/components/SectionNavigation"
+import PageSelector from "@/components/PageSelector"
 
 const DevOptions = () => {
 
@@ -52,6 +53,11 @@ const DevOptions = () => {
     // FLOATING INDEX
     const navigationRef = useRef<HTMLDivElement | null>(null)
     const [showFloatingNavigation, setShowFloatingNavigation] = useState<boolean>(false)
+
+    // PAGE SELECTION
+    const [currentOrganizationPage, setCurrentOrganizationPage] = useState<number>(1)
+    const [currentUserPage, setCurrentUserPage] = useState<number>(1)
+    const [currentInvitationPage, setCurrentInvitationPage] = useState<number>(1)
 
     // CREATION VARIABLES
     const [selectedAdminId, setSelectedAdminId] = useState<string>("");
@@ -102,7 +108,7 @@ const DevOptions = () => {
     const [errorMessage, setErrorMessage] = useState<string>("")
 
     // HOOK
-    const { organizationsWithMembers, organizationBlueprintCounts, users, invitationsList, loading, error, refreshContent } = useDevOptions()
+    const { organizationsWithMembers, organizationBlueprintCounts, users, invitationsList, organizationPages, userPages, invitationPages, organizationsCount, usersCount, invitationsCount, loading, error, refreshContent } = useDevOptions()
 
     // FLOATIN INDEX USE EFFECT
     useEffect(() => {
@@ -154,7 +160,6 @@ const DevOptions = () => {
 
         setOpenCreateOrganization(false)
         setIsCreatingOrganization(true)
-
 
         try {
 
@@ -490,6 +495,29 @@ const DevOptions = () => {
         })
     }
 
+    // PAGE SELECTION
+
+    const selectOrganizationPage = (selectedPage: number) => {
+        if(selectedPage === currentOrganizationPage){
+            console.log("ORG PAGE DOES NOT CHANGE")
+        }
+        console.log("PAGINA SELECCIONADA : ", selectedPage)
+    }
+
+    const selectUserPage = (selectedPage: number) => {
+        if(selectedPage === currentUserPage){
+            console.log("ORG PAGE DOES NOT CHANGE")
+        }
+        console.log("PAGINA SELECCIONADA : ", selectedPage)
+    }
+
+    const selectInvitationPage = (selectedPage: number) => {
+        if(selectedPage === currentInvitationPage){
+            console.log("ORG PAGE DOES NOT CHANGE")
+        }
+        console.log("PAGINA SELECCIONADA : ", selectedPage)
+    }
+
     if(loading) return <Loading/>
 
     return (
@@ -590,7 +618,7 @@ const DevOptions = () => {
 
                 <h3 className="sub-heading">Organizations: </h3>
 
-                <p className="comment-text">Total organizations {organizationsWithMembers.length}</p>
+                <p className="comment-text">Total organizations {organizationsCount}</p>
 
                 <div className="space-y-4">
                 {organizationsWithMembers.map((org) => (
@@ -629,21 +657,23 @@ const DevOptions = () => {
                                 Organization members ({org.members.length}): 
                             </h3>
 
-                            {org.members.length === 1 && (
-                                <div className="mt-4 mb-4">
-                                    <OrganizationMemberItem
-                                        key={org.members[0]._id}
-                                        member={org.members[0]}
-                                        onViewUser={() => handleViewUserProfile(org.members[0]._id)}
-                                        onRemoveUser={() => selectUserForKick(org.members[0]._id, org._id)}
-                                        currentUserOrganizationRole={"super_admin"}
-                                    />
+                            {org.members.length <= 10 && (
+                                <div className="mt-4 mb-4 flex flex-col gap-1">
+                                    {org.members.map((member) => (
+                                        <OrganizationMemberItem
+                                            key={member._id}
+                                            member={member}
+                                            onViewUser={() => handleViewUserProfile(member._id)}
+                                            onRemoveUser={() => selectUserForKick(member._id, org._id)}
+                                            currentUserOrganizationRole={"super_admin"}
+                                        />
+                                    ))}
                                 </div>
                             )}
 
-                            {org.members.length > 1 && (
+                            {org.members.length > 10 && (
                                 <div className="border rounded-lg">
-                                    <ScrollArea>
+                                    <ScrollArea className="h-150">
                                         <ItemGroup className="w-full p-2">
                                             {org.members.map((member) => (
                                                 <OrganizationMemberItem
@@ -707,11 +737,15 @@ const DevOptions = () => {
                 ))}
                 </div>
 
-                <Toast
-                    open={isDeletingOrganization}
-                    title="Deleting organization"
-                    description="Wait while the selected organizations is being deleted..."
-                />
+                {organizationPages > 1 && (
+                    <div className="flex justify-center my-6">
+                        <PageSelector
+                            pages={organizationPages}
+                            currentPage={currentOrganizationPage}
+                            onPageSelect={(selectedPage) => selectOrganizationPage(selectedPage)}
+                        />
+                    </div>
+                )}
 
             </div>
 
@@ -722,7 +756,7 @@ const DevOptions = () => {
 
                 <h3 className="sub-heading">Platform users: </h3>
 
-                <p className="comment-text">Total users {users.length}</p>
+                <p className="comment-text">Total users {usersCount}</p>
 
                 <Card
                     className="bg-[var(--accent-bg)] w-full"
@@ -758,6 +792,16 @@ const DevOptions = () => {
                     </CardContent>
                 </Card>
 
+                {userPages > 1 && (
+                    <div className="flex justify-center my-6">
+                        <PageSelector
+                            pages={userPages}
+                            currentPage={currentUserPage}
+                            onPageSelect={(selectedPage) => selectUserPage(selectedPage)}
+                        />
+                    </div>
+                )}
+
             </div>
 
             <div 
@@ -767,7 +811,7 @@ const DevOptions = () => {
 
                 <h3 className="sub-heading">Available invitation: </h3>
 
-                <p className="comment-text">Total invitations {invitationsList.length}</p>
+                <p className="comment-text">Total invitations {invitationsCount}</p>
 
                 <div className="flex flex-col gap-4">
                     {invitationsList.map((invitation) => (
@@ -779,6 +823,16 @@ const DevOptions = () => {
                         />
                     ))}
                 </div>
+
+                {invitationPages > 1 && (
+                    <div className="flex justify-center my-6">
+                        <PageSelector
+                            pages={invitationPages}
+                            currentPage={currentInvitationPage}
+                            onPageSelect={(selectedPage) => selectInvitationPage(selectedPage)}
+                        />
+                    </div>
+                )}
                 
             </div>
 
@@ -1468,6 +1522,12 @@ const DevOptions = () => {
 
                     </AlertDialogContent>
                 </AlertDialog>
+
+                 <Toast
+                    open={isDeletingOrganization}
+                    title="Deleting organization"
+                    description="Wait while the selected organizations is being deleted..."
+                />
 
             </div>
         

@@ -30,6 +30,7 @@ export const DevOptionsService = {
         return response.data
     },
 
+    // LIMIT : 20
     getOrganizationsWithMembers: async (page: number): Promise<OrganizationWithMembersResponse> => {
         const response = await api.get("/organizations/superadmin/organizations-with-members",
             {

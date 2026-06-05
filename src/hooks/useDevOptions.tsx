@@ -1,103 +1,123 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react"
 
 // TYPES
-import type { InvitationItemData, OrganizationWithMembers, UserType } from "@/types/types";
+import type {
+  InvitationItemData,
+  OrganizationWithMembers,
+  UserType,
+} from "@/types/types"
 
-import { DevOptionsService } from "@/services/DevOptionsService";
+import { DevOptionsService } from "@/services/DevOptionsService"
 
 export function useDevOptions() {
+  const [error, setError] = useState<Error | null>(null)
+  const [loading, setLoading] = useState(true)
 
-    const [error, setError] = useState<Error | null>(null)
-    const [loading, setLoading] = useState<boolean>(true)
+  const [organizationsWithMembers, setOrganizationsWithMembers] =
+    useState<OrganizationWithMembers[]>([])
+  const [organizationPages, setOrganizationPages] = useState(1)
+  const [organizationsCount, setOrganizationsCount] = useState(0)
 
-    const [organizationsWithMembers, setOrganizationsWithMembers] = useState<OrganizationWithMembers[]>([])
-    const [organizationPages, setOrganizationPages] = useState(1)
-    const [organizationsCount, setOrganizationsCount] = useState(1)
+  const [users, setUsers] = useState<UserType[]>([])
+  const [userPages, setUserPages] = useState(1)
+  const [usersCount, setUsersCount] = useState(0)
 
-    const [users, setUsers] = useState<UserType[]>([])
-    const [userPages, setUserPages] = useState(1)
-    const [usersCount, setUsersCount] = useState(1)
+  const [organizationBlueprintCounts, setOrganizationBlueprintCounts] =
+    useState<{ organizationId: string; count: number }[]>([])
 
-    const [organizationBlueprintCounts, setOrganizationBlueprintCounts] = useState<
-        { organizationId: string; count: number }[]
-    >([])
+  const [invitationsList, setInvitationsList] =
+    useState<InvitationItemData[]>([])
+  const [invitationPages, setInvitationPages] = useState(1)
+  const [invitationsCount, setInvitationsCount] = useState(0)
 
-    const [invitationsList, setInvitationsList] = useState<InvitationItemData[]>([])
-    const [invitationPages, setInvitationPages] = useState(1)
-    const [invitationsCount, setInvitationsCount] = useState(1)
+  const loadDevOptions = useCallback(async () => {
+    try {
+      setLoading(true)
+      setError(null)
 
-    const loadDevOptions = useCallback(async () => {
-        try {
-            setLoading(true)
-            setError(null)
+      const [
+        organizationsResponse,
+        usersResponse,
+        invitationsResponse,
+      ] = await Promise.all([
+        DevOptionsService.getOrganizationsWithMembers(1),
+        DevOptionsService.getAllUsers(1),
+        DevOptionsService.getAllInvitations(1),
+      ])
 
-            const organizationsPromise =
-                DevOptionsService.getOrganizationsWithMembers(1)
+      const counts =
+        await DevOptionsService.getBlueprintCountsByOrganizationIds(
+          organizationsResponse.list.map(
+            (org) => org._id,
+          ),
+        )
 
-            const usersPromise =
-                DevOptionsService.getAllUsers(1)
+      setOrganizationsWithMembers(
+        organizationsResponse.list,
+      )
 
-            const invitationsPromise =
-                DevOptionsService.getAllInvitations(1)
+      setUsers(usersResponse.list)
 
-            const organizationsResponse = await organizationsPromise
-            const organizationsData = organizationsResponse.list
+      setInvitationsList(
+        invitationsResponse.list,
+      )
 
-            const usersResponse = await usersPromise
-            const usersListData = usersResponse.list
+      setOrganizationBlueprintCounts(
+        counts,
+      )
 
-            const invitationsResponse = await invitationsPromise
-            const invitationsListData = invitationsResponse.list
+      setOrganizationPages(
+        organizationsResponse.totalPages,
+      )
 
-            const countsPromise =
-                DevOptionsService.getBlueprintCountsByOrganizationIds(
-                    organizationsData.map(org => org._id)
-                )
+      setUserPages(
+        usersResponse.totalPages,
+      )
 
-            const [
-                counts,
-            ] = await Promise.all([
-                countsPromise,
-            ])
+      setInvitationPages(
+        invitationsResponse.totalPages,
+      )
 
-            setOrganizationsWithMembers(organizationsData)
-            setUsers(usersListData)
-            setOrganizationBlueprintCounts(counts)
-            setInvitationsList(invitationsListData)
+      setOrganizationsCount(
+        organizationsResponse.totalItems,
+      )
 
-            setOrganizationPages(organizationsResponse.totalPages)
-            setUserPages(usersResponse.totalPages)
-            setInvitationPages(invitationsResponse.totalPages)
+      setUsersCount(
+        usersResponse.totalItems,
+      )
 
-            setOrganizationsCount(organizationsResponse.totalItems)
-            setUsersCount(usersResponse.totalItems)
-            setInvitationsCount(invitationsResponse.totalItems)
+      setInvitationsCount(
+        invitationsResponse.totalItems,
+      )
 
-        } catch (err: any) {
-            setError(err)
-        } finally {
-            setLoading(false)
-        }
-    }, [])
+    } catch (err: any) {
+      setError(err)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
-    useEffect(() => {
-        loadDevOptions()
-    }, [loadDevOptions])
+  useEffect(() => {
+    loadDevOptions()
+  }, [loadDevOptions])
 
-    return {
-        organizationsWithMembers,
-        organizationBlueprintCounts,
-        users,
-        invitationsList,
-        organizationPages,
-        userPages,
-        invitationPages,
-        organizationsCount,
-        usersCount,
-        invitationsCount,
-        loading,
-        error,
-        refreshContent: loadDevOptions,
-    };
+  return {
+    organizationsWithMembers,
+    organizationBlueprintCounts,
+    users,
+    invitationsList,
 
+    organizationPages,
+    userPages,
+    invitationPages,
+
+    organizationsCount,
+    usersCount,
+    invitationsCount,
+
+    loading,
+    error,
+
+    refreshContent: loadDevOptions,
+  }
 }

@@ -24,7 +24,7 @@ export function useDevOptions() {
   const [loadingInvitations, setLoadingInvitations] =
     useState<boolean>(true);
 
-  const [loadingUserRoleAndPermissisons, setLoadingUserRoleAndPermissisons] =
+const [loadingGeneral, setLoadingGeneral] =
     useState<boolean>(true);
 
   // ORGANIZATIONS
@@ -196,29 +196,11 @@ export function useDevOptions() {
   // INITIAL LOAD
   // --------------------------
 
-  /*
   useEffect(() => {
-    const initialize = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-
-        await Promise.all([
-          loadOrganizations(1),
-          loadUsers(1),
-          loadInvitations(1),
-        ])
-
-      } catch (err: any) {
-        setError(err)
-      } finally {
-        setLoading(false)
-      }
+    if(!loadingOrganizations && !loadingUsers && !loadingInvitations){
+        setLoadingGeneral(false)
     }
-
-    initialize()
-  }, [])
-  */
+  }, [loadingOrganizations, loadingUsers, loadingInvitations])
 
   // --------------------------
   // PAGE CHANGES
@@ -280,6 +262,7 @@ export function useDevOptions() {
     refreshInvitations:
       loadInvitations,
 
+    loadingGeneral,
     loadingOrganizations,
     loadingUsers,
     loadingInvitations,

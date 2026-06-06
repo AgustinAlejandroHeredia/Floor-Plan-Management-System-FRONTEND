@@ -103,7 +103,7 @@ const DevOptions = () => {
     const [errorMessage, setErrorMessage] = useState<string>("")
 
     // HOOK
-    const { organizationsWithMembers, organizationBlueprintCounts, users, invitationsList, organizationPages, userPages, invitationPages, organizationsCount, usersCount, invitationsCount, currentOrganizationPage, currentUserPage, currentInvitationPage, setCurrentOrganizationPage, setCurrentUserPage, setCurrentInvitationPage, refreshOrganizations, refreshUsers, refreshInvitations, loadingOrganizations, loadingUsers, loadingInvitations, error } = useDevOptions()
+    const { organizationsWithMembers, organizationBlueprintCounts, users, invitationsList, organizationPages, userPages, invitationPages, organizationsCount, usersCount, invitationsCount, currentOrganizationPage, currentUserPage, currentInvitationPage, setCurrentOrganizationPage, setCurrentUserPage, setCurrentInvitationPage, refreshOrganizations, refreshUsers, refreshInvitations, loadingGeneral, loadingOrganizations, loadingUsers, loadingInvitations, error } = useDevOptions()
 
     // FLOATIN INDEX USE EFFECT
     useEffect(() => {
@@ -457,13 +457,12 @@ const DevOptions = () => {
         setIsDeletingOrganization(true)
         try {
             await DevOptionsService.deleteOrganization(organizationId)
-
         } catch (error) {
             setErrorMessage("An error has occurred while deleting organization. Please try again later.")
             setOpenError(true)
         } finally {
             setIsDeletingOrganization(false)
-            refreshOrganizations(currentOrganizationPage)
+            refreshOrganizations(1)
         }
     }
 
@@ -519,7 +518,7 @@ const DevOptions = () => {
         }
     }
 
-    if(loadingOrganizations || loadingUsers || loadingInvitations) return <Loading/>
+    if(loadingGeneral) return <Loading/>
 
     return (
         <div ref={topSectionRef}>

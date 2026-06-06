@@ -26,6 +26,9 @@ export function useOrganization(organizationId: string) {
   const [loadingUserRoleAndPermissisons, setLoadingUserRoleAndPermissisons] =
     useState<boolean>(true);
 
+  const [loadingGeneral, setLoadingGeneral] =
+    useState<boolean>(true);
+
   // PERMISSIONS
 
   const [organizationPermissions, setOrganizationPermissions] =
@@ -243,6 +246,16 @@ export function useOrganization(organizationId: string) {
   }, [])
 
   // --------------------------
+  // INITIAL LOAD
+  // --------------------------
+
+  useEffect(() => {
+    if(!loadingProjects && !loadingUsers && !loadingInvitations){
+        setLoadingGeneral(false)
+    }
+  }, [loadingProjects, loadingUsers, loadingInvitations])
+
+  // --------------------------
   // PAGE CHANGES
   // --------------------------
 
@@ -302,6 +315,7 @@ export function useOrganization(organizationId: string) {
     refreshUsers: loadUsers,
     refreshInvitations: loadInvitations,
 
+    loadingGeneral,
     loadingUserRoleAndPermissisons,
     loadingProjects,
     loadingUsers,

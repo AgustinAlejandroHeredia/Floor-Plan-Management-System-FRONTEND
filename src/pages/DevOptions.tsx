@@ -54,11 +54,6 @@ const DevOptions = () => {
     const navigationRef = useRef<HTMLDivElement | null>(null)
     const [showFloatingNavigation, setShowFloatingNavigation] = useState<boolean>(false)
 
-    // PAGE SELECTION
-    const [currentOrganizationPage, setCurrentOrganizationPage] = useState<number>(1)
-    const [currentUserPage, setCurrentUserPage] = useState<number>(1)
-    const [currentInvitationPage, setCurrentInvitationPage] = useState<number>(1)
-
     // CREATION VARIABLES
     const [selectedAdminId, setSelectedAdminId] = useState<string>("");
     const [openCreateOrganization, setOpenCreateOrganization] = useState<boolean>(false)
@@ -108,7 +103,7 @@ const DevOptions = () => {
     const [errorMessage, setErrorMessage] = useState<string>("")
 
     // HOOK
-    const { organizationsWithMembers, organizationBlueprintCounts, users, invitationsList, organizationPages, userPages, invitationPages, organizationsCount, usersCount, invitationsCount, refreshOrganizations, refreshUsers, refreshInvitations, loading, error } = useDevOptions()
+    const { organizationsWithMembers, organizationBlueprintCounts, users, invitationsList, organizationPages, userPages, invitationPages, organizationsCount, usersCount, invitationsCount, currentOrganizationPage, currentUserPage, currentInvitationPage, setCurrentOrganizationPage, setCurrentUserPage, setCurrentInvitationPage, refreshOrganizations, refreshUsers, refreshInvitations, loadingOrganizations, loadingUsers, loadingInvitations, error } = useDevOptions()
 
     // FLOATIN INDEX USE EFFECT
     useEffect(() => {
@@ -516,7 +511,7 @@ const DevOptions = () => {
     }
 
     const selectInvitationPage = async (selectedPage: number) => {
-        if(selectedPage !== currentOrganizationPage){
+        if(selectedPage !== currentInvitationPage){
             await refreshInvitations(selectedPage)
             if(!error){
                 setCurrentInvitationPage(selectedPage)
@@ -524,7 +519,7 @@ const DevOptions = () => {
         }
     }
 
-    if(loading) return <Loading/>
+    if(loadingOrganizations || loadingUsers || loadingInvitations) return <Loading/>
 
     return (
         <div ref={topSectionRef}>

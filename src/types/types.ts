@@ -74,6 +74,14 @@ export type OrganizationWithMembersResponse = {
   totalPages: number
 }
 
+export type OrganizationMemberListResponse = {
+  list: OrganizationMembersList[],
+  page: number
+  limit: number
+  totalItems: number
+  totalPages: number
+}
+
 export interface OrganizationUserProfile {
   organization: OrganizationType,
   role: OrganizationRole,
@@ -119,7 +127,16 @@ export interface ProjectOrganizationType {
   levels: string
   basement: boolean
   status: StatusType
+  oldestBlueprintThumbnailUrl?: string
   customFields?: Record<string, any>
+}
+
+export interface ProjectOrganizationResponse {
+  list: ProjectOrganizationType[]
+  page: number
+  limit: number
+  totalItems: number
+  totalPages: number
 }
 
 export interface CreateProjectPayload {

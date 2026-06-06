@@ -18,6 +18,8 @@ export const DevOptionsService = {
         return response.data
     },
 
+
+    // LIMIT : 30
     getAllUsers: async (page: number): Promise<UserListResponse> => {
         const response = await api.get("/user/allUsers/superadmin",
             {

@@ -5,6 +5,9 @@ import BreadcrumbBar from "@/components/BreadcrumbBar";
 import { useOrganization } from "@/hooks/useOrganization";
 import { useNavigate, useParams } from "react-router-dom";
 
+// ICONS
+import { IoMdAddCircle } from "react-icons/io";
+
 // UI
 import {
   Card,
@@ -57,6 +60,7 @@ import type { ActionPermission, CreateProjectPayload, InvitationItemData, Invita
 import Toast from "@/components/Toast";
 import InfoDialog from "@/components/InfoDialog";
 import InvitationItem from "@/components/InvitationItem";
+import PageSelector from "@/components/PageSelector";
 
 const OrganizationPage = () => {
 
@@ -66,6 +70,10 @@ const OrganizationPage = () => {
 
     const usersSectionRef = useRef<HTMLDivElement | null>(null)
     const invitationsSectionRef = useRef<HTMLDivElement | null>(null)
+
+    // FLOATING INDEX
+    const navigationRef = useRef<HTMLDivElement | null>(null)
+    const [showFloatingNavigation, setShowFloatingNavigation] = useState<boolean>(false)
 
     // ERROR VARIABLES
     const [errorOpen, setErrorOpen] = useState<boolean>(false);
@@ -115,7 +123,7 @@ const OrganizationPage = () => {
     const [isChangingRole, setIsChangingRole] = useState<boolean>(false)
 
     // HOOK
-    const { organizationPermissions, projects, projectThumbnails, userOrganizationRole, organizationMembersList, organizationInvitationsList, hasMoreThanOneAdmin, loadingOrganizationProjects, error, refreshProjects } = useOrganization(id!)
+    const { organizationPermissions, projects, userOrganizationRole, organizationMembersList, organizationInvitationsList, hasMoreThanOneAdmin, projectsCount, usersCount, invitationsCount, projectPages, userPages, invitationPages, currentProjectPage, currentUserPage, currentInvitationPage, setCurrentProjectPage, setCurrentUserPage, setCurrentInvitationPage, refreshPermissions, refreshProjects, refreshUsers, refreshInvitations, loadingUserRoleAndPermissisons, loadingProjects, loadingUsers, loadingInvitations, error } = useOrganization(id!)
 
     const handleSelectProject = (projectName: string, projectId: string) => {
         console.log("LOADING A PROJECT : ", name, " ", id)
@@ -233,7 +241,8 @@ const OrganizationPage = () => {
             setOpenCreationDialog(false)
             form.reset()
 
-            refreshProjects()
+            setCurrentProjectPage(1)
+            refreshProjects(1)
         } catch (error) {
             console.log("An unexpected error occurred")
             setErrorMessage("An unexpected error occurred");
@@ -313,7 +322,7 @@ const OrganizationPage = () => {
                 return
             }
             await OrganizationService.refreshInvitation(selectedInvitation._id)
-            refreshProjects()
+            refreshInvitations()
         } catch (error: any) {
             setErrorMessage("Something went wrong refreshing the invitation, please try again later.")
             setErrorOpen(true)
@@ -328,7 +337,8 @@ const OrganizationPage = () => {
                 return
             }
             await OrganizationService.deleteInvitation(selectedInvitation._id)
-            refreshProjects()
+            setCurrentInvitationPage(1)
+            refreshInvitations(1)
         } catch (error: any) {
             setErrorMessage("Something went wrong refreshing the invitation, please try again later.")
             setErrorOpen(true)
@@ -373,7 +383,8 @@ const OrganizationPage = () => {
             await OrganizationService.kickUser(id!, userIdForKick)
             setIsKickingUser(false)
             setUserIdForKick("")
-            refreshProjects()
+            setCurrentUserPage(1)
+            refreshUsers(1)
         } catch (error) {
             setIsKickingUser(false)
             setErrorMessage("An error has ocurred while kicking user, please again later.")
@@ -396,7 +407,7 @@ const OrganizationPage = () => {
             setIsChangingRole(true)
             await OrganizationService.changeUserOrganizationRole(userForRolechange._id, id!)
             setIsChangingRole(false)
-            refreshProjects()
+            refreshUsers()
         } catch (error) {
             setIsChangingRole(false)
             setErrorMessage("Something went wrong changing user role, please try again later")
@@ -437,7 +448,7 @@ const OrganizationPage = () => {
             setIsSavingChanges(false)
             setCreateActionPermissionsEdited("admins")
             setInviteActionPermissionsEdited("admins")
-            refreshProjects()
+            refreshPermissions()
         } catch (error) {
             setIsSavingChanges(false)
             setErrorMessage("Something went wrong saving the changes. Please try later.")
@@ -445,7 +456,36 @@ const OrganizationPage = () => {
         }
     }
 
-    if(loadingOrganizationProjects) return <Loading/>
+     // PAGE SELECTION
+
+    const selectProjectPage = async (selectedPage: number) => {
+        if(selectedPage !== currentProjectPage){
+            await refreshProjects(selectedPage)
+            if(!error){
+                setCurrentProjectPage(selectedPage)
+            }
+        }
+    }
+
+    const selectUserPage = async (selectedPage: number) => {
+        if(selectedPage !== currentUserPage){
+            await refreshUsers(selectedPage)
+            if(!error){
+                setCurrentUserPage(selectedPage)
+            }
+        }
+    }
+
+    const selectInvitationPage = async (selectedPage: number) => {
+        if(selectedPage !== currentInvitationPage){
+            await refreshInvitations(selectedPage)
+            if(!error){
+                setCurrentInvitationPage(selectedPage)
+            }
+        }
+    }
+
+    if(loadingUserRoleAndPermissisons || loadingProjects || loadingUsers || loadingInvitations) return <Loading/>
 
     return (
         <div>
@@ -568,9 +608,9 @@ const OrganizationPage = () => {
                                     background: "#eee",
                                 }}
                                 >
-                                {projectThumbnails[project._id] ? (
+                                {project.oldestBlueprintThumbnailUrl ? (
                                     <img
-                                    src={projectThumbnails[project._id]}
+                                    src={project.oldestBlueprintThumbnailUrl}
                                     alt="project thumbnail"
                                     style={{
                                         width: "100%",
@@ -600,6 +640,16 @@ const OrganizationPage = () => {
                 </div>
             )}
 
+            {projectPages > 1 && (
+                <div className="flex justify-center my-6">
+                    <PageSelector
+                        pages={projectPages}
+                        currentPage={currentProjectPage}
+                        onPageSelect={(selectedPage) => selectProjectPage(selectedPage)}
+                    />
+                </div>
+            )}
+
         </div>
 
         <Separator />
@@ -613,35 +663,48 @@ const OrganizationPage = () => {
             >
 
             <h3 className="sub-heading-2">
-                Organization members ({organizationMembersList.length})
+                Organization members
             </h3>
 
-            {organizationMembersList.length === 1 && (
-                <OrganizationMemberItem
-                    key={organizationMembersList[0]._id}
-                    member={organizationMembersList[0]}
-                    onViewUser={handleViewUserProfile}
-                    onRemoveUser={selectUserForKick}
-                    currentUserOrganizationRole={userOrganizationRole}
-                />
+            {(userOrganizationRole === "admin" || organizationPermissions.invitePermission === "members") && (
+                <div className="flex items-center justify-between">
+                    <p className="comment-text">
+                        Members {usersCount}
+                    </p>
+
+                    <IoMdAddCircle
+                        className="
+                            text-[var(--text-h)] 
+                            text-3xl 
+                            cursor-pointer
+                            hover:opacity-80
+                            transition-opacity
+                        "
+                        onClick={() => setOpenInvitationDialog(true)}
+                    />
+                </div>
             )}
-                
-            {organizationMembersList.length > 1 && (
-                <div className="border rounded-lg">
-                    <ScrollArea className="h-[300px] w-full">
-                        <ItemGroup className="w-full p-2">
-                            {organizationMembersList.map((member) => (
-                                <OrganizationMemberItem
-                                    key={member._id}
-                                    member={member}
-                                    onViewUser={handleViewUserProfile}
-                                    onRemoveUser={selectUserForKick}
-                                    onChangeRole={openUserRoleEditDialog} 
-                                    currentUserOrganizationRole={userOrganizationRole}
-                                />
-                            ))}
-                        </ItemGroup>
-                    </ScrollArea>
+
+            <div className="w-full space-y-1">
+                {organizationMembersList.map((member) => (
+                    <OrganizationMemberItem
+                        key={member._id}
+                        member={member}
+                        onViewUser={handleViewUserProfile}
+                        onRemoveUser={selectUserForKick}
+                        onChangeRole={openUserRoleEditDialog} 
+                        currentUserOrganizationRole={userOrganizationRole}
+                    />
+                ))}
+            </div>
+
+            {userPages > 1 && (
+                <div className="flex justify-center my-6">
+                    <PageSelector
+                        pages={userPages}
+                        currentPage={currentUserPage}
+                        onPageSelect={(selectedPage) => selectUserPage(selectedPage)}
+                    />
                 </div>
             )}
 
@@ -668,7 +731,22 @@ const OrganizationPage = () => {
 
                     <h3 className="sub-heading-2">Invitations sent: </h3>
 
-                    <p className="comment-text">Total invitations {organizationInvitationsList.length}</p>
+                    <div className="flex items-center justify-between">
+                        <p className="comment-text">
+                            Total invitations {invitationsCount}
+                        </p>
+
+                        <IoMdAddCircle
+                            className="
+                                text-[var(--text-h)] 
+                                text-3xl 
+                                cursor-pointer
+                                hover:opacity-80
+                                transition-opacity
+                            "
+                            onClick={() => setOpenInvitationDialog(true)}
+                        />
+                    </div>
 
                     <div className="flex flex-col gap-4">
                         {organizationInvitationsList.map((invitation) => (
@@ -683,6 +761,16 @@ const OrganizationPage = () => {
 
                 </div>
             </div>
+
+            {invitationPages > 1 && (
+                <div className="flex justify-center my-6">
+                    <PageSelector
+                        pages={invitationPages}
+                        currentPage={currentInvitationPage}
+                        onPageSelect={(selectedPage) => selectInvitationPage(selectedPage)}
+                    />
+                </div>
+            )}
         </>
         )}
 

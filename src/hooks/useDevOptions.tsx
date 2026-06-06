@@ -10,8 +10,22 @@ import type {
 import { DevOptionsService } from "@/services/DevOptionsService"
 
 export function useDevOptions() {
+
   const [error, setError] = useState<Error | null>(null)
-  const [loading, setLoading] = useState(true)
+  
+  // LOADING STATES
+
+  const [loadingOrganizations, setLoadingOrganizations] =
+    useState<boolean>(true);
+
+  const [loadingUsers, setLoadingUsers] =
+    useState<boolean>(true);
+
+  const [loadingInvitations, setLoadingInvitations] =
+    useState<boolean>(true);
+
+  const [loadingUserRoleAndPermissisons, setLoadingUserRoleAndPermissisons] =
+    useState<boolean>(true);
 
   // ORGANIZATIONS
 
@@ -71,40 +85,43 @@ export function useDevOptions() {
 
   const loadOrganizations = useCallback(
     async (page: number = currentOrganizationPage) => {
-      try {
-        const response =
-          await DevOptionsService.getOrganizationsWithMembers(
-            page,
-          )
+        setLoadingOrganizations(true)
+        try {
+            const response =
+            await DevOptionsService.getOrganizationsWithMembers(
+                page,
+            )
 
-        setOrganizationsWithMembers(
-          response.list,
-        )
+            setOrganizationsWithMembers(
+            response.list,
+            )
 
-        setOrganizationPages(
-          response.totalPages,
-        )
+            setOrganizationPages(
+            response.totalPages,
+            )
 
-        setOrganizationsCount(
-          response.totalItems,
-        )
+            setOrganizationsCount(
+            response.totalItems,
+            )
 
-        const counts =
-          await DevOptionsService.getBlueprintCountsByOrganizationIds(
-            response.list.map(
-              (org) => org._id,
-            ),
-          )
+            const counts =
+            await DevOptionsService.getBlueprintCountsByOrganizationIds(
+                response.list.map(
+                (org) => org._id,
+                ),
+            )
 
-        setOrganizationBlueprintCounts(
-          counts,
-        )
+            setOrganizationBlueprintCounts(
+            counts,
+            )
 
-      } catch (err: any) {
-        setError(err)
-      }
+        } catch (err: any) {
+            setError(err)
+        } finally {
+            setLoadingOrganizations(false)
+        }
     },
-    [currentOrganizationPage],
+    [],
   )
 
   // --------------------------
@@ -113,27 +130,30 @@ export function useDevOptions() {
 
   const loadUsers = useCallback(
     async (page: number = currentUserPage) => {
-      try {
-        const response =
-          await DevOptionsService.getAllUsers(
-            page,
-          )
+        setLoadingUsers(true)
+        try {
+            const response =
+            await DevOptionsService.getAllUsers(
+                page,
+            )
 
-        setUsers(response.list)
+            setUsers(response.list)
 
-        setUserPages(
-          response.totalPages,
-        )
+            setUserPages(
+            response.totalPages,
+            )
 
-        setUsersCount(
-          response.totalItems,
-        )
+            setUsersCount(
+            response.totalItems,
+            )
 
-      } catch (err: any) {
-        setError(err)
-      }
+        } catch (err: any) {
+            setError(err)
+        } finally {
+            setLoadingUsers(false)
+        }
     },
-    [currentUserPage],
+    [],
   )
 
   // --------------------------
@@ -142,37 +162,41 @@ export function useDevOptions() {
 
   const loadInvitations = useCallback(
     async (
-      page: number = currentInvitationPage,
+        page: number = currentInvitationPage,
     ) => {
-      try {
-        const response =
-          await DevOptionsService.getAllInvitations(
-            page,
-          )
+        setLoadingInvitations(true)
+        try {
+            const response =
+            await DevOptionsService.getAllInvitations(
+                page,
+            )
 
-        setInvitationsList(
-          response.list,
-        )
+            setInvitationsList(
+            response.list,
+            )
 
-        setInvitationPages(
-          response.totalPages,
-        )
+            setInvitationPages(
+            response.totalPages,
+            )
 
-        setInvitationsCount(
-          response.totalItems,
-        )
+            setInvitationsCount(
+            response.totalItems,
+            )
 
-      } catch (err: any) {
-        setError(err)
-      }
+        } catch (err: any) {
+            setError(err)
+        } finally {
+            setLoadingInvitations(false)
+        }
     },
-    [currentInvitationPage],
+    [],
   )
 
   // --------------------------
   // INITIAL LOAD
   // --------------------------
 
+  /*
   useEffect(() => {
     const initialize = async () => {
       try {
@@ -194,6 +218,7 @@ export function useDevOptions() {
 
     initialize()
   }, [])
+  */
 
   // --------------------------
   // PAGE CHANGES
@@ -255,7 +280,10 @@ export function useDevOptions() {
     refreshInvitations:
       loadInvitations,
 
-    loading,
+    loadingOrganizations,
+    loadingUsers,
+    loadingInvitations,
+
     error,
   }
 }

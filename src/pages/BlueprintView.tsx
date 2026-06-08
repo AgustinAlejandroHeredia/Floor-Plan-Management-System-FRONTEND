@@ -19,6 +19,7 @@ import { BsScissors } from "react-icons/bs";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { GrFormView, GrFormViewHide } from "react-icons/gr";
 import { TfiSave } from "react-icons/tfi";
+import { CgUndo } from "react-icons/cg";
 
 // UI COMPONENTS
 import BreadcrumbBar from "@/components/BreadcrumbBar";
@@ -65,6 +66,7 @@ import { useInferenceNotification } from "@/context/InferenceNotificationContext
 import React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Item, ItemActions, ItemContent } from "@/components/ui/item";
 
 type ImageResolution = {
     width: number;
@@ -85,7 +87,7 @@ const BlueprintView = () => {
             blueprintId: string;
         }>();
 
-    const { blueprint, projectInfo, blueprtinImageUrl, availableModels, loadingBlueprint, error, refreshBlueprint } = useBlueprintView(blueprintId!)
+    const { blueprint, setBlueprint,  projectInfo, blueprtinImageUrl, availableModels, loadingBlueprint, error, refreshBlueprint } = useBlueprintView(blueprintId!)
 
     const navigate = useNavigate()
     const location = useLocation()
@@ -115,7 +117,6 @@ const BlueprintView = () => {
     const [errorAlertMessage, setErrorAlertMessage] = useState<string>("")
 
     // SECTION VIEW VARIABLES
-    const [sectionViewsList, setSectionViewsList] = useState<SectionView[]>([])
     const [isProcessing, setIsProcessing] = useState<boolean>(false)
     const blueprintImageRef = useRef<HTMLDivElement | null>(null)
     const inferenceSocketRef = useRef<Socket | null>(null)
@@ -130,9 +131,9 @@ const BlueprintView = () => {
     const colorIndexRef = useRef(0)
 
     // SECTION VIEW DELETE VARIABLES
-    const [indexAreaForDelete, setIndexAreaForDelete] = useState<number | null>(null)
     const [areaForDelete, setAreaForDelete] = useState<SectionView | null>(null)
     const [openDeleteAreaDialog, setOpenDeleteAreaDialog] = useState<boolean>(false)
+    const [deletedAreasList, setDeletedAreasList] = useState<SectionView[]>([])
 
     // AI PROCESSING MODELS
     const [openModelsSelectionDialog, setOpenModelsSelectionDialog] = useState<boolean>(false)
@@ -495,7 +496,21 @@ const BlueprintView = () => {
             .then(job => {
                 if (cancelled) return
                 if (job?.status === 'Processed' && job.result?.predictions) {
-                    setSectionViewsList(predictionsToSectionViews(job.result.predictions as YoloPrediction[]))
+
+                    const predictions = job.result.predictions as YoloPrediction[]
+
+                    console.log("EN EL USE EFFECT -> PREDICTIONS : ", predictions)
+
+                    setBlueprint(prev => {
+                        if (!prev) return prev
+                        return {
+                            ...prev,
+                            sectionViews:
+                                predictionsToSectionViews(
+                                    predictions
+                                ),
+                        }
+                    })
                 }
             })
             .catch(() => {})
@@ -561,14 +576,28 @@ const BlueprintView = () => {
         try {
             const token = await getAccessTokenSilently()
             const job = await BlueprintViewService.enqueueInference(blueprint!._id, Object.values(selectedModels))
+            console.log("")
             pendingJobIdRef.current = job._id
             const completed = await waitForInferenceJob(job._id, token)
             pendingJobIdRef.current = null
 
             if (completed.status === 'Processed' && completed.result?.predictions) {
-                const convetionToSectionView = predictionsToSectionViews(completed.result.predictions)
-                setSectionViewsList(convetionToSectionView)
-                blueprint!.sectionViews = convetionToSectionView
+                const conversionToSectionView =
+                    predictionsToSectionViews(
+                        completed.result.predictions
+                    )
+
+                console.log("FUNCTION / conversionToSectionView : ", conversionToSectionView)
+
+                setBlueprint(prev => {
+                    if (!prev) return prev
+                    return {
+                        ...prev,
+
+                        sectionViews:
+                            conversionToSectionView,
+                    }
+                })
             } else if (completed.status === 'Error') {
                 setErrorAlertMessage(completed.result?.error ?? 'The AI processing failed. Please try again.')
                 setOpenErrorAlert(true)
@@ -585,37 +614,93 @@ const BlueprintView = () => {
         }
     }
 
-    const selectAreaForDelete = (section: SectionView, index: number) => {
-        setIndexAreaForDelete(index)
+    const selectAreaForDelete = (section: SectionView) => {
         setAreaForDelete(section)
         setOpenDeleteAreaDialog(true)
     }
 
     const handleDeleteArea = () => {
-        if(indexAreaForDelete !== null){
-            setSectionViewsList((prev) =>
-                prev.filter((_, index) => index !== indexAreaForDelete)
-            )
-        }else{
+
+        if (!areaForDelete) {
             setErrorAlertMessage("No selected area")
             setOpenErrorAlert(true)
             return
         }
-        setIndexAreaForDelete(null)
+
+        setDeletedAreasList(prev => [
+            ...prev,
+            areaForDelete,
+        ])
+
+        setBlueprint(prev => {
+
+            if (!prev) return prev
+
+            return {
+            ...prev,
+
+            sectionViews:
+                prev.sectionViews.filter(
+                section => section !== areaForDelete
+                ),
+            }
+        })
+
         setAreaForDelete(null)
+    }
+
+    const undoDeletedArea = (
+        deletedArea: SectionView,
+        index: number,
+    ) => {
+
+        // Volver a agregar al blueprint
+        setBlueprint(prev => {
+
+            if (!prev) return prev
+
+            return {
+                ...prev,
+
+                sectionViews: [
+                    ...prev.sectionViews,
+                    deletedArea,
+                ],
+            }
+        })
+
+        // Sacar de la lista de eliminadas
+        setDeletedAreasList(prev =>
+            prev.filter((_, i) => i !== index)
+        )
     }
 
     const handleSaveAreas = async () => {
         setOpenSaveAreasDialog(false)
-        setIsSavingAreas(true)
-        try{
-            await BlueprintViewService.saveAreas(blueprintId!, sectionViewsList)
-            setIsSavingAreas(false)
-        }catch(error){
-            setIsSavingAreas(false)
-            setErrorAlertMessage("An error has occurred while saving areas, please try again later.")
+
+        const areasToSave =
+            blueprint?.sectionViews ?? []
+
+        if (areasToSave.length === 0) {
+            setErrorAlertMessage("No areas to save")
             setOpenErrorAlert(true)
             return
+        }
+
+        setIsSavingAreas(true)
+
+        try {
+            await BlueprintViewService.saveAreas(
+                blueprintId!,
+                areasToSave,
+            )
+        } catch (error) {
+            setErrorAlertMessage(
+                "An error has occurred while saving areas, please try again later."
+            )
+            setOpenErrorAlert(true)
+        } finally {
+            setIsSavingAreas(false)
         }
     }
 
@@ -850,7 +935,7 @@ const BlueprintView = () => {
 
                 {/* CONTROLS */}
                 {!cropMode && (
-                <div className="flex items-center justify-center gap-x-8 mt-2">
+                <div className="flex flex-wrap items-start justify-center gap-8 mt-2">
 
                     {/* ZOOM SELECTOR */}
                     <div className="flex flex-col items-center">
@@ -1104,7 +1189,7 @@ const BlueprintView = () => {
 
                                                                     <ContextMenuItem
                                                                         onClick={() => {
-                                                                            selectAreaForDelete(section, index)
+                                                                            selectAreaForDelete(section)
                                                                         }}
                                                                     >
                                                                         Delete
@@ -1613,6 +1698,60 @@ const BlueprintView = () => {
 
                 </div>
 
+                {/* DELETED AREAS */}
+                {deletedAreasList.length > 0 && (
+                    <div className="main-content-item flex flex-col items-center">
+                        <div className="w-full max-w-4xl">
+                            <p className="comment-text mb-4">
+                                Deleted areas
+                            </p>
+                            {deletedAreasList.map((deletedArea, index) => (
+                                <div key={index} className="mb-2">
+                                    
+                                    <Item
+                                        variant="outline"
+                                        className="gap-6 w-full"
+                                    >
+                                        <ItemContent className="flex flex-row items-center gap-6">
+                                            
+                                            <span className="min-w-[120px] text-[var(--text-h)]">
+                                                Label: {deletedArea.label}
+                                            </span>
+
+                                            <span className="min-w-[120px] text-[var(--text-h)]">
+                                                Confidence: {Math.round(deletedArea.confidence! * 100)}%
+                                            </span>
+
+                                            <span className="min-w-[120px] text-[var(--text-h)]">
+                                                Type: {deletedArea.type}
+                                            </span>
+
+                                        </ItemContent>
+
+                                        <ItemActions className="flex gap-2 shrink-0">
+                                            <Button
+                                                variant="secondary"
+                                                onClick={() =>
+                                                    undoDeletedArea(
+                                                        deletedArea,
+                                                        index,
+                                                    )
+                                                }
+                                            >
+                                                <CgUndo className="w-4 h-4 text-black group-hover/button:text-black transition-colors" />
+                                                Undo
+                                            </Button>
+                                        </ItemActions>
+
+                                    </Item>
+
+                                </div>
+                            ))}
+                        </div>
+
+                    </div>
+                )}
+
                 {/* SAVE AREAS */}
                 {blueprint.sectionViews.length > 0 && (
                     <div className="main-content-item">
@@ -1903,7 +2042,7 @@ const BlueprintView = () => {
                     open={openDeleteAreaDialog}
                     onOpenChange={setOpenDeleteAreaDialog}
                     title={`Delete area "${areaForDelete?.label}"`}
-                    description="This action cannot be undone. This will permanently delete the blueprint."
+                    description='You can undo this change later on the "Deleted areas" section.'
                     onConfirm={handleDeleteArea}
                 />
 

@@ -57,6 +57,7 @@ export function useBlueprintView(blueprintId: string) {
 
     return {
         blueprint,
+        setBlueprint,
         projectInfo,
         blueprtinImageUrl,
         availableModels,

@@ -59,7 +59,7 @@ import "react-image-crop/dist/ReactCrop.css";
 import { getCroppedImg } from "@/utils/cropImage";
 
 // TYPES
-import type { AreaColor, BlueprintViewType, CreateCropPayload, InferenceJobResult, InferenceJobStatus, InferenceJobType, SectionView, SpecialtyTag, YoloPrediction } from "@/types/types";
+import type { AreaColor, BlueprintViewType, CreateCropPayload, DragAreaState, EditAreaState, InferenceJobResult, InferenceJobStatus, InferenceJobType, Point, SectionView, SpecialtyTag, YoloPrediction } from "@/types/types";
 
 // CONTEXT
 import { useInferenceNotification } from "@/context/InferenceNotificationContext";
@@ -144,7 +144,6 @@ const BlueprintView = () => {
     const [isSavingAreas, setIsSavingAreas] = useState<boolean>(false)
     
     // CURRENT LABEL FILTER
-    //const [labelFilter, setLabelFilter] = useState<string>("All")
     const [selectedLabels, setSelectedLabels] = useState<string[]>([])
 
     useEffect(() => {
@@ -193,6 +192,69 @@ const BlueprintView = () => {
 
     // CONFIDENCE SELECTOR
     const [confidenceSelection, setConfidenceSelection] = useState(0.3)
+
+    // EDIT AREA VARIABLES
+    const [editAreaMode, setEditAreaMode] = useState<boolean>(false)
+    const [selectedAreaForEdit, setSelectedAreaForEdit] = useState<EditAreaState>({
+        index: null,
+        area: null,
+        orinigalAreaCoordsList: null,
+    })
+    const [dragState, setDragState] = useState<DragAreaState>(null)
+
+    // EDIT AREA USE EFFECT
+    useEffect(() => {
+        if (!dragState) return
+
+        const handleMouseMove = (event: MouseEvent) => {
+
+            if (
+                dragState.vertexIndex === undefined ||
+                !selectedAreaForEdit.area
+            ) {
+                return
+            }
+
+            const coords = getImageCoordinates(
+                event.clientX,
+                event.clientY
+            )
+
+            if (!coords) return
+
+            setSelectedAreaForEdit(prev => {
+
+                if (!prev.area) return prev
+
+                const newCoordsList = [...prev.area.coordsList]
+
+                newCoordsList[dragState.vertexIndex!] = {
+                    x: coords.x,
+                    y: coords.y
+                }
+
+                return {
+                    ...prev,
+                    area: {
+                        ...prev.area,
+                        coordsList: newCoordsList
+                    }
+                }
+            })
+        }
+
+        const handleMouseUp = () => {
+            setDragState(null)
+        }
+
+        window.addEventListener("mousemove", handleMouseMove)
+        window.addEventListener("mouseup", handleMouseUp)
+
+        return () => {
+            window.removeEventListener("mousemove", handleMouseMove)
+            window.removeEventListener("mouseup", handleMouseUp)
+        }
+    }, [dragState, selectedAreaForEdit.area])
 
     const formatKey = (key: string) =>
         key
@@ -771,6 +833,69 @@ const BlueprintView = () => {
         return color
     }
 
+    // EDIT AREA FUNCTIONS
+
+    const getImageCoordinates = (
+        clientX: number,
+        clientY: number
+    ): Point | null => {
+
+        if (!blueprintImageRef.current) {
+            return null
+        }
+
+        const rect =
+            blueprintImageRef.current.getBoundingClientRect()
+
+        const x =
+            ((clientX - rect.left) / rect.width)
+            * imageRes.width
+
+        const y =
+            ((clientY - rect.top) / rect.height)
+            * imageRes.height
+
+        return {
+            x,
+            y
+        }
+    }
+    
+    const selectAreaForEdit = (area: SectionView, index: number) => {
+        setSelectedAreaForEdit({
+            index, 
+            area: structuredClone(area),
+            orinigalAreaCoordsList: area.coordsList
+        })
+        setEditAreaMode(true)
+    }
+
+    const saveEditedArea = () => {
+        if (selectedAreaForEdit.index === null || !selectedAreaForEdit.area || !blueprint) {
+            setErrorAlertMessage("Error selecting area for editing")
+            setOpenErrorAlert(true)
+            return
+        }
+        const newBlueprintEdited = structuredClone(blueprint)
+
+        newBlueprintEdited.sectionViews[selectedAreaForEdit.index] =
+            selectedAreaForEdit.area
+
+        setBlueprint(newBlueprintEdited)
+
+        setEditAreaMode(false)
+    }
+
+    const cancelEditedArea = () => {
+        setEditAreaMode(false)
+        setSelectedAreaForEdit({
+            index: null,
+            area: null,
+            orinigalAreaCoordsList: null,
+        })
+        setDragState(null)
+    }
+
     if (loadingBlueprint || !blueprint) return <Loading/>
 
     if (error) {
@@ -934,7 +1059,7 @@ const BlueprintView = () => {
                 </Card>
 
                 {/* CONTROLS */}
-                {!cropMode && (
+                {!cropMode && !editAreaMode && (
                 <div className="flex flex-wrap items-start justify-center gap-8 mt-2">
 
                     {/* ZOOM SELECTOR */}
@@ -1062,6 +1187,50 @@ const BlueprintView = () => {
                 </div>
                 )}
 
+                {editAreaMode && (
+                    <div className="flex flex-wrap items-start justify-center gap-8 mt-2">
+
+                        <Button 
+                            variant="secondary"
+                            onClick={saveEditedArea}
+                        >
+                            Save edited area
+                        </Button>
+
+                        <Button
+                            variant="destructive"
+                            onClick={cancelEditedArea}
+                        >
+                            Cancel edition
+                        </Button>
+
+                    </div>
+                )}
+
+                {editAreaMode && selectedAreaForEdit && selectedAreaForEdit.area?.type === "circle" && (
+                    <div>
+                        <Button>
+                            Here will be the option to select circle radius
+                        </Button>
+                    </div>
+                )}
+
+                {editAreaMode && selectedAreaForEdit && selectedAreaForEdit.area?.type === "polyline" && (
+                    <div>
+                        <Button>
+                            Here will be the option to how many vertices there are for the polyline
+                        </Button>
+                    </div>
+                )}
+
+                {editAreaMode && selectedAreaForEdit && selectedAreaForEdit.area?.type === "polygon" && (
+                    <div>
+                        <Button>
+                            Here will be the option to how many vertices there are for the polygon
+                        </Button>
+                    </div>
+                )}
+
                 {/* ================= WORKSPACE ================= */}
                 <div className="flex gap-4 mt-4 items-start">
 
@@ -1108,17 +1277,20 @@ const BlueprintView = () => {
                                     {!hideDrawnAreas && (
                                     <svg
                                         viewBox={imageRes.width > 0 ? `0 0 ${imageRes.width} ${imageRes.height}` : undefined}
-                                        preserveAspectRatio="none"
-                                        style={{
-                                        position: "absolute",
-                                        top: 0,
-                                        left: 0,
-                                        width: "100%",
-                                        height: "100%",
-                                        pointerEvents: "none",
+                                            preserveAspectRatio="none"
+                                            style={{
+                                            position: "absolute",
+                                            top: 0,
+                                            left: 0,
+                                            width: "100%",
+                                            height: "100%",
+                                            pointerEvents: "none",
                                         }}
                                     >
                                         {filteredSectionViews.map((section, index) => {
+
+                                            // for area that is going to be edited, so that area is not drawn
+                                            if(editAreaMode && index === selectedAreaForEdit.index) return null
 
                                             // RECTANGLE
                                             if (section.type === "rectangle") {
@@ -1181,7 +1353,7 @@ const BlueprintView = () => {
 
                                                                     <ContextMenuItem
                                                                         onClick={() => {
-                                                                            console.log("Edit area", section)
+                                                                            selectAreaForEdit(section, index)
                                                                         }}
                                                                     >
                                                                         Edit
@@ -1266,7 +1438,7 @@ const BlueprintView = () => {
 
                                                                     <ContextMenuItem
                                                                         onClick={() => {
-                                                                            console.log("Edit area", section)
+                                                                            selectAreaForEdit(section, index)
                                                                         }}
                                                                     >
                                                                         Edit
@@ -1353,7 +1525,7 @@ const BlueprintView = () => {
 
                                                                     <ContextMenuItem
                                                                         onClick={() => {
-                                                                            console.log("Edit area", section)
+                                                                            selectAreaForEdit(section, index)
                                                                         }}
                                                                     >
                                                                         Edit
@@ -1440,7 +1612,7 @@ const BlueprintView = () => {
 
                                                                     <ContextMenuItem
                                                                         onClick={() => {
-                                                                            console.log("Edit area", section)
+                                                                            selectAreaForEdit(section, index)
                                                                         }}
                                                                     >
                                                                         Edit
@@ -1474,6 +1646,152 @@ const BlueprintView = () => {
 
                                             return null;
                                         })}
+
+                                        {/* EDIT AREA SECTION */}
+                                        {editAreaMode && selectedAreaForEdit.area && (
+                                            <>
+
+                                                {/* RECTANGLE */}
+                                                {selectedAreaForEdit.area.type === "rectangle" && (() => {
+
+                                                    const [p1, p2] = selectedAreaForEdit.area.coordsList
+
+                                                    if (!p1 || !p2) return null
+
+                                                    const x = Math.min(p1.x, p2.x)
+                                                    const y = Math.min(p1.y, p2.y)
+                                                    const width = Math.abs(p2.x - p1.x)
+                                                    const height = Math.abs(p2.y - p1.y)
+
+                                                    return (
+                                                        <rect
+                                                            x={x}
+                                                            y={y}
+                                                            width={width}
+                                                            height={height}
+                                                            fill="rgba(0, 123, 255, 0.2)"
+                                                            stroke="blue"
+                                                            strokeWidth={3}
+                                                            style={{
+                                                                pointerEvents: "auto",
+                                                                cursor: "move",
+                                                            }}
+                                                        />
+                                                    )
+
+                                                })()}
+
+                                                {/* POLYGON */}
+                                                {selectedAreaForEdit.area.type === "polygon" && (() => {
+
+                                                    const points =
+                                                        selectedAreaForEdit.area.coordsList
+                                                            .map(c => `${c.x},${c.y}`)
+                                                            .join(" ")
+
+                                                    return (
+                                                        <polygon
+                                                            points={points}
+                                                            fill="rgba(0, 123, 255, 0.2)"
+                                                            stroke="blue"
+                                                            strokeWidth={3}
+                                                            style={{
+                                                                pointerEvents: "auto",
+                                                                cursor: "move",
+                                                            }}
+                                                        />
+                                                    )
+
+                                                })()}
+
+                                                {/* CIRCLE */}
+                                                {selectedAreaForEdit.area.type === "circle" && (() => {
+
+                                                    const center =
+                                                        selectedAreaForEdit.area.coordsList[0]
+
+                                                    if (
+                                                        !center ||
+                                                        typeof selectedAreaForEdit.area.radius !== "number"
+                                                    ) {
+                                                        return null
+                                                    }
+
+                                                    return (
+                                                        <circle
+                                                            cx={center.x}
+                                                            cy={center.y}
+                                                            r={selectedAreaForEdit.area.radius}
+                                                            fill="rgba(0, 123, 255, 0.2)"
+                                                            stroke="blue"
+                                                            strokeWidth={3}
+                                                            style={{
+                                                                pointerEvents: "auto",
+                                                                cursor: "move",
+                                                            }}
+                                                        />
+                                                    )
+
+                                                })()}
+
+                                                {/* POLYLINE */}
+                                                {selectedAreaForEdit.area.type === "polyline" && (() => {
+
+                                                    const points =
+                                                        selectedAreaForEdit.area.coordsList
+                                                            .map(c => `${c.x},${c.y}`)
+                                                            .join(" ")
+
+                                                    return (
+                                                        <polyline
+                                                            points={points}
+                                                            fill="none"
+                                                            stroke="blue"
+                                                            strokeWidth={4}
+                                                            style={{
+                                                                pointerEvents: "auto",
+                                                                cursor: "move",
+                                                            }}
+                                                        />
+                                                    )
+
+                                                })()}
+
+                                                {/* VERTICES */}
+                                                {selectedAreaForEdit.area.coordsList.map((point, vertexIndex) => (
+                                                    <circle
+                                                        key={vertexIndex}
+                                                        cx={point.x}
+                                                        cy={point.y}
+                                                        r={10}
+                                                        fill="white"
+                                                        stroke="blue"
+                                                        strokeWidth={2}
+                                                        style={{
+                                                            cursor: "grab",
+                                                            pointerEvents: "auto",
+                                                        }}
+                                                        onMouseDown={(e) => {
+
+                                                            const coords = getImageCoordinates(
+                                                                e.clientX,
+                                                                e.clientY
+                                                            )
+
+                                                            if (!coords) return
+
+                                                            setDragState({
+                                                                areaIndex: selectedAreaForEdit.index!,
+                                                                vertexIndex,
+                                                                startMouse: coords
+                                                            })
+                                                        }}
+                                                    />
+                                                ))}
+
+                                            </>
+                                        )}
+
                                     </svg>
                                     )}
                                 </div>

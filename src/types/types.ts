@@ -451,3 +451,20 @@ export interface RecentActivityItem {
   targetId: string,
   timestamp: Date,
 }
+
+export type Point = {
+  x: number
+  y: number
+}
+
+export type EditAreaState = {
+  index: number | null
+  area: SectionView | null
+  orinigalAreaCoordsList: Point[] | null
+}
+
+export type DragAreaState = {
+  areaIndex: number,
+  vertexIndex?: number
+  startMouse: Point
+} | null

@@ -19,21 +19,33 @@ export function useUserProfilePage(userId?: string) {
             let organizations
             let userProjects
 
-            if(userId) {
-                [userData, organizations, userProjects] = await Promise.all([
-                    UserProfileService.getUserData(userId),
-                    UserProfileService.getUserOrganizationsAndRoles(userId),
-                    UserProfileService.getUserProjects(userId),
-                ])
+            if(userId){
+                userData = await UserProfileService.getUserData(userId)
             } else {
-                [userData, organizations, userProjects] = await Promise.all([
-                    UserProfileService.getMyData(),
-                    UserProfileService.getUserOrganizationsAndRoles(userId),
-                    UserProfileService.getUserProjects(userId),
-                ])
+                userData = await UserProfileService.getMyData()
             }
 
             setUser(userData)
+
+            if(userId) {
+                if(userData.self){
+                    [organizations, userProjects] = await Promise.all([
+                        UserProfileService.getUserOrganizationsAndRoles(userId),
+                        UserProfileService.getUserProjects(userId),
+                    ])
+                } else {
+                    [organizations, userProjects] = await Promise.all([
+                        UserProfileService.getUserOrganizationsInCommon(userId),
+                        [],
+                    ])
+                }
+            } else {
+                [organizations, userProjects] = await Promise.all([
+                    UserProfileService.getUserOrganizationsAndRoles(),
+                    UserProfileService.getUserProjects(),
+                ])
+            }
+
             setUserOrganizationsAndRoles(organizations)
             setUserProjectsList(userProjects)
 

@@ -67,6 +67,7 @@ const HomePage = () => {
       setValidToken(true)
       refreshOrganizationList()
       setIsValidating(false)
+      setOpenFirstTokenDialog(false)
     } catch (error) {
       setIsValidating(false)
       setInvalidToken(true)

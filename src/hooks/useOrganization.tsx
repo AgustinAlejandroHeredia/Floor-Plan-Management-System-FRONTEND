@@ -157,7 +157,7 @@ export function useOrganization(organizationId: string) {
     async (page: number = currentUserPage) => {
       setLoadingUsers(true)
       try {
-        const response = await OrganizationService.getOrganizationMembersAsAdmin(
+        const response = await OrganizationService.getOrganizationMembersAsMember(
           organizationId,
           page,
         )

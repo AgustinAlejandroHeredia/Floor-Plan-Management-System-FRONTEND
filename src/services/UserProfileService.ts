@@ -24,6 +24,11 @@ export const UserProfileService = {
         return response.data
     },
 
+    getUserOrganizationsInCommon: async (userId: string): Promise<OrganizationUserProfile[]> => {
+        const response = await api.get(`/organizations/organizationsInCommon/${userId}`)
+        return response.data
+    },
+
     getUserProjects: async (userId?: string): Promise<UserProjectListItem[]> => {
         const response = await api.get("/projects/userProjects", {
             params: userId ? {userId} : {}

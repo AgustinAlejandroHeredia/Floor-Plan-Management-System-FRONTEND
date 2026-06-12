@@ -48,7 +48,6 @@ import DatePickerField from "@/components/DatePickerField";
 import { EmptyProjects } from "@/components/EmptyProjects";
 import Loading from "@/components/Loading";
 import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button";

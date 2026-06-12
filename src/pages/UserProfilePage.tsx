@@ -82,7 +82,13 @@ const UserProfilePage = () => {
 
             <div className="main-content-item">
 
-                <h3 className="sub-heading">Your organizations ({userOrganizationsAndRoles.length}): </h3>
+                {user?.self === true ? (
+                    <h3 className="sub-heading">Your organizations</h3>
+                ) : (
+                    <h3 className="sub-heading">Organizations in common</h3>
+                )}
+
+                <p className="comment-text">Total organizations {userOrganizationsAndRoles.length}</p>
 
                 {userOrganizationsAndRoles.length === 0 ? (
 
@@ -172,13 +178,16 @@ const UserProfilePage = () => {
 
             </div>
 
+            {user?.self === true && (
             <div className="main-content-item">
 
-                <h3 className="sub-heading">Projects where you have participated ({userProjectsList.length}):</h3>
+                <h3 className="sub-heading">Projects where you have participated</h3>
+
+                <p className="comment-text">Total organizations {userProjectsList.length}</p>
 
                 {userProjectsList.length === 0 ? (
 
-                    <div>No projects yet</div>
+                    <div className="comment-text">You have no uploads yet</div>
 
                 ) : userProjectsList.length <= 4 ? (
 
@@ -253,7 +262,9 @@ const UserProfilePage = () => {
                 )}
 
             </div>
+            )}
 
+            {user?.self === true && (
             <div className="main-content-item">
                 <h3 className="sub-heading">More options</h3>
 
@@ -274,6 +285,7 @@ const UserProfilePage = () => {
                 </Button>
 
             </div>
+            )}
 
         </div>
         </div>

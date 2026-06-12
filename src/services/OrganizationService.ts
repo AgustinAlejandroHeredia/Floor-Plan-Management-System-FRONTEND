@@ -36,8 +36,8 @@ export const OrganizationService = {
     },
 
     // LIMIT : 30
-    getOrganizationMembersAsAdmin: async (organizationId: string, page: number): Promise<OrganizationMemberListResponse> => {
-        const response = await api.get(`/organizations/allMembers/admin/${organizationId}`,
+    getOrganizationMembersAsMember: async (organizationId: string, page: number): Promise<OrganizationMemberListResponse> => {
+        const response = await api.get(`/organizations/allMembers/member/${organizationId}`,
             {
                 params: {
                     page: page,

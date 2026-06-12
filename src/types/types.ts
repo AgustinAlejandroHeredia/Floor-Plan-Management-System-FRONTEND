@@ -320,6 +320,7 @@ export interface UserType {
   picture: string
   globalRole: string
   joinedAt: Date
+  self?: true
 }
 
 export interface UserListResponse {

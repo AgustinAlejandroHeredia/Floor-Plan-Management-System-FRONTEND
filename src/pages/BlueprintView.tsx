@@ -1081,6 +1081,7 @@ const BlueprintView = () => {
                         </p>
 
                         <input
+                            className="cursor-pointer"
                             type="range"
                             min={0.5}
                             max={3}
@@ -1101,6 +1102,7 @@ const BlueprintView = () => {
                                 Confidence level: {Math.round(confidenceSelection * 100)}%
                             </p>
                             <input
+                                className="cursor-pointer"
                                 type="range"
                                 min={0.1}
                                 max={1}
@@ -1127,7 +1129,10 @@ const BlueprintView = () => {
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline">
+                                    <Button 
+                                        className="cursor-pointer"
+                                        variant="outline"
+                                    >
                                         Select
                                     </Button>
                                 </DropdownMenuTrigger>
@@ -1182,6 +1187,7 @@ const BlueprintView = () => {
                             <div className="flex items-center space-x-2">
 
                                 <Switch
+                                    className="cursor-pointer"
                                     id="hidedrawnareas"
                                     checked={hideDrawnAreas}
                                     onCheckedChange={(value) => setHideDrawnAreas(value)}
@@ -1206,7 +1212,8 @@ const BlueprintView = () => {
                 {editAreaMode && (
                     <div className="flex flex-wrap items-start justify-center gap-8 mt-2">
 
-                        <Button 
+                        <Button
+                            className="cursor-pointer"
                             variant="secondary"
                             onClick={saveEditedArea}
                         >
@@ -1214,6 +1221,7 @@ const BlueprintView = () => {
                         </Button>
 
                         <Button
+                            className="cursor-pointer"
                             variant="destructive"
                             onClick={cancelEditedArea}
                         >
@@ -1893,10 +1901,16 @@ const BlueprintView = () => {
 
                                     {/* BOTONES */}
                                     <div className="flex gap-2 mt-4">
-                                        <Button onClick={() => setOpenCropForm(true)}>
+                                        <Button 
+                                            className="cursor-pointer"
+                                            onClick={() => setOpenCropForm(true)}
+                                        >
                                             Confirm crop
                                         </Button>
-                                        <Button variant="outline" onClick={handleCancelCrop}>
+                                        <Button 
+                                            className="cursor-pointer"
+                                            variant="outline" onClick={handleCancelCrop}
+                                        >
                                             Cancel
                                         </Button>
                                     </div>
@@ -1913,6 +1927,7 @@ const BlueprintView = () => {
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Button
+                                            className="cursor-pointer"
                                             size="icon"
                                             variant="secondary"
                                             onClick={handleDownloadFile}
@@ -1929,6 +1944,7 @@ const BlueprintView = () => {
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Button
+                                            className="cursor-pointer"
                                             size="icon"
                                             variant="secondary"
                                             onClick={handleLoadLabels}
@@ -1945,6 +1961,7 @@ const BlueprintView = () => {
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Button
+                                            className="cursor-pointer"
                                             size="icon"
                                             variant="secondary"
                                             onClick={handleCropMode}
@@ -1961,6 +1978,7 @@ const BlueprintView = () => {
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Button
+                                            className="cursor-pointer"
                                             size="icon"
                                             variant="secondary"
                                             onClick={handleMagicCrop}
@@ -1977,6 +1995,7 @@ const BlueprintView = () => {
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Button
+                                            className="cursor-pointer"
                                             size="icon"
                                             variant="secondary"
                                             onClick={() => handleAiCall()}
@@ -1994,6 +2013,7 @@ const BlueprintView = () => {
                                     <Tooltip>
                                         <TooltipTrigger asChild>
                                             <Button
+                                                className="cursor-pointer"
                                                 size="icon"
                                                 variant="secondary"
                                                 onClick={() => setOpenSaveAreasDialog(true)}
@@ -2011,6 +2031,7 @@ const BlueprintView = () => {
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Button
+                                            className="cursor-pointer"
                                             size="icon"
                                             variant="destructive"
                                             onClick={() => setOpenDeleteDialog(true)}
@@ -2064,6 +2085,7 @@ const BlueprintView = () => {
 
                                         <ItemActions className="flex gap-2 shrink-0">
                                             <Button
+                                                className="cursor-pointer"
                                                 variant="secondary"
                                                 onClick={() =>
                                                     undoDeletedArea(
@@ -2091,6 +2113,7 @@ const BlueprintView = () => {
                     <div className="main-content-item">
 
                         <Button 
+                            className="cursor-pointer"
                             variant="secondary"
                             onClick={() => setOpenSaveAreasDialog(true)}
                         >
@@ -2225,6 +2248,7 @@ const BlueprintView = () => {
                                         )}
                                     </div>
                                     <Button
+                                        className="cursor-pointer"
                                         style={{
                                             width: "fit-content",
                                             alignSelf: "flex-start",
@@ -2240,9 +2264,19 @@ const BlueprintView = () => {
 
                             <DialogFooter>
                                 <DialogClose asChild>
-                                    <Button variant="outline">Cancel</Button>
+                                    <Button 
+                                        className="cursor-pointer"
+                                        variant="outline"
+                                    >
+                                        Cancel
+                                    </Button>
                                 </DialogClose>
-                                <Button type="submit">Save</Button>
+                                <Button 
+                                    className="cursor-pointer"
+                                    type="submit"
+                                >
+                                    Save
+                                </Button>
                             </DialogFooter>
 
                         </form>
@@ -2398,7 +2432,8 @@ const BlueprintView = () => {
                             <Button variant="outline">Cancel</Button>
                         </DialogClose>
 
-                        <Button 
+                        <Button
+                            className="cursor-pointer"
                             type="submit"
                             onClick={() => handleSaveAreas()}
                         >
@@ -2508,13 +2543,17 @@ const BlueprintView = () => {
 
                             <DialogClose asChild>
 
-                                <Button variant="outline">
+                                <Button
+                                    className="cursor-pointer" 
+                                    variant="outline"
+                                >
                                     Cancel
                                 </Button>
 
                             </DialogClose>
 
                             <Button
+                                className="cursor-pointer"
                                 type="button"
                                 onClick={() => handleAiProcess()}
                             >

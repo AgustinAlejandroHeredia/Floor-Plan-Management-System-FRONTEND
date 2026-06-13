@@ -31,7 +31,7 @@ const MyProjectsPage = () => {
 
                     <p className="comment-text">Total projects {userProjectsList.length}</p>
 
-                    {userProjectsList.length === 0 && (
+                    {userProjectsList.length > 0 && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {userProjectsList.map((project) => (
                                 <Card

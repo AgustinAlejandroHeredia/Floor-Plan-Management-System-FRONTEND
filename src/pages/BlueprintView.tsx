@@ -1209,52 +1209,6 @@ const BlueprintView = () => {
                 </div>
                 )}
 
-                {editAreaMode && (
-                    <div className="flex flex-wrap items-start justify-center gap-8 mt-2">
-
-                        <Button
-                            className="cursor-pointer"
-                            variant="secondary"
-                            onClick={saveEditedArea}
-                        >
-                            Save edited area
-                        </Button>
-
-                        <Button
-                            className="cursor-pointer"
-                            variant="destructive"
-                            onClick={cancelEditedArea}
-                        >
-                            Cancel edition
-                        </Button>
-
-                    </div>
-                )}
-
-                {editAreaMode && selectedAreaForEdit && selectedAreaForEdit.area?.type === "circle" && (
-                    <div>
-                        <Button>
-                            Here will be the option to select circle radius
-                        </Button>
-                    </div>
-                )}
-
-                {editAreaMode && selectedAreaForEdit && selectedAreaForEdit.area?.type === "polyline" && (
-                    <div>
-                        <Button>
-                            Here will be the option to how many vertices there are for the polyline
-                        </Button>
-                    </div>
-                )}
-
-                {editAreaMode && selectedAreaForEdit && selectedAreaForEdit.area?.type === "polygon" && (
-                    <div>
-                        <Button>
-                            Here will be the option to how many vertices there are for the polygon
-                        </Button>
-                    </div>
-                )}
-
                 {/* ================= WORKSPACE ================= */}
                 <div className="flex gap-4 mt-4 items-start">
 
@@ -1909,7 +1863,7 @@ const BlueprintView = () => {
                                         </Button>
                                         <Button 
                                             className="cursor-pointer"
-                                            variant="outline" onClick={handleCancelCrop}
+                                            variant="destructive" onClick={handleCancelCrop}
                                         >
                                             Cancel
                                         </Button>
@@ -2049,6 +2003,55 @@ const BlueprintView = () => {
                         </Card>
                     </TooltipProvider>
 
+                </div>
+
+                {/* EDIT AREA */}
+                <div className="flex flex-col items-center">
+                    {editAreaMode && (
+                        <div className="flex flex-wrap items-start justify-center gap-8 mt-2">
+
+                            <Button
+                                className="cursor-pointer"
+                                variant="secondary"
+                                onClick={saveEditedArea}
+                            >
+                                Save edited area
+                            </Button>
+
+                            <Button
+                                className="cursor-pointer"
+                                variant="destructive"
+                                onClick={cancelEditedArea}
+                            >
+                                Cancel edition
+                            </Button>
+
+                        </div>
+                    )}
+
+                    {editAreaMode && selectedAreaForEdit && selectedAreaForEdit.area?.type === "circle" && (
+                        <div>
+                            <Button>
+                                Here will be the option to select circle radius
+                            </Button>
+                        </div>
+                    )}
+
+                    {editAreaMode && selectedAreaForEdit && selectedAreaForEdit.area?.type === "polyline" && (
+                        <div>
+                            <Button>
+                                Here will be the option to how many vertices there are for the polyline
+                            </Button>
+                        </div>
+                    )}
+
+                    {editAreaMode && selectedAreaForEdit && selectedAreaForEdit.area?.type === "polygon" && (
+                        <div>
+                            <Button>
+                                Here will be the option to how many vertices there are for the polygon
+                            </Button>
+                        </div>
+                    )}
                 </div>
 
                 </div>
@@ -2317,7 +2320,7 @@ const BlueprintView = () => {
                 <Toast
                     open={isUploadingCrop}
                     title="Uploading crop"
-                    description="Please wait while the crop is being uploaded..."
+                    description="Please wait while the crop is being uploaded, this can take a minute..."
                 />
 
                 {/* CROP SUCCESSFULY UPLOADED */}

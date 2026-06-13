@@ -99,7 +99,7 @@ const InvitationItem = ({
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-full hover:bg-blue-500"
+            className="rounded-full hover:bg-blue-500 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               onRefresh(invitation);
@@ -113,7 +113,7 @@ const InvitationItem = ({
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-full hover:bg-red-500"
+            className="rounded-full hover:bg-red-500 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               onDelete(invitation);

@@ -575,21 +575,21 @@ const DevOptions = () => {
                 >
                     <Button
                         variant="ghost"
-                        className="text-[var(--text)]"
+                        className="text-[var(--text)] cursor-pointer"
                         onClick={scrollToOrganizations}
                     >
                         Organization list
                     </Button>
                     <Button
                         variant="ghost"
-                        className="text-[var(--text)]"
+                        className="text-[var(--text)] cursor-pointer"
                         onClick={scrollToUsers}
                     >
                         Platform users
                     </Button>
                     <Button
                         variant="ghost"
-                        className="text-[var(--text)]"
+                        className="text-[var(--text)] cursor-pointer"
                         onClick={scrollToInvitations}
                     >
                         Invitations
@@ -603,7 +603,7 @@ const DevOptions = () => {
 
                 <Button
                     variant="ghost"
-                    className="text-[var(--text)]"
+                    className="text-[var(--text)] cursor-pointer"
                     onClick={() => setOpenCreateOrganization(true)}
                 >
                     Press here to open the organization creation tab
@@ -700,30 +700,35 @@ const DevOptions = () => {
                         {/* ORGANIZATION OPTIONS */}
                         <div className="flex gap-3 mt-4">
                             <Button
+                                className="cursor-pointer"
                                 variant="outline"
                                 onClick={() => handleViewOrganization(org._id, org.name)}
                             >
                                 View organization
                             </Button>
                             <Button
+                                className="cursor-pointer"
                                 variant="outline"
                                 onClick={() => handleSelectOrganizationForEdit(org._id)}
                             >
                                 Edit organization
                             </Button>
                             <Button
+                                className="cursor-pointer"
                                 variant="outline"
                                 onClick={() => handleSelectOrganizationForInvitation(org._id)}
                             >
                                 Invite user
                             </Button>
                             <Button
+                                className="cursor-pointer"
                                 variant="outline"
                                 onClick={() => handleSelectOrganizationForAddUser(org._id)}
                             >
                                 Add user
                             </Button>
                             <Button
+                                className="cursor-pointer"
                                 variant="destructive"
                                 onClick={() => handleSelectOrganizationForDelete(org._id)}
                             >
@@ -928,7 +933,7 @@ const DevOptions = () => {
                                 <Field>
                                     <Label htmlFor="admin">Select admin</Label>
                                     <Select onValueChange={setSelectedAdminId}>
-                                        <SelectTrigger>
+                                        <SelectTrigger className="cursor-pointer">
                                             <SelectValue placeholder="Select admin"/>
                                         </SelectTrigger>
                                         <SelectContent position="popper">
@@ -954,7 +959,7 @@ const DevOptions = () => {
                                         defaultValue="admins"
                                         onValueChange={(value) => setCreationPermission(value as ActionPermission)}
                                     >
-                                        <SelectTrigger>
+                                        <SelectTrigger className="cursor-pointer">
                                             <SelectValue/>
                                         </SelectTrigger>
                                         <SelectContent position="popper">
@@ -972,7 +977,7 @@ const DevOptions = () => {
                                         defaultValue="admins"
                                         onValueChange={(value) => setInvitationPermission(value as ActionPermission)}
                                     >
-                                        <SelectTrigger>
+                                        <SelectTrigger className="cursor-pointer">
                                             <SelectValue/>
                                         </SelectTrigger>
                                         <SelectContent position="popper">
@@ -988,9 +993,9 @@ const DevOptions = () => {
 
                             <DialogFooter>
                                 <DialogClose asChild>
-                                    <Button variant="outline">Cancel</Button>
+                                    <Button className="cursor-pointer" variant="outline">Cancel</Button>
                                 </DialogClose>
-                                <Button type="submit">Create</Button>
+                                <Button className="cursor-pointer" type="submit">Create</Button>
                             </DialogFooter>
 
                         </form>
@@ -1092,7 +1097,7 @@ const DevOptions = () => {
                                         defaultValue={selectedOrganizationForEdit?.createPermission}
                                         onValueChange={(value) => setCreationPermission(value as ActionPermission)}
                                     >
-                                        <SelectTrigger>
+                                        <SelectTrigger className="cursor-pointer">
                                             <SelectValue/>
                                         </SelectTrigger>
                                         <SelectContent position="popper">
@@ -1110,7 +1115,7 @@ const DevOptions = () => {
                                         defaultValue={selectedOrganizationForEdit?.invitePermission}
                                         onValueChange={(value) => setInvitationPermission(value as ActionPermission)}
                                     >
-                                        <SelectTrigger>
+                                        <SelectTrigger className="cursor-pointer">
                                             <SelectValue/>
                                         </SelectTrigger>
                                         <SelectContent position="popper">
@@ -1173,7 +1178,7 @@ const DevOptions = () => {
                                     defaultValue="member"
                                     onValueChange={(value) => setInvitationRoleSelected(value as OrganizationRole)} 
                                 >
-                                    <SelectTrigger>
+                                    <SelectTrigger className="cursor-pointer">
                                         <SelectValue/>
                                     </SelectTrigger>
                                     <SelectContent
@@ -1192,7 +1197,7 @@ const DevOptions = () => {
                         {!showInvitationHelp && (
                             <Button
                                 variant="link"
-                                className="mb-4"
+                                className="mb-4 cursor-pointer"
                                 onClick={showOrHideSendInvitationHelp}
                             >
                                 More info
@@ -1205,6 +1210,7 @@ const DevOptions = () => {
                                     Once you enter the email address of the user you wish to invite and select the role they will have (Member by default), an email will be sent containing a code/token. The invited user can then enter this code/token in the "Home" section under "Join Organization." Upon entering the code/token, access to your organization will be granted. 
                                 </p>
                                 <Button
+                                    className="cursor-pointer"
                                     onClick={showOrHideSendInvitationHelp}
                                 >
                                     Close information
@@ -1214,6 +1220,7 @@ const DevOptions = () => {
 
                         <DialogFooter>
                             <Button
+                                className="cursor-pointer"
                                 type="button"
                                 variant="outline"
                                 onClick={() => {
@@ -1224,6 +1231,7 @@ const DevOptions = () => {
                                 Cancel
                             </Button>
                             <Button
+                                className="cursor-pointer"
                                 type="submit"
                             >
                                 Send
@@ -1262,6 +1270,7 @@ const DevOptions = () => {
                     </DialogHeader>
                     <DialogFooter>
                         <Button
+                            className="cursor-pointer"
                             type="button"
                             variant="outline"
                             onClick={() => setInvitationExists(false)}
@@ -1291,7 +1300,7 @@ const DevOptions = () => {
                                 value={selectedUserForAddUserId}
                                 onValueChange={setSelectedUserForAddUserId}
                             >
-                                <SelectTrigger>
+                                <SelectTrigger className="cursor-pointer">
                                     <SelectValue placeholder="Select a user"></SelectValue>
                                 </SelectTrigger>
 
@@ -1318,7 +1327,7 @@ const DevOptions = () => {
                                 defaultValue="member"
                                 onValueChange={(value) => setInvitationRoleSelected(value as OrganizationRole)} 
                             >
-                                <SelectTrigger>
+                                <SelectTrigger className="cursor-pointer">
                                     <SelectValue/>
                                 </SelectTrigger>
                                 <SelectContent
@@ -1336,6 +1345,7 @@ const DevOptions = () => {
 
                     <DialogFooter>
                         <Button
+                            className="cursor-pointer"
                             type="button"
                             variant="outline"
                             onClick={() => {
@@ -1348,6 +1358,7 @@ const DevOptions = () => {
                             Cancel
                         </Button>
                         <Button
+                            className="cursor-pointer"
                             type="button"
                             variant="outline"
                             onClick={() => handleAddUser()}
@@ -1397,11 +1408,14 @@ const DevOptions = () => {
                             </AlertDialogHeader>
 
                             <AlertDialogFooter>
-                                <AlertDialogCancel>
+                                <AlertDialogCancel
+                                    className="cursor-pointer"
+                                >
                                     Cancel
                                 </AlertDialogCancel>
 
                                 <AlertDialogAction
+                                    className="cursor-pointer"
                                     variant="destructive"
                                     onClick={handleKickUser}
                                 >
@@ -1456,11 +1470,14 @@ const DevOptions = () => {
                         </AlertDialogHeader>
 
                         <AlertDialogFooter>
-                            <AlertDialogCancel>
+                            <AlertDialogCancel
+                                className="cursor-pointer"
+                            >
                                 Cancel
                             </AlertDialogCancel>
 
                             <AlertDialogAction
+                                className="cursor-pointer"
                                 variant="outline"
                                 onClick={handleRefreshInvitation}
                             >
@@ -1508,11 +1525,14 @@ const DevOptions = () => {
                         </AlertDialogHeader>
 
                         <AlertDialogFooter>
-                            <AlertDialogCancel>
+                            <AlertDialogCancel
+                                className="cursor-pointer"
+                            >
                                 Cancel
                             </AlertDialogCancel>
 
                             <AlertDialogAction
+                                className="cursor-pointer"
                                 variant="destructive"
                                 onClick={handleDeleteInvitation}
                             >

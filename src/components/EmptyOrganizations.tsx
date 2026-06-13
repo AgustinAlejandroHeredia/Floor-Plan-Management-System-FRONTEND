@@ -28,6 +28,7 @@ export function EmptyOrganizations({ onJoinClick }: EmptyOrganizationsProps) {
       </EmptyHeader>
       <EmptyContent>
         <Button
+          className="cursor-pointer"
           variant="outline"
           size="sm"
           onClick={onJoinClick}

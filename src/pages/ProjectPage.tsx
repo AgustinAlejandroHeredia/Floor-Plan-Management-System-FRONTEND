@@ -393,6 +393,7 @@ const ProjectPage = () => {
           <Separator/>
           <p className="info-text">Danger zone</p>
           <Button
+              className="cursor-pointer"
               variant="destructive"
               onClick={() => handleSelectProjectForDelete()}
           >
@@ -453,6 +454,7 @@ const ProjectPage = () => {
 
               <DialogFooter>
                 <Button
+                  className="cursor-pointer"
                   type="button"
                   variant="outline"
                   onClick={() => setOpenCreation(false)}
@@ -460,7 +462,10 @@ const ProjectPage = () => {
                   Cancel
                 </Button>
 
-                <Button type="submit">
+                <Button 
+                  className="cursor-pointer"
+                  type="submit"
+                >
                   Upload
                 </Button>
               </DialogFooter>

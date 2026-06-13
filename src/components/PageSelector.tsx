@@ -38,6 +38,7 @@ export default function PageSelector({
     <div className="flex items-center gap-2">
 
       <Button
+        className="cursor-pointer"
         variant="outline"
         size="sm"
         disabled={currentPage === 1}
@@ -63,6 +64,7 @@ export default function PageSelector({
 
         return (
           <Button
+            className="cursor-pointer"
             key={item}
             size="sm"
             variant={
@@ -80,6 +82,7 @@ export default function PageSelector({
       })}
 
       <Button
+        className="cursor-pointer"
         variant="outline"
         size="sm"
         disabled={currentPage === pages}

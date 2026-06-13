@@ -107,9 +107,9 @@ const HomePage = () => {
                   value={token}
                   onChange={(e) => setToken(e.target.value)}
                 />
-                <Button 
+                <Button
                   variant="ghost"
-                  className="text-[var(--text)]"
+                  className="text-[var(--text)] cursor-pointer"
                   onClick={() => handleValidateToken(token)}
                 >
                   Join

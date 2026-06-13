@@ -28,6 +28,7 @@ export default function SectionNavigation({
         <CardContent className="flex flex-wrap gap-2 p-1">
           {sections.map((section) => (
             <Button
+              className="cursor-pointer"
               key={section.label}
               size="sm"
               variant="outline"

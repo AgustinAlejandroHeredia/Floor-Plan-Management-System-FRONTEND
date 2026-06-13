@@ -2161,7 +2161,7 @@ const BlueprintView = () => {
                                 <Select
                                     onValueChange={(value) => setViewSelected(value as BlueprintViewType)}
                                 >
-                                    <SelectTrigger className="w-full max-w-48">
+                                    <SelectTrigger className="w-full max-w-48 cursor-pointer">
                                         <SelectValue placeholder={viewSelected === "undefined" ? "Select view" : viewSelected.charAt(0).toUpperCase() + viewSelected.slice(1)} />
                                     </SelectTrigger>
                                     <SelectContent position="popper">
@@ -2222,6 +2222,7 @@ const BlueprintView = () => {
                                 </div>
 
                                 <Button
+                                    className="cursor-pointer"
                                     type="button"
                                     onClick={() => setOpenEditSpecialtiesPicker(true)}
                                     style={{

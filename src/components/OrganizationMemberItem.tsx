@@ -90,7 +90,7 @@ const OrganizationMemberItem = ({
         <Button
           variant="ghost"
           size="icon"
-          className="rounded-full hover:bg-white"
+          className="rounded-full hover:bg-white cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
             onViewUser(member._id);
@@ -104,7 +104,7 @@ const OrganizationMemberItem = ({
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-full hover:bg-blue-500"
+            className="rounded-full hover:bg-blue-500 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               const mappedMember: OrganizationMembersList = {
@@ -128,7 +128,7 @@ const OrganizationMemberItem = ({
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full hover:bg-red-500"
+              className="rounded-full hover:bg-red-500 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 onRemoveUser(member._id);

@@ -503,7 +503,7 @@ const OrganizationPage = () => {
                 {(userOrganizationRole === "admin" || organizationPermissions.createPermission === "members") && (
                     <Button
                         variant="ghost"
-                        className="text-[var(--text)]"
+                        className="text-[var(--text)] cursor-pointer"
                         onClick={() => setOpenCreationDialog(true)}
                     >
                         Create project
@@ -514,7 +514,7 @@ const OrganizationPage = () => {
                 {(userOrganizationRole === "admin" || organizationPermissions.invitePermission === "members") && (
                     <Button
                         variant="ghost"
-                        className="text-[var(--text)]"
+                        className="text-[var(--text)] cursor-pointer"
                         onClick={() => setOpenInvitationDialog(true)}
                     >
                         Invite member
@@ -523,7 +523,7 @@ const OrganizationPage = () => {
 
                 <Button
                     variant="ghost"
-                    className="text-[var(--text)]"
+                    className="text-[var(--text)] cursor-pointer"
                     onClick={handleScrollToUsers}
                 >
                     View members
@@ -533,7 +533,7 @@ const OrganizationPage = () => {
                 {userOrganizationRole === "admin" && (
                     <Button
                         variant="ghost"
-                        className="text-[var(--text)]"
+                        className="text-[var(--text)] cursor-pointer"
                         onClick={() => loadEditVariables()}
                     >
                         Change action permissions
@@ -710,6 +710,7 @@ const OrganizationPage = () => {
             </div>
 
             <Button 
+                className="cursor-pointer"
                 variant="destructive"
                 onClick={() => setOpenLeaveOrganizationDialog(true)}
             >
@@ -883,6 +884,7 @@ const OrganizationPage = () => {
 
                         {/* Add field button */}
                         <Button
+                            className="cursor-pointer"
                             type="button"
                             variant="outline"
                             onClick={() => setOpenNewFieldDialog(true)}
@@ -945,7 +947,10 @@ const OrganizationPage = () => {
                         <Button variant="outline">Cancel</Button>
                     </DialogClose>
 
-                    <Button onClick={handleAddField}>
+                    <Button
+                        className="cursor-pointer" 
+                        onClick={handleAddField}
+                    >
                         Create
                     </Button>
                     </DialogFooter>
@@ -965,7 +970,10 @@ const OrganizationPage = () => {
 
                     <AlertDialogFooter>
                         <div className="flex justify-end"></div>
-                        <AlertDialogAction onClick={() => setErrorOpen(false)}>
+                        <AlertDialogAction 
+                            className="cursor-pointer"
+                            onClick={() => setErrorOpen(false)}
+                        >
                             Ok
                         </AlertDialogAction>
                     </AlertDialogFooter>
@@ -1023,7 +1031,7 @@ const OrganizationPage = () => {
                         {!showInvitationHelp && (
                             <Button
                                 variant="link"
-                                className="mb-4"
+                                className="mb-4 cursor-pointer"
                                 onClick={showOrHideSendInvitation}
                             >
                                 More info
@@ -1045,6 +1053,7 @@ const OrganizationPage = () => {
 
                         <DialogFooter>
                             <Button
+                                className="cursor-pointer"
                                 type="button"
                                 variant="outline"
                                 onClick={() => setOpenInvitationDialog(false)}
@@ -1052,6 +1061,7 @@ const OrganizationPage = () => {
                                 Cancel
                             </Button>
                             <Button
+                                className="cursor-pointer"
                                 type="submit"
                             >
                                 Send
@@ -1117,7 +1127,10 @@ const OrganizationPage = () => {
                         <Button variant="outline">Cancel</Button>
                     </DialogClose>
 
-                    <Button onClick={handleEditActionPermissions}>
+                    <Button 
+                        className="cursor-pointer"
+                        onClick={handleEditActionPermissions}
+                    >
                         Update
                     </Button>
                     </DialogFooter>
@@ -1163,11 +1176,14 @@ const OrganizationPage = () => {
                     </AlertDialogHeader>
 
                     <AlertDialogFooter>
-                        <AlertDialogCancel>
+                        <AlertDialogCancel
+                            className="cursor-pointer"
+                        >
                             Cancel
                         </AlertDialogCancel>
 
                         <AlertDialogAction
+                            className="cursor-pointer"
                             variant="destructive"
                             onClick={handleChangeUserOrganizationRole}
                         >
@@ -1199,11 +1215,14 @@ const OrganizationPage = () => {
                         </AlertDialogHeader>
 
                         <AlertDialogFooter>
-                            <AlertDialogCancel>
+                            <AlertDialogCancel
+                                className="cursor-pointer"
+                            >
                                 Cancel
                             </AlertDialogCancel>
 
                             <AlertDialogAction
+                                className="cursor-pointer"
                                 variant="destructive"
                                 onClick={handleKickUser}
                             >
@@ -1259,11 +1278,14 @@ const OrganizationPage = () => {
                             </AlertDialogHeader>
 
                             <AlertDialogFooter>
-                            <AlertDialogCancel>
+                            <AlertDialogCancel
+                                className="cursor-pointer"
+                            >
                                 Cancel
                             </AlertDialogCancel>
 
                             <AlertDialogAction
+                                className="cursor-pointer"
                                 variant="destructive"
                                 onClick={handleLeaveOrganization}
                             >
@@ -1314,6 +1336,7 @@ const OrganizationPage = () => {
                 <DialogFooter>
                     {userOrganizationRole === "admin" && organizationPermissions.invitePermission === "admins" && (
                         <Button
+                            className="cursor-pointer"
                             type="button"
                             variant="outline"
                             onClick={handleScrollToInvitations}
@@ -1322,6 +1345,7 @@ const OrganizationPage = () => {
                         </Button>
                     )}
                     <Button
+                        className="cursor-pointer"
                         type="button"
                         variant="outline"
                         onClick={() => setInvitationExists(false)}
@@ -1369,11 +1393,14 @@ const OrganizationPage = () => {
                     </AlertDialogHeader>
 
                     <AlertDialogFooter>
-                        <AlertDialogCancel>
+                        <AlertDialogCancel
+                            className="cursor-pointer"
+                        >
                             Cancel
                         </AlertDialogCancel>
 
                         <AlertDialogAction
+                            className="cursor-pointer"
                             variant="outline"
                             onClick={handleRefreshInvitation}
                         >
@@ -1421,11 +1448,14 @@ const OrganizationPage = () => {
                     </AlertDialogHeader>
 
                     <AlertDialogFooter>
-                        <AlertDialogCancel>
+                        <AlertDialogCancel
+                            className="cursor-pointer"
+                        >
                             Cancel
                         </AlertDialogCancel>
 
                         <AlertDialogAction
+                            className="cursor-pointer"
                             variant="destructive"
                             onClick={handleDeleteInvitation}
                         >

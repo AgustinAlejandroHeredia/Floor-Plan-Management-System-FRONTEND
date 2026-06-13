@@ -2352,7 +2352,9 @@ const BlueprintView = () => {
                 <Toast
                     open={isProcessing}
                     title="Processing blueprint..."
-                    description="Please wait while this blueprint is being processed by IA, this can take some minutes..."
+                    description={
+                        "Your blueprint is currently being processed by AI. This operation may take several minutes to complete.\n\nYou may continue navigating the application during this time. A notification will be displayed in the bottom-right corner once processing has finished."
+                    }
                 />
 
                 {/* DELETE AREA ALERT DIALOG */}

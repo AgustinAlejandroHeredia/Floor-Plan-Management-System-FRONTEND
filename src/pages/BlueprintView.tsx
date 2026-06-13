@@ -649,7 +649,7 @@ const BlueprintView = () => {
                         completed.result.predictions
                     )
 
-                console.log("FUNCTION / conversionToSectionView : ", conversionToSectionView)
+                //console.log("FUNCTION / conversionToSectionView : ", conversionToSectionView)
 
                 setBlueprint(prev => {
                     if (!prev) return prev

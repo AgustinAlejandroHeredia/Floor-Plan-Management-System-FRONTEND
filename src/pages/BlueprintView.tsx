@@ -2353,7 +2353,7 @@ const BlueprintView = () => {
                     open={isProcessing}
                     title="Processing blueprint..."
                     description={
-                        "Your blueprint is currently being processed by AI. This operation may take several minutes to complete.\n\nYou may continue navigating the application during this time. A notification will be displayed in the bottom-right corner once processing has finished."
+                        "Your blueprint is being processed by AI.\n\nYou may continue using the application and will be notified once processing is complete."
                     }
                 />
 

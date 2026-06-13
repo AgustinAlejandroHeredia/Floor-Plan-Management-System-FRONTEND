@@ -1139,14 +1139,15 @@ const BlueprintView = () => {
 
                                     <DropdownMenuSeparator />
 
-                                    <DropdownMenuItem
-                                        onSelect={(e) => {
+                                    <Button
+                                        className="cursor-pointer"
+                                        onClick={(e) => {
                                             e.preventDefault()
                                             setSelectedLabels([])
                                         }}
                                     >
                                         Show all areas
-                                    </DropdownMenuItem>
+                                    </Button>
 
                                     {labelOptions.map((item) => (
                                         <div
@@ -1154,6 +1155,7 @@ const BlueprintView = () => {
                                             className="flex items-center gap-2 px-2 py-1"
                                         >
                                             <Checkbox
+                                                className="cursor-pointer"
                                                 checked={!selectedLabels.includes(item.label)}
                                                 onCheckedChange={() => toggleLabel(item.label)}
                                             />

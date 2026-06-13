@@ -184,6 +184,9 @@ const BlueprintView = () => {
         height: 0,
     })
 
+    // CONTROLS STATE TO SHOW
+    const [thereAreAreasToShow, setThereAreAreasToShow] = useState<boolean>(false)
+
     // CROP ZOOM
     const [cropZoom, setCropZoom] = useState(1);
 
@@ -255,6 +258,15 @@ const BlueprintView = () => {
             window.removeEventListener("mouseup", handleMouseUp)
         }
     }, [dragState, selectedAreaForEdit.area])
+
+    // SHOW CONTROLS IF THERE ARE AREAS
+    useEffect(() => {
+        if(blueprint && blueprint.sectionViews && blueprint.sectionViews.length > 0){
+            setThereAreAreasToShow(true)
+        }else{
+            setThereAreAreasToShow(false)
+        }
+    }, [blueprint])
 
     const formatKey = (key: string) =>
         key
@@ -1007,7 +1019,7 @@ const BlueprintView = () => {
                                 </div>
                             )}
 
-                            {blueprint?.sectionViews.length !== 0 && (
+                            {thereAreAreasToShow && (
                                 <div>
                                     <p className="text-sm text-muted-foreground">
                                         Areas
@@ -1083,28 +1095,30 @@ const BlueprintView = () => {
                     </div>
 
                     {/* CONFIDENCE SELECTION */}
-                    <div className="flex flex-col items-center">
-                        <p className="info-text">
-                            Confidence level: {Math.round(confidenceSelection * 100)}%
-                        </p>
-                        <input
-                            type="range"
-                            min={0.1}
-                            max={1}
-                            step={0.1}
-                            value={confidenceSelection}
-                            onChange={(e) => {
-                                setConfidenceSelection(Number(e.target.value))
-                            }}
-                            style={{
-                                accentColor: "var(--text-h)",
-                                width: "250px",
-                            }}
-                        />
-                    </div>
+                    {thereAreAreasToShow && (
+                        <div className="flex flex-col items-center">
+                            <p className="info-text">
+                                Confidence level: {Math.round(confidenceSelection * 100)}%
+                            </p>
+                            <input
+                                type="range"
+                                min={0.1}
+                                max={1}
+                                step={0.1}
+                                value={confidenceSelection}
+                                onChange={(e) => {
+                                    setConfidenceSelection(Number(e.target.value))
+                                }}
+                                style={{
+                                    accentColor: "var(--text-h)",
+                                    width: "250px",
+                                }}
+                            />
+                        </div>
+                    )}
 
                     {/* LABEL FILETER AND COUNT */}
-                    {blueprint?.sectionViews?.length > 0 && (
+                    {thereAreAreasToShow && (
                         <div className="flex flex-col items-center">
 
                             <Label className="info-text">
@@ -1156,7 +1170,7 @@ const BlueprintView = () => {
                     )}
 
                     {/* HIDE / SHOW DRAWN AREAS */}
-                    {blueprint?.sectionViews?.length > 0 && (
+                    {thereAreAreasToShow && (
                         <div className="flex flex-col items-center">
 
                             <Label className="info-text">
@@ -1974,7 +1988,7 @@ const BlueprintView = () => {
                                     </TooltipContent>
                                 </Tooltip>
 
-                                {blueprint.sectionViews.length > 0 && (
+                                {thereAreAreasToShow && (
                                     <Tooltip>
                                         <TooltipTrigger asChild>
                                             <Button
@@ -2071,7 +2085,7 @@ const BlueprintView = () => {
                 )}
 
                 {/* SAVE AREAS */}
-                {blueprint.sectionViews.length > 0 && (
+                {thereAreAreasToShow && (
                     <div className="main-content-item">
 
                         <Button 

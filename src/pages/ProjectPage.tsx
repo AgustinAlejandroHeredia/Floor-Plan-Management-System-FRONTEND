@@ -138,13 +138,6 @@ const ProjectPage = () => {
     const formData = new FormData(form);
 
     const blueprintName = formData.get("blueprintName") as string;
-    
-    const tagsRaw = (formData.get("tags") as string) || "";
-
-    const tags = tagsRaw
-      .split(",")
-      .map((t) => t.trim())
-      .filter((t) => t.length > 0);
 
     try {
 
@@ -163,7 +156,6 @@ const ProjectPage = () => {
             blueprintName: numberedName,
             projectId: projectId!,
             organizationId: organizationId!,
-            tags,
           };
 
           const response = await ProjectService.createBlueprint(payload);
@@ -186,7 +178,6 @@ const ProjectPage = () => {
           blueprintName,
           projectId: projectId!,
           organizationId: organizationId!,
-          tags,
         };
 
         const response = await ProjectService.createBlueprint(payload);

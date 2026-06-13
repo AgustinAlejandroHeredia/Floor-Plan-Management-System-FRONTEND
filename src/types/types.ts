@@ -274,7 +274,6 @@ export interface CreateBlueprintPayload {
   blueprintName: string;
   projectId: string;
   organizationId: string;
-  // tags
   specialties?: SpecialtyTag[];
   levels?: string;
   view?: BlueprintViewType;

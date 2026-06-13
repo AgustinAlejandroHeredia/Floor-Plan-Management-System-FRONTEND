@@ -32,7 +32,7 @@ const InfoDialog = ({
           <AlertDialogTitle>{title}</AlertDialogTitle>
 
           {description && (
-            <AlertDialogDescription>
+            <AlertDialogDescription className="whitespace-pre-line">
               {description}
             </AlertDialogDescription>
           )}

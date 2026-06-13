@@ -596,7 +596,7 @@ const BlueprintView = () => {
 
         if (!blueprint?.specialties?.length) {
             setErrorAlertMessage(
-                'No specialties selected for this blueprint. Edit this blueprint first.'
+                `No specialties selected for this blueprint.\nYou need to edit all the blueprint fields that appear as "Unspecified" to use this functionality.\n\nRequired fields:\n- Point of view\n- Specialties\n- Levels`
             );
             setOpenErrorAlert(true);
             return;
@@ -613,7 +613,7 @@ const BlueprintView = () => {
 
         if (specialtiesWithModels.length === 0) {
             setErrorAlertMessage(
-                'Sorry, there are no AI models available for these specialties.'
+                'Sorry, there are no AI models available for the selected specialties.'
             );
             setOpenErrorAlert(true);
             return;
@@ -624,7 +624,7 @@ const BlueprintView = () => {
 
     const handleAiProcess = async () => {
         if (blueprint?.view === "undefined" || blueprint?.specialties.length === 0 || blueprint?.levels.length === 0) {
-            setErrorAlertMessage('You must edit this blueprint to set a value for the fields that says "Undefined" for the AI to process the blueprint.')
+            setErrorAlertMessage(`You need to edit all the blueprint fields that appear as "Unspecified" to use this functionality.\n\nRequired fields:\n- Point of view\n- Specialties\n- Levels`)
             setOpenErrorAlert(true)
             return
         }

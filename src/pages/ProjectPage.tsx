@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dialog";
 
 import Loading from "@/components/Loading";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ProjectService } from "@/services/ProjectService";
 import { Button } from "@/components/ui/button";
 import { FieldGroup, Field } from "@/components/ui/field";
@@ -34,6 +34,7 @@ import InfoDialog from "@/components/InfoDialog";
 import { Separator } from "@/components/ui/separator";
 import type { ProjectOrganizationType } from "@/types/types";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
+import SectionNavigation from "@/components/SectionNavigation";
 
 const ProjectPage = () => {
   const { organizationName, organizationId, projectName, projectId } =
@@ -378,7 +379,7 @@ const ProjectPage = () => {
           </div>
         </div>
 
-        {/* DABNGER ZONE */}
+        {/* DANGER ZONE */}
         {(organizationPermissions.createPermission === "members" || (organizationPermissions.createPermission === "admins" && userOrganizationRole === "admin")) && (
         <div className="main-content-item">
           <Separator/>

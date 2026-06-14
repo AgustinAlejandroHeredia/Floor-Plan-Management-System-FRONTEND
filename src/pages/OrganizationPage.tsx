@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { OrganizationService } from "@/services/OrganizationService";
 import { InvitationService } from "@/services/InvitationService";
 import BreadcrumbBar from "@/components/BreadcrumbBar";
@@ -14,9 +14,6 @@ import {
   CardContent,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  ItemGroup,
-} from "@/components/ui/item"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,11 +52,12 @@ import { useState } from "react";
 
 import OrganizationMemberItem from "@/components/OrganizationMemberItem";
 import { Label } from "@/components/ui/label";
-import type { ActionPermission, CreateProjectPayload, InvitationItemData, InvitationPayload, OrganizationActionPermissions, OrganizationMembersList, OrganizationRole, ProjectOrganizationType } from "@/types/types";
+import type { ActionPermission, CreateProjectPayload, InvitationItemData, InvitationPayload, OrganizationActionPermissions, OrganizationMembersList, OrganizationRole } from "@/types/types";
 import Toast from "@/components/Toast";
 import InfoDialog from "@/components/InfoDialog";
 import InvitationItem from "@/components/InvitationItem";
 import PageSelector from "@/components/PageSelector";
+import SectionNavigation from "@/components/SectionNavigation";
 
 const OrganizationPage = () => {
 
@@ -67,8 +65,11 @@ const OrganizationPage = () => {
 
     const navigate = useNavigate()
 
+    // INDEX
+    const projectsSectionRef = useRef<HTMLDivElement | null>(null)
     const usersSectionRef = useRef<HTMLDivElement | null>(null)
     const invitationsSectionRef = useRef<HTMLDivElement | null>(null)
+    const topSectionRef = useRef<HTMLDivElement | null>(null)
 
     // FLOATING INDEX
     const navigationRef = useRef<HTMLDivElement | null>(null)
@@ -124,8 +125,24 @@ const OrganizationPage = () => {
     // HOOK
     const { organizationPermissions, projects, userOrganizationRole, organizationMembersList, organizationInvitationsList, hasMoreThanOneAdmin, projectsCount, usersCount, invitationsCount, projectPages, userPages, invitationPages, currentProjectPage, currentUserPage, currentInvitationPage, setCurrentProjectPage, setCurrentUserPage, setCurrentInvitationPage, refreshPermissions, refreshProjects, refreshUsers, refreshInvitations, loadingGeneral, loadingUserRoleAndPermissisons, loadingProjects, loadingUsers, loadingInvitations, error } = useOrganization(id!)
 
+    // FLOATIN INDEX USE EFFECT
+    useEffect(() => {
+        if (!navigationRef.current) return
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                setShowFloatingNavigation(
+                    !entry.isIntersecting,
+                )
+            },
+        )
+
+        observer.observe(navigationRef.current)
+
+        return () => observer.disconnect()
+    })
+
     const handleSelectProject = (projectName: string, projectId: string) => {
-        console.log("LOADING A PROJECT : ", name, " ", id)
         navigate(`/Project/${name}/${id}/${projectName}/${projectId}`)
     }
 
@@ -346,21 +363,6 @@ const OrganizationPage = () => {
 
     // USERS
 
-    const handleScrollToUsers = () => {
-        usersSectionRef.current?.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-        })
-    }
-
-    const handleScrollToInvitations = () => {
-        setInvitationExists(false)
-        invitationsSectionRef.current?.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-        })
-    }
-
     const handleViewUserProfile = (userId: string) => {
         console.log("VIEW USER PROFILE : ", userId)
         navigate(`/UserProfile/${userId}`)
@@ -484,21 +486,89 @@ const OrganizationPage = () => {
         }
     }
 
+    // INDEX
+
+    const scrollToUsers = () => {
+        usersSectionRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        })
+    }
+
+    const scrollToInvitations = () => {
+        invitationsSectionRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        })
+    }
+
     if(loadingGeneral) return <Loading/>
 
     return (
-        <div>
+        <div ref={topSectionRef}>
 
         <BreadcrumbBar items={[ 
             { label: "Home", href: "/" }, 
             { label: name! }
         ]} />
 
+        <div
+            className={`
+                fixed
+                top-4
+                right-5
+                z-50
+                transform
+                transition-all
+                duration-500
+                ease-out
+
+                ${
+                showFloatingNavigation
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 -translate-y-12 pointer-events-none"
+                }
+            `}
+        >
+            {organizationPermissions.invitePermission === "members" ? (
+                <SectionNavigation
+                    sections={[
+                    {
+                        label: "Top",
+                        ref: topSectionRef,
+                    },
+                    {
+                        label: "Users",
+                        ref: usersSectionRef,
+                    },
+                    ]}
+                />
+            ) : (
+                <SectionNavigation
+                    sections={[
+                    {
+                        label: "Top",
+                        ref: topSectionRef,
+                    },
+                    {
+                        label: "Users",
+                        ref: usersSectionRef,
+                    },
+                    {
+                        label: "Invitations",
+                        ref: invitationsSectionRef,
+                    },
+                    ]}
+                />
+            )}
+            
+        </div>
+
         <div className="main-content">
 
             <h1 className="sub-heading">{name}'s projects</h1>
 
-            <div className="main-content-item flex gap-4">
+            <div ref={navigationRef} className="main-content-item flex gap-4">
 
                 {(userOrganizationRole === "admin" || organizationPermissions.createPermission === "members") && (
                     <Button
@@ -524,7 +594,7 @@ const OrganizationPage = () => {
                 <Button
                     variant="ghost"
                     className="text-[var(--text)] cursor-pointer"
-                    onClick={handleScrollToUsers}
+                    onClick={scrollToUsers}
                 >
                     View members
                 </Button>
@@ -542,6 +612,7 @@ const OrganizationPage = () => {
 
             </div>
 
+            <div ref={projectsSectionRef}>
             {projects.length === 0 ? (
                 
                 <EmptyProjects
@@ -638,6 +709,7 @@ const OrganizationPage = () => {
 
                 </div>
             )}
+            </div>
 
             {projectPages > 1 && (
                 <div className="flex justify-center my-6">
@@ -723,7 +795,7 @@ const OrganizationPage = () => {
         <>
             <Separator />
 
-            <div className="main-content">
+            <div ref={invitationsSectionRef} className="main-content">
                 <div
                     ref={invitationsSectionRef}
                     className="main-content-item"
@@ -1339,7 +1411,7 @@ const OrganizationPage = () => {
                             className="cursor-pointer"
                             type="button"
                             variant="outline"
-                            onClick={handleScrollToInvitations}
+                            onClick={scrollToInvitations}
                         >
                             View invitations
                         </Button>

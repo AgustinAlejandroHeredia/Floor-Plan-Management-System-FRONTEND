@@ -39,7 +39,10 @@ const Sidebar = () => {
   
   const navigate = useNavigate()
 
-  const { t } = useTranslation()
+  const { t } = useTranslation([
+    "sidebar",
+    "common"
+  ])
 
   const { user, lodaingUserContext, error } = useUser();
   const { logout } = useAuth0();
@@ -90,26 +93,26 @@ const Sidebar = () => {
           
           {/* HOME */}
           <Button asChild variant="sidebar_nav_button">
-            <Link to="/">{t('sidebar.home')}</Link>
+            <Link to="/">{t('sidebar:home')}</Link>
           </Button>
 
           {/* MY PROJECTS */}
           <Button asChild variant="sidebar_nav_button">
-            <Link to="/MyProjects">{t('sidebar.myProjects')}</Link>
+            <Link to="/MyProjects">{t('sidebar:myProjects')}</Link>
           </Button>
 
           <Button asChild variant="sidebar_nav_button">
-            <Link to="/MyUploads">{t('sidebar.myUploads')}</Link>
+            <Link to="/MyUploads">{t('sidebar:myUploads')}</Link>
           </Button>
 
           <Button asChild variant="sidebar_nav_button">
-            <Link to="/RecentActivity">{t('sidebar.recentActivity')}</Link>
+            <Link to="/RecentActivity">{t('sidebar:recentActivity')}</Link>
           </Button>
 
           {/* SOLO SUPER ADMIN */}
           {user?.globalRole === "super_admin" && (
             <Button asChild variant="sidebar_nav_button">
-              <Link to="/devOptions">{t('sidebar.devOptions')}</Link>
+              <Link to="/devOptions">{t('sidebar:devOptions')}</Link>
             </Button>
           )}
 
@@ -192,7 +195,7 @@ const Sidebar = () => {
               }}
             >
               <UserIcon />
-              {t('sidebar.userOptions.myProfile')}
+              {t('sidebar:userOptions.myProfile')}
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
@@ -204,7 +207,7 @@ const Sidebar = () => {
               }}
             >
               <LogOutIcon />
-              {t('sidebar.userOptions.logOut')}
+              {t('sidebar:userOptions.logOut')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -214,17 +217,17 @@ const Sidebar = () => {
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogContent size="sm">
           <AlertDialogHeader>
-            <AlertDialogTitle>{t('sidebar.logOutDialog.title')}</AlertDialogTitle>
+            <AlertDialogTitle>{t('sidebar:logOutDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              {t('sidebar.logOutDialog.description')}
+              {t('sidebar:logOutDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex justify-end gap-2 mt-2">
             <AlertDialogCancel onClick={handleCancelLogout}>
-              {t('commonOptions.cancel')}
+              {t('common:cancel')}
             </AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmLogout}>
-              {t('sidebar.logOutDialog.confirm')}
+              {t('sidebar:logOutDialog.confirm')}
             </AlertDialogAction>
           </div>
         </AlertDialogContent>

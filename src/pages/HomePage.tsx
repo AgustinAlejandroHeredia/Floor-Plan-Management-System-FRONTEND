@@ -36,7 +36,11 @@ const HomePage = () => {
 
   const navigate = useNavigate()
 
-  const { t } = useTranslation()
+  const { t } = useTranslation([
+    "home",
+    "breadcrumb",
+    "common"
+  ])
 
   const { organizations, loadingHomeOrganizations, error, refreshOrganizationList } = useHome();
 
@@ -55,12 +59,10 @@ const HomePage = () => {
   }, [error, navigate]);
 
   const handleJoinFirstOrganization = () => {
-    console.log("FIRST TOKEN DIALOG OPENS")
     setOpenFirstTokenDialog(true);
   }
 
   const handleValidateToken = async (token: string) => {
-    console.log("TOKEN RECIVED : ", token)
     setNoToken(false)
     setInvalidToken(false)
     setValidToken(false)
@@ -89,7 +91,7 @@ const HomePage = () => {
 
   return (
     <div style={{ textAlign: "center" }}>
-      <BreadcrumbBar items={[{ label: t('breadcrumb.home') }]} />
+      <BreadcrumbBar items={[{ label: t('breadcrumb:home') }]} />
 
       <div className="main-content">
 
@@ -100,9 +102,9 @@ const HomePage = () => {
 
             {/* JOIN */}
             <div className="main-content-item">
-              <h1 className="sub-heading">{t('home.joinOrganization')}: </h1>
+              <h1 className="sub-heading">{t('home:joinOrganization')}: </h1>
               <p className="comment-text">
-                {t('home.joinOrganizationText')}
+                {t('home:joinOrganizationText')}
               </p>
 
               <Field orientation="horizontal">
@@ -118,25 +120,25 @@ const HomePage = () => {
                   className="text-[var(--text)] cursor-pointer"
                   onClick={() => handleValidateToken(token)}
                 >
-                  {t('home.joinOrganizationJoinButton')}
+                  {t('home:joinOrganizationJoinButton')}
                 </Button>
               </Field>
 
               {noToken && (
                 <p className="fail-message-s">
-                  {t('home.noToken')}
+                  {t('home:noToken')}
                 </p>
               )}
 
               {invalidToken && (
                 <p className="fail-message-s">
-                  {t('home.invalidToken')}
+                  {t('home:invalidToken')}
                 </p>
               )}
 
               {validToken && (
                 <p className="success-message-s">
-                  {t('home.validToken')}
+                  {t('home:validToken')}
                 </p>
               )}
 
@@ -144,9 +146,9 @@ const HomePage = () => {
 
             {/* ORGANIZATIONS */}
             <div className="main-content-item">
-              <h1 className="sub-heading">{t('home.yourOrganizations')}: </h1>
+              <h1 className="sub-heading">{t('home:yourOrganizations')}: </h1>
 
-              <p className="comment-text">{t('home.totalOrganizations')} {organizations.length}</p>
+              <p className="comment-text">{t('home:totalOrganizations')} {organizations.length}</p>
 
               <div
                 className="grid grid-cols-1 md:grid-cols-2 gap-4"
@@ -162,13 +164,13 @@ const HomePage = () => {
                         {org.name}
                       </CardTitle>
                       <CardDescription className="text-[var(--text)]">
-                        {t('generalCharacteristics.address')}: {org.address}
+                        {t('common:generalCharacteristics.address')}: {org.address}
                       </CardDescription>
                       <CardDescription className="text-[var(--text)]">
-                        {t('generalCharacteristics.email')}: {org.contactEmail}
+                        {t('common:generalCharacteristics.email')}: {org.contactEmail}
                       </CardDescription>
                       <CardDescription className="text-[var(--text)]">
-                        {t('generalCharacteristics.phone')}: {org.contactPhone}
+                        {t('common:generalCharacteristics.phone')}: {org.contactPhone}
                       </CardDescription>
                     </CardContent>
                   </Card>
@@ -187,16 +189,16 @@ const HomePage = () => {
         <Dialog open={openFirstTokenDialog} onOpenChange={setOpenFirstTokenDialog}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Join organization</DialogTitle>
+              <DialogTitle>{t('home.joinOrganization')}</DialogTitle>
               <DialogDescription>
-                Enter the invitation token sent to your email.
+                {t('home.firstToken')}
               </DialogDescription>
             </DialogHeader>
 
             <Field orientation="horizontal">
               <Input
                 type="search"
-                placeholder="Token / Example : 637873"
+                placeholder={t('home.joinOrganizationPlaceholder')}
                 className="w-full"
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
@@ -204,13 +206,13 @@ const HomePage = () => {
               <Button
                 onClick={() => handleValidateToken(token)}
               >
-                Join
+                {t('home.joinOrganizationJoinButton')}
               </Button>
             </Field>
 
             <DialogFooter className="sm:justify-start">
               <DialogClose asChild>
-                <Button type="button">Close</Button>
+                <Button type="button">{t('common.cancel')}</Button>
               </DialogClose>
             </DialogFooter>
           </DialogContent>
@@ -218,8 +220,8 @@ const HomePage = () => {
 
         <Toast
           open={isValidating}
-          title="Validating token..."
-          description="Please wait while your token is validated..."
+          title={t('home.validatingTokenTitle')}
+          description={t('home.validatingTokenDescription')}
         />
 
       </div>

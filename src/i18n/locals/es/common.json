@@ -1,0 +1,14 @@
+{
+    "ok": "Ok",
+    "close": "Cerrar",
+    "yes": "Sí",
+    "no": "No",
+    "create": "Crear",
+    "cancel": "Cancelar",
+
+    "generalCharacteristics": {
+        "address": "Dirección",
+        "email": "Email",
+        "phone": "Teléfono"
+    }
+}

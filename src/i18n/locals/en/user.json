@@ -1,0 +1,6 @@
+{
+    "userRoles": {
+        "member": "Member",
+        "admin": "Admin"
+    }
+}

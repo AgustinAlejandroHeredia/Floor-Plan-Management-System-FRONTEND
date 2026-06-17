@@ -1,0 +1,163 @@
+{
+    "name": "{{name}}'s projects",
+
+    "options": {
+        "createProject": "Create project",
+        "inviteMember": "Invite member",
+        "viewMember": "View members",
+        "changeActionPermissions": "Change action permissions"
+    },
+
+    "floatingIndex": {
+        "top": "Top",
+        "users": "Users",
+        "invitations": "Invitations"
+    },
+
+    "noProjectsYet": "There are no projects for this organization yet",
+
+    "organizationMembers": "Organization members",
+    "organizationMembersCount": "Members",
+
+    "leaveOrganizationButton": "Leave organization",
+
+    "organizationSentInvitations": "Invitations sent",
+    "organizationSentInvitationsCount": "Total invitations",
+
+    "projectCreationDialog": {
+        "title": "Creating new project",
+        "description": "Complete the next fields and press \"Create\".",
+        "projectName": "Project name",
+        "levels": "Levels / floors",
+        "hasBasement": "Has basement",
+        "addNewField": "Add new field"
+    },
+
+    "createFieldDialog": {
+        "title": "Add new field",
+        "fieldname": "Field name",
+        "fieldtype": "Field type",
+        "fieldtypeplaceholder": "Select type",
+        "text": "Text",
+        "number": "Number",
+        "date": "Date"
+    },
+    
+    "invitationDialog": {
+        "title": "Send invitation",
+        "description": "Here you can send an invitation to the email you enter.",
+        "organizationRole": "Role within organization",
+        "moreInfo": "More info",
+        "invitationHelp": "Once you enter the email address of the user you wish to invite and select the role they will have (Member by default), an email will be sent containing a code/token. The invited user can then enter this code/token in the \"Home\" section under \"Join Organization\". Upon entering the code/token, access to your organization will be granted.",
+        "closeInformation": "Close information",
+        "confirm": "Send"
+    },
+
+    "sendingInvitationToast": {
+        "title": "Sending invitation",
+        "description": "Please wait while the invitation is being sent..."
+    },
+
+    "invitationSentSuccessfullyDialog": {
+        "title": "Invitation sent successfully",
+        "description": "The user will receive an email containing a six digit code that has to enter at the home section to gain access to the organization."
+    },
+
+    "invitationExists": {
+        "title": "Invitation already exists",
+        "description": "An invitation for this email and organization already exists. A pending invitation has by default a duration of 24h, if the user invited doesnt log in in that period of time the invitation expires.",
+        "adminDescription": " If you want to send another invitation, it must expire, be used, or be deleted first from the Invitations section below \"Organization Members\".",
+        "memberDescription": " If you want to send another invitation, it must expire or be used first.",
+        "viewInvitations": "View invitations"
+    },
+
+    "refreshInvitationDialog": {
+        "title": "Refresh invitation",
+        "description": {
+            "general": "You will reset the duration of this invitation making it valid for another 24h without the need of sending another invitation.",
+            "invitationData": "Invitation data",
+            "email": "Email",
+            "sentBy": "Sent by",
+            "organization": "Organization",
+            "creationDate": "Creation date",
+            "currentStatus": "Current Status",
+            "statusOption": {
+                "expired": "Expired",
+                "valid": "Valid"
+            },
+            "question": "Are you sure you want to proceed?"
+        },
+        "confirm": "Refresh invitation"
+    },
+
+    "deleteInvitationDialog": {
+        "title": "Delete invitation",
+        "description": {
+            "general": "You will delete this invitation and the user will not be able to enter the organization that was invited to.",
+            "invitationData": "Invitation data",
+            "email": "Email",
+            "sentBy": "Sent by",
+            "organization": "Organization",
+            "creationDate": "Creation date",
+            "currentStatus": "Current Status",
+            "statusOption": {
+                "expired": "Expired",
+                "valid": "Valid"
+            },
+            "question": "Are you sure you want to proceed? This action cannot be undone."
+        },
+        "confirm": "Delete invitation"
+    },
+
+    "changePermissionDialog": {
+        "title": "Change actions permissions",
+        "canCreate": "Who can create projects?",
+        "onlyAdmins": "Only admins",
+        "everyone": "Everyone",
+        "canInvite": "Who can invite members?",
+        "confirm": "Update"
+    },
+
+    "savingChangesToast": {
+        "title": "Saving changes",
+        "description": "Please wait while this the changes are being saved..."
+    },
+
+    "changeUserRole": {
+        "title": "Change user role",
+        "descriptionIfUserIsAdmin": "Are you sure you want to change this user's role? This user will lose the permissions allowed for admin role.",
+        "descriptionIfUserIsNotAdmin": "Are you sure you want to change this user's role? This user will gain permissions like changing another user's role, delete projects and change action permissions for this organization.",
+        "alertCurrentRole": "Current user role",
+        "alertChangeTo": "Will change to",
+        "confirm": "Change user role"
+    },
+
+    "changingUserRoleToast": {
+        "title": "Changing user role",
+        "description": "Please wait while this the changes are being applied..."
+    },
+
+    "kickUserDialog": {
+        "title": "Kick user",
+        "description": "Are you sure you want to kick this user? This action cannot be undone.",
+        "confirm": "Kick user"
+    },
+
+    "kickingUserToast": {
+        "title": "Kicking user",
+        "description": "Please wait while the user is being kicked from this organization..."
+    },
+
+    "leaveOrganizationDialog": {
+        "canNotLeaveTitle": "Can't leave organization now",
+        "canNotLeaveDescription": "You can't leave the organization now because you are the only admin available, if you want to leave, you have to give admin role to someone else.\n\nThis can be done on the \"Organization members\" section with the options that are given for each of them.",
+        "canLeaveTitle": "Are you sure you want to leave this organization?",
+        "canLeaveDescription": "You will lose access to all projects and data associated with this organization. This action cannot be undone.",
+        "confirm": "Leave"
+    },
+
+    "leavingOrganizationToast": {
+        "title": "Leaving organization",
+        "description": "Please wait while you are leaving this organization..."
+    }
+}

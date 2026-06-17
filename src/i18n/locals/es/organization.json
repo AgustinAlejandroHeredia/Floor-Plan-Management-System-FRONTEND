@@ -1,0 +1,163 @@
+{
+    "name": "Proyectos de {{name}}",
+
+    "options": {
+        "createProject": "Crear proyecto",
+        "inviteMember": "Invitar miembro",
+        "viewMember": "Ver miembros",
+        "changeActionPermissions": "Cambiar permisos de acciones"
+    },
+
+    "floatingIndex": {
+        "top": "Ir arriba",
+        "users": "Usuarios",
+        "invitations": "Invitaciónes"
+    },
+
+    "noProjectsYet": "Todavía no hay proyectos en esta organización",
+
+    "organizationMembers": "Miembros de la organización",
+    "organizationMembersCount": "Miembros",
+
+    "leaveOrganizationButton": "Dejar organización",
+
+    "organizationSentInvitations": "Invitaciones enviadas",
+    "organizationSentInvitationsCount": "Invitaciones totales",
+
+    "projectCreationDialog": {
+        "title": "Creando nuevo proyecto",
+        "description": "Completa los campos restantes y presiona \"Crear\".",
+        "projectName": "Nombre del proyecto",
+        "levels": "Niveles / pisos",
+        "hasBasement": "Tiene sotano",
+        "addNewField": "Añadir nuevo campo"
+    },
+
+    "createFieldDialog": {
+        "title": "Añadir nuevo campo",
+        "fieldname": "Nombre del campo",
+        "fieldtype": "Tipo de campo",
+        "fieldtypeplaceholder": "Seleccionar tipo",
+        "text": "Texto",
+        "number": "Numero",
+        "date": "Fecha"
+    },
+    
+    "invitationDialog": {
+        "title": "Enviar invitación",
+        "description": "Aquí puedes enviar una invitación al email ingresado.",
+        "organizationRole": "Rol en la organización",
+        "moreInfo": "Más información",
+        "invitationHelp": "Una vez que ingreses la dirección de email del usuario que deseas invitar y selecciones el rol que tendra (miembro por defecto), un email será enviado conteniendo un código/token. El usuario invitado podrá ingresar este codigo/token en la sección \"Inicio\" debajo de \"Unirse a una organización\". Una vez ingresado el código/token, se proveera acceso a tu organización.",
+        "closeInformation": "Cerrar información",
+        "confirm": "Enviar"
+    },
+
+    "sendingInvitationToast": {
+        "title": "Enviar invitación",
+        "description": "Por favor espera mientras la invitación es enviada..."
+    },
+
+    "invitationSentSuccessfullyDialog": {
+        "title": "Invitación enviada exitosamente",
+        "description": "El usuario recibirá un email que contiene un código de seis dígitos que debe ingresar en la sección de inicio para obtener acceso a esta organización."
+    },
+
+    "invitationExists": {
+        "title": "Invitación existente",
+        "description": "Ya existe una invitación para este usuario y organización. Una organización pendiente tiene por defecto una duración de 24h, si el usuario invitado no ingresa en ese periodo de tiempo la invitación expirará.",
+        "adminDescription": " Si deseas enviar una nueva invitación, debe expirar, ser utilizada, o ser eliminada primero desde la sección de invitaciones debajo de \"Miembros de la organización\".",
+        "memberDescription": " Si deseas enviar una nueva invitación, la existente debe expirar o ser utilizada.",
+        "viewInvitations": "Ver invitaciones"
+    },
+
+    "refreshInvitationDialog": {
+        "title": "Reiniciar invitación",
+        "description": {
+            "general": "Reiniciaras la duración de esta invitación haciéndola válida por las siguientes 24h sin la necesidad de enviar otra invitación.",
+            "invitationData": "Información de invitación",
+            "email": "Email",
+            "sentBy": "Enviada por",
+            "organization": "Organización",
+            "creationDate": "Fecha de creación",
+            "currentStatus": "Estado actual",
+            "statusOption": {
+                "expired": "Expirada",
+                "valid": "Válida"
+            },
+            "question": "¿Estás seguro que deseas proceder?"
+        },
+        "confirm": "Reiniciar invitatción"
+    },
+
+    "deleteInvitationDialog": {
+        "title": "Eliminar invitación",
+        "description": {
+            "general": "Eliminarás esta invitación y el usuario no podra obtener acceso a la organización a la que fue invitado.",
+            "invitationData": "Información de invitación",
+            "email": "Email",
+            "sentBy": "Enviada por",
+            "organization": "Organización",
+            "creationDate": "Fecha de creación",
+            "currentStatus": "Estado actual",
+            "statusOption": {
+                "expired": "Expirada",
+                "valid": "Válida"
+            },
+            "question": "¿Estás seguro que deseas proceder? Esta acción no puede deshacerse."
+        },
+        "confirm": "Eliminar invitación"
+    },
+
+    "changePermissionDialog": {
+        "title": "Cambiar permisos de acciones",
+        "canCreate": "¿Quién puede crear proyectos?",
+        "onlyAdmins": "Solo administradores",
+        "everyone": "Todos",
+        "canInvite": "¿Quién puede enviar invitaciones?",
+        "confirm": "Actualizar"
+    },
+
+    "savingChangesToast": {
+        "title": "Guardando cambios",
+        "description": "Por favor espera mientras se guardan los cambios..."
+    },
+
+    "changeUserRole": {
+        "title": "Cambiar rol de usuario",
+        "descriptionIfUserIsAdmin": "¿Estás seguro que deseas cambiar el rol de este usuario? Este usuario perdera acceso a funciones relacionadas con administrador.",
+        "descriptionIfUserIsNotAdmin": "¿Estás seguro que deseas cambiar el rol de este usuario? Este usuario obtendra permisos para cambiar el rol de un usuario, eliminar proyectos y cambiar permisos de acciones para esta organización.",
+        "alertCurrentRole": "Rol actual",
+        "alertChangeTo": "Cambiará a",
+        "confirm": "Cambiar rol"
+    },
+
+    "changingUserRoleToast": {
+        "title": "Cambiando rol del usuario",
+        "description": "Por favor espera mientras se guardan los cambios..."
+    },
+
+    "kickUserDialog": {
+        "title": "Expulsar usuario",
+        "description": "¿Estás seguro que deseas expulsar a este usuario? Esta acción no puede deshacerse.",
+        "confirm": "Expulsar"
+    },
+
+    "kickingUserToast": {
+        "title": "Expulsando usuario",
+        "description": "Por favor espera mientras el usuario es expulsado de esta organización..."
+    },
+
+    "leaveOrganizationDialog": {
+        "canNotLeaveTitle": "No puedes abandonar esta organización ahora",
+        "canNotLeaveDescription": "No puedes abandonar esta organización ahora porque eres el único administrador presente, si deseas irte, deberás darle el rol de administrador a otro usuario.\n\nPuedes hacer esto en la sección \"Miembros de la organización\" con las opciones dadas para cada usuario.",
+        "canLeaveTitle": "¿Estás seguro que deseas abandonar esta organización?",
+        "canLeaveDescription": "Perderás acceso a todos los proyectos e información de esta organización. Esta acción no podrá deshacerse.",
+        "confirm": "Abandonar organización"
+    },
+
+    "leavingOrganizationToast": {
+        "title": "Abandonando organización",
+        "description": "Por favor espera mientras abandonas esta organización..."
+    }
+}

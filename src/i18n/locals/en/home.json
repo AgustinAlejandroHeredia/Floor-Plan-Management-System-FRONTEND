@@ -1,0 +1,21 @@
+{
+    "joinOrganization": "Join Organization",
+    "joinOrganizationText": "Here you can enter the token / code that was sent to you on your email. This will grant you access to the projects that this entity has.",
+    "joinOrganizationPlaceholder": "Token, Example : 637873",
+    "joinOrganizationJoinButton": "Join",
+
+    "firstToken": "Enter the invitation token / code sent to your email.",
+
+    "noToken": "You have to enter a token to send",
+    "invalidToken": "Invalid token, please try again",
+    "validToken": "The token was correctly validated, see down below the organization you just joined!",
+
+    "yourOrganizations": "Your organizations",
+    "totalOrganizations": "Total organizations",
+
+    "firstTokenDialogTitle": "Join organization",
+    "firstTokenDescription": "Enter the invitation token sent to your email.",
+
+    "validatingTokenTitle": "Validating token...",
+    "validatingTokenDescription": "Please wait while your token is validated..."
+}

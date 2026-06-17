@@ -1,0 +1,18 @@
+{
+    "home": "Home",
+    "myProjects": "My Projects",
+    "myUploads": "My Uploads",
+    "recentActivity": "Recent Activity",
+    "devOptions": "Dev. Options",
+    
+    "userOptions": {
+        "myProfile": "My Profile",
+        "logOut": "Log Out"
+    },
+
+    "logOutDialog": {
+        "title": "Log out?",
+        "description": "Are you sure you want to log out?",
+        "confirm": "Log out"
+    }
+}

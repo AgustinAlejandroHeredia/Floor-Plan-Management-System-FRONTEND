@@ -1,0 +1,14 @@
+{
+    "invitationItem": {
+        "to": "To",
+        "sentBy": "Sent by",
+        "organization": "Organization",
+        "role": "Role",
+        "created": "Created",
+        "timeLeft": "Time left"
+    },
+
+    "userItem": {
+        
+    }
+}

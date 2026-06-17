@@ -1,0 +1,14 @@
+{
+    "ok": "Ok",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "create": "Create",
+    "cancel": "Cancel",
+
+    "generalCharacteristics": {
+        "address": "Address",
+        "email": "Email",
+        "phone": "Phone"
+    }
+}

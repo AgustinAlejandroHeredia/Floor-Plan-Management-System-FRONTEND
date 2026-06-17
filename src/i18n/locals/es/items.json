@@ -1,0 +1,14 @@
+{
+    "invitationItem": {
+        "to": "Para",
+        "sentBy": "Enviado por",
+        "organization": "Organización",
+        "role": "Rol",
+        "created": "Creada",
+        "timeLeft": "Tiempo restante"
+    },
+
+    "userItem": {
+        
+    }
+}

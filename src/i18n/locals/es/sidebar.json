@@ -1,0 +1,18 @@
+{
+    "home": "Inicio",
+    "myProjects": "Mis Proyectos",
+    "myUploads": "Mis Archivos",
+    "recentActivity": "Actividad reciente",
+    "devOptions": "Desarrollador",
+    
+    "userOptions": {
+        "myProfile": "Mi Perfil",
+        "logOut": "Cerrar sesión"
+    },
+
+    "logOutDialog": {
+        "title": "¿Cerrar sesión?",
+        "description": "¿Estás seguro que querés cerrar sesión?",
+        "confirm": "Cerrar sesión"
+    }
+}

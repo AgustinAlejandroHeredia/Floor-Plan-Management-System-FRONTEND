@@ -8,6 +8,9 @@ import {
 } from "@/components/ui/empty";
 import { Input } from "@/components/ui/input";
 
+// TRANSLATION
+import { useTranslation } from "react-i18next";
+
 const allowedTypes = [
   "image/png",
   "image/jpeg",
@@ -20,6 +23,9 @@ interface FileDropZoneProps {
 }
 
 export function FileDropZone({ onFileSelect }: FileDropZoneProps) {
+
+  const { t } = useTranslation("project")
+
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -30,7 +36,7 @@ export function FileDropZone({ onFileSelect }: FileDropZoneProps) {
     if (file && allowedTypes.includes(file.type)) {
       onFileSelect(file);
     } else {
-      alert("Only PNG, JPG, JPEG or PDF files are allowed");
+      alert(t('uploadAlert'));
     }
   };
 
@@ -48,7 +54,7 @@ export function FileDropZone({ onFileSelect }: FileDropZoneProps) {
     if (file && allowedTypes.includes(file.type)) {
       onFileSelect(file);
     } else {
-      alert("Only PNG, JPG, JPEG or PDF files are allowed");
+      alert(t('uploadAlert'));
     }
   };
 
@@ -63,11 +69,11 @@ export function FileDropZone({ onFileSelect }: FileDropZoneProps) {
     >
       <EmptyHeader>
         <EmptyTitle className="text-[var(--text-h)] text-base">
-          {isDragging ? "Drop your file here" : "Drag and drop a file here"}
+          {isDragging ? t('uploadDescription.primaryOnDrag') : t('uploadDescription.primaryOffDrag')}
         </EmptyTitle>
 
         <EmptyDescription>
-          or use the button below to select a file
+          {t('uploadDescription.secondary')}
         </EmptyDescription>
       </EmptyHeader>
 

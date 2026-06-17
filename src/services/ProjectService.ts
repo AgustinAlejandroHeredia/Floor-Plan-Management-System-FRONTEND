@@ -5,6 +5,7 @@ export const ProjectService = {
 
     getProject: async (projectId: string) => {
         const response = await api.get(`/projects/${projectId}`)
+        console.log("PROJECT INFO : ", response.data)
         return response.data
     },
 

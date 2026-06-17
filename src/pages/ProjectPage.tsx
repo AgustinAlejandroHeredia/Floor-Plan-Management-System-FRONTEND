@@ -36,6 +36,9 @@ import type { ProjectOrganizationType } from "@/types/types";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 import SectionNavigation from "@/components/SectionNavigation";
 
+// TRANSLATION
+import { useTranslation } from "react-i18next";
+
 const ProjectPage = () => {
   const { organizationName, organizationId, projectName, projectId } =
     useParams<{
@@ -46,6 +49,13 @@ const ProjectPage = () => {
     }>();
 
   const navigate = useNavigate();
+
+  const { t } = useTranslation([
+      "breadcrumb",
+      "project",
+      "blueprint",
+      "common",
+  ])
 
   // ERROR VARIABLES
   const [errorOpen, setErrorOpen] = useState<boolean>(false);
@@ -246,7 +256,7 @@ const ProjectPage = () => {
     <div>
       <BreadcrumbBar
         items={[
-          { label: "Home", href: "/" },
+          { label: t('breadcrumb:home'), href: "/" },
           {
             label: organizationName!,
             href: `/OrganizationPage/${organizationName}/${organizationId}`,
@@ -271,34 +281,40 @@ const ProjectPage = () => {
             <Card className="border border-[var(--border)] bg-transparent">
               <CardHeader>
                 <CardTitle className="text-[var(--text-h)]">
-                  Project information
+                  {t('project:information')}
                 </CardTitle>
               </CardHeader>
 
               <CardContent>
-                {projectEntries.map(([key, value]) => (
-                  <div key={key} className="mb-2 text-left">
-                    <CardDescription className="text-[var(--text-h)]">
-                      <span className="font-semibold capitalize">
-                        {formatKey(key)}:
-                      </span>{" "}
 
-                      {key.toLowerCase() === "basement" ? (
-                        value === true ? "Yes" : "No"
-                      ) : key === "creationDate" && typeof value === "string" ? (
-                        new Date(value).toLocaleDateString()
-                      ) : (
-                        String(value)
-                      )}
-                    </CardDescription>
-                  </div>
-                ))}
+                <CardDescription className="text-[var(--text-h)] mt-2 text-left flex flex-col gap-2">
+                  <div><span className="font-semibold capitalize">{t('project:projectCharacteristics.name')}:</span> {project?.projectName}</div>
+                  <div><span className="font-semibold capitalize">{t('project:projectCharacteristics.status')}:</span> {t(`project:projectCharacteristics.statusType.${project?.status.toLocaleLowerCase()}`)}</div>
+                  <div><span className="font-semibold capitalize">{t('project:projectCharacteristics.levels')}:</span> {project?.levels}</div>
+                  <div><span className="font-semibold capitalize">{t('project:projectCharacteristics.basement')}:</span> {project?.basement ? t('common:yes') : t('common:no') }</div>
+                </CardDescription>
+
+                {project &&
+                  project.customFields &&
+                    Object.keys(project.customFields).length > 0 && (
+                      <CardDescription>
+                        <div>
+                          <span>Additional fields:</span>
+                        </div>
+
+                        {Object.entries(project.customFields).map(([key, value]) => (
+                          <div key={key}>
+                            <span>{formatKey(key)}:</span> {String(value)}
+                          </div>
+                        ))}
+                      </CardDescription>
+                )}
               </CardContent>
             </Card>
 
             {/* UPLOAD */}
             <div>
-              <h1 className="sub-heading-center">Upload blueprint</h1>
+              <h1 className="sub-heading-center">{t('project:upload')}</h1>
               <FileDropZone onFileSelect={handleUploadFile} />
             </div>
           </div>
@@ -306,9 +322,9 @@ const ProjectPage = () => {
 
         {/* ================= BLUEPRINTS ================= */}
         <div className="main-content-item">
-          <h1 className="sub-heading">Uploaded blueprints</h1>
+          <h1 className="sub-heading">{t('project:uploadedBlueprints')}</h1>
 
-          <p className="comment-text">Total blueprints {blueprints.length}</p>
+          <p className="comment-text">{t('project:uploadedBlueprintsCount')} {blueprints.length}</p>
 
           <div
             style={{
@@ -383,13 +399,13 @@ const ProjectPage = () => {
         {(organizationPermissions.createPermission === "members" || (organizationPermissions.createPermission === "admins" && userOrganizationRole === "admin")) && (
         <div className="main-content-item">
           <Separator/>
-          <p className="info-text">Danger zone</p>
+          <p className="info-text">{t('project:dangerZone')}</p>
           <Button
               className="cursor-pointer"
               variant="destructive"
               onClick={() => handleSelectProjectForDelete()}
           >
-              Delete project
+              {t('project:deleteProject')}
           </Button>
         </div>
         )}
@@ -405,22 +421,21 @@ const ProjectPage = () => {
             <form onSubmit={handleCreateBlueprint}>
 
               <DialogHeader>
-                <DialogTitle>Create blueprint</DialogTitle>
+                <DialogTitle>{t('project:createBlueprintDialog.title')}</DialogTitle>
                 <DialogDescription>
-                  Complete the fields and upload your blueprint.
-                  Tags field is optional.
+                  {t('project:createBlueprintDialog.description')}
                 </DialogDescription>
               </DialogHeader>
 
               <FieldGroup className="space-y-2 my-6">
 
                 <Field>
-                  <Label>Selected file</Label>
+                  <Label>{t('project:createBlueprintDialog.selectedFile')}</Label>
                   <Input value={selectedFile?.name || ""} disabled />
                 </Field>
 
                 <Field>
-                  <Label htmlFor="blueprintName">Blueprint name *</Label>
+                  <Label htmlFor="blueprintName">{t('project:createBlueprintDialog.blueprintName')} *</Label>
                   <Input
                     id="blueprintName"
                     name="blueprintName"
@@ -430,6 +445,7 @@ const ProjectPage = () => {
                   />
                 </Field>
 
+                {/*
                 {selectedFile?.type != "application/pdf" && (
                   <Field>
                     <Label htmlFor="tags">Tags</Label>
@@ -441,6 +457,7 @@ const ProjectPage = () => {
                     />
                   </Field>
                 )}
+                */}
 
               </FieldGroup>
 
@@ -451,14 +468,14 @@ const ProjectPage = () => {
                   variant="outline"
                   onClick={() => setOpenCreation(false)}
                 >
-                  Cancel
+                  {t('common:cancel')}
                 </Button>
 
                 <Button 
                   className="cursor-pointer"
                   type="submit"
                 >
-                  Upload
+                  {t('project:createBlueprintDialog.confirm')}
                 </Button>
               </DialogFooter>
 
@@ -469,22 +486,22 @@ const ProjectPage = () => {
         {/* ============== PROCESSING PDF ============== */}
         <Toast
           open={isProcessing}
-          title="Processing pdf"
-          description="Please wait while the pdf is being processed for upload..."
+          title={t('project:processingPdf.title')}
+          description={t('project:processingPdf.description')}
         />
 
         {/* ================= UPLOADING ================= */}
         <Toast
           open={isUploading}
-          title="Uploading files"
-          description="Please wait while your files are being uploaded..."
+          title={t('project:isUploadingToast.title')}
+          description={t('project:isUploadingToast.description')}
         />
 
         {/* ================= ALERT ================= */}
         <InfoDialog
           open={openAlert}
           onOpenChange={setOpenAlert}
-          title="Error"
+          title={t('common:error')}
           description={alertMessage}
         />
 
@@ -492,16 +509,16 @@ const ProjectPage = () => {
         <ConfirmDeleteDialog
             open={openDeleteProjectDialog}
             onOpenChange={setOpenDeleteProjectDialog}
-            title={`Delete ${selectedProjectForDelete?.projectName ?? "project"}`}
-            description="This action cannot be undone. This will permanently delete this project, along with it's blueprints and files included."
+            title={t('project:deleteDialog.title', { projectName: selectedProjectForDelete?.projectName ?? "project" })}
+            description={t('project:deleteDialog.description')}
             onConfirm={() => handleDeleteProject()}
         />
 
         {/* IS DELETING PROJECT */}
         <Toast
           open={isDeletingProject}
-          title="Deleting this project"
-          description="Please wait while this project is being deleted..."
+          title={t('project:deletingProject.title')}
+          description={t('project:deletingProject.description')}
         />
 
       </div>

@@ -119,6 +119,8 @@ export interface ProjectType {
   creatorUserId: string
   organizationId: string
   customFields?: Record<string, any>
+  levels: string
+  basement: boolean
 }
 
 export interface ProjectOrganizationType {

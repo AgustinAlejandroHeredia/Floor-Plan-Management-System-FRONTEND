@@ -1,5 +1,6 @@
 {
     "projectCharacteristics": {
+        "name": "Name",
         "status": "Estado",
         "statusType": {
             "pending": "Pendiente",
@@ -8,7 +9,52 @@
         },
         "levels": "Niveles",
         "basement": "Sotano"
-    }
+    },
 
-    
+    "information": "Información del proyecto",
+
+    "upload": "Subir plano",
+
+    "uploadDescription": {
+        "primaryOffDrag": "Arrastre y suelte un archivo aquí",
+        "primaryOnDrag": "Suelte su archivo aquí",
+        "secondary": "o use el boton de abajo para seleccionar un archivo"
+    },
+
+    "uploadAlert": "Solo se permiten archivos PNG, JPG, JPEG o PDF",
+
+    "uploadedBlueprints": "Planos subidos",
+    "uploadedBlueprintsCount": "Planos totales",
+
+    "dangerZone": "Area de peligro",
+
+    "deleteProject": "Eliminar proyecto",
+
+    "createBlueprintDialog": {
+        "title": "Creación de plano",
+        "description": "Complete los siguientes campos y suba el plano.",
+        "selectedFile": "Archivo seleccionado",
+        "blueprintName": "Nombre del plano",
+        "confirm": "Subir"
+    },
+
+    "processingPdf": {
+        "title": "Procesando pdf",
+        "description": "Por favor espere mientras el pdf es procesado para la carga..."
+    },
+
+    "isUploadingToast": {
+        "title": "Subiendo archivos",
+        "description": "Por favor espere mientras los archivos estan siendo subidos..."
+    },
+
+    "deleteDialog": {
+        "title": "Eliminar proyecto {{projectName}}",
+        "description": "Esta acción no se puede deshacer. Esto eliminara permanentemente el proyecto, junto a los archivos y planos incluidos."
+    },
+
+    "deletingProject": {
+        "title": "Eliminando proyecto",
+        "description": "Por favor espere mientras el proyecto seleccionado es eliminado..."
+    }
 }

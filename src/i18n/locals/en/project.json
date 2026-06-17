@@ -8,5 +8,52 @@
         },
         "levels": "Levels",
         "basement": "Basement"
+    },
+
+    "information": "Project information",
+
+    "upload": "Upload blueprint",
+
+    "uploadDescription": {
+        "primaryOffDrag": "Drag and drop a file here",
+        "primaryOnDrag": "Drop your file here",
+        "secondary": "or use the button below to select a file"
+    },
+
+    "uploadAlert": "Only PNG, JPG, JPEG or PDF files are allowed",
+
+    "uploadedBlueprints": "Uploaded blueprints",
+    "uploadedBlueprintsCount": "Total blueprints",
+
+    "dangerZone": "Danger zone",
+
+    "deleteProject": "Delete project",
+
+    "createBlueprintDialog": {
+        "title": "Create blueprint",
+        "description": "Complete the fields and upload your blueprint.",
+        "selectedFile": "Selected file",
+        "blueprintName": "Blueprint name",
+        "confirm": "Upload"
+    },
+
+    "processingPdf": {
+        "title": "Processing pdf",
+        "description": "Please wait while the pdf is being processed for upload..."
+    },
+
+    "isUploadingToast": {
+        "title": "Uploading files",
+        "description": "Please wait while your files are being uploaded..."
+    },
+
+    "deleteDialog": {
+        "title": "Delete project {{projectName}}",
+        "description": "This action cannot be undone. This will permanently delete this project, along with it's blueprints and files included."
+    },
+
+    "deletingProject": {
+        "title": "Deleting project",
+        "description": "Please wait while selected project is being deleted..."
     }
 }

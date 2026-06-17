@@ -69,7 +69,6 @@ const OrganizationPage = () => {
     const navigate = useNavigate()
 
     const { t } = useTranslation([
-        "error",
         "breadcrumb",
         "user",
         "organization",

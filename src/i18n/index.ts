@@ -11,6 +11,14 @@ i18n
   .init({
     fallbackLng: "en",
 
+    detection: {
+      order: ["navigator"],
+    },
+
+    supportedLngs: ["en", "es"],
+
+    load: "languageOnly",
+
     resources: {
       en: {
         translation: en,
@@ -23,6 +31,6 @@ i18n
     interpolation: {
       escapeValue: false,
     },
-  });
+  })
 
 export default i18n;

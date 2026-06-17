@@ -1,4 +1,6 @@
 {
-    "member": "Miembro",
-    "admin": "Administrador"
+    "roles": {
+        "member": "Miembro",
+        "admin": "Administrador"
+    }
 }

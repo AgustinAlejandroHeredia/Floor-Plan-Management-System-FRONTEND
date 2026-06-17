@@ -1,0 +1,12 @@
+{
+    "projectCharacteristics": {
+        "status": "Status",
+        "statusType": {
+            "pending": "Pending",
+            "canceled": "Canceled",
+            "approved": "Approved"
+        },
+        "levels": "Levels",
+        "basement": "Basement"
+    }
+}

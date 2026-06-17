@@ -1,0 +1,14 @@
+{
+    "projectCharacteristics": {
+        "status": "Estado",
+        "statusType": {
+            "pending": "Pendiente",
+            "canceled": "Cancelado",
+            "approved": "Aprovado"
+        },
+        "levels": "Niveles",
+        "basement": "Sotano"
+    }
+
+    
+}

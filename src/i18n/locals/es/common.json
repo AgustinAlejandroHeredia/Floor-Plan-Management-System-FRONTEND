@@ -6,6 +6,8 @@
     "create": "Crear",
     "cancel": "Cancelar",
 
+    "error": "Error",
+
     "generalCharacteristics": {
         "address": "Dirección",
         "email": "Email",

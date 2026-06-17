@@ -6,6 +6,8 @@
     "create": "Create",
     "cancel": "Cancel",
 
+    "error": "Error",
+
     "generalCharacteristics": {
         "address": "Address",
         "email": "Email",

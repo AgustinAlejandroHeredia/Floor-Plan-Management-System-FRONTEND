@@ -29,8 +29,15 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button";
 import Toast from "@/components/Toast";
 
+// TRANSLATION
+import { useTranslation } from "react-i18next";
+
 const HomePage = () => {
+
   const navigate = useNavigate()
+
+  const { t } = useTranslation()
+
   const { organizations, loadingHomeOrganizations, error, refreshOrganizationList } = useHome();
 
   // TOKEN / CODE VARIABLES
@@ -82,7 +89,7 @@ const HomePage = () => {
 
   return (
     <div style={{ textAlign: "center" }}>
-      <BreadcrumbBar items={[{ label: "Home" }]} />
+      <BreadcrumbBar items={[{ label: t('breadcrumb.home') }]} />
 
       <div className="main-content">
 
@@ -93,10 +100,9 @@ const HomePage = () => {
 
             {/* JOIN */}
             <div className="main-content-item">
-              <h1 className="sub-heading">Join organization: </h1>
+              <h1 className="sub-heading">{t('home.joinOrganization')}: </h1>
               <p className="comment-text">
-                Here you can enter the token / code that was sent to you on your email.
-                This will grant you access to the projects that this entity has.
+                {t('home.joinOrganizationText')}
               </p>
 
               <Field orientation="horizontal">
@@ -112,25 +118,25 @@ const HomePage = () => {
                   className="text-[var(--text)] cursor-pointer"
                   onClick={() => handleValidateToken(token)}
                 >
-                  Join
+                  {t('home.joinOrganizationJoinButton')}
                 </Button>
               </Field>
 
               {noToken && (
                 <p className="fail-message-s">
-                  You have to enter a token to send
+                  {t('home.noToken')}
                 </p>
               )}
 
               {invalidToken && (
                 <p className="fail-message-s">
-                  Invalid token, please try again
+                  {t('home.invalidToken')}
                 </p>
               )}
 
               {validToken && (
                 <p className="success-message-s">
-                  The token was correctly validated, see down below the organization you just joined!
+                  {t('home.validToken')}
                 </p>
               )}
 
@@ -138,9 +144,9 @@ const HomePage = () => {
 
             {/* ORGANIZATIONS */}
             <div className="main-content-item">
-              <h1 className="sub-heading">Your organizations: </h1>
+              <h1 className="sub-heading">{t('home.yourOrganizations')}: </h1>
 
-              <p className="comment-text">Total organizations {organizations.length}</p>
+              <p className="comment-text">{t('home.totalOrganizations')} {organizations.length}</p>
 
               <div
                 className="grid grid-cols-1 md:grid-cols-2 gap-4"
@@ -156,13 +162,13 @@ const HomePage = () => {
                         {org.name}
                       </CardTitle>
                       <CardDescription className="text-[var(--text)]">
-                        Address: {org.address}
+                        {t('generalCharacteristics.address')}: {org.address}
                       </CardDescription>
                       <CardDescription className="text-[var(--text)]">
-                        Email: {org.contactEmail}
+                        {t('generalCharacteristics.email')}: {org.contactEmail}
                       </CardDescription>
                       <CardDescription className="text-[var(--text)]">
-                        Phone: {org.contactPhone}
+                        {t('generalCharacteristics.phone')}: {org.contactPhone}
                       </CardDescription>
                     </CardContent>
                   </Card>

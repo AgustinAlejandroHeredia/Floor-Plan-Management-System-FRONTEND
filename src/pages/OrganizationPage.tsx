@@ -59,11 +59,16 @@ import InvitationItem from "@/components/InvitationItem";
 import PageSelector from "@/components/PageSelector";
 import SectionNavigation from "@/components/SectionNavigation";
 
+// TRANSLATION
+import { useTranslation } from "react-i18next";
+
 const OrganizationPage = () => {
 
     const { name, id } = useParams<{ name: string, id: string }>()
 
     const navigate = useNavigate()
+
+    const { t } = useTranslation()
 
     // INDEX
     const projectsSectionRef = useRef<HTMLDivElement | null>(null)
@@ -309,6 +314,7 @@ const OrganizationPage = () => {
             await InvitationService.createInvitation(payload)
             setIsSendingInvitation(false)
             setInvitationSent(true)
+            refreshInvitations(1)
         } catch (error: any) {
             setIsSendingInvitation(false)
             if(error.response?.status === 409){
@@ -508,7 +514,7 @@ const OrganizationPage = () => {
         <div ref={topSectionRef}>
 
         <BreadcrumbBar items={[ 
-            { label: "Home", href: "/" }, 
+            { label: t('breadcrumb.home'), href: "/" }, 
             { label: name! }
         ]} />
 
@@ -534,11 +540,11 @@ const OrganizationPage = () => {
                 <SectionNavigation
                     sections={[
                     {
-                        label: "Top",
+                        label: t('organization.floatingIndex.top'),
                         ref: topSectionRef,
                     },
                     {
-                        label: "Users",
+                        label: t('organization.floatingIndex.users'),
                         ref: usersSectionRef,
                     },
                     ]}
@@ -547,15 +553,15 @@ const OrganizationPage = () => {
                 <SectionNavigation
                     sections={[
                     {
-                        label: "Top",
+                        label: t('organization.floatingIndex.top'),
                         ref: topSectionRef,
                     },
                     {
-                        label: "Users",
+                        label: t('organization.floatingIndex.users'),
                         ref: usersSectionRef,
                     },
                     {
-                        label: "Invitations",
+                        label: t('organization.floatingIndex.invitations'),
                         ref: invitationsSectionRef,
                     },
                     ]}
@@ -566,7 +572,7 @@ const OrganizationPage = () => {
 
         <div className="main-content">
 
-            <h1 className="sub-heading">{name}'s projects</h1>
+            <h1 className="sub-heading">{t('organization.name', {name})}</h1>
 
             <div ref={navigationRef} className="main-content-item flex gap-4">
 
@@ -576,7 +582,7 @@ const OrganizationPage = () => {
                         className="text-[var(--text)] cursor-pointer"
                         onClick={() => setOpenCreationDialog(true)}
                     >
-                        Create project
+                        {t('organization.options.createProject')}
                     </Button>
                 )}
                 
@@ -587,7 +593,7 @@ const OrganizationPage = () => {
                         className="text-[var(--text)] cursor-pointer"
                         onClick={() => setOpenInvitationDialog(true)}
                     >
-                        Invite member
+                        {t('organization.options.inviteMember')}
                     </Button>
                 )}
 
@@ -596,7 +602,7 @@ const OrganizationPage = () => {
                     className="text-[var(--text)] cursor-pointer"
                     onClick={scrollToUsers}
                 >
-                    View members
+                    {t('organization.options.viewMember')}
                 </Button>
 
                 {/* CHANGE ACTION PERMISSIONS */}
@@ -606,7 +612,7 @@ const OrganizationPage = () => {
                         className="text-[var(--text)] cursor-pointer"
                         onClick={() => loadEditVariables()}
                     >
-                        Change action permissions
+                        {t('organization.options.changeActionPermissions')}
                     </Button>
                 )}
 
@@ -650,19 +656,19 @@ const OrganizationPage = () => {
 
                             <div className="mt-2 text-[var(--text)] text-sm space-y-1">
                                 <div>
-                                    <span className="font-medium">Status:</span> {project.status}
+                                    <span className="font-medium">{t('projectCharacteristics.status')}:</span> {t(`projectCharacteristics.statusType.${project.status}`)}
                                 </div>
 
                                 {project.levels && (
                                     <div>
-                                        <span className="font-medium">Levels:</span> {project.levels}
+                                        <span className="font-medium">{t('projectCharacteristics.levels')}:</span> {project.levels}
                                     </div>
                                 )}
 
                                 {project.basement && (
                                     <div>
-                                        <span className="font-medium">Basement:</span>{" "}
-                                        {project.basement ? "Yes" : "No"}
+                                        <span className="font-medium">{t('projectCharacteristics.basement')}:</span>{" "}
+                                        {project.basement ? t('commonOptions.yes') : t('commonOptions.no')}
                                     </div>
                                 )}
                             </div>
@@ -697,7 +703,7 @@ const OrganizationPage = () => {
                                         color: "#999",
                                     }}
                                     >
-                                    No blueprint uploaded yet for this project
+                                    {t('organization.noProjectsYet')}
                                     </div>
                                 )}
                             </div>
@@ -734,13 +740,13 @@ const OrganizationPage = () => {
             >
 
             <h3 className="sub-heading-2">
-                Organization members
+                {t('organization.organizationMembers')}
             </h3>
 
             {(userOrganizationRole === "admin" || organizationPermissions.invitePermission === "members") && (
                 <div className="flex items-center justify-between">
                     <p className="comment-text">
-                        Members {usersCount}
+                        {t('organization.organizationMembersCount')} {usersCount}
                     </p>
 
                     <IoMdAddCircle
@@ -786,7 +792,7 @@ const OrganizationPage = () => {
                 variant="destructive"
                 onClick={() => setOpenLeaveOrganizationDialog(true)}
             >
-                Leave organization
+                {t('organization.leaveOrganizationButton')}
             </Button>
 
         </div>
@@ -801,11 +807,11 @@ const OrganizationPage = () => {
                     className="main-content-item"
                 >
 
-                    <h3 className="sub-heading-2">Invitations sent: </h3>
+                    <h3 className="sub-heading-2">{t('organization.organizationSentInvitations')}: </h3>
 
                     <div className="flex items-center justify-between">
                         <p className="comment-text">
-                            Total invitations {invitationsCount}
+                            {t('organization.organizationSentInvitationsCount')} {invitationsCount}
                         </p>
 
                         <IoMdAddCircle
@@ -864,9 +870,9 @@ const OrganizationPage = () => {
                     <form onSubmit={handleCreateProject}>
 
                     <DialogHeader>
-                        <DialogTitle>Creating new project</DialogTitle>
+                        <DialogTitle>{t('organization.projectCreationDialog.title')}</DialogTitle>
                         <DialogDescription>
-                        Complete the next fields and press "Create".
+                            {t('organization.projectCreationDialog.description')}
                         </DialogDescription>
                     </DialogHeader>
 
@@ -874,7 +880,7 @@ const OrganizationPage = () => {
 
                         {/* Project name */}
                         <Field>
-                        <Label htmlFor="projectName">Project name *</Label>
+                        <Label htmlFor="projectName">{t('organization.projectCreationDialog.projectName')} *</Label>
                         <Input
                             id="projectName"
                             name="projectName"
@@ -886,7 +892,7 @@ const OrganizationPage = () => {
 
                         {/* Project levels / floors */}
                         <Field>
-                        <Label htmlFor="levels">Levels/floors *</Label>
+                        <Label htmlFor="levels">{t('organization.projectCreationDialog.levels')} *</Label>
                         <Input
                             id="levels"
                             name="levels"
@@ -900,7 +906,7 @@ const OrganizationPage = () => {
 
                         {/* Poject has basement */}
                         <Field>
-                        <Label htmlFor="basement">Has basement</Label>
+                        <Label htmlFor="basement">{t('organization.projectCreationDialog.hasBasement')}</Label>
                         <Select 
                             defaultValue="no" 
                             onValueChange={setHasBasement}
@@ -912,8 +918,8 @@ const OrganizationPage = () => {
                                 position="popper"
                             >
                                 <SelectGroup>
-                                    <SelectItem value="no">No</SelectItem>
-                                    <SelectItem value="yes">Yes</SelectItem>
+                                    <SelectItem value="no">{t('commonOptions.yes')}</SelectItem>
+                                    <SelectItem value="yes">{t('commonOptions.no')}</SelectItem>
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
@@ -961,16 +967,16 @@ const OrganizationPage = () => {
                             variant="outline"
                             onClick={() => setOpenNewFieldDialog(true)}
                         >
-                            Add new field
+                            {t('organization.projectCreationDialog.addNewField')}
                         </Button>
 
                     </FieldGroup>
 
                     <DialogFooter>
                         <DialogClose asChild>
-                            <Button variant="outline">Cancel</Button>
+                            <Button variant="outline">{t('commonOptions.cancel')}</Button>
                         </DialogClose>
-                        <Button onClick={closeCreateDialog} type="submit">Create</Button>
+                        <Button onClick={closeCreateDialog} type="submit">{t('commonOptions.create')}</Button>
                     </DialogFooter>
 
                     </form>
@@ -982,13 +988,13 @@ const OrganizationPage = () => {
                 <DialogContent className="sm:max-w-sm">
 
                     <DialogHeader>
-                    <DialogTitle>Add new field</DialogTitle>
+                    <DialogTitle>{t('organization.createFieldDialog.title')}</DialogTitle>
                     </DialogHeader>
 
                     <FieldGroup className="space-y-2 my-2">
 
                     <Field>
-                        <Label>Field name</Label>
+                        <Label>{t('organization.createFieldDialog.fieldname')}</Label>
                         <Input
                         value={newFieldName}
                         onChange={(e) => setNewFieldName(e.target.value)}
@@ -996,17 +1002,17 @@ const OrganizationPage = () => {
                     </Field>
 
                     <Field>
-                        <Label>Field type</Label>
+                        <Label>{t('organization.createFieldDialog.fieldtype')}</Label>
                         <Select onValueChange={setNewFieldType}>
                         <SelectTrigger>
-                            <SelectValue placeholder="Select type" />
+                            <SelectValue placeholder={t('organization.createFieldDialog.fieldtypeplaceholder')} />
                         </SelectTrigger>
 
                         <SelectContent>
                             <SelectGroup>
-                            <SelectItem value="text">Text</SelectItem>
-                            <SelectItem value="number">Number</SelectItem>
-                            <SelectItem value="date">Date</SelectItem>
+                            <SelectItem value="text">{t('organization.createFieldDialog.text')}</SelectItem>
+                            <SelectItem value="number">{t('organization.createFieldDialog.number')}</SelectItem>
+                            <SelectItem value="date">{t('organization.createFieldDialog.date')}</SelectItem>
                             </SelectGroup>
                         </SelectContent>
                         </Select>
@@ -1016,14 +1022,14 @@ const OrganizationPage = () => {
 
                     <DialogFooter>
                     <DialogClose asChild>
-                        <Button variant="outline">Cancel</Button>
+                        <Button variant="outline">{t('commonOptions.cancel')}</Button>
                     </DialogClose>
 
                     <Button
                         className="cursor-pointer" 
                         onClick={handleAddField}
                     >
-                        Create
+                        {t('commonOptions.create')}
                     </Button>
                     </DialogFooter>
 
@@ -1046,7 +1052,7 @@ const OrganizationPage = () => {
                             className="cursor-pointer"
                             onClick={() => setErrorOpen(false)}
                         >
-                            Ok
+                            {t('commonOptions.ok')}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
@@ -1057,16 +1063,16 @@ const OrganizationPage = () => {
                 <DialogContent className="sm:max-w-sm">
                     <form onSubmit={handleSendInvitation}>
                         <DialogHeader>
-                            <DialogTitle>Send invitation</DialogTitle>
+                            <DialogTitle>{t('organization.invitationDialog.title')}</DialogTitle>
                             <DialogDescription>
-                                Here you can send an invitation to the email you enter.
+                                {t('organization.invitationDialog.description')}
                             </DialogDescription>
                         </DialogHeader>
 
                         <FieldGroup className="space-y-2 my-6">
 
                             <Field>
-                                <Label htmlFor="email">Email *</Label>
+                                <Label htmlFor="email">{t('generalCharacteristics.email')} *</Label>
                                 <Input 
                                     id="email"
                                     name="email"
@@ -1078,7 +1084,7 @@ const OrganizationPage = () => {
 
                             {userOrganizationRole?.toLowerCase() === "admin" && (
                                 <Field>
-                                    <Label htmlFor="role">Role within organization</Label>
+                                    <Label htmlFor="role">{t('organization.invitationDialog.organizationRole')}</Label>
                                     <Select 
                                         defaultValue="member"
                                         onValueChange={(value) => setInvitationRoleSelected(value as OrganizationRole)}    
@@ -1090,8 +1096,8 @@ const OrganizationPage = () => {
                                             position="popper"
                                         >
                                             <SelectGroup>
-                                                <SelectItem value="member">Member</SelectItem>
-                                                <SelectItem value="admin">Admin</SelectItem>
+                                                <SelectItem value="member">{t('roles.member')}</SelectItem>
+                                                <SelectItem value="admin">{t('roles.admin')}</SelectItem>
                                             </SelectGroup>
                                         </SelectContent>
                                     </Select>
@@ -1106,19 +1112,19 @@ const OrganizationPage = () => {
                                 className="mb-4 cursor-pointer"
                                 onClick={showOrHideSendInvitation}
                             >
-                                More info
+                                {t('organization.invitationDialog.moreInfo')}
                             </Button>
                         )}
 
                         {showInvitationHelp && (
                             <div className="mb-4">
                                 <p className="comment-text">
-                                    Once you enter the email address of the user you wish to invite and select the role they will have (Member by default), an email will be sent containing a code/token. The invited user can then enter this code/token in the "Home" section under "Join Organization." Upon entering the code/token, access to your organization will be granted. 
+                                    {t('organization.invitationDialog.invitationHelp')} 
                                 </p>
                                 <Button
                                     onClick={showOrHideSendInvitation}
                                 >
-                                    Close information
+                                    {t('organization.invitationDialog.closeInformation')}
                                 </Button>
                             </div>
                         )}
@@ -1130,13 +1136,13 @@ const OrganizationPage = () => {
                                 variant="outline"
                                 onClick={() => setOpenInvitationDialog(false)}
                             >
-                                Cancel
+                                {t('commonOptions.cancel')}
                             </Button>
                             <Button
                                 className="cursor-pointer"
                                 type="submit"
                             >
-                                Send
+                                {t('organization.invitationDialog.confirm')}
                             </Button>
                         </DialogFooter>
 
@@ -1149,13 +1155,13 @@ const OrganizationPage = () => {
                 <DialogContent className="sm:max-w-sm">
 
                     <DialogHeader>
-                    <DialogTitle>Change actions permissions</DialogTitle>
+                    <DialogTitle>{t('organization.changePermissionDialog.title')}</DialogTitle>
                     </DialogHeader>
 
                     <FieldGroup className="space-y-2 my-2">
 
                     <Field>
-                        <Label>Who can create projects?</Label>
+                        <Label>{t('organization.changePermissionDialog.canCreate')}</Label>
                         <Select 
                             defaultValue={createActionPermissionsEdited}
                             onValueChange={(value) => setCreateActionPermissionsEdited(value as ActionPermission)}
@@ -1166,15 +1172,15 @@ const OrganizationPage = () => {
 
                         <SelectContent position="popper">
                             <SelectGroup>
-                            <SelectItem value="admins">Only admins</SelectItem>
-                            <SelectItem value="members">All members</SelectItem>
+                            <SelectItem value="admins">{t('organization.changePermissionDialog.onlyAdmins')}</SelectItem>
+                            <SelectItem value="members">{t('organization.changePermissionDialog.everyone')}</SelectItem>
                             </SelectGroup>
                         </SelectContent>
                         </Select>
                     </Field>
 
                     <Field>
-                        <Label>Who can invite members?</Label>
+                        <Label>{t('organization.changePermissionDialog.canInvite')}</Label>
                         <Select 
                             defaultValue={inviteActionPermissionsEdited}
                             onValueChange={(value) => setInviteActionPermissionsEdited(value as ActionPermission)}
@@ -1185,8 +1191,8 @@ const OrganizationPage = () => {
 
                         <SelectContent position="popper">
                             <SelectGroup>
-                            <SelectItem value="admins">Only admins</SelectItem>
-                            <SelectItem value="members">All members</SelectItem>
+                            <SelectItem value="admins">{t('organization.changePermissionDialog.onlyAdmins')}</SelectItem>
+                            <SelectItem value="members">{t('organization.changePermissionDialog.everyone')}</SelectItem>
                             </SelectGroup>
                         </SelectContent>
                         </Select>
@@ -1196,14 +1202,14 @@ const OrganizationPage = () => {
 
                     <DialogFooter>
                     <DialogClose asChild>
-                        <Button variant="outline">Cancel</Button>
+                        <Button variant="outline">{t('commonOptions.cancel')}</Button>
                     </DialogClose>
 
                     <Button 
                         className="cursor-pointer"
                         onClick={handleEditActionPermissions}
                     >
-                        Update
+                        {t('organization.changePermissionDialog.confirm')}
                     </Button>
                     </DialogFooter>
 
@@ -1213,8 +1219,8 @@ const OrganizationPage = () => {
             {/* SAVING CHANGES */}
             <Toast
                 open={isSavingChanges}
-                title="Saving changes"
-                description="Please wait while this the changes are being saved..."
+                title={t('organization.savingChangesToast.title')}
+                description={t('organization.savingChangesToast.description')}
             />
 
             {/* CHANGE USER ROLE */}
@@ -1223,26 +1229,26 @@ const OrganizationPage = () => {
 
                     <AlertDialogHeader>
                         <AlertDialogTitle>
-                            Change user role
+                            {t('organization.changeUserRole.title')}
                         </AlertDialogTitle>
                         {userForRolechange?.organizationRole === "admin" ? (
                             <AlertDialogDescription>
-                                Are you sure you want to change this user's role? This user will lose the permissions allowed for admin role.
+                                {t('organization.changeUserRole.descriptionIfUserIsAdmin')}
                             </AlertDialogDescription>
                         ) : (
                             <AlertDialogDescription>
-                                Are you sure you want to change this user's role? This user will gain permissions like changing another user's role, delete projects and change action permissions for this organization.
+                                {t('organization.changeUserRole.descriptionIfUserIsNotAdmin')}
                             </AlertDialogDescription>
                         )}
                         <AlertDialogDescription>
                             <span>
-                                Current user role: {userForRolechange?.organizationRole}
+                                {t('organization.changeUserRole.alertCurrentRole')}: {userForRolechange?.organizationRole}
                             </span>
                             <br />
                             <span>
-                                Will change to: {userForRolechange?.organizationRole === "admin"
-                                    ? "Admin"
-                                    : "Member"}
+                                {t('organization.changeUserRole.alertChangeTo')}: {userForRolechange?.organizationRole === "admin"
+                                    ? t('roles.member')
+                                    : t('roles.admin')}
                             </span>
                         </AlertDialogDescription>
                     </AlertDialogHeader>
@@ -1251,7 +1257,7 @@ const OrganizationPage = () => {
                         <AlertDialogCancel
                             className="cursor-pointer"
                         >
-                            Cancel
+                            {t('commonOptions.cancel')}
                         </AlertDialogCancel>
 
                         <AlertDialogAction
@@ -1259,7 +1265,7 @@ const OrganizationPage = () => {
                             variant="destructive"
                             onClick={handleChangeUserOrganizationRole}
                         >
-                            Change user role
+                            {t('organization.changeUserRole.confirm')}
                         </AlertDialogAction>
                     </AlertDialogFooter>
 
@@ -1269,8 +1275,8 @@ const OrganizationPage = () => {
             {/* CHANGING ROLE */}
             <Toast
                 open={isChangingRole}
-                title="Changing user role"
-                description="Please wait while this the changes are being applied..."
+                title={t('organization.changingUserRoleToast.title')}
+                description={t('organization.changingUserRoleToast.description')}
             />
 
             {/* KICK USER DIALOG */}
@@ -1279,10 +1285,10 @@ const OrganizationPage = () => {
 
                         <AlertDialogHeader>
                             <AlertDialogTitle>
-                                Kick user
+                                {t('organization.kickUserDialog.title')}
                             </AlertDialogTitle>
                             <AlertDialogDescription>
-                                Are you sure you want to kick this user? This action cannot be undone.
+                                {t('organization.kickUserDialog.description')}
                             </AlertDialogDescription>
                         </AlertDialogHeader>
 
@@ -1290,7 +1296,7 @@ const OrganizationPage = () => {
                             <AlertDialogCancel
                                 className="cursor-pointer"
                             >
-                                Cancel
+                                {t('commonOptions.cancel')}
                             </AlertDialogCancel>
 
                             <AlertDialogAction
@@ -1298,7 +1304,7 @@ const OrganizationPage = () => {
                                 variant="destructive"
                                 onClick={handleKickUser}
                             >
-                                Kick user
+                                {t('organization.kickUserDialog.confirm')}
                             </AlertDialogAction>
                         </AlertDialogFooter>
 
@@ -1308,8 +1314,8 @@ const OrganizationPage = () => {
             {/* KICKING USER */}
             <Toast
                 open={isKickingUser}
-                title="Kicking user"
-                description="Please wait while the user is being kicked from this organization..."
+                title={t('organization.kickingUserToast.title')}
+                description={t('organization.kickingUserToast.description')}
             />
 
             {/* LEAVE ORGANIZATION DIALOG */}
@@ -1321,18 +1327,17 @@ const OrganizationPage = () => {
                         <>
                             <AlertDialogHeader>
                             <AlertDialogTitle>
-                                Can't leave organization now
+                                {t('organization.leaveOrganizationDialog.canNotLeaveTitle')}
                             </AlertDialogTitle>
 
                             <AlertDialogDescription>
-                                You can't leave the organization now because you are the only admin available, if you want to leave, you have to give admin role to someone else.
-                                This can be done on the "Organization members" section with the options that are given for each of them.
+                                {t('organization.leaveOrganizationDialog.canNotLeaveDescription')}
                             </AlertDialogDescription>
                             </AlertDialogHeader>
 
                             <AlertDialogFooter>
 
-                            <AlertDialogCancel>Ok</AlertDialogCancel>
+                            <AlertDialogCancel>{t('commonOptions.ok')}</AlertDialogCancel>
 
                             </AlertDialogFooter>
                         </>
@@ -1340,12 +1345,11 @@ const OrganizationPage = () => {
                         <>
                             <AlertDialogHeader>
                             <AlertDialogTitle>
-                                Are you sure you want to leave this organization?
+                                {t('organization.leaveOrganizationDialog.canLeaveTitle')}
                             </AlertDialogTitle>
 
                             <AlertDialogDescription>
-                                You will lose access to all projects and data associated with this
-                                organization. This action cannot be undone.
+                                {t('organization.leaveOrganizationDialog.canLeaveDescription')}
                             </AlertDialogDescription>
                             </AlertDialogHeader>
 
@@ -1353,7 +1357,7 @@ const OrganizationPage = () => {
                             <AlertDialogCancel
                                 className="cursor-pointer"
                             >
-                                Cancel
+                                {t('commonOptions.cancel')}
                             </AlertDialogCancel>
 
                             <AlertDialogAction
@@ -1361,7 +1365,7 @@ const OrganizationPage = () => {
                                 variant="destructive"
                                 onClick={handleLeaveOrganization}
                             >
-                                Leave
+                                {t('organization.leaveOrganizationDialog.confirm')}
                             </AlertDialogAction>
                             </AlertDialogFooter>
                         </>
@@ -1372,37 +1376,35 @@ const OrganizationPage = () => {
             {/* LEAVING ORGANIZATION */}
             <Toast
                 open={isLeaving}
-                title="Leaving organization"
-                description="Please wait while you are leaving this organization..."
+                title={t('organization.leavingOrganizationToast.title')}
+                description={t('organization.leavingOrganizationToast.description')}
             />
 
             {/* SENDING INVITATION */}
             <Toast
                 open={isSendingInvitation}
-                title="Sending invitation"
-                description="Please wait while the invitation is being sent..."
+                title={t('organization.sendingInvitationToast.title')}
+                description={t('organization.sendingInvitationToast.description')}
             />
 
             {/* INVITATION SENT SUCCESSFULLY */}
             <InfoDialog
                 open={invitationSent}
                 onOpenChange={setInvitationSent}
-                title="Invitation sent successfuly"
-                description="The user will recive an email containing a six digit code that has to enter at the home section to gain access to the organization."
+                title={t('organization.invitationSentSuccessfullyDialog.title')}
+                description={t('organization.invitationSentSuccessfullyDialog.description')}
             />
 
             {/* INVITATION ALREDY EXISTS */}
             <Dialog open={invitationExists} onOpenChange={setInvitationExists}>
             <DialogContent className="sm:max-w-sm">
                 <DialogHeader>
-                    <DialogTitle>Invitation alredy exists</DialogTitle>
+                    <DialogTitle>{t('organization.invitationExists.title')}</DialogTitle>
                         <DialogDescription>
-                            An invitation for this email and organization alredy exists. 
-                            A pending invitation has by default a duration of 24h, if the user invited doesnt log in in that period of time the invitation expires. 
-                            If the invited user does not log in during that period, the invitation expires.
+                            {t('organization.invitationExists.description')}
                             {userOrganizationRole === "admin"
-                                ? ` If you want to send another invitation, it must expire, be used, or be deleted first from the Invitations section below Organization Members.`
-                                : ` If you want to send another invitation, it must expire or be used first.`}
+                                ? t('organization.invitationExists.adminDescription')
+                                : t('organization.invitationExists.memberDescription')}
                         </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
@@ -1413,7 +1415,7 @@ const OrganizationPage = () => {
                             variant="outline"
                             onClick={scrollToInvitations}
                         >
-                            View invitations
+                            {t('organization.invitationExists.viewInvitations')}
                         </Button>
                     )}
                     <Button
@@ -1422,7 +1424,7 @@ const OrganizationPage = () => {
                         variant="outline"
                         onClick={() => setInvitationExists(false)}
                     >
-                        Ok
+                        {t('commonOptions.ok')}
                     </Button>
                 </DialogFooter>
             </DialogContent>
@@ -1434,33 +1436,36 @@ const OrganizationPage = () => {
 
                     <AlertDialogHeader>
                         <AlertDialogTitle>
-                            Refresh invitation
+                            {t('organization.refreshInvitationDialog.title')}
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                            You will reset the duration of this invitation making it valid for another 24h without the need of sending another invitation.
+                            {t('organization.refreshInvitationDialog.description.general')}
                             <br />
                             <br />
-                            Invitation data
+                            {t('organization.refreshInvitationDialog.description.invitationData')}
                             <br />
-                            - Email: {selectedInvitation?.userEmail}
+                            - {t('organization.refreshInvitationDialog.description.email')}: {selectedInvitation?.userEmail}
                             <br />
-                            - Sent by: {selectedInvitation?.sentByUserName}
+                            - {t('organization.refreshInvitationDialog.description.sentBy')}: {selectedInvitation?.sentByUserName}
                             <br />
-                            - Organization: {selectedInvitation?.organizationName}
+                            - {t('organization.refreshInvitationDialog.description.organization')}: {selectedInvitation?.organizationName}
                             <br />
-                            - Creation date:{" "}
+                            - {t('organization.refreshInvitationDialog.description.creationDate')}:{" "}
                                 {selectedInvitation?.creationDate
                                 ? new Date(selectedInvitation.creationDate).toLocaleDateString()
                                 : ""}
                             <br />
-                            - Current status: {
+                            - {t('organization.refreshInvitationDialog.description.currentStatus')}: {
                                 selectedInvitation
-                                    ? (selectedInvitation.expired ? "Expired" : "Valid")
+                                    ? (selectedInvitation.expired ? 
+                                        t('organization.refreshInvitationDialog.description.statusOption.expired') : 
+                                        t('organization.refreshInvitationDialog.description.statusOption.valid')
+                                    )
                                     : ""
                                 }
                             <br />
                             <br />
-                            Are you sure you want to procede?
+                            {t('organization.refreshInvitationDialog.description.question')}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
 
@@ -1468,7 +1473,7 @@ const OrganizationPage = () => {
                         <AlertDialogCancel
                             className="cursor-pointer"
                         >
-                            Cancel
+                            {t('commonOptions.cancel')}
                         </AlertDialogCancel>
 
                         <AlertDialogAction
@@ -1476,7 +1481,7 @@ const OrganizationPage = () => {
                             variant="outline"
                             onClick={handleRefreshInvitation}
                         >
-                            Refresh invitation
+                            {t('organization.refreshInvitationDialog.confirm')}
                         </AlertDialogAction>
                     </AlertDialogFooter>
 
@@ -1489,33 +1494,36 @@ const OrganizationPage = () => {
 
                     <AlertDialogHeader>
                         <AlertDialogTitle>
-                            Delete invitation
+                            {t('organization.deleteInvitationDialog.title')}
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                            You will delete this invitation and the user will not be able to enter the organization that was invited to.
+                            {t('organization.deleteInvitationDialog.description.general')}
                             <br />
                             <br />
-                            Invitation data
+                            {t('organization.deleteInvitationDialog.description.invitationData')}
                             <br />
-                            - Email: {selectedInvitation?.userEmail}
+                            - {t('organization.deleteInvitationDialog.description.email')}: {selectedInvitation?.userEmail}
                             <br />
-                            - Sent by: {selectedInvitation?.sentByUserName}
+                            - {t('organization.deleteInvitationDialog.description.sentBy')}: {selectedInvitation?.sentByUserName}
                             <br />
-                            - Organization: {selectedInvitation?.organizationName}
+                            - {t('organization.deleteInvitationDialog.description.organization')}: {selectedInvitation?.organizationName}
                             <br />
-                            - Creation date:{" "}
+                            - {t('organization.deleteInvitationDialog.description.creationDate')}:{" "}
                                 {selectedInvitation?.creationDate
                                 ? new Date(selectedInvitation.creationDate).toLocaleDateString()
                                 : ""}
                             <br />
-                            - Current status: {
+                            - {t('organization.deleteInvitationDialog.description.currentStatus')}: {
                                 selectedInvitation
-                                    ? (selectedInvitation.expired ? "Expired" : "Valid")
+                                    ? (selectedInvitation.expired ? 
+                                        t('organization.deleteInvitationDialog.description.statusOption.expired') : 
+                                        t('organization.deleteInvitationDialog.description.statusOption.valid')
+                                    )
                                     : ""
                                 }
                             <br />
                             <br />
-                            Are you sure you want to procede? This action cannot be undone.
+                            {t('organization.deleteInvitationDialog.description.question')}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
 
@@ -1523,7 +1531,7 @@ const OrganizationPage = () => {
                         <AlertDialogCancel
                             className="cursor-pointer"
                         >
-                            Cancel
+                            {t('commonOptions.cancel')}
                         </AlertDialogCancel>
 
                         <AlertDialogAction
@@ -1531,7 +1539,7 @@ const OrganizationPage = () => {
                             variant="destructive"
                             onClick={handleDeleteInvitation}
                         >
-                            Delete invitation
+                            {t('organization.deleteInvitationDialog.confirm')}
                         </AlertDialogAction>
                     </AlertDialogFooter>
 

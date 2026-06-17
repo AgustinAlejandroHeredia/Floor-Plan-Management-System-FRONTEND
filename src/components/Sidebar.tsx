@@ -8,6 +8,9 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
 
+// TRANSLATION
+import { useTranslation } from "react-i18next";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +38,9 @@ import {
 const Sidebar = () => {
   
   const navigate = useNavigate()
+
+  const { t } = useTranslation()
+
   const { user, lodaingUserContext, error } = useUser();
   const { logout } = useAuth0();
   const [open, setOpen] = useState(false);
@@ -84,26 +90,26 @@ const Sidebar = () => {
           
           {/* HOME */}
           <Button asChild variant="sidebar_nav_button">
-            <Link to="/">Home</Link>
+            <Link to="/">{t('sidebar.home')}</Link>
           </Button>
 
           {/* MY PROJECTS */}
           <Button asChild variant="sidebar_nav_button">
-            <Link to="/MyProjects">My Projects</Link>
+            <Link to="/MyProjects">{t('sidebar.myProjects')}</Link>
           </Button>
 
           <Button asChild variant="sidebar_nav_button">
-            <Link to="/MyUploads">My Uploads</Link>
+            <Link to="/MyUploads">{t('sidebar.myUploads')}</Link>
           </Button>
 
           <Button asChild variant="sidebar_nav_button">
-            <Link to="/RecentActivity">Recent Activity</Link>
+            <Link to="/RecentActivity">{t('sidebar.recentActivity')}</Link>
           </Button>
 
           {/* SOLO SUPER ADMIN */}
           {user?.globalRole === "super_admin" && (
             <Button asChild variant="sidebar_nav_button">
-              <Link to="/devOptions">Dev. Options</Link>
+              <Link to="/devOptions">{t('sidebar.devOptions')}</Link>
             </Button>
           )}
 
@@ -186,7 +192,7 @@ const Sidebar = () => {
               }}
             >
               <UserIcon />
-              My Profile
+              {t('sidebar.userOptions.myProfile')}
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
@@ -198,7 +204,7 @@ const Sidebar = () => {
               }}
             >
               <LogOutIcon />
-              Log Out
+              {t('sidebar.userOptions.logOut')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -208,17 +214,17 @@ const Sidebar = () => {
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogContent size="sm">
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Cerrar sesión?</AlertDialogTitle>
+            <AlertDialogTitle>{t('sidebar.logOutDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              ¿Estás seguro que querés cerrar sesión?
+              {t('sidebar.logOutDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex justify-end gap-2 mt-2">
             <AlertDialogCancel onClick={handleCancelLogout}>
-              Cancelar
+              {t('commonOptions.cancel')}
             </AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmLogout}>
-              Cerrar sesión
+              {t('sidebar.logOutDialog.confirm')}
             </AlertDialogAction>
           </div>
         </AlertDialogContent>

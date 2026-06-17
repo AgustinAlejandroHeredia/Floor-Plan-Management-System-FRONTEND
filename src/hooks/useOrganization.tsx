@@ -162,6 +162,8 @@ export function useOrganization(organizationId: string) {
           page,
         )
 
+        console.log("LISTA : ", response.list)
+
         setOrganizationMembersList(
           response.list
         )
@@ -174,12 +176,14 @@ export function useOrganization(organizationId: string) {
           response.totalItems
         )
 
-        setHasMoreThanOneAdmin(
+        const hasMore =
           response.list.filter(
             (member: OrganizationMembersList) =>
-              member.organizationRole === "admin",
-          ).length > 1,
-        )
+              member.organizationRole.toLowerCase() === "admin",
+          ).length > 1
+
+        console.log("HAS MORE : ", hasMore)
+        setHasMoreThanOneAdmin(hasMore)
 
         //console.log("USERS : ", response)
 

@@ -5,10 +5,13 @@
     "no": "No",
     "create": "Create",
     "cancel": "Cancel",
+    "save": "Save",
+    "none": "None",
 
     "error": "Error",
 
     "generalCharacteristics": {
+        "name": "Name",
         "address": "Address",
         "email": "Email",
         "phone": "Phone"

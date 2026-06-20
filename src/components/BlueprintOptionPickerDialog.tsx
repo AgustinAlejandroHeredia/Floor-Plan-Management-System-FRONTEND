@@ -13,6 +13,9 @@ import {
   specialtyTagOptions,
 } from '@/types/types'
 
+// TRANSLATION
+import { useTranslation } from "react-i18next";
+
 interface BlueprintSpecialtyPickerDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -25,22 +28,25 @@ export default function BlueprintSpecialtyPickerDialog({
   onOpenChange,
   onSelect,
 }: BlueprintSpecialtyPickerDialogProps) {
+  const { t } = useTranslation([
+      "blueprint",
+      "common"
+  ])
+
   const handleSelect = (value: SpecialtyTag) => {
     onSelect(value)
     onOpenChange(false)
   }
 
   const formatLabel = (value: string) =>
-    value
-      .replaceAll('_', ' ')
-      .replace(/\b\w/g, (l) => l.toUpperCase())
+    t(`blueprint:specialtiesOptions.${value}`)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>
-            Select Specialty
+            {t('blueprint:specialtiesOptions.title')}
           </DialogTitle>
         </DialogHeader>
 
@@ -62,7 +68,7 @@ export default function BlueprintSpecialtyPickerDialog({
             variant="outline"
             onClick={() => onOpenChange(false)}
           >
-            Cancel
+            {t('common:cancel')}
           </Button>
         </DialogFooter>
       </DialogContent>

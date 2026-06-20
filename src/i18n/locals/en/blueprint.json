@@ -1,5 +1,164 @@
 {
+    "blueprintInformation": "Blueprint information",
+    
     "blueprintCharacteristics": {
-        
+        "creationDate": "Creation date",
+        "view": "View",
+        "specialties": "Specialties",
+        "levels": "Levels",
+        "areas": "Areas",
+        "cropFrom": "Crop from",
+        "cropsMade": "Crops made",
+        "noCropsMade": "No crops made"
+    },
+
+    "controls": {
+        "zoom": "Zoom",
+        "confidenceLevel": "Confidence level",
+        "labelFilter": "Label filter",
+        "select": "Select",
+        "hideDrawnAreas": "Hide drawn areas"
+    },
+
+    "areaOptions": {
+        "edit": "Edit",
+        "delete": "Delete",
+        "hideTypeOfArea": "Hide type of area"
+    },
+
+    "sidebar": {
+        "downloadBlueprint": "Download blueprint",
+        "editBlueprint": "Edit blueprint",
+        "generateCropManually": "Generate crop manually",
+        "magicCrop": "Magic crop",
+        "ai": "AI",
+        "processBlueprintWithAi": "Process blueprint with AI",
+        "saveGeneratedAreas": "Save generated areas",
+        "deleteBlueprint": "Delete blueprint"
+    },
+
+    "labelFilterOptions": {
+        "title": "Visible labels",
+        "showAllAreas": "Show all areas"
+    },
+
+    "editOptions": {
+        "title": "Edit blueprint",
+        "description": "Change the existing values for this blueprint.",
+        "blueprintName": "Blueprint name",
+        "pointOfView": "Point of view",
+        "specialties": "Specialties",
+        "noSpecialtiesSelected": "No specialty selected",
+        "addSpecialty": "Add specialty",
+        "levels": "Levels",
+        "singularLevel": "Level",
+        "noLevelsSelected": "No levls selected",
+        "editLevels": "Edit levels"
+    },
+
+    "pointOfViewOptions": {
+        "top": "Top",
+        "front": "Front",
+        "back": "Back",
+        "leftSide": "Left side",
+        "rightSide": "Right side"
+    },
+
+    "specialtiesOptions": {
+        "title": "Select specialty",
+        "structure": "Structure",
+        "architecture": "Architecture",
+        "cold_water": "Cold Water",
+        "hot_water": "Hot Water",
+        "electrical": "Electrical",
+        "gas": "Gas",
+        "sewerage": "Sewerage",
+        "rainwater": "Rainwater",
+        "notes": "Notes",
+        "tables": "Tables"
+    },
+
+    "cropOptions": {
+        "confirmCrop": "Confirm crop"
+    },
+
+    "deletedAreasOptions": {
+        "title": "Deleted areas",
+        "label": "Label",
+        "confidence": "Confidence",
+        "type": "Type",
+        "undo": "Undo"
+    },
+
+    "shapeTypes": {
+        "rectangle": "Rectangle",
+        "polygon": "Polygon",
+        "circle": "Circle",
+        "polyline": "Polyline"
+    },
+
+    "unspecified": "Unspecified",
+
+    "savingChanges": {
+        "title": "Saving changes",
+        "description": "Please wait while your changes are saved..."
+    },
+
+    "downloadingBlueprint": {
+        "title": "Downloading blueprint",
+        "description": "Please wait while the blueprint is download..."
+    },
+
+    "uploadingBlueprint": {
+        "title": "Uploading crop",
+        "description": "Please wait while the crop is being uploaded, this can take a minute..."
+    },
+
+    "cropMadeSuccessfully": {
+        "title": "Crop generated",
+        "description": "The crop has been successfully created and is now available as a new blueprint within this project."
+    },
+
+    "deleteBlueprint": {
+        "title": "Delete blueprint",
+        "description": "This action cannot be undone. This will permanently delete the blueprint."
+    },
+
+    "deletingBlueprint": {
+        "title": "Deleting blueprint",
+        "description": "Please wait while this blueprint is being deleted..."
+    },
+
+    "dialogCreateCrop": {
+        "title": "Creating crop",
+        "description": "Complete the fields and upload your crop.",
+        "cropName": "Crop name",
+        "confirm": "Upload"
+    },
+
+    "processingBlueprint": {
+        "title": "Processing blueprint...",
+        "description": "Your blueprint is being processed by AI.\n\nYou may continue using the application and will be notified once processing is complete."
+    },
+
+    "deleteAreaDialog": {
+        "title": "Delete area \"{{label}}\"",
+        "description": "You can undo this change later on the \"Deleted areas\" section down below the blueprint image."
+    },
+
+    "confirmSaveArea": {
+        "title": "Save generated areas?",
+        "description": "Do you want to save the areas that the AI has made? You can edit or delete them individualy, this areas will replce the once already existing ones if there was."
+    },
+
+    "saveAreas": {
+        "title": "Saving areas...",
+        "description": "Please wait while this areas are being saved..."
+    },
+
+    "selectAiModels": {
+        "title": "Select AI processing model",
+        "description": "Select the models the AI will use to process the blueprint for each specialty assign.",
+        "confirm": "Process"
     }
 }

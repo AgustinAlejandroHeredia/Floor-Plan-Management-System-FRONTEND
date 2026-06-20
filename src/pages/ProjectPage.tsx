@@ -288,7 +288,7 @@ const ProjectPage = () => {
               <CardContent>
 
                 <CardDescription className="text-[var(--text-h)] mt-2 text-left flex flex-col gap-2">
-                  <div><span className="font-semibold capitalize">{t('project:projectCharacteristics.name')}:</span> {project?.projectName}</div>
+                  <div><span className="font-semibold capitalize">{t('common:generalCharacteristics.name')}:</span> {project?.projectName}</div>
                   <div><span className="font-semibold capitalize">{t('project:projectCharacteristics.status')}:</span> {t(`project:projectCharacteristics.statusType.${project?.status.toLocaleLowerCase()}`)}</div>
                   <div><span className="font-semibold capitalize">{t('project:projectCharacteristics.levels')}:</span> {project?.levels}</div>
                   <div><span className="font-semibold capitalize">{t('project:projectCharacteristics.basement')}:</span> {project?.basement ? t('common:yes') : t('common:no') }</div>

@@ -68,6 +68,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Item, ItemActions, ItemContent } from "@/components/ui/item";
 
+// TRANSLATION
+import { useTranslation } from "react-i18next";
+
 type ImageResolution = {
     width: number;
     height: number;
@@ -90,6 +93,13 @@ const BlueprintView = () => {
     const { blueprint, setBlueprint,  projectInfo, blueprtinImageUrl, availableModels, loadingBlueprint, error, refreshBlueprint } = useBlueprintView(blueprintId!)
 
     const navigate = useNavigate()
+
+    const { t } = useTranslation([
+        "breadcrumb",
+        "blueprint",
+        "common",
+    ])
+
     const location = useLocation()
     const { startTracking, clearNotification } = useInferenceNotification()
 
@@ -276,7 +286,7 @@ const BlueprintView = () => {
     const formatLevelLabel = (value: string) => {
         if (value === "basement") return "Basement"
         if (value === "roof") return "Roof"
-        return `Level ${value}`
+        return `${t('blueprint:editOptions.singularLevel')} ${value}`
     }
 
     const filteredBlueprintEntries = blueprint
@@ -923,7 +933,7 @@ const BlueprintView = () => {
 
             <BreadcrumbBar
                 items={[
-                    { label: "Home", href: "/" },
+                    { label: t('breadcrumb:home'), href: "/" },
                     {
                         label: organizationName!,
                         href: `/OrganizationPage/${organizationName}/${organizationId}`
@@ -945,7 +955,7 @@ const BlueprintView = () => {
                 <Card className="border border-[var(--border)] bg-transparent w-full">
                     <CardHeader>
                         <CardTitle className="text-[var(--text-h)] text-[25px]">
-                            Blueprint information
+                            {t('blueprint:blueprintInformation')}
                         </CardTitle>
                     </CardHeader>
 
@@ -955,7 +965,7 @@ const BlueprintView = () => {
 
                             <div>
                                 <p className="text-sm text-muted-foreground">
-                                    Name
+                                    {t('common:generalCharacteristics.name')}
                                 </p>
 
                                 <p className="font-semibold text-[var(--text-h)]">
@@ -965,7 +975,7 @@ const BlueprintView = () => {
 
                             <div>
                                 <p className="text-sm text-muted-foreground">
-                                    Creation date
+                                    {t('blueprint:blueprintCharacteristics.creationDate')}
                                 </p>
 
                                 <p className="font-semibold text-[var(--text-h)]">
@@ -975,46 +985,53 @@ const BlueprintView = () => {
 
                             <div>
                                 <p className="text-sm text-muted-foreground">
-                                    View
+                                    {t('blueprint:blueprintCharacteristics.view')}
                                 </p>
 
                                 <p className="font-semibold text-[var(--text-h)]">
                                     {
                                         blueprint?.view
                                             ? blueprint.view.charAt(0).toUpperCase() + blueprint.view.slice(1)
-                                            : "Unspecified"
+                                            : t('blueprint:unspecified')
                                     }
                                 </p>
                             </div>
 
                             <div>
                                 <p className="text-sm text-muted-foreground">
-                                    Specialties
+                                    {t('blueprint:blueprintCharacteristics.specialties')}
                                 </p>
 
                                 <p className="font-semibold text-[var(--text-h)]">
-                                    {blueprint?.specialties?.join(", ") || "Unspecified"}
+                                    {
+                                        blueprint?.specialties?.length
+                                            ? (
+                                                blueprint.specialties.join(", ").charAt(0).toUpperCase() +
+                                                blueprint.specialties.join(", ").slice(1)
+                                            )
+                                            : t('blueprint:unspecified')
+                                    }
                                 </p>
                             </div>
 
                             <div>
                                 <p className="text-sm text-muted-foreground">
-                                    Levels
+                                    {t('blueprint:blueprintCharacteristics.levels')}
                                 </p>
 
                                 <p className="font-semibold text-[var(--text-h)]">
-                                    {blueprint?.levels?.join(", ") || "Unspecified"}
+                                    {blueprint?.levels?.join(", ") || t('blueprint:unspecified')}
                                 </p>
                             </div>
 
                             {blueprint?.croppedFrom && (
                                 <div>
                                     <p className="text-sm text-muted-foreground">
-                                        Cropped from
+                                        {t('blueprint:blueprintCharacteristics.cropFrom')}
                                     </p>
 
                                     <p className="font-semibold text-[var(--text-h)]">
-                                        {blueprint?.croppedFrom || "None"}
+                                        {blueprint?.croppedFrom || t('common:none')}
                                     </p>
                                 </div>
                             )}
@@ -1022,7 +1039,7 @@ const BlueprintView = () => {
                             {thereAreAreasToShow && (
                                 <div>
                                     <p className="text-sm text-muted-foreground">
-                                        Areas
+                                        {t('blueprint:blueprintCharacteristics.areas')}
                                     </p>
 
                                     <p className="font-semibold text-[var(--text-h)] text-center">
@@ -1035,7 +1052,7 @@ const BlueprintView = () => {
                             <div>
 
                                 <p className="text-sm text-muted-foreground">
-                                    Crops made
+                                    {t('blueprint:blueprintCharacteristics.cropsMade')}
                                 </p>
 
                                 {blueprint?.cropsMade?.length ? (
@@ -1058,7 +1075,7 @@ const BlueprintView = () => {
                                 ) : (
 
                                     <p className="font-semibold text-[var(--text-h)]">
-                                        No crops made
+                                        {t('blueprint:blueprintCharacteristics.noCropsMade')}
                                     </p>
 
                                 )}
@@ -1077,7 +1094,7 @@ const BlueprintView = () => {
                     {/* ZOOM SELECTOR */}
                     <div className="flex flex-col items-center">
                         <p className="info-text">
-                            Zoom Level: {Math.round(imageZoom * 100)}%
+                            {t('blueprint:controls.zoom')}: {Math.round(imageZoom * 100)}%
                         </p>
 
                         <input
@@ -1099,7 +1116,7 @@ const BlueprintView = () => {
                     {thereAreAreasToShow && (
                         <div className="flex flex-col items-center">
                             <p className="info-text">
-                                Confidence level: {Math.round(confidenceSelection * 100)}%
+                                {t('blueprint:controls.confidenceLevel')}: {Math.round(confidenceSelection * 100)}%
                             </p>
                             <input
                                 className="cursor-pointer"
@@ -1124,7 +1141,7 @@ const BlueprintView = () => {
                         <div className="flex flex-col items-center">
 
                             <Label className="info-text">
-                                Label filter
+                                {t('blueprint:controls.labelFilter')}
                             </Label>
 
                             <DropdownMenu>
@@ -1133,13 +1150,13 @@ const BlueprintView = () => {
                                         className="cursor-pointer"
                                         variant="outline"
                                     >
-                                        Select
+                                        {t('blueprint:controls.select')}
                                     </Button>
                                 </DropdownMenuTrigger>
 
                                 <DropdownMenuContent className="w-64">
                                     <DropdownMenuLabel>
-                                        Visible labels
+                                        {t('blueprint:labelFilterOptions.title')}
                                     </DropdownMenuLabel>
 
                                     <DropdownMenuSeparator />
@@ -1151,7 +1168,7 @@ const BlueprintView = () => {
                                             setSelectedLabels([])
                                         }}
                                     >
-                                        Show all areas
+                                        {t('blueprint:labelFilterOptions.showAllAreas')}
                                     </Button>
 
                                     {labelOptions.map((item) => (
@@ -1181,7 +1198,7 @@ const BlueprintView = () => {
                         <div className="flex flex-col items-center">
 
                             <Label className="info-text">
-                                Hide drawn areas
+                                {t('blueprint:controls.hideDrawnAreas')}
                             </Label>
 
                             <div className="flex items-center space-x-2">
@@ -1334,7 +1351,7 @@ const BlueprintView = () => {
                                                                             selectAreaForEdit(section, index)
                                                                         }}
                                                                     >
-                                                                        Edit
+                                                                        {t('blueprint:areaOptions.edit')}
                                                                     </ContextMenuItem>
 
                                                                     <ContextMenuItem
@@ -1342,7 +1359,7 @@ const BlueprintView = () => {
                                                                             selectAreaForDelete(section)
                                                                         }}
                                                                     >
-                                                                        Delete
+                                                                        {t('blueprint:areaOptions.delete')}
                                                                     </ContextMenuItem>
 
                                                                     <ContextMenuItem
@@ -1351,7 +1368,7 @@ const BlueprintView = () => {
                                                                             toggleLabel(section.label)
                                                                         }}
                                                                     >
-                                                                        Hide type of area ({section.label})
+                                                                        {t('blueprint:areaOptions.hideTypeOfArea')} ({section.label})
                                                                     </ContextMenuItem>
 
                                                                 </ContextMenuGroup>
@@ -1419,7 +1436,7 @@ const BlueprintView = () => {
                                                                             selectAreaForEdit(section, index)
                                                                         }}
                                                                     >
-                                                                        Edit
+                                                                        {t('blueprint:areaOptions.edit')}
                                                                     </ContextMenuItem>
 
                                                                     <ContextMenuItem
@@ -1427,7 +1444,7 @@ const BlueprintView = () => {
                                                                             console.log("Delete area", section)
                                                                         }}
                                                                     >
-                                                                        Delete
+                                                                        {t('blueprint:areaOptions.delete')}
                                                                     </ContextMenuItem>
 
                                                                     <ContextMenuItem
@@ -1436,7 +1453,7 @@ const BlueprintView = () => {
                                                                             toggleLabel(section.label)
                                                                         }}
                                                                     >
-                                                                        Hide type of area ({section.label})
+                                                                        {t('blueprint:areaOptions.hideTypeOfArea')} ({section.label})
                                                                     </ContextMenuItem>
 
                                                                 </ContextMenuGroup>
@@ -1506,7 +1523,7 @@ const BlueprintView = () => {
                                                                             selectAreaForEdit(section, index)
                                                                         }}
                                                                     >
-                                                                        Edit
+                                                                        {t('blueprint:areaOptions.edit')}
                                                                     </ContextMenuItem>
 
                                                                     <ContextMenuItem
@@ -1514,7 +1531,7 @@ const BlueprintView = () => {
                                                                             console.log("Delete area", section)
                                                                         }}
                                                                     >
-                                                                        Delete
+                                                                        {t('blueprint:areaOptions.delete')}
                                                                     </ContextMenuItem>
 
                                                                     <ContextMenuItem
@@ -1523,7 +1540,7 @@ const BlueprintView = () => {
                                                                             toggleLabel(section.label)
                                                                         }}
                                                                     >
-                                                                        Hide type of area ({section.label})
+                                                                        {t('blueprint:areaOptions.hideTypeOfArea')} ({section.label})
                                                                     </ContextMenuItem>
 
                                                                 </ContextMenuGroup>
@@ -1593,7 +1610,7 @@ const BlueprintView = () => {
                                                                             selectAreaForEdit(section, index)
                                                                         }}
                                                                     >
-                                                                        Edit
+                                                                        {t('blueprint:areaOptions.edit')}
                                                                     </ContextMenuItem>
 
                                                                     <ContextMenuItem
@@ -1601,7 +1618,7 @@ const BlueprintView = () => {
                                                                             console.log("Delete area", section)
                                                                         }}
                                                                     >
-                                                                        Delete
+                                                                        {t('blueprint:areaOptions.delete')}
                                                                     </ContextMenuItem>
 
                                                                     <ContextMenuItem
@@ -1610,7 +1627,7 @@ const BlueprintView = () => {
                                                                             toggleLabel(section.label)
                                                                         }}
                                                                     >
-                                                                        Hide type of area ({section.label})
+                                                                        {t('blueprint:areaOptions.hideTypeOfArea')} ({section.label})
                                                                     </ContextMenuItem>
 
                                                                 </ContextMenuGroup>
@@ -1859,13 +1876,13 @@ const BlueprintView = () => {
                                             className="cursor-pointer"
                                             onClick={() => setOpenCropForm(true)}
                                         >
-                                            Confirm crop
+                                            {t('blueprint:cropOptions.confirmCrop')}
                                         </Button>
                                         <Button 
                                             className="cursor-pointer"
                                             variant="destructive" onClick={handleCancelCrop}
                                         >
-                                            Cancel
+                                            {t('common:cancel')}
                                         </Button>
                                     </div>
                             </div>
@@ -1891,7 +1908,7 @@ const BlueprintView = () => {
                                     </TooltipTrigger>
 
                                     <TooltipContent side="left">
-                                        <p>Download blueprint</p>
+                                        <p>{t('blueprint:sidebar.downloadBlueprint')}</p>
                                     </TooltipContent>
                                 </Tooltip>
 
@@ -1908,7 +1925,7 @@ const BlueprintView = () => {
                                     </TooltipTrigger>
 
                                     <TooltipContent side="left">
-                                        <p>Edit blueprint</p>
+                                        <p>{t('blueprint:sidebar.editBlueprint')}</p>
                                     </TooltipContent>
                                 </Tooltip>
 
@@ -1925,7 +1942,7 @@ const BlueprintView = () => {
                                     </TooltipTrigger>
 
                                     <TooltipContent side="left">
-                                        <p>Generate crop manually</p>
+                                        <p>{t('blueprint:sidebar.generateCropManually')}</p>
                                     </TooltipContent>
                                 </Tooltip>
 
@@ -1942,7 +1959,7 @@ const BlueprintView = () => {
                                     </TooltipTrigger>
 
                                     <TooltipContent side="left">
-                                        <p>Magic crop</p>
+                                        <p>{t('blueprint:sidebar.magicCrop')}</p>
                                     </TooltipContent>
                                 </Tooltip>
 
@@ -1954,12 +1971,12 @@ const BlueprintView = () => {
                                             variant="secondary"
                                             onClick={() => handleAiCall()}
                                         >
-                                            AI
+                                            {t('blueprint:sidebar.ai')}
                                         </Button>
                                     </TooltipTrigger>
 
                                     <TooltipContent side="left">
-                                        <p>Process blueprint with AI</p>
+                                        <p>{t('blueprint:sidebar.processBlueprintWithAi')}</p>
                                     </TooltipContent>
                                 </Tooltip>
 
@@ -1977,7 +1994,7 @@ const BlueprintView = () => {
                                         </TooltipTrigger>
 
                                         <TooltipContent side="left">
-                                            <p>Save generated areas</p>
+                                            <p>{t('blueprint:sidebar.saveGeneratedAreas')}</p>
                                         </TooltipContent>
                                     </Tooltip>
                                 )}
@@ -1995,7 +2012,7 @@ const BlueprintView = () => {
                                     </TooltipTrigger>
 
                                     <TooltipContent side="left">
-                                        <p>Delete blueprint</p>
+                                        <p>{t('blueprint:sidebar.deleteBlueprint')}</p>
                                     </TooltipContent>
                                 </Tooltip>
 
@@ -2015,7 +2032,7 @@ const BlueprintView = () => {
                                 variant="secondary"
                                 onClick={saveEditedArea}
                             >
-                                Save edited area
+                                {t('blueprint:sidebar.saveGeneratedAreas')}
                             </Button>
 
                             <Button
@@ -2023,7 +2040,7 @@ const BlueprintView = () => {
                                 variant="destructive"
                                 onClick={cancelEditedArea}
                             >
-                                Cancel edition
+                                {t('common:cancel')}
                             </Button>
 
                         </div>
@@ -2061,7 +2078,7 @@ const BlueprintView = () => {
                     <div className="main-content-item flex flex-col items-center">
                         <div className="w-full max-w-4xl">
                             <p className="comment-text mb-4">
-                                Deleted areas
+                                {t('blueprint:deletedAreasOptions.title')}
                             </p>
                             {deletedAreasList.map((deletedArea, index) => (
                                 <div key={index} className="mb-2">
@@ -2073,15 +2090,15 @@ const BlueprintView = () => {
                                         <ItemContent className="flex flex-row items-center gap-6">
                                             
                                             <span className="min-w-[120px] text-[var(--text-h)]">
-                                                Label: {deletedArea.label}
+                                                {t('blueprint:deletedAreasOptions.label')}: {deletedArea.label}
                                             </span>
 
                                             <span className="min-w-[120px] text-[var(--text-h)]">
-                                                Confidence: {Math.round(deletedArea.confidence! * 100)}%
+                                                {t('blueprint:deletedAreasOptions.confidence')}: {Math.round(deletedArea.confidence! * 100)}%
                                             </span>
 
                                             <span className="min-w-[120px] text-[var(--text-h)]">
-                                                Type: {deletedArea.type}
+                                                {t('blueprint:deletedAreasOptions.type')}: {t(`blueprint:shapeTypes.${deletedArea.type.toLowerCase()}`)}
                                             </span>
 
                                         </ItemContent>
@@ -2098,7 +2115,7 @@ const BlueprintView = () => {
                                                 }
                                             >
                                                 <CgUndo className="w-4 h-4 text-black group-hover/button:text-black transition-colors" />
-                                                Undo
+                                                {t('blueprint:deletedAreasOptions.undo')}
                                             </Button>
                                         </ItemActions>
 
@@ -2121,7 +2138,7 @@ const BlueprintView = () => {
                             onClick={() => setOpenSaveAreasDialog(true)}
                         >
                             <TfiSave className="text-black text-xl"/>
-                            Save generated areas
+                            {t('blueprint:sidebar.saveGeneratedAreas')}
                         </Button>
 
                     </div>
@@ -2138,14 +2155,14 @@ const BlueprintView = () => {
                         <form onSubmit={handleEditBlueprint}>
 
                             <DialogHeader>
-                                <DialogTitle>Editing blueprint</DialogTitle>
-                                <DialogDescription>Change the existing values for this blueprint.</DialogDescription>
+                                <DialogTitle>{t('blueprint:editOptions.title')}</DialogTitle>
+                                <DialogDescription>{t('blueprint:editOptions.description')}</DialogDescription>
                             </DialogHeader>
 
                             <FieldGroup className="space-y-4 my-6">
 
                                 <Field>
-                                    <Label htmlFor="blueprintName-1">Blueprint Name *</Label>
+                                    <Label htmlFor="blueprintName-1">{t('blueprint:editOptions.blueprintName')} *</Label>
                                     <Input
                                         id="blueprintName-1"
                                         name="blueprintName"
@@ -2157,27 +2174,27 @@ const BlueprintView = () => {
                                 </Field>
 
                                 <Field>
-                                <Label htmlFor="view">Point of view *</Label>
+                                <Label htmlFor="view">{t('blueprint:editOptions.pointOfView')} *</Label>
                                 <Select
                                     onValueChange={(value) => setViewSelected(value as BlueprintViewType)}
                                 >
                                     <SelectTrigger className="w-full max-w-48 cursor-pointer">
-                                        <SelectValue placeholder={viewSelected === "undefined" ? "Select view" : viewSelected.charAt(0).toUpperCase() + viewSelected.slice(1)} />
+                                        <SelectValue placeholder={viewSelected === "undefined" ? "Select view" : t(`blueprint:pointOfViewOptions.${viewSelected.toLowerCase()}`)} />
                                     </SelectTrigger>
                                     <SelectContent position="popper">
                                         <SelectGroup>
-                                            <SelectItem value="top">Top</SelectItem>
-                                            <SelectItem value="front">Front</SelectItem>
-                                            <SelectItem value="back">Back</SelectItem>
-                                            <SelectItem value="left_side">Left side</SelectItem>
-                                            <SelectItem value="right_side">Right side</SelectItem>
+                                            <SelectItem value="top">{t('blueprint:pointOfViewOptions.top')}</SelectItem>
+                                            <SelectItem value="front">{t('blueprint:pointOfViewOptions.front')}</SelectItem>
+                                            <SelectItem value="back">{t('blueprint:pointOfViewOptions.back')}</SelectItem>
+                                            <SelectItem value="left_side">{t('blueprint:pointOfViewOptions.leftSide')}</SelectItem>
+                                            <SelectItem value="right_side">{t('blueprint:pointOfViewOptions.rightSide')}</SelectItem>
                                         </SelectGroup>
                                     </SelectContent>
                                 </Select>
                                 </Field>
 
                                 <Field>
-                                <Label htmlFor="view">Specialties *</Label>
+                                <Label htmlFor="view">{t('blueprint:editOptions.specialties')} *</Label>
 
                                 <div>
                                     {specialtiesList.length > 0 ? (
@@ -2192,10 +2209,7 @@ const BlueprintView = () => {
                                         }}
                                         >
                                         <span>
-                                            -{" "}
-                                            {specialty
-                                            .replaceAll("_", " ")
-                                            .replace(/\b\w/g, (l) => l.toUpperCase())}
+                                            -{" "}{t(`blueprint:specialtiesOptions.${specialty.toLocaleLowerCase()}`)}
                                         </span>
 
                                         <button
@@ -2216,7 +2230,7 @@ const BlueprintView = () => {
                                     ))
                                     ) : (
                                     <div className="text-muted-foreground">
-                                        - No specialties selected
+                                        - {t('blueprint:editOptions.noSpecialtiesSelected')}
                                     </div>
                                     )}
                                 </div>
@@ -2234,12 +2248,12 @@ const BlueprintView = () => {
                                     }}
                                 >
                                     <LuCirclePlus className="mr-2" />
-                                    Add specialty
+                                    {t('blueprint:editOptions.addSpecialty')}
                                 </Button>
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="view">Levels *</Label>
+                                    <Label htmlFor="view">{t('blueprint:editOptions.levels')} *</Label>
                                     <div>
                                         {levels.length ? (
                                             levels.map((level) => (
@@ -2247,7 +2261,7 @@ const BlueprintView = () => {
                                             ))
                                         ) : (
                                             <div className="text-muted-foreground">
-                                                - No levels selected
+                                                - {t('blueprint:editOptions.noLevelsSelected')}
                                             </div>
                                         )}
                                     </div>
@@ -2261,7 +2275,7 @@ const BlueprintView = () => {
                                             gap: "8px",
                                         }}
                                         type="button" 
-                                        onClick={() => setOpenEditLevels(true)}>Edit levels</Button>
+                                        onClick={() => setOpenEditLevels(true)}>{t('blueprint:editOptions.editLevels')}</Button>
                                 </Field>
 
                             </FieldGroup>
@@ -2272,14 +2286,14 @@ const BlueprintView = () => {
                                         className="cursor-pointer"
                                         variant="outline"
                                     >
-                                        Cancel
+                                        {t('common:cancel')}
                                     </Button>
                                 </DialogClose>
                                 <Button 
                                     className="cursor-pointer"
                                     type="submit"
                                 >
-                                    Save
+                                    {t('common:save')}
                                 </Button>
                             </DialogFooter>
 
@@ -2306,53 +2320,53 @@ const BlueprintView = () => {
                 {/* SAVING CHANGES */}
                 <Toast
                     open={isPatching}
-                    title="Saving changes"
-                    description="Please wait while your changes are saved..."
+                    title={t('blueprint:savingChanges.title')}
+                    description={t('blueprint:savingChanges.description')}
                 />
                 
                 {/* DOWNLOADING BLUEPRINT */}
                 <Toast
                     open={isDownloading}
-                    title="Downloading blueprint"
-                    description="Please wait while the blueprint is download..."
+                    title={t('blueprint:downloadingBlueprint.title')}
+                    description={t('blueprint:downloadingBlueprint.description')}
                 />
 
                 {/* UPLOADING BLUEPRINT CROP */}
                 <Toast
                     open={isUploadingCrop}
-                    title="Uploading crop"
-                    description="Please wait while the crop is being uploaded, this can take a minute..."
+                    title={t('blueprint:uploadingBlueprint.title')}
+                    description={t('blueprint:uploadingBlueprint.description')}
                 />
 
                 {/* CROP SUCCESSFULY UPLOADED */}
                 <InfoDialog
                     open={cropSuccessfullyUploaded}
                     onOpenChange={handleRefreshAfterCrop}
-                    title="Crop generated"
-                    description="The crop has been successfully created and is now available as a new blueprint within this project."
+                    title={t('blueprint:cropMadeSuccessfully.title')}
+                    description={t('blueprint:cropMadeSuccessfully.description')}
                 />
 
                 {/* DELETE ALERT DIALOG */}
                 <ConfirmDeleteDialog
                     open={openDeleteDialog}
                     onOpenChange={setOpenDeleteDialog}
-                    title="Delete blueprint"
-                    description="This action cannot be undone. This will permanently delete the blueprint."
+                    title={t('blueprint:deleteBlueprint.title')}
+                    description={t('blueprint:deleteBlueprint.description')}
                     onConfirm={handleDeleteBlueprint}
                 />
 
                 {/* DELETING BLUEPRINT ALERT */}
                 <Toast
                     open={isDeleting}
-                    title="Deleting blueprint..."
-                    description="Please wait while this blueprint is being deleted..."
+                    title={t('blueprint:deletingBlueprint.title')}
+                    description={t('blueprint:deletingBlueprint.description')}
                 />
 
                 {/* ALERT ERROR */}
                 <InfoDialog
                     open={openErrorAlert}
                     onOpenChange={setOpenErrorAlert}
-                    title="Error"
+                    title={t('common:error')}
                     description={errorAlertMessage}
                 />
 
@@ -2362,16 +2376,16 @@ const BlueprintView = () => {
                     <form onSubmit={handleConfirmCrop}>
 
                         <DialogHeader>
-                        <DialogTitle>Create crop</DialogTitle>
+                        <DialogTitle>{t('blueprint:dialogCreateCrop.title')}</DialogTitle>
                         <DialogDescription>
-                            Complete the fields and upload your crop.
+                            {t('blueprint:dialogCreateCrop.description')}
                         </DialogDescription>
                         </DialogHeader>
 
                         <FieldGroup className="space-y-4 my-6">
 
                         <Field>
-                            <Label htmlFor="blueprintName">Crop name *</Label>
+                            <Label htmlFor="blueprintName">{t('blueprint:dialogCreateCrop.cropName')} *</Label>
                             <Input
                             id="blueprintName"
                             name="blueprintName"
@@ -2390,11 +2404,11 @@ const BlueprintView = () => {
                             variant="outline"
                             onClick={() => handleCancelCrop()}
                         >
-                            Cancel
+                            {t('common:cancel')}
                         </Button>
 
                         <Button type="submit">
-                            Upload
+                            {t('blueprint:dialogCreateCrop.confirm')}
                         </Button>
                         </DialogFooter>
 
@@ -2405,18 +2419,16 @@ const BlueprintView = () => {
                 {/* PROCESSING BLUEPRINT ALERT */}
                 <Toast
                     open={isProcessing}
-                    title="Processing blueprint..."
-                    description={
-                        "Your blueprint is being processed by AI.\n\nYou may continue using the application and will be notified once processing is complete."
-                    }
+                    title={t('blueprint:processingBlueprint.title')}
+                    description={t('blueprint:processingBlueprint.description')}
                 />
 
                 {/* DELETE AREA ALERT DIALOG */}
                 <ConfirmDeleteDialog
                     open={openDeleteAreaDialog}
                     onOpenChange={setOpenDeleteAreaDialog}
-                    title={`Delete area "${areaForDelete?.label}"`}
-                    description='You can undo this change later on the "Deleted areas" section.'
+                    title={t("blueprint:deleteAreaDialog.title", {label: areaForDelete?.label})}
+                    description={t("blueprint:deleteAreaDialog.description")}
                     onConfirm={handleDeleteArea}
                 />
 
@@ -2425,15 +2437,15 @@ const BlueprintView = () => {
                     <DialogContent className="sm:max-w-sm">
 
                         <DialogHeader>
-                        <DialogTitle>Save generated areas?</DialogTitle>
+                        <DialogTitle>{t('blueprint:confirmSaveArea.title')}</DialogTitle>
                         <DialogDescription>
-                            Do you want to save the areas that the AI has made? You can edit or delete them individualy, this areas will replce the once already existing ones if there was.
+                            {t('blueprint:confirmSaveArea.description')}
                         </DialogDescription>
                         </DialogHeader>
 
                         <DialogFooter>
                         <DialogClose asChild>
-                            <Button variant="outline">Cancel</Button>
+                            <Button variant="outline">{t('common:cancel')}</Button>
                         </DialogClose>
 
                         <Button
@@ -2441,7 +2453,7 @@ const BlueprintView = () => {
                             type="submit"
                             onClick={() => handleSaveAreas()}
                         >
-                            Save
+                            {t('common:save')}
                         </Button>
                         </DialogFooter>
 
@@ -2451,8 +2463,8 @@ const BlueprintView = () => {
                 {/* SAVING AREAS */}
                 <Toast
                     open={isSavingAreas}
-                    title="Saving areas..."
-                    description="Please wait while this areas are being saved..."
+                    title={t('blueprint:saveAreas.title')}
+                    description={t('blueprint:saveAreas.description')}
                 />
 
                 {/* SELECT AI MODELS */}
@@ -2465,11 +2477,11 @@ const BlueprintView = () => {
                         <DialogHeader>
 
                             <DialogTitle>
-                                Select AI processing model
+                                {t('blueprint:selectAiModels.title')}
                             </DialogTitle>
 
                             <DialogDescription>
-                                Select the models the AI will use to process the blueprint for each specialty assign.
+                                {t('blueprint:selectAiModels.description')}
                             </DialogDescription>
 
                         </DialogHeader>
@@ -2551,7 +2563,7 @@ const BlueprintView = () => {
                                     className="cursor-pointer" 
                                     variant="outline"
                                 >
-                                    Cancel
+                                    {t('common:cancel')}
                                 </Button>
 
                             </DialogClose>
@@ -2561,7 +2573,7 @@ const BlueprintView = () => {
                                 type="button"
                                 onClick={() => handleAiProcess()}
                             >
-                                Process
+                                {t('blueprint:selectAiModels.confirm')}
                             </Button>
 
                         </DialogFooter>

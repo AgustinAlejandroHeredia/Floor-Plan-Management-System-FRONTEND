@@ -178,7 +178,7 @@ export type SpecialtyTag =
   | 'hot_water'
   | 'electrical'
   | 'gas'
-  | 'sewage'
+  | 'sewerage'
   | 'rainwater'
   | 'notes'
   | 'tables'
@@ -203,7 +203,7 @@ export const specialtyTagOptions: SpecialtyTag[] = [
   'hot_water',
   'electrical',
   'gas',
-  'sewage',
+  'sewerage',
   'rainwater',
   'notes',
   'tables',

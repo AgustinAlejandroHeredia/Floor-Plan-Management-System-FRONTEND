@@ -11,7 +11,7 @@
     "floatingIndex": {
         "top": "Ir arriba",
         "users": "Usuarios",
-        "invitations": "Invitaciónes"
+        "invitations": "Invitaciones"
     },
 
     "noProjectsYet": "Todavía no hay proyectos en esta organización",
@@ -19,7 +19,7 @@
     "organizationMembers": "Miembros de la organización",
     "organizationMembersCount": "Miembros",
 
-    "leaveOrganizationButton": "Dejar organización",
+    "leaveOrganizationButton": "Abandonar organización",
 
     "organizationSentInvitations": "Invitaciones enviadas",
     "organizationSentInvitationsCount": "Invitaciones totales",
@@ -29,7 +29,7 @@
         "description": "Completa los campos restantes y presiona \"Crear\".",
         "projectName": "Nombre del proyecto",
         "levels": "Niveles / pisos",
-        "hasBasement": "Tiene sotano",
+        "hasBasement": "Tiene sótano",
         "addNewField": "Añadir nuevo campo"
     },
 
@@ -39,7 +39,7 @@
         "fieldtype": "Tipo de campo",
         "fieldtypeplaceholder": "Seleccionar tipo",
         "text": "Texto",
-        "number": "Numero",
+        "number": "Número",
         "date": "Fecha"
     },
     
@@ -48,13 +48,13 @@
         "description": "Aquí puedes enviar una invitación al email ingresado.",
         "organizationRole": "Rol en la organización",
         "moreInfo": "Más información",
-        "invitationHelp": "Una vez que ingreses la dirección de email del usuario que deseas invitar y selecciones el rol que tendra (miembro por defecto), un email será enviado conteniendo un código/token. El usuario invitado podrá ingresar este codigo/token en la sección \"Inicio\" debajo de \"Unirse a una organización\". Una vez ingresado el código/token, se proveera acceso a tu organización.",
+        "invitationHelp": "Una vez que ingreses la dirección de email del usuario que deseas invitar y selecciones el rol que tendrá (miembro por defecto), se enviará un email que contendrá un código/token. El usuario invitado podrá ingresar este código/token en la sección \"Inicio\" debajo de \"Unirse a una organización\". Una vez ingresado el código/token, se le otorgará acceso a tu organización.",
         "closeInformation": "Cerrar información",
         "confirm": "Enviar"
     },
 
     "sendingInvitationToast": {
-        "title": "Enviar invitación",
+        "title": "Enviando invitación",
         "description": "Por favor espera mientras la invitación es enviada..."
     },
 
@@ -65,8 +65,8 @@
 
     "invitationExists": {
         "title": "Invitación existente",
-        "description": "Ya existe una invitación para este usuario y organización. Una organización pendiente tiene por defecto una duración de 24h, si el usuario invitado no ingresa en ese periodo de tiempo la invitación expirará.",
-        "adminDescription": " Si deseas enviar una nueva invitación, debe expirar, ser utilizada, o ser eliminada primero desde la sección de invitaciones debajo de \"Miembros de la organización\".",
+        "description": "Ya existe una invitación para este usuario y organización. Una invitación pendiente tiene por defecto una duración de 24 h. Si el usuario invitado no ingresa en ese período de tiempo, la invitación expirará.",
+        "adminDescription": " Si deseas enviar una nueva invitación, debe expirar, ser utilizada o ser eliminada primero desde la sección de invitaciones debajo de \"Miembros de la organización\".",
         "memberDescription": " Si deseas enviar una nueva invitación, la existente debe expirar o ser utilizada.",
         "viewInvitations": "Ver invitaciones"
     },
@@ -74,8 +74,8 @@
     "refreshInvitationDialog": {
         "title": "Reiniciar invitación",
         "description": {
-            "general": "Reiniciaras la duración de esta invitación haciéndola válida por las siguientes 24h sin la necesidad de enviar otra invitación.",
-            "invitationData": "Información de invitación",
+            "general": "Reiniciarás la duración de esta invitación, haciéndola válida por las siguientes 24 h sin la necesidad de enviar otra invitación.",
+            "invitationData": "Información de la invitación",
             "email": "Email",
             "sentBy": "Enviada por",
             "organization": "Organización",
@@ -85,16 +85,16 @@
                 "expired": "Expirada",
                 "valid": "Válida"
             },
-            "question": "¿Estás seguro que deseas proceder?"
+            "question": "¿Estás seguro de que deseas proceder?"
         },
-        "confirm": "Reiniciar invitatción"
+        "confirm": "Reiniciar invitación"
     },
 
     "deleteInvitationDialog": {
         "title": "Eliminar invitación",
         "description": {
-            "general": "Eliminarás esta invitación y el usuario no podra obtener acceso a la organización a la que fue invitado.",
-            "invitationData": "Información de invitación",
+            "general": "Eliminarás esta invitación y el usuario no podrá obtener acceso a la organización a la que fue invitado.",
+            "invitationData": "Información de la invitación",
             "email": "Email",
             "sentBy": "Enviada por",
             "organization": "Organización",
@@ -104,7 +104,7 @@
                 "expired": "Expirada",
                 "valid": "Válida"
             },
-            "question": "¿Estás seguro que deseas proceder? Esta acción no puede deshacerse."
+            "question": "¿Estás seguro de que deseas proceder? Esta acción no puede deshacerse."
         },
         "confirm": "Eliminar invitación"
     },
@@ -125,8 +125,8 @@
 
     "changeUserRole": {
         "title": "Cambiar rol de usuario",
-        "descriptionIfUserIsAdmin": "¿Estás seguro que deseas cambiar el rol de este usuario? Este usuario perdera acceso a funciones relacionadas con administrador.",
-        "descriptionIfUserIsNotAdmin": "¿Estás seguro que deseas cambiar el rol de este usuario? Este usuario obtendra permisos para cambiar el rol de un usuario, eliminar proyectos y cambiar permisos de acciones para esta organización.",
+        "descriptionIfUserIsAdmin": "¿Estás seguro de que deseas cambiar el rol de este usuario? Este usuario perderá acceso a funciones relacionadas con el rol de administrador.",
+        "descriptionIfUserIsNotAdmin": "¿Estás seguro de que deseas cambiar el rol de este usuario? Este usuario obtendrá permisos para cambiar el rol de otros usuarios, eliminar proyectos y cambiar permisos de acciones para esta organización.",
         "alertCurrentRole": "Rol actual",
         "alertChangeTo": "Cambiará a",
         "confirm": "Cambiar rol"
@@ -139,7 +139,7 @@
 
     "kickUserDialog": {
         "title": "Expulsar usuario",
-        "description": "¿Estás seguro que deseas expulsar a este usuario? Esta acción no puede deshacerse.",
+        "description": "¿Estás seguro de que deseas expulsar a este usuario? Esta acción no puede deshacerse.",
         "confirm": "Expulsar"
     },
 
@@ -150,8 +150,8 @@
 
     "leaveOrganizationDialog": {
         "canNotLeaveTitle": "No puedes abandonar esta organización ahora",
-        "canNotLeaveDescription": "No puedes abandonar esta organización ahora porque eres el único administrador presente, si deseas irte, deberás darle el rol de administrador a otro usuario.\n\nPuedes hacer esto en la sección \"Miembros de la organización\" con las opciones dadas para cada usuario.",
-        "canLeaveTitle": "¿Estás seguro que deseas abandonar esta organización?",
+        "canNotLeaveDescription": "No puedes abandonar esta organización ahora porque eres el único administrador presente. Si deseas irte, deberás darle el rol de administrador a otro usuario.\n\nPuedes hacer esto en la sección \"Miembros de la organización\" con las opciones disponibles para cada usuario.",
+        "canLeaveTitle": "¿Estás seguro de que deseas abandonar esta organización?",
         "canLeaveDescription": "Perderás acceso a todos los proyectos e información de esta organización. Esta acción no podrá deshacerse.",
         "confirm": "Abandonar organización"
     },
@@ -159,5 +159,9 @@
     "leavingOrganizationToast": {
         "title": "Abandonando organización",
         "description": "Por favor espera mientras abandonas esta organización..."
+    },
+
+    "errorMessages": {
+        
     }
 }

@@ -123,7 +123,7 @@ const ProjectPage = () => {
         setImagesFromPdf(images.map((img) => img.file));
         setIsProcessing(false)
       } catch (error) {
-        setAlertMessage("Error processing PDF");
+        setAlertMessage(t('project:errorProcessingPdf'));
         setOpenAlert(true);
       }
     } else {
@@ -140,7 +140,7 @@ const ProjectPage = () => {
     e.preventDefault();
 
     if (!selectedFile) {
-      setAlertMessage("No file selected");
+      setAlertMessage(t('project:noFileSelected'));
       setOpenAlert(true);
       return;
     }
@@ -173,7 +173,7 @@ const ProjectPage = () => {
 
           if (!response) {
             setIsUploading(false)
-            setAlertMessage("Something went wrong uploading the blueprint");
+            setAlertMessage(t('project:errorUpload'));
             setOpenAlert(true);
             return;
           }
@@ -195,7 +195,7 @@ const ProjectPage = () => {
 
         if (!response) {
           setIsUploading(false)
-          setAlertMessage("Something went wrong uploading the blueprint");
+          setAlertMessage(t('project:errorUpload'));
           setOpenAlert(true);
           return;
         }
@@ -211,7 +211,7 @@ const ProjectPage = () => {
 
     } catch (error) {
       setIsUploading(false)
-      setAlertMessage("An unexpected error occurred");
+      setAlertMessage(t('project:unexpectedError'));
       setOpenAlert(true);
     }
   };
@@ -237,7 +237,7 @@ const ProjectPage = () => {
           navigate(`/OrganizationPage/${organizationName}/${organizationId}`)
       } catch (error) {
           setIsDeletingProject(false)
-          setErrorMessage("An error has occurred while deleting this project. Please try again later.")
+          setErrorMessage(t('project:errorDeletingProject'))
           setErrorOpen(true)
       }
   }

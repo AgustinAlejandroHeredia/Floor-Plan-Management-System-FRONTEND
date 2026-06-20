@@ -1,14 +1,13 @@
 {
     "projectCharacteristics": {
-        "name": "Name",
         "status": "Estado",
         "statusType": {
             "pending": "Pendiente",
             "canceled": "Cancelado",
-            "approved": "Aprovado"
+            "approved": "Aprobado"
         },
         "levels": "Niveles",
-        "basement": "Sotano"
+        "basement": "Sótano"
     },
 
     "information": "Información del proyecto",
@@ -18,7 +17,7 @@
     "uploadDescription": {
         "primaryOffDrag": "Arrastre y suelte un archivo aquí",
         "primaryOnDrag": "Suelte su archivo aquí",
-        "secondary": "o use el boton de abajo para seleccionar un archivo"
+        "secondary": "o use el botón de abajo para seleccionar un archivo"
     },
 
     "uploadAlert": "Solo se permiten archivos PNG, JPG, JPEG o PDF",
@@ -26,7 +25,7 @@
     "uploadedBlueprints": "Planos subidos",
     "uploadedBlueprintsCount": "Planos totales",
 
-    "dangerZone": "Area de peligro",
+    "dangerZone": "Área de peligro",
 
     "deleteProject": "Eliminar proyecto",
 
@@ -39,22 +38,26 @@
     },
 
     "processingPdf": {
-        "title": "Procesando pdf",
-        "description": "Por favor espere mientras el pdf es procesado para la carga..."
+        "title": "Procesando PDF",
+        "description": "Por favor espere mientras el PDF es procesado para la carga..."
     },
 
     "isUploadingToast": {
         "title": "Subiendo archivos",
-        "description": "Por favor espere mientras los archivos estan siendo subidos..."
+        "description": "Por favor espere mientras los archivos están siendo subidos..."
     },
 
     "deleteDialog": {
         "title": "Eliminar proyecto {{projectName}}",
-        "description": "Esta acción no se puede deshacer. Esto eliminara permanentemente el proyecto, junto a los archivos y planos incluidos."
+        "description": "Esta acción no se puede deshacer. Esto eliminará permanentemente el proyecto, junto con los archivos y planos incluidos."
     },
 
     "deletingProject": {
         "title": "Eliminando proyecto",
         "description": "Por favor espere mientras el proyecto seleccionado es eliminado..."
+    },
+
+    "errorMessages": {
+        "errorDeletingProject": "Ha ocurrido un error eliminando el proyecto. Por favor intente de nuevo más tarde."
     }
 }

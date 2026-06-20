@@ -3,7 +3,7 @@
     "myProjects": "Mis Proyectos",
     "myUploads": "Mis Archivos",
     "recentActivity": "Actividad reciente",
-    "devOptions": "Desarrollador",
+    "devOptions": "Opciones de desarrollador",
     
     "userOptions": {
         "myProfile": "Mi Perfil",
@@ -12,7 +12,7 @@
 
     "logOutDialog": {
         "title": "¿Cerrar sesión?",
-        "description": "¿Estás seguro que querés cerrar sesión?",
+        "description": "¿Estás seguro de que quieres cerrar sesión?",
         "confirm": "Cerrar sesión"
     }
 }

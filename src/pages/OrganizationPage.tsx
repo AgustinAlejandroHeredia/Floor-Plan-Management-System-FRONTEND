@@ -196,8 +196,7 @@ const OrganizationPage = () => {
         try {
 
             if(!id){
-                console.log("Error : no organization id")
-                setErrorMessage("Something went wrong, please try later");
+                setErrorMessage(t('organization:errorMessage'));
                 setErrorOpen(true);
                 return
             }
@@ -205,34 +204,34 @@ const OrganizationPage = () => {
             console.log("PROJECT NAME : ", formData.get("projectName") as string)
 
             if(!formData.get("projectName") || formData.get("projectName") === ""){
-                setErrorMessage("No name given for new project.")
+                setErrorMessage(t('organization:noName'))
                 setErrorOpen(true)
                 return
             }
             if((formData.get("projectName") as string).length < 3){
-                setErrorMessage("Project name too short (3 characters minimum).")
+                setErrorMessage(t('organization:shortName'))
                 setErrorOpen(true)
                 return
             }
             if((formData.get("projectName") as string).length > 100){
-                setErrorMessage("Project name too long (100 characters maximum).")
+                setErrorMessage(t('organization:longName'))
                 setErrorOpen(true)
                 return
             }
 
             if(formData.get("levels")){
                 if(Number(formData.get("levels")) > 163){
-                    setErrorMessage("You choose a number of levels that exceed the maximum.")
+                    setErrorMessage(t('organization:exceededMaximumLevels'))
                     setErrorOpen(true)
                     return
                 }
                 if(Number(formData.get("levels")) < 1){
-                    setErrorMessage("Minumum level is 1.")
+                    setErrorMessage(t('organization:minimumLevel'))
                     setErrorOpen(true)
                     return
                 }
             }else{
-                setErrorMessage("No levels selected.")
+                setErrorMessage(t('organization:noLevels'))
                 setErrorOpen(true)
                 return
             }
@@ -260,7 +259,7 @@ const OrganizationPage = () => {
 
             if(!response){
                 console.log("Something went wrong creation the new project")
-                setErrorMessage("Something went wrong creating the project");
+                setErrorMessage(t('organization:errorCreatingProject'));
                 setErrorOpen(true);
                 return
             }
@@ -272,7 +271,7 @@ const OrganizationPage = () => {
             refreshProjects(1)
         } catch (error) {
             console.log("An unexpected error occurred")
-            setErrorMessage("An unexpected error occurred");
+            setErrorMessage(t('organization:unexpectedError'));
             setErrorOpen(true);
         }
     }
@@ -300,7 +299,7 @@ const OrganizationPage = () => {
 
         const userEmail = formData.get("email") as string
         if(!userEmail){
-            setErrorMessage("No user email given")
+            setErrorMessage(t('organization:noEmail'))
             setErrorOpen(true)
             return
         }
@@ -327,7 +326,7 @@ const OrganizationPage = () => {
                 setInvitationExists(true)
                 return
             }
-            setErrorMessage("Error sending the invitation, please try again later.")
+            setErrorMessage(t('organization:errorSendingInvitation'))
             setErrorOpen(true)
         }
     }
@@ -345,14 +344,14 @@ const OrganizationPage = () => {
     const handleRefreshInvitation = async () => {
         try {
             if(!selectedInvitation){
-                setErrorMessage("No invitation selected.")
+                setErrorMessage(t('organization:noInvitationSelected'))
                 setErrorOpen(true)
                 return
             }
             await OrganizationService.refreshInvitation(selectedInvitation._id)
             refreshInvitations()
         } catch (error: any) {
-            setErrorMessage("Something went wrong refreshing the invitation, please try again later.")
+            setErrorMessage(t('organization:errorRefreshingInvitation'))
             setErrorOpen(true)
         }
     }
@@ -360,7 +359,7 @@ const OrganizationPage = () => {
     const handleDeleteInvitation = async () => {
         try {
             if(!selectedInvitation){
-                setErrorMessage("No invitation selected.")
+                setErrorMessage(t('organization:noInvitationSelected'))
                 setErrorOpen(true)
                 return
             }
@@ -368,7 +367,7 @@ const OrganizationPage = () => {
             setCurrentInvitationPage(1)
             refreshInvitations(1)
         } catch (error: any) {
-            setErrorMessage("Something went wrong refreshing the invitation, please try again later.")
+            setErrorMessage(t('organization:errorRefreshingInvitation'))
             setErrorOpen(true)
         }
     }
@@ -389,7 +388,7 @@ const OrganizationPage = () => {
         setOpenKickUserDialog(false)
         try {
             if(!userIdForKick){
-                setErrorMessage("Tried to kick an user but no user selected.")
+                setErrorMessage(t('organization:noUserToKickSelected'))
                 setErrorOpen(true)
             }
             setIsKickingUser(true)
@@ -400,7 +399,7 @@ const OrganizationPage = () => {
             refreshUsers(1)
         } catch (error) {
             setIsKickingUser(false)
-            setErrorMessage("An error has ocurred while kicking user, please again later.")
+            setErrorMessage(t('organization:errorKickingUser'))
             setErrorOpen(true)
         }
     }
@@ -412,7 +411,7 @@ const OrganizationPage = () => {
 
     const handleChangeUserOrganizationRole = async () => {
         if(!userForRolechange){
-            setErrorMessage("No user selected")
+            setErrorMessage(t("organization:noUserSelected"))
             setErrorOpen(true)
             return
         }
@@ -423,7 +422,7 @@ const OrganizationPage = () => {
             refreshUsers()
         } catch (error) {
             setIsChangingRole(false)
-            setErrorMessage("Something went wrong changing user role, please try again later")
+            setErrorMessage(t("organization:errorChangingUserRole"))
             setErrorOpen(true)
         }
     }
@@ -436,7 +435,7 @@ const OrganizationPage = () => {
             navigate(`/`)
         } catch (error) {
             setIsLeaving(false)
-            setErrorMessage("An error has ocurred while leaving organization, please again later.")
+            setErrorMessage(t("organization:errorLeavingOrganization"))
             setErrorOpen(true)
         }
     }

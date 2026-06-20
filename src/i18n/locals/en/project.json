@@ -20,7 +20,7 @@
         "secondary": "or use the button below to select a file"
     },
 
-    "uploadAlert": "Only PNG, JPG, JPEG or PDF files are allowed",
+    "uploadAlert": "Only PNG, JPG, JPEG, or PDF files are allowed",
 
     "uploadedBlueprints": "Uploaded blueprints",
     "uploadedBlueprintsCount": "Total blueprints",
@@ -38,8 +38,8 @@
     },
 
     "processingPdf": {
-        "title": "Processing pdf",
-        "description": "Please wait while the pdf is being processed for upload..."
+        "title": "Processing PDF",
+        "description": "Please wait while the PDF is being processed for upload..."
     },
 
     "isUploadingToast": {
@@ -49,11 +49,22 @@
 
     "deleteDialog": {
         "title": "Delete project {{projectName}}",
-        "description": "This action cannot be undone. This will permanently delete this project, along with it's blueprints and files included."
+        "description": "This action cannot be undone. This will permanently delete this project, along with its blueprints and included files."
     },
 
     "deletingProject": {
         "title": "Deleting project",
-        "description": "Please wait while selected project is being deleted..."
+        "description": "Please wait while the selected project is being deleted..."
+    },
+
+    "errorMessages": {
+        "errorDeletingProject": "An error occurred while deleting this project. Please try again later."
+    },
+
+    "alertMessages": {
+        "errorProcessingPdf": "Error processing PDF",
+        "noFileSelected": "No file selected",
+        "errorUpload": "Something went wrong uploading the blueprint",
+        "unexpectedError": "An unexpected error occurred"
     }
 }

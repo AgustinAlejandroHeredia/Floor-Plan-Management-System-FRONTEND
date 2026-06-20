@@ -1,14 +1,14 @@
 {
     "joinOrganization": "Unirse a una organización",
-    "joinOrganizationText": "Aquí puedes ingresar el token / codigo que te fue enviado a tu email. Se de dará acceso a los proyectos que enta entidad tiene.",
-    "joinOrganizationPlaceholder": "Token, Ejemplo : 637873",
+    "joinOrganizationText": "Aquí puedes ingresar el token/código que te fue enviado a tu email. Se te dará acceso a los proyectos que esta organización tiene.",
+    "joinOrganizationPlaceholder": "Token, Ejemplo: 637873",
     "joinOrganizationJoinButton": "Unirse",
 
-    "firstToken": "Ingrese el token / código de la invitación enviada a tu email.",
+    "firstToken": "Ingrese el token/código de la invitación enviada a tu email.",
 
     "noToken": "Tienes que ingresar un token para unirte",
-    "invalidToken": "Token inválido, por favor intentalo más tarde.",
-    "validToken": "El token ingresado fue correctamente validado, podrás ver debajo la organización a la que te uniste!",
+    "invalidToken": "Token inválido, por favor inténtalo más tarde.",
+    "validToken": "El token ingresado fue correctamente validado, podrás ver debajo la organización a la que te uniste.",
 
     "yourOrganizations": "Tus organizaciones",
     "totalOrganizations": "Organizaciones totales",

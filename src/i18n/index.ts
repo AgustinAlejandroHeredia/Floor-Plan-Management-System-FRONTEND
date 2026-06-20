@@ -10,6 +10,7 @@ import homeEn from "./locals/en/home.json";
 import organizationEn from "./locals/en/organization.json";
 import projectEn from "./locals/en/project.json"
 import blueprintEn from "./locals/en/blueprint.json"
+import itemsEn from "./locals/en/items.json"
 
 import commonEs from "./locals/es/common.json";
 import userEs from "./locals/es/user.json"
@@ -19,6 +20,7 @@ import homeEs from "./locals/es/home.json";
 import organizationEs from "./locals/es/organization.json";
 import projectEs from "./locals/es/project.json"
 import blueprintEs from "./locals/es/blueprint.json"
+import itemsEs from "./locals/es/items.json"
 
 i18n
   .use(LanguageDetector)
@@ -39,6 +41,7 @@ i18n
       "organization",
       "project",
       "blueprint",
+      "items"
     ],
 
     defaultNS: "common",
@@ -53,6 +56,7 @@ i18n
         organization: organizationEn,
         project: projectEn,
         blueprint: blueprintEn,
+        items: itemsEn,
       },
       es: {
         common: commonEs,
@@ -63,6 +67,7 @@ i18n
         organization: organizationEs,
         project: projectEs,
         blueprint: blueprintEs,
+        items: itemsEs,
       },
     },
   });

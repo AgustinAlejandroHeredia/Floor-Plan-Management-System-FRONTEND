@@ -6,9 +6,5 @@
         "role": "Rol",
         "created": "Creada",
         "timeLeft": "Tiempo restante"
-    },
-
-    "userItem": {
-        
     }
 }

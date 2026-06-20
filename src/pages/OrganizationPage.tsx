@@ -74,6 +74,7 @@ const OrganizationPage = () => {
         "organization",
         "project",
         "common",
+        "items",
     ])
 
     // INDEX
@@ -1247,13 +1248,15 @@ const OrganizationPage = () => {
                         )}
                         <AlertDialogDescription>
                             <span>
-                                {t('organization:changeUserRole.alertCurrentRole')}: {userForRolechange?.organizationRole}
+                                {t('organization:changeUserRole.alertCurrentRole')}: {userForRolechange?.organizationRole.toLocaleLowerCase() === "member"
+                                    ? t('user:roles.member')
+                                    : t('user:roles.admin')}
                             </span>
                             <br />
                             <span>
-                                {t('organization:changeUserRole.alertChangeTo')}: {userForRolechange?.organizationRole === "admin"
-                                    ? t('user:roles.member')
-                                    : t('user:roles.admin')}
+                                {t('organization:changeUserRole.alertChangeTo')}: {userForRolechange?.organizationRole.toLocaleLowerCase() === "member"
+                                    ? t('user:roles.admin')
+                                    : t('user:roles.member')}
                             </span>
                         </AlertDialogDescription>
                     </AlertDialogHeader>

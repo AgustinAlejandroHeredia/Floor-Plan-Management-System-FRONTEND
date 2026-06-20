@@ -11,8 +11,10 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 
 import type {
   InvitationItemData,
-  OrganizationRole,
 } from "@/types/types";
+
+// TRANSLATION
+import { useTranslation } from "react-i18next";
 
 type Props = {
   invitation: InvitationItemData;
@@ -26,6 +28,11 @@ const InvitationItem = ({
   onRefresh,
   onDelete,
 }: Props) => {
+
+  const { t } = useTranslation([
+      "items",
+      "user"
+  ])
 
   const role = invitation.userOrganizationRole
     .toLowerCase()
@@ -68,27 +75,27 @@ const InvitationItem = ({
       <ItemContent className="flex flex-col gap-2">
 
         <span className="font-medium text-[var(--text-h)]">
-          To: {invitation.userEmail}
+          {t("items:invitationItem.to")}: {invitation.userEmail}
         </span>
 
         <span className="text-[var(--text)]">
-          Sent by: {invitation.sentByUserName}
+          {t("items:invitationItem.sentBy")}: {invitation.sentByUserName}
         </span>
 
         <span className="text-[var(--text)]">
-          Organization: {invitation.organizationName}
+          {t("items:invitationItem.organization")}: {invitation.organizationName}
         </span>
 
         <span className="text-[var(--text)]">
-          Role: {role}
+          {t("items:invitationItem.role")}: {t(`user:roles.${invitation.userOrganizationRole.toLocaleLowerCase()}`)}
         </span>
 
         <span className="text-[var(--text)]">
-          Created: {creationDate}
+          {t("items:invitationItem.created")}: {creationDate}
         </span>
 
         <span className="text-[var(--text)]">
-          Time left: {timeLeft}
+          {t("items:invitationItem.timeleft")}: {timeLeft}
         </span>
 
       </ItemContent>

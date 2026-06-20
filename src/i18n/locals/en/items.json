@@ -6,9 +6,5 @@
         "role": "Role",
         "created": "Created",
         "timeLeft": "Time left"
-    },
-
-    "userItem": {
-        
     }
 }

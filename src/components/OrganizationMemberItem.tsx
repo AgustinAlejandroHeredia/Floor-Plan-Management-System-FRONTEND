@@ -18,6 +18,9 @@ import { FaUserAlt, FaUserShield } from "react-icons/fa";
 import { GiExitDoor } from "react-icons/gi";
 import type { OrganizationMembersList, OrganizationRole } from "@/types/types";
 
+// TRANSLATION
+import { useTranslation } from "react-i18next";
+
 type Member = {
   _id: string;
   name: string;
@@ -42,6 +45,11 @@ const OrganizationMemberItem = ({
   onRemoveUser,
   onChangeRole,
 }: Props) => {
+
+  const { t } = useTranslation([
+      "user"
+  ])
+
   const role = member.organizationRole ?? member.globalRole ?? "unknown";
 
   const normalizedRole = role.toLowerCase();
@@ -54,12 +62,6 @@ const OrganizationMemberItem = ({
   // ROL DEL USUARIO ACTUAL
   const currentUserIsMember =
     currentUserOrganizationRole.toLowerCase() === "member";
-
-  const formattedRole = role
-    .toLowerCase()
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
 
   return (
     <Item variant="outline" className="gap-6">
@@ -82,7 +84,10 @@ const OrganizationMemberItem = ({
         </span>
 
         <span className="text-sm font-medium text-[var(--text-h)]">
-          {formattedRole}
+          {role && role !== "unknown" ? (t(`user:roles.${role.toLowerCase()}`)
+          ) : (
+            "unknown"
+          )}
         </span>
       </ItemContent>
 

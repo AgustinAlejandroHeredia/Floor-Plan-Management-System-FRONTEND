@@ -6,10 +6,10 @@
         "view": "Vista",
         "specialties": "Especialidades",
         "levels": "Niveles",
-        "areas": "Areas",
+        "areas": "Áreas",
         "cropFrom": "Recortado de",
-        "cropsMade": "Recortes hechos",
-        "noCropsMade": "No hay recortes hechos"
+        "cropsMade": "Recortes realizados",
+        "noCropsMade": "No se han realizado recortes"
     },
 
     "controls": {
@@ -17,36 +17,36 @@
         "confidenceLevel": "Nivel de fiabilidad",
         "labelFilter": "Filtros",
         "select": "Selección",
-        "hideDrawnAreas": "Ocultar areas"
+        "hideDrawnAreas": "Ocultar áreas"
     },
 
     "areaOptions": {
         "edit": "Editar",
         "delete": "Eliminar",
-        "hideTypeOfArea": "Ocultar tipo de area"
+        "hideTypeOfArea": "Ocultar tipo de área"
     },
 
     "sidebar": {
         "downloadBlueprint": "Descargar plano",
         "editBlueprint": "Editar plano",
         "generateCropManually": "Generar recorte manualmente",
-        "magicCrop": "Recorte magico",
+        "magicCrop": "Recorte mágico",
         "ai": "IA",
         "processBlueprintWithAi": "Procesar plano con IA",
-        "saveGeneratedAreas": "Guardar areas generadas",
+        "saveGeneratedAreas": "Guardar áreas generadas",
         "deleteBlueprint": "Eliminar plano"
     },
 
     "labelFilterOptions": {
         "title": "Etiquetas visibles / filtros",
-        "showAllAreas": "Mostrar todas las areas"
+        "showAllAreas": "Mostrar todas las áreas"
     },
 
     "editOptions": {
         "title": "Edición del plano",
         "description": "Editar valores existentes para el plano.",
         "blueprintName": "Nombre del plano",
-        "pointOfView": "Puto de vista",
+        "pointOfView": "Punto de vista",
         "specialties": "Especialidades",
         "noSpecialtiesSelected": "No se seleccionaron especialidades",
         "addSpecialty": "Añadir especialidad",
@@ -59,7 +59,7 @@
     "pointOfViewOptions": {
         "top": "Arriba",
         "front": "Frente",
-        "back": "Detras",
+        "back": "Detrás",
         "leftSide": "Lado izquierdo",
         "rightSide": "Lado derecho"
     },
@@ -68,9 +68,9 @@
         "title": "Selección de especialidad",
         "structure": "Estructura",
         "architecture": "Arquitectura",
-        "cold_water": "Agua fria",
+        "cold_water": "Agua fría",
         "hot_water": "Agua caliente",
-        "electrical": "Electrica",
+        "electrical": "Eléctrica",
         "gas": "Gas",
         "sewerage": "Alcantarillado",
         "rainwater": "Agua de lluvia",
@@ -83,7 +83,7 @@
     },
 
     "deletedAreasOptions": {
-        "title": "Areas eliminadas",
+        "title": "Áreas eliminadas",
         "label": "Etiqueta",
         "confidence": "Fiabilidad",
         "type": "Tipo",
@@ -101,73 +101,82 @@
 
     "savingChanges": {
         "title": "Guardando cambios",
-        "description": "Por favor espera mientras se guardan los cambio..."
+        "description": "Por favor, espera mientras se guardan los cambios..."
     },
 
     "downloadingBlueprint": {
         "title": "Descargando plano",
-        "description": "Por favor espera mientras se descarga el plano..."
+        "description": "Por favor, espera mientras se descarga el plano..."
     },
 
     "uploadingBlueprint": {
         "title": "Subiendo plano",
-        "description": "Por favor espera mientras se sube el plano, esto puede tomar un minuto..."
+        "description": "Por favor, espera mientras se sube el plano. Esto puede tomar un minuto..."
     },
 
     "cropMadeSuccessfully": {
         "title": "Recorte generado",
-        "description": "Recorte generado exitosamente y está disponible como un nuevo plano dentro de este proyecto."
+        "description": "El recorte se ha generado correctamente y está disponible como un nuevo plano dentro de este proyecto."
     },
 
     "deleteBlueprint": {
         "title": "Eliminar plano",
-        "description": "Esta acción no se puede deshacer. Se eliminara este plano permanentemente."
+        "description": "Esta acción no se puede deshacer. Este plano se eliminará permanentemente."
     },
 
     "deletingBlueprint": {
         "title": "Eliminando plano",
-        "description": "Por favor espera mientras este plano es eliminando..."
+        "description": "Por favor, espera mientras se elimina este plano..."
     },
 
     "dialogCreateCrop": {
         "title": "Generando recorte",
-        "description": "Complete los campos y suba el plano.",
+        "description": "Completa los campos y sube el plano.",
         "cropName": "Nombre del recorte",
         "confirm": "Subir"
     },
 
     "processingBlueprint": {
         "title": "Procesando plano...",
-        "description": "Tu plano esta siendo procesado por IA.\n\nPodrás seguir usando la aplicacion y seras notificado una vez que el procesamiento se haya comlpetado."
+        "description": "Tu plano está siendo procesado por IA.\n\nPodrás seguir usando la aplicación y serás notificado una vez que el procesamiento se haya completado."
     },
 
     "deleteAreaDialog": {
-        "title": "Eliminando area \"{{label}}\"",
-        "description": "Podras deshacer este cambio luego en la sección \"Areas eliminadas\" debajo de la imagen del plano."
+        "title": "Eliminando área \"{{label}}\"",
+        "description": "Podrás deshacer este cambio más adelante en la sección \"Áreas eliminadas\", debajo de la imagen del plano."
     },
 
     "confirmSaveArea": {
-        "title": "¿Guardar areas generadas?",
-        "description": "¿Quieres guardar las areas que la IA ha marcado? Puedes editarlas o eliminarlas individualmente, estas areas reemplazaran las existentes si las hay."
+        "title": "¿Guardar áreas generadas?",
+        "description": "¿Deseas guardar las áreas marcadas por la IA? Puedes editarlas o eliminarlas individualmente. Estas áreas reemplazarán las existentes, si las hubiera."
     },
 
     "saveAreas": {
-        "title": "Guardando areas...",
-        "description": "Por favor espera mientras se guardan las areas generadas..."
+        "title": "Guardando áreas...",
+        "description": "Por favor, espera mientras se guardan las áreas generadas..."
     },
 
     "selectAiModels": {
         "title": "Selección de modelo de IA",
-        "description": "Selecciona el modelo de IA que será usado para procesar el plano para cada especialidad asignada.",
+        "description": "Selecciona el modelo de IA que se utilizará para procesar el plano para cada especialidad asignada.",
         "confirm": "Procesar"
     },
 
-
-
-
-
     "errorMessages": {
-        
+        "imageNotAvailable": "Imagen no disponible",
+        "errorSavingChanges": "Ha ocurrido un error al guardar los cambios. Por favor, inténtalo de nuevo más tarde.",
+        "errorDeletingBlueprint": "Ha ocurrido un error al eliminar el plano. Por favor, inténtalo de nuevo más tarde.",
+        "errorUploadingBlueprint": "Error al subir el recorte",
+        "noSpecialtiesSelected": "No se han seleccionado especialidades para este plano.\nEs necesario completar todos los campos del plano que aparezcan como \"Inespecificado\" para utilizar esta funcionalidad.\n\nCampos requeridos:\n- Punto de vista\n- Especialidades\n- Niveles",
+        "noAiModelsForSpecialties": "Lo sentimos, no hay modelos de IA disponibles para algunas o todas las especialidades seleccionadas.",
+        "needEditionForAi": "Es necesario completar todos los campos del plano que aparezcan como \"Inespecificado\" para utilizar esta funcionalidad.\n\nCampos requeridos:\n- Punto de vista\n- Especialidades\n- Niveles",
+        "noModelSelected": "Es necesario seleccionar un modelo de procesamiento para cada una de las especialidades especificadas.",
+        "processingFailed": "El procesamiento con IA ha fallado. Por favor, inténtalo de nuevo más tarde.",
+        "inferenceJobCancelled": "El trabajo de inferencia ha sido cancelado.",
+        "errorProcessingBlueprint": "Algo salió mal al procesar el plano. Por favor, inténtalo de nuevo más tarde.",
+        "noSelectedArea": "No se ha seleccionado un área",
+        "noAreasToSave": "No hay áreas para guardar",
+        "errorSavingAreas": "Ha ocurrido un error al guardar las áreas. Por favor, inténtalo de nuevo más tarde.",
+        "errorSelectingAreaForEdit": "Error al seleccionar el área para editar"
     }
-
 }

@@ -984,8 +984,8 @@ const BlueprintView = () => {
 
                                 <p className="font-semibold text-[var(--text-h)]">
                                     {
-                                        blueprint?.view
-                                            ? blueprint.view.charAt(0).toUpperCase() + blueprint.view.slice(1)
+                                        blueprint?.view && blueprint?.view.toLocaleLowerCase() !== "undefined"
+                                            ? t(`specialtiesOptions.${blueprint.view}`)
                                             : t('blueprint:unspecified')
                                     }
                                 </p>
@@ -999,9 +999,9 @@ const BlueprintView = () => {
                                 <p className="font-semibold text-[var(--text-h)]">
                                     {
                                         blueprint?.specialties?.length
-                                            ? (
-                                                blueprint.specialties.join(", ").charAt(0).toUpperCase() +
-                                                blueprint.specialties.join(", ").slice(1)
+                                            ? (blueprint.specialties
+                                                .map(specialty => t(`specialtiesOptions.${specialty}`))
+                                                .join(", ")
                                             )
                                             : t('blueprint:unspecified')
                                     }

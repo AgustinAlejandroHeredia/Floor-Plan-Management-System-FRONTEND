@@ -347,7 +347,7 @@ const BlueprintView = () => {
     const handleDownloadFile = async () => {
         setIsDownloading(true)
         if (!blueprtinImageUrl) {
-            setErrorAlertMessage("Image not available");
+            setErrorAlertMessage(t('errorMessages.imageNotAvailable'));
             setOpenErrorAlert(true);
             return;
         }
@@ -408,7 +408,7 @@ const BlueprintView = () => {
         if(response){
             refreshBlueprint()
         } else {
-            setErrorAlertMessage("An error has ocurred saving changes. Please try again later.")
+            setErrorAlertMessage(t('errorMessages.errorSavingChanges'))
             setOpenErrorAlert(true)
         }
 
@@ -423,7 +423,7 @@ const BlueprintView = () => {
         if(response){
             navigate(`/Project/${organizationName}/${organizationId}/${projectName}/${projectId}`)
         }
-        setErrorAlertMessage("An error has ocurred deleting this blueprint. Please try again later.")
+        setErrorAlertMessage(t('errorMessages.errorDeletingBlueprint'))
         setOpenErrorAlert(true)
     }
 
@@ -476,7 +476,7 @@ const BlueprintView = () => {
         if (success) {
             setCropSuccesfullyUploaded(true);
         } else {
-            setErrorAlertMessage("Error uploading cropped image");
+            setErrorAlertMessage(t('errorMessages.errorUploadingBlueprint'));
             setOpenErrorAlert(true);
         }
     };
@@ -605,9 +605,7 @@ const BlueprintView = () => {
     const handleAiCall = () => {
 
         if (!blueprint?.specialties?.length) {
-            setErrorAlertMessage(
-                `No specialties selected for this blueprint.\nYou need to edit all the blueprint fields that appear as "Unspecified" to use this functionality.\n\nRequired fields:\n- Point of view\n- Specialties\n- Levels`
-            );
+            setErrorAlertMessage(t('errorMessages.noSpecialtiesSelected'));
             setOpenErrorAlert(true);
             return;
         }
@@ -622,9 +620,7 @@ const BlueprintView = () => {
         );
 
         if (specialtiesWithModels.length === 0) {
-            setErrorAlertMessage(
-                'Sorry, there are no AI models available for the selected specialties.'
-            );
+            setErrorAlertMessage(t('errorMessages.noAiModelsForSpecialties'));
             setOpenErrorAlert(true);
             return;
         }
@@ -634,7 +630,7 @@ const BlueprintView = () => {
 
     const handleAiProcess = async () => {
         if (blueprint?.view === "undefined" || blueprint?.specialties.length === 0 || blueprint?.levels.length === 0) {
-            setErrorAlertMessage(`You need to edit all the blueprint fields that appear as "Unspecified" to use this functionality.\n\nRequired fields:\n- Point of view\n- Specialties\n- Levels`)
+            setErrorAlertMessage(t('errorMessages.needEditionForAi'))
             setOpenErrorAlert(true)
             return
         }
@@ -650,7 +646,7 @@ const BlueprintView = () => {
             ).length;
         }
         if(countMatches() != Object.values(selectedModels).length){
-            setErrorAlertMessage('You must select a model for each specialty shown here.')
+            setErrorAlertMessage(t('errorMessages.noModelSelected'))
             setOpenErrorAlert(true)
             return
         }
@@ -683,14 +679,14 @@ const BlueprintView = () => {
                     }
                 })
             } else if (completed.status === 'Error') {
-                setErrorAlertMessage(completed.result?.error ?? 'The AI processing failed. Please try again.')
+                setErrorAlertMessage(completed.result?.error ?? t('errorMessages.processingFailed'))
                 setOpenErrorAlert(true)
             } else if (completed.status === 'Cancelled') {
-                setErrorAlertMessage('The inference job was cancelled.')
+                setErrorAlertMessage(t('errorMessages.inferenceJobCancelled'))
                 setOpenErrorAlert(true)
             }
         } catch (error) {
-            setErrorAlertMessage('Something went wrong processing the blueprint. Please try again later.')
+            setErrorAlertMessage(t('errorMessages.errorProcessingBlueprint'))
             setOpenErrorAlert(true)
         } finally {
             setIsProcessing(false)
@@ -706,7 +702,7 @@ const BlueprintView = () => {
     const handleDeleteArea = () => {
 
         if (!areaForDelete) {
-            setErrorAlertMessage("No selected area")
+            setErrorAlertMessage(t('errorMessages.noSelectedArea'))
             setOpenErrorAlert(true)
             return
         }
@@ -766,7 +762,7 @@ const BlueprintView = () => {
             blueprint?.sectionViews ?? []
 
         if (areasToSave.length === 0) {
-            setErrorAlertMessage("No areas to save")
+            setErrorAlertMessage(t('errorMessages.noAreasToSave'))
             setOpenErrorAlert(true)
             return
         }
@@ -779,9 +775,7 @@ const BlueprintView = () => {
                 areasToSave,
             )
         } catch (error) {
-            setErrorAlertMessage(
-                "An error has occurred while saving areas, please try again later."
-            )
+            setErrorAlertMessage(t('errorMessages.errorSavingAreas'))
             setOpenErrorAlert(true)
         } finally {
             setIsSavingAreas(false)
@@ -894,7 +888,7 @@ const BlueprintView = () => {
 
     const saveEditedArea = () => {
         if (selectedAreaForEdit.index === null || !selectedAreaForEdit.area || !blueprint) {
-            setErrorAlertMessage("Error selecting area for editing")
+            setErrorAlertMessage(t('errorMessages.errorSelectingAreaForEdit'))
             setOpenErrorAlert(true)
             return
         }

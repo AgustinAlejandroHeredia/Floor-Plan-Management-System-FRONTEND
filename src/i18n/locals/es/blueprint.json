@@ -160,5 +160,14 @@
         "title": "Selección de modelo de IA",
         "description": "Selecciona el modelo de IA que será usado para procesar el plano para cada especialidad asignada.",
         "confirm": "Procesar"
+    },
+
+
+
+
+
+    "errorMessages": {
+        
     }
+
 }

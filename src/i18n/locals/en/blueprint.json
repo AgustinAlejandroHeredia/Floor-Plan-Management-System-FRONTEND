@@ -160,5 +160,27 @@
         "title": "Select AI processing model",
         "description": "Select the models the AI will use to process the blueprint for each specialty assign.",
         "confirm": "Process"
+    },
+
+
+
+
+
+    "errorMessages": {
+        "imageNotAvailable": "Image not available",
+        "errorSavingChanges": "An error has ocurred saving changes. Please try again later.",
+        "errorDeletingBlueprint": "An error has ocurred deleting this blueprint. Please try again later.",
+        "errorUploadingBlueprint": "Error uploading cropped image",
+        "noSpecialtiesSelected": "No specialties selected for this blueprint.\nYou need to edit all the blueprint fields that appear as \"Unspecified\" to use this functionality.\n\nRequired fields:\n- Point of view\n- Specialties\n- Levels",
+        "noAiModelsForSpecialties": "Sorry, there are no AI models available for the selected specialties.",
+        "needEditionForAi": "You need to edit all the blueprint fields that appear as \"Unspecified\" to use this functionality.\n\nRequired fields:\n- Point of view\n- Specialties\n- Levels",
+        "noModelSelected": "You must select a model for each specialty shown here.",
+        "processingFailed": "The AI processing failed. Please try again.",
+        "inferenceJobCancelled": "The inference job was cancelled.",
+        "errorProcessingBlueprint": "Something went wrong processing the blueprint. Please try again later.",
+        "noSelectedArea": "No selected area",
+        "noAreasToSave": "No areas to save",
+        "errorSavingAreas": "An error has occurred while saving areas, please try again later.",
+        "errorSelectingAreaForEdit": "Error selecting area for editing"
     }
 }

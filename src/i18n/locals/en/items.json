@@ -5,6 +5,10 @@
         "organization": "Organization",
         "role": "Role",
         "created": "Created",
-        "timeLeft": "Time left"
+        "timeLeft": "Time left",
+        "status": {
+            "valid": "Valid",
+            "expired": "Expired"
+        }
     }
 }

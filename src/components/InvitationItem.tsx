@@ -59,7 +59,7 @@ const InvitationItem = ({
 
   const timeLeft =
     msLeft <= 0
-      ? "Expired"
+      ? t('items:invitationItem.status.expired')
       : `${Math.floor(
           msLeft / (1000 * 60 * 60),
         )}h ${Math.floor(

@@ -1469,7 +1469,7 @@ const DevOptions = () => {
                                 <br />
                                 - {t('developeroptions:refreshInvitationDialog.description.currentStatus')}: {
                                     selectedInvitation
-                                        ? (selectedInvitation.expired ? t('developeroptions:refreshInvitationDialog.description.status.expired') : t('developeroptions:refreshInvitationDialog.description.status.valid'))
+                                        ? (selectedInvitation.expired ? t('items:invitationItem.status.expired') : t('items:invitationItem.status.valid'))
                                         : ""
                                     }
                                 <br />
@@ -1522,9 +1522,9 @@ const DevOptions = () => {
                                     ? new Date(selectedInvitation.creationDate).toLocaleDateString()
                                     : ""}
                                 <br />
-                                - Current status: {
+                                - {t('developeroptions:refreshInvitationDialog.description.currentStatus')}: {
                                     selectedInvitation
-                                        ? (selectedInvitation.expired ? t('developeroptions:refreshInvitationDialog.description.status.expired') : t('developeroptions:refreshInvitationDialog.description.status.valid'))
+                                        ? (selectedInvitation.expired ? t('items:invitationItem.status.expired') : t('items:invitationItem.status.valid'))
                                         : ""
                                     }
                                 <br />

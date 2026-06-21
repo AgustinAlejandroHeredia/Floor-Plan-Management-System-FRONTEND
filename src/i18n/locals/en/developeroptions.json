@@ -130,10 +130,6 @@
             "general": "You will reset the duration of this invitation making it valid for another 24h without the need of sending another invitation.",
             "data": "Invitation data",
             "currentStatus": "Current status",
-            "status": {
-                "expired": "Expired",
-                "valid": "Valid"
-            },
             "question": "Are you sure you want to procede?"
         },
         "confirm": "Refresh invitation"
@@ -145,10 +141,6 @@
             "general": "You will delete this invitation and the user will not be able to enter the organization that was invited to.",
             "data": "Invitation data",
             "currentStatus": "Current status",
-            "status": {
-                "expired": "Expired",
-                "valid": "Valid"
-            },
             "question": "Are you sure you want to procede? This action cannot be undone."
         },
         "confirm": "Delete invitation"

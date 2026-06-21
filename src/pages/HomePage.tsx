@@ -110,7 +110,7 @@ const HomePage = () => {
               <Field orientation="horizontal">
                 <Input 
                   type="search" 
-                  placeholder="Token , Example : 637873" 
+                  placeholder={t('home:joinOrganizationPlaceholder')}
                   className="w-full max-w-xs text-[var(--text-h)]"
                   value={token}
                   onChange={(e) => setToken(e.target.value)}

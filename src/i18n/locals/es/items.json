@@ -10,5 +10,19 @@
             "valid": "Válida",
             "expired": "Expirada"
         }
+    },
+
+    "activityLog": {
+        "description": "Descripción",
+        "target": "Objetivo",
+
+        "eventTypes": {
+            
+            "send invitation":{
+                "title": "Envío de invitación",
+                "description": "Invitación creada para \"{{email}}\" con el rol \"{{role}}\"."
+            }
+        
+        }
     }
 }

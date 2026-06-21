@@ -4,7 +4,16 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import { useRecentActivity } from "@/hooks/useRecentActivityPage"
 import { useParams } from "react-router-dom"
 
+// TRANSLATION
+import { useTranslation } from "react-i18next";
+
 const RecentActivityPage = () => {
+
+    const { t } = useTranslation([
+        "breadcrumb",
+        "items",
+        "recentactivity",
+    ])
 
     const { userId } = useParams()
 
@@ -14,15 +23,15 @@ const RecentActivityPage = () => {
 
     return (
         <div>
-        <BreadcrumbBar items={[{ label: "My Recent Activity" }]} />
+        <BreadcrumbBar items={[{ label: t('breadcrumb:myRecentActivity') }]} />
 
         <div className="main-content">
 
             <div className="main-content-item">
                 
-                <h3 className="sub-heading">Your recent activity: </h3>
+                <h3 className="sub-heading">{t('recentactivity:title')} </h3>
 
-                <p className="comment-text">Logs {recentActivityList.length}</p>
+                <p className="comment-text">{t('recentactivity:logs')} {recentActivityList.length}</p>
 
                 <div className="flex flex-col items-center gap-6">
                     {recentActivityList.map((action) => (
@@ -40,11 +49,11 @@ const RecentActivityPage = () => {
                             </CardTitle>
 
                             <p className="text-[var(--text)]">
-                            Description: {action.description}
+                            {t('items:activityLog.description')}: {action.description}
                             </p>
 
                             <p className="text-[var(--text)]">
-                            Target: {action.targetName}
+                            {t('items:activityLog.target')}: {action.targetName}
                             </p>
 
                             <p className="text-[var(--text)]">

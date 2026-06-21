@@ -10,5 +10,19 @@
             "valid": "Valid",
             "expired": "Expired"
         }
+    },
+
+    "activityLog": {
+        "description": "Description",
+        "target": "Target",
+
+        "eventTypes": {
+            
+            "send invitation":{
+                "title": "Send invitation",
+                "description": "Invitation created for \"{{email}}\" with role \"member\"."
+            }
+        
+        }
     }
 }

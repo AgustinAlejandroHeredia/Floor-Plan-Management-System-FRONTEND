@@ -4,9 +4,19 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import { useMyProjectPage } from "@/hooks/useMyProjectsPage"
 import { useNavigate } from "react-router-dom"
 
+// TRANSLATION
+import { useTranslation } from "react-i18next";
+
 const MyProjectsPage = () => {
 
     const navigate = useNavigate()
+
+    const { t } = useTranslation([
+        "myprojects",
+        "breadcrumb",
+        "common",
+        "project"
+    ])
 
     const {userProjectsList, loading, error} = useMyProjectPage()
 
@@ -20,16 +30,16 @@ const MyProjectsPage = () => {
         <div>
         
             <BreadcrumbBar items={[ 
-                {label: "My Projects"},
+                {label: t('breadcrumb:myProjects')},
             ]} />
 
             <div className="main-content">
 
                 <div className="main-content-item">
 
-                    <h3 className="sub-heading">The projects where you participated in: </h3>
+                    <h3 className="sub-heading">{t('myprojects:title')}: </h3>
 
-                    <p className="comment-text">Total projects {userProjectsList.length}</p>
+                    <p className="comment-text">{t('myprojects:totalProjects')} {userProjectsList.length}</p>
 
                     {userProjectsList.length > 0 && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -46,15 +56,15 @@ const MyProjectsPage = () => {
                                         </CardTitle>
 
                                         <CardTitle className="text-[var(--text)]">
-                                            Status: {project.status}
+                                            {t('project:projectCharacteristics.status')}: {t(`project:projectCharacteristics.statusType.${project.status}`)}
                                         </CardTitle>
 
                                         <CardTitle className="text-[var(--text)]">
-                                            Your uploads: {project.uploads}
+                                            {t('myprojects:yourUploads')}: {project.uploads}
                                         </CardTitle>
 
                                         <CardTitle className="text-[var(--text)] mt-6 font-semibold">
-                                            Organization: {project.organizationName}
+                                            {t('myprojects:organization')}: {project.organizationName}
                                         </CardTitle>
 
                                     </CardContent>

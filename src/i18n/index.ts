@@ -12,7 +12,7 @@ import projectEn from "./locals/en/project.json"
 import blueprintEn from "./locals/en/blueprint.json"
 import itemsEn from "./locals/en/items.json"
 import developerOptionsEn from "./locals/en/developeroptions.json"
-import myfilesEn from "./locals/en/myfiles.json"
+import myprojectsEn from "./locals/es/myprojects.json"
 import myuploadsEn from "./locals/en/myuploads.json"
 import recentactivityEn from "./locals/en/recentactivity.json"
 
@@ -26,7 +26,7 @@ import projectEs from "./locals/es/project.json"
 import blueprintEs from "./locals/es/blueprint.json"
 import itemsEs from "./locals/es/items.json"
 import developerOptionsEs from "./locals/es/developeroptions.json"
-import myfilesEs from "./locals/es/myfiles.json"
+import myprojectsEs from "./locals/es/myprojects.json"
 import myuploadsEs from "./locals/es/myuploads.json"
 import recentactivityEs from "./locals/es/recentactivity.json"
 
@@ -49,9 +49,9 @@ i18n
       "organization",
       "project",
       "blueprint",
+      "myprojects",
       "items",
       "developeroptions",
-      "myfiles",
       "myuploads",
       "recentactivity",
     ],
@@ -70,7 +70,7 @@ i18n
         blueprint: blueprintEn,
         items: itemsEn,
         developeroptions: developerOptionsEn,
-        myfiles: myfilesEn,
+        myprojects: myprojectsEn,
         myupoloads: myuploadsEn,
         recentactivity: recentactivityEn,
       },
@@ -85,7 +85,7 @@ i18n
         blueprint: blueprintEs,
         items: itemsEs,
         developeroptions: developerOptionsEs,
-        myfiles: myfilesEs,
+        myprojects: myprojectsEs,
         myupoloads: myuploadsEs,
         recentactivity: recentactivityEs,
       },

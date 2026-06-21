@@ -1,0 +1,179 @@
+{
+    "options": {
+        "organizationList": "Organizations list",
+        "platformUsers": "Platform users",
+        "invitations": "All platform invitations"
+    },
+
+    "floatingIndex": {
+        "top": "Top",
+        "organizations": "Organizations",
+        "platformUsers": "Platform users",
+        "invitations": "Invitations"
+    },
+
+    "createOrganization": "Create new organization",
+    "createOrganizationButton": "Press here to open the organization creation tab",
+
+    "organizations": "Organizations",
+    "totalOrganizations": "Total organizations",
+
+    "organizationsFields": {
+        "uploadedBlueprints": "Uploaded blueprints",
+        "organizationMembers": "Organization members"
+    },
+
+    "noUsers": "No users to show",
+
+    "organizationOptions": {
+        "viewOrganization": "View organization",
+        "editOrganization": "Edit organization",
+        "inviteUser": "Invite user",
+        "addUser": "Add user",
+        "deleteOrganization": "Delete organization"
+    },
+
+    "platformUsers": "Platform users",
+    "platformUsersCount": "Total users",
+
+    "availableInvitations": "Available invitations",
+    "availableInvitationsCount": "Total invitations",
+
+    "organizationCreationDialog": {
+        "title": "Creating new organization",
+        "name": "Organization name",
+        "record": "Record",
+        "maxBlueprints": "Max. amount of blueprints",
+        "selectAdmin": "Select admin",
+        "canCreateProjects": "Who can create projects?",
+        "canInviteMembers": "Who can invite members?",
+        "onlyAdmins": "Only admins",
+        "allMembers": "All members"
+    },
+
+    "organizationEditDialog":{
+        "title": "Editing organization",
+        "description": "Change the existing values for this organization.\nAll the fields are required and have to be unique.",
+        "name": "Organization name",
+        "record": "Record",
+        "maxBlueprints": "Max. amount of blueprints",
+        "selectAdmin": "Select admin",
+        "canCreateProjects": "Who can create projects?",
+        "canInviteMembers": "Who can invite members?",
+        "onlyAdmins": "Only admins",
+        "allMembers": "All members"
+    },
+
+    "savingChanges": {
+        "title": "Saving changes",
+        "description": "Please wait while your changes are saved..."
+    },
+
+    "memberInvitationDialog": {
+        "title": "Send invitation",
+        "description": "You are currently invitating an user to the organization \"{{name}}\".Enter the email of the user that you want to invite.",
+        "organizationRole": "Role within organization",
+        "moreInfo": "More information",
+        "info": "Once you enter the email address of the user you wish to invite and select the role they will have (Member by default), an email will be sent containing a code/token. The invited user can then enter this code/token in the \"Home\" section under \"Join Organization.\" Upon entering the code/token, access to your organization will be granted.",
+        "closeInfo": "Close information",
+        "confirm": "Send"
+    },
+
+    "sendingInvitation": {
+        "title": "Sending invitation",
+        "description": "Please wait while your invitations is being sent..."
+    },
+
+    "invitationSent": {
+        "title": "Invitation sent successfuly",
+        "description": "The user will recive an email containing a six digit code that has to enter at the home section to gain access to the organization."
+    },
+
+    "invitationExists": {
+        "title": "Invitation alredy exists",
+        "description": "An invitation for this email and organization alredy exists. A pending invitation has by default a duration of 24h, if the user invited doesnt log in in that period of time the invitation expires. If the invited user does not log in during that period, the invitation expires."
+    },
+
+    "addUserDialog": {
+        "title": "Add user",
+        "description": "You will add an user to the organization \"{{name}}\" directly, without sending an invitation.",
+        "platformUsers": "Platform users (minus current members)",
+        "selectUserPlaceholder": "Select user",
+        "organizationRole": "Role within organization",
+        "confirm": "Add user"
+    },
+
+    "deleteOrganizationDialog": {
+        "title": "Deleting \"{{name}}\" organization",
+        "description": "This action cannot be undone. This will permanently delete this organization, along with it's projects and blueprints (files included)."
+    },
+
+    "creatingOrganization": {
+        "title": "Creating new organization",
+        "description": "Please wait while this new organization is being created..."
+    },
+
+    "kickUserDialog": {
+        "title": "Kick user",
+        "description": "Are you sure you want to kick this user? This action cannot be undone.",
+        "confirm": "Kick user"
+    },
+
+    "kickingUser": {
+        "title": "Kicking user",
+        "description": "Please wait while the user is being kicked from this organization..."
+    },
+
+    "refreshInvitationDialog": {
+        "title": "Refresh invitation",
+        "description": {
+            "general": "You will reset the duration of this invitation making it valid for another 24h without the need of sending another invitation.",
+            "data": "Invitation data",
+            "currentStatus": "Current status",
+            "status": {
+                "expired": "Expired",
+                "valid": "Valid"
+            },
+            "question": "Are you sure you want to procede?"
+        },
+        "confirm": "Refresh invitation"
+    },
+
+    "deleteInvitationDialog": {
+        "title": "Delete invitation",
+        "description": {
+            "general": "You will delete this invitation and the user will not be able to enter the organization that was invited to.",
+            "data": "Invitation data",
+            "currentStatus": "Current status",
+            "status": {
+                "expired": "Expired",
+                "valid": "Valid"
+            },
+            "question": "Are you sure you want to procede? This action cannot be undone."
+        },
+        "confirm": "Delete invitation"
+    },
+
+    "deletingOrganization": {
+        "title": "Deleting organization",
+        "description": "Wait while the selected organizations is being deleted..."
+    },
+
+    "errorMessages": {
+        "noAdminSelected": "You must select an admin user for this new organization.",
+        "invalidMaximum": "Invalid maximum blueprints. The given number must be between 1 and 200.",
+        "noMaximumProvided": "Maximum amount of blueprints was not provided.",
+        "errorCreatingOrganization": "An error has occurred while creating new organization.",
+        "errorSavingChanges": "An error has occurred while saving changes. Please try again later.",
+        "noUserEmail": "No user email given",
+        "errorSendingInvitation": "Error sending the invitation, please try again later.",
+        "noOrganizationSelectedToAddUser": "No organization selected to add user",
+        "errorAddingUser": "Something went wrong adding this user, please try again later.",
+        "userToKickNotSelected": "Tried to kick an user but no user was selected.",
+        "organizationToKickNotSelected": "Tried to kick an user but no organization was selected.",
+        "errorKickingUser": "An error has ocurred while kicking user, please again later.",
+        "noInvitationSelected": "No invitation selected.",
+        "errorRefreshingInvitation": "Something went wrong refreshing the invitation, please try again later.",
+        "errorDeletingOrganization": "An error has occurred while deleting organization. Please try again later."
+    }
+}

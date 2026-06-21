@@ -1,6 +1,8 @@
 {
     "roles": {
         "member": "Member",
-        "admin": "Admin"
+        "admin": "Admin",
+        "super_admin": "Superadmin",
+        "none": "None"
     }
 }

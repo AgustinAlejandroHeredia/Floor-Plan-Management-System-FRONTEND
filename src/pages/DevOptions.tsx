@@ -40,9 +40,21 @@ import InvitationItem from "@/components/InvitationItem"
 import SectionNavigation from "@/components/SectionNavigation"
 import PageSelector from "@/components/PageSelector"
 
+// TRANSLATION
+import { useTranslation } from "react-i18next";
+
 const DevOptions = () => {
 
     const navigate = useNavigate()
+
+    const { t } = useTranslation([
+        "developeroptions",
+        "breadcrumb",
+        "common",
+        "user",
+        "error",
+        "items",
+    ])
 
     // INDEX
     const organizationsSectionRef = useRef<HTMLDivElement | null>(null)
@@ -99,6 +111,7 @@ const DevOptions = () => {
     const [openKickUserDialog, setOpenKickUserDialog] = useState<boolean>(false)
     const [isKickingUser, setIsKickingUser] = useState<boolean>(false)
 
+    // ERROR
     const [openError, setOpenError ] = useState<boolean>(false)
     const [errorMessage, setErrorMessage] = useState<string>("")
 
@@ -132,7 +145,7 @@ const DevOptions = () => {
         e.preventDefault()
 
         if(!selectedAdminId){
-            setErrorMessage("You must select an admin user for this new organization.")
+            setErrorMessage(t('developeroptions:errorMessages.noAdminSelected'))
             setOpenError(true)
             return
         }
@@ -143,12 +156,12 @@ const DevOptions = () => {
         if(formData.get("maxBlueprints")){
             const maxBlueprints = Number(formData.get("maxBlueprints"))
             if(maxBlueprints < 1 || maxBlueprints > 200){
-                setErrorMessage("Invalid maximum blueprints. The given number must be between 1 and 200.")
+                setErrorMessage(t('developeroptions:errorMessages.invalidMaximum'))
                 setOpenError(true)
                 return
             }
         }else{
-            setErrorMessage("Maximum amount of blueprints was not provided.")
+            setErrorMessage(t('developeroptions:errorMessages.noMaximumProvided'))
             setOpenError(true)
             return
         }
@@ -179,7 +192,7 @@ const DevOptions = () => {
             refreshOrganizations(currentOrganizationPage)
 
         } catch (error) {
-            setErrorMessage("An error has occurred while creating new organization.")
+            setErrorMessage(t('developeroptions:errorMessages.errorCreatingOrganization'))
             setOpenError(true)
         }
     }
@@ -293,7 +306,7 @@ const DevOptions = () => {
 
         } catch (error) {
             setIsSavingChanges(false)
-            setErrorMessage("An error has occurred while saving changes. Please try again later.")
+            setErrorMessage(t('developeroptions:errorMessages.errorSavingChanges'))
             setOpenError(true)
         }
 
@@ -323,7 +336,7 @@ const DevOptions = () => {
 
         const userEmail = formData.get("email") as string
         if(!userEmail){
-            setErrorMessage("No user email given")
+            setErrorMessage(t('developeroptions:errorMessages.noUserEmail'))
             setOpenError(true)
             return
         }
@@ -350,7 +363,7 @@ const DevOptions = () => {
                 setInvitationExists(true)
                 return
             }
-            setErrorMessage("Error sending the invitation, please try again later.")
+            setErrorMessage(t('developeroptions:errorMessages.errorSendingInvitation'))
             setOpenError(true)
         }
     }
@@ -362,7 +375,7 @@ const DevOptions = () => {
         setOpenAddUserDialog(false)
 
         if(!selectedOrganizationForAddUser){
-            setErrorMessage("No organization selected to add user")
+            setErrorMessage(t('developeroptions:errorMessages.noOrganizationSelectedToAddUser'))
             setOpenError(true)
             return
         }
@@ -373,7 +386,7 @@ const DevOptions = () => {
             setIsAddingUser(false)
             refreshUsers(currentUserPage)
         } catch (error: any) {
-            setErrorMessage("Something went wrong adding this user, please try again later.")
+            setErrorMessage(t('developeroptions:errorMessages.errorAddingUser'))
             setOpenError(true)
             setIsAddingUser(false)
         }
@@ -391,11 +404,11 @@ const DevOptions = () => {
         setOpenKickUserDialog(false)
         try {
             if(!userIdForKick){
-                setErrorMessage("Tried to kick an user but no user was selected.")
+                setErrorMessage(t('developeroptions:errorMessages.userToKickNotSelected'))
                 setOpenError(true)
             }
             if(!userOrganizationIdForKick){
-                setErrorMessage("Tried to kick an user but no organization was selected.")
+                setErrorMessage(t('developeroptions:errorMessages.organizationToKickNotSelected'))
                 setOpenError(true)
             }
             setIsKickingUser(true)
@@ -406,7 +419,7 @@ const DevOptions = () => {
             refreshUsers(currentUserPage)
         } catch (error) {
             setIsKickingUser(false)
-            setErrorMessage("An error has ocurred while kicking user, please again later.")
+            setErrorMessage(t('developeroptions:errorMessages.errorKickingUser'))
             setOpenError(true)
         }
     }
@@ -426,14 +439,14 @@ const DevOptions = () => {
     const handleRefreshInvitation = async () => {
         try {
             if(!selectedInvitation){
-                setErrorMessage("No invitation selected.")
+                setErrorMessage(t('developeroptions:errorMessages.noInvitationSelected'))
                 setOpenError(true)
                 return
             }
             await DevOptionsService.refreshInvitation(selectedInvitation._id)
             refreshInvitations(currentInvitationPage)
         } catch (error: any) {
-            setErrorMessage("Something went wrong refreshing the invitation, please try again later.")
+            setErrorMessage(t('developeroptions:errorMessages.errorRefreshingInvitation'))
             setOpenError(true)
         }
     }
@@ -441,14 +454,14 @@ const DevOptions = () => {
     const handleDeleteInvitation = async () => {
         try {
             if(!selectedInvitation){
-                setErrorMessage("No invitation selected.")
+                setErrorMessage(t('developeroptions:errorMessages.noInvitationSelected'))
                 setOpenError(true)
                 return
             }
             await DevOptionsService.deleteInvitation(selectedInvitation._id)
             refreshInvitations(currentInvitationPage)
         } catch (error: any) {
-            setErrorMessage("Something went wrong refreshing the invitation, please try again later.")
+            setErrorMessage(t('developeroptions:errorMessages.errorRefreshingInvitation'))
             setOpenError(true)
         }
     }
@@ -458,7 +471,7 @@ const DevOptions = () => {
         try {
             await DevOptionsService.deleteOrganization(organizationId)
         } catch (error) {
-            setErrorMessage("An error has occurred while deleting organization. Please try again later.")
+            setErrorMessage(t('developeroptions:errorMessages.errorDeletingOrganization'))
             setOpenError(true)
         } finally {
             setIsDeletingOrganization(false)
@@ -523,7 +536,7 @@ const DevOptions = () => {
     return (
         <div ref={topSectionRef}>
 
-        <BreadcrumbBar items={[{ label: "Developer Options" }]} />
+        <BreadcrumbBar items={[{ label: t('breadcrumb:developerOptions') }]} />
         
         <div
             className={`
@@ -546,19 +559,19 @@ const DevOptions = () => {
             <SectionNavigation
                 sections={[
                 {
-                    label: "Top",
+                    label: t('developeroptions:floatingIndex.top'),
                     ref: topSectionRef,
                 },
                 {
-                    label: "Organizations",
+                    label: t('developeroptions:floatingIndex.organizations'),
                     ref: organizationsSectionRef,
                 },
                 {
-                    label: "Users",
+                    label: t('developeroptions:floatingIndex.platformUsers'),
                     ref: usersSectionRef,
                 },
                 {
-                    label: "Invitations",
+                    label: t('developeroptions:floatingIndex.invitations'),
                     ref: invitationsSectionRef,
                 },
                 ]}
@@ -578,35 +591,35 @@ const DevOptions = () => {
                         className="text-[var(--text)] cursor-pointer"
                         onClick={scrollToOrganizations}
                     >
-                        Organization list
+                        {t('developeroptions:options.organizationList')}
                     </Button>
                     <Button
                         variant="ghost"
                         className="text-[var(--text)] cursor-pointer"
                         onClick={scrollToUsers}
                     >
-                        Platform users
+                        {t('developeroptions:options.platformUsers')}
                     </Button>
                     <Button
                         variant="ghost"
                         className="text-[var(--text)] cursor-pointer"
                         onClick={scrollToInvitations}
                     >
-                        Invitations
+                        {t('developeroptions:options.invitations')}
                     </Button>
                 </div>
             </div>
 
             <div className="main-content-item">
 
-                <h3 className="sub-heading">Create new organization</h3>
+                <h3 className="sub-heading">{t('developeroptions:createOrganization')}</h3>
 
                 <Button
                     variant="ghost"
                     className="text-[var(--text)] cursor-pointer"
                     onClick={() => setOpenCreateOrganization(true)}
                 >
-                    Press here to open the organization creation tab
+                    {t('developeroptions:createOrganizationButton')}
                 </Button>
 
             </div>
@@ -616,9 +629,9 @@ const DevOptions = () => {
                 ref={organizationsSectionRef}
             >
 
-                <h3 className="sub-heading">Organizations: </h3>
+                <h3 className="sub-heading">{t('developeroptions:organizations')}: </h3>
 
-                <p className="comment-text">Total organizations {organizationsCount}</p>
+                <p className="comment-text">{t('developeroptions:totalOrganizations')} {organizationsCount}</p>
 
                 <div className="space-y-4">
                 {organizationsWithMembers.map((org) => (
@@ -648,13 +661,13 @@ const DevOptions = () => {
                         </CardTitle>
 
                         <CardTitle className="text-[var(--text-h)]">
-                        Blueprints uploaded: {organizationBlueprintCounts.find((item)=>item.organizationId === org._id)?.count ?? 0}/{org.maxBlueprints}
+                        {t('developeroptions:organizationsFields.uploadedBlueprints')}: {organizationBlueprintCounts.find((item)=>item.organizationId === org._id)?.count ?? 0}/{org.maxBlueprints}
                         </CardTitle>
 
                         <div className="mt-4">
 
                             <h3 className="sub-heading-2">
-                                Organization members ({org.members.length}): 
+                                {t('developeroptions:organizationsFields.organizationMembers')} ({org.members.length}): 
                             </h3>
 
                             {org.members.length <= 10 && (
@@ -691,7 +704,7 @@ const DevOptions = () => {
 
                             {org.members.length === 0 && (
                                 <p className="text-[var(--text)] text-xs">
-                                    No users to show
+                                    {t('developeroptions:noUsers')}
                                 </p>
                             )}
 
@@ -704,35 +717,35 @@ const DevOptions = () => {
                                 variant="outline"
                                 onClick={() => handleViewOrganization(org._id, org.name)}
                             >
-                                View organization
+                                {t('developeroptions:organizationOptions.viewOrganization')}
                             </Button>
                             <Button
                                 className="cursor-pointer"
                                 variant="outline"
                                 onClick={() => handleSelectOrganizationForEdit(org._id)}
                             >
-                                Edit organization
+                                {t('developeroptions:organizationOptions.editOrganization')}
                             </Button>
                             <Button
                                 className="cursor-pointer"
                                 variant="outline"
                                 onClick={() => handleSelectOrganizationForInvitation(org._id)}
                             >
-                                Invite user
+                                {t('developeroptions:organizationOptions.inviteUser')}
                             </Button>
                             <Button
                                 className="cursor-pointer"
                                 variant="outline"
                                 onClick={() => handleSelectOrganizationForAddUser(org._id)}
                             >
-                                Add user
+                                {t('developeroptions:organizationOptions.addUser')}
                             </Button>
                             <Button
                                 className="cursor-pointer"
                                 variant="destructive"
                                 onClick={() => handleSelectOrganizationForDelete(org._id)}
                             >
-                                Delete organization
+                                {t('developeroptions:organizationOptions.deleteOrganization')}
                             </Button>
 
                         </div>
@@ -759,9 +772,9 @@ const DevOptions = () => {
                 ref={usersSectionRef}    
             >
 
-                <h3 className="sub-heading">Platform users: </h3>
+                <h3 className="sub-heading">{t('developeroptions:platformUsers')}: </h3>
 
-                <p className="comment-text">Total users {usersCount}</p>
+                <p className="comment-text">{t('developeroptions:platformUsersCount')} {usersCount}</p>
 
                 <Card
                     className="bg-[var(--accent-bg)] w-full"
@@ -814,9 +827,9 @@ const DevOptions = () => {
                 ref={invitationsSectionRef}
             >
 
-                <h3 className="sub-heading">Available invitation: </h3>
+                <h3 className="sub-heading">{t('developeroptions:availableInvitations')}: </h3>
 
-                <p className="comment-text">Total invitations {invitationsCount}</p>
+                <p className="comment-text">{t('developeroptions:availableInvitationsCount')} {invitationsCount}</p>
 
                 <div className="flex flex-col gap-4">
                     {invitationsList.map((invitation) => (
@@ -858,13 +871,13 @@ const DevOptions = () => {
                         <form onSubmit={handleCreateOrganization}>
 
                             <DialogHeader>
-                                <DialogTitle>Creating new organization</DialogTitle>
+                                <DialogTitle>{t('developeroptions:organizationCreationDialog.title')}</DialogTitle>
                             </DialogHeader>
 
                             <FieldGroup className="space-y-4 my-6">
 
                                 <Field>
-                                    <Label htmlFor="name">Organization name</Label>
+                                    <Label htmlFor="name">{t('developeroptions:organizationCreationDialog.name')}</Label>
                                     <Input
                                         id="name"
                                         name="name"
@@ -875,7 +888,7 @@ const DevOptions = () => {
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="address">Address</Label>
+                                    <Label htmlFor="address">{t('common:generalCharacteristics.address')}</Label>
                                     <Input
                                         id="address"
                                         name="address"
@@ -886,7 +899,7 @@ const DevOptions = () => {
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="contactEmail">Email</Label>
+                                    <Label htmlFor="contactEmail">{t('common:generalCharacteristics.email')}</Label>
                                     <Input
                                         id="contactEmail"
                                         name="contactEmail"
@@ -897,7 +910,7 @@ const DevOptions = () => {
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="contactPhone">Phone</Label>
+                                    <Label htmlFor="contactPhone">{t('common:generalCharacteristics.phone')}</Label>
                                     <Input
                                         id="contactPhone"
                                         name="contactPhone"
@@ -908,7 +921,7 @@ const DevOptions = () => {
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="record">Record</Label>
+                                    <Label htmlFor="record">{t('developeroptions:organizationCreationDialog.record')}</Label>
                                     <Input
                                         id="record"
                                         name="record"
@@ -919,7 +932,7 @@ const DevOptions = () => {
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="maxBlueprints">Max. amount of blueprints (max: 200)</Label>
+                                    <Label htmlFor="maxBlueprints">{t('developeroptions:organizationCreationDialog.maxBlueprints')} (max: 200)</Label>
                                     <Input
                                         id="maxBlueprints"
                                         name="maxBlueprints"
@@ -931,10 +944,10 @@ const DevOptions = () => {
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="admin">Select admin</Label>
+                                    <Label htmlFor="admin">{t('developeroptions:organizationCreationDialog.selectAdmin')}</Label>
                                     <Select onValueChange={setSelectedAdminId}>
                                         <SelectTrigger className="cursor-pointer">
-                                            <SelectValue placeholder="Select admin"/>
+                                            <SelectValue placeholder={t('developeroptions:organizationCreationDialog.selectAdmin')}/>
                                         </SelectTrigger>
                                         <SelectContent position="popper">
                                             <SelectGroup>
@@ -954,7 +967,7 @@ const DevOptions = () => {
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="projectCreationPermission">Who can create projects?</Label>
+                                    <Label htmlFor="projectCreationPermission">{t('developeroptions:organizationCreationDialog.canCreateProjects')}</Label>
                                     <Select 
                                         defaultValue="admins"
                                         onValueChange={(value) => setCreationPermission(value as ActionPermission)}
@@ -964,15 +977,15 @@ const DevOptions = () => {
                                         </SelectTrigger>
                                         <SelectContent position="popper">
                                             <SelectGroup>
-                                                <SelectItem value="admins">Only admins</SelectItem>
-                                                <SelectItem value="members">All members</SelectItem>
+                                                <SelectItem value="admins">{t('developeroptions:organizationCreationDialog.onlyAdmins')}</SelectItem>
+                                                <SelectItem value="members">{t('developeroptions:organizationCreationDialog.allMembers')}</SelectItem>
                                             </SelectGroup>
                                         </SelectContent>
                                     </Select>
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="inviteMembersPermission">Who can invite members?</Label>
+                                    <Label htmlFor="inviteMembersPermission">{t('developeroptions:organizationCreationDialog.canInviteMembers')}</Label>
                                     <Select 
                                         defaultValue="admins"
                                         onValueChange={(value) => setInvitationPermission(value as ActionPermission)}
@@ -982,8 +995,8 @@ const DevOptions = () => {
                                         </SelectTrigger>
                                         <SelectContent position="popper">
                                             <SelectGroup>
-                                                <SelectItem value="admins">Only admins</SelectItem>
-                                                <SelectItem value="members">All members</SelectItem>
+                                                <SelectItem value="admins">{t('developeroptions:organizationCreationDialog.onlyAdmins')}</SelectItem>
+                                                <SelectItem value="members">{t('developeroptions:organizationCreationDialog.allMembers')}</SelectItem>
                                             </SelectGroup>
                                         </SelectContent>
                                     </Select>
@@ -993,9 +1006,9 @@ const DevOptions = () => {
 
                             <DialogFooter>
                                 <DialogClose asChild>
-                                    <Button className="cursor-pointer" variant="outline">Cancel</Button>
+                                    <Button className="cursor-pointer" variant="outline">{t('common:cancel')}</Button>
                                 </DialogClose>
-                                <Button className="cursor-pointer" type="submit">Create</Button>
+                                <Button className="cursor-pointer" type="submit">{t('common:cancel')}</Button>
                             </DialogFooter>
 
                         </form>
@@ -1009,17 +1022,16 @@ const DevOptions = () => {
                         <form onSubmit={(e) => handleEditOrganization(selectedOrganizationForEdit!._id, e)}>
 
                             <DialogHeader>
-                                <DialogTitle>Editing organization </DialogTitle>
+                                <DialogTitle>{t('developeroptions:organizationEditDialog.title')}</DialogTitle>
                                 <DialogDescription>
-                                    Change the existing values for this organization.
-                                    All the fields are required and have to be unique.
+                                    {t('developeroptions:organizationEditDialog.description')}
                                 </DialogDescription>
                             </DialogHeader>
 
                             <FieldGroup className="space-y-4 my-6">
 
                                 <Field>
-                                    <Label htmlFor="name">Organization name</Label>
+                                    <Label htmlFor="name">{t('developeroptions:organizationEditDialog.name')}</Label>
                                     <Input
                                         id="name"
                                         name="name"
@@ -1031,7 +1043,7 @@ const DevOptions = () => {
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="address">Address</Label>
+                                    <Label htmlFor="address">{t('common:generalCharacteristics.address')}</Label>
                                     <Input
                                         id="address"
                                         name="address"
@@ -1043,7 +1055,7 @@ const DevOptions = () => {
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="contactEmail">Email</Label>
+                                    <Label htmlFor="contactEmail">{t('common:generalCharacteristics.email')}</Label>
                                     <Input
                                         id="contactEmail"
                                         name="contactEmail"
@@ -1055,7 +1067,7 @@ const DevOptions = () => {
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="contactPhone">Phone</Label>
+                                    <Label htmlFor="contactPhone">{t('common:generalCharacteristics.phone')}</Label>
                                     <Input
                                         id="contactPhone"
                                         name="contactPhone"
@@ -1067,7 +1079,7 @@ const DevOptions = () => {
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="record">Record</Label>
+                                    <Label htmlFor="record">{t('developeroptions:organizationEditDialog.record')}</Label>
                                     <Input
                                         id="record"
                                         name="record"
@@ -1079,7 +1091,7 @@ const DevOptions = () => {
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="maxBlueprints">Max. amount of blueprints (max: 200)</Label>
+                                    <Label htmlFor="maxBlueprints">{t('developeroptions:organizationEditDialog.name')} (max: 200)</Label>
                                     <Input
                                         id="maxBlueprints"
                                         name="maxBlueprints"
@@ -1092,7 +1104,7 @@ const DevOptions = () => {
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="projectCreationPermission">Who can create projects?</Label>
+                                    <Label htmlFor="projectCreationPermission">{t('developeroptions:organizationEditDialog.canCreateProjects')}</Label>
                                     <Select 
                                         defaultValue={selectedOrganizationForEdit?.createPermission}
                                         onValueChange={(value) => setCreationPermission(value as ActionPermission)}
@@ -1102,15 +1114,15 @@ const DevOptions = () => {
                                         </SelectTrigger>
                                         <SelectContent position="popper">
                                             <SelectGroup>
-                                                <SelectItem value="admins">Only admins</SelectItem>
-                                                <SelectItem value="members">All members</SelectItem>
+                                                <SelectItem value="admins">{t('developeroptions:organizationCreationDialog.onlyAdmins')}</SelectItem>
+                                                <SelectItem value="members">{t('developeroptions:organizationCreationDialog.allMembers')}</SelectItem>
                                             </SelectGroup>
                                         </SelectContent>
                                     </Select>
                                 </Field>
 
                                 <Field>
-                                    <Label htmlFor="inviteMembersPermission">Who can invite members?</Label>
+                                    <Label htmlFor="inviteMembersPermission">{t('developeroptions:organizationEditDialog.canInviteMembers')}</Label>
                                     <Select 
                                         defaultValue={selectedOrganizationForEdit?.invitePermission}
                                         onValueChange={(value) => setInvitationPermission(value as ActionPermission)}
@@ -1120,8 +1132,8 @@ const DevOptions = () => {
                                         </SelectTrigger>
                                         <SelectContent position="popper">
                                             <SelectGroup>
-                                                <SelectItem value="admins">Only admins</SelectItem>
-                                                <SelectItem value="members">All members</SelectItem>
+                                                <SelectItem value="admins">{t('developeroptions:organizationCreationDialog.onlyAdmins')}</SelectItem>
+                                                <SelectItem value="members">{t('developeroptions:organizationCreationDialog.allMembers')}</SelectItem>
                                             </SelectGroup>
                                         </SelectContent>
                                     </Select>
@@ -1131,9 +1143,9 @@ const DevOptions = () => {
 
                             <DialogFooter>
                                 <DialogClose asChild>
-                                    <Button variant="outline">Cancel</Button>
+                                    <Button variant="outline">{t('common:cancel')}</Button>
                                 </DialogClose>
-                                <Button type="submit">Save</Button>
+                                <Button type="submit">{t('common:save')}</Button>
                             </DialogFooter>
 
                         </form>
@@ -1152,17 +1164,16 @@ const DevOptions = () => {
                 <DialogContent className="sm:max-w-sm">
                     <form onSubmit={(e) => handleSendInvitation(selectedOrganizationForInvitation!._id, e)}>
                         <DialogHeader>
-                            <DialogTitle>Send invitation</DialogTitle>
+                            <DialogTitle>{t('developeroptions:memberInvitationDialog.title')}</DialogTitle>
                             <DialogDescription>
-                                You are currently invitating an user to the organization "{selectedOrganizationForInvitation?.name}".
-                                Enter the email of the user that you want to invite.
+                                {t('developeroptions:memberInvitationDialog.description', {name: selectedOrganizationForInvitation?.name})}
                             </DialogDescription>
                         </DialogHeader>
 
                         <FieldGroup className="space-y-4 my-6">
 
                             <Field>
-                                <Label htmlFor="email">Email *</Label>
+                                <Label htmlFor="email">{t('common:generalCharacteristics.email')} *</Label>
                                 <Input 
                                     id="email"
                                     name="email"
@@ -1173,7 +1184,7 @@ const DevOptions = () => {
                             </Field>
 
                             <Field>
-                                <Label htmlFor="email">Role within organization</Label>
+                                <Label htmlFor="role">{t('developeroptions:memberInvitationDialog.organizationRole')}</Label>
                                 <Select 
                                     defaultValue="member"
                                     onValueChange={(value) => setInvitationRoleSelected(value as OrganizationRole)} 
@@ -1185,8 +1196,8 @@ const DevOptions = () => {
                                         position="popper"
                                     >
                                         <SelectGroup>
-                                            <SelectItem value="member">Member</SelectItem>
-                                            <SelectItem value="admin">Admin</SelectItem>
+                                            <SelectItem value="member">{t('user:roles.member')}</SelectItem>
+                                            <SelectItem value="admin">{t('user:roles.admin')}</SelectItem>
                                         </SelectGroup>
                                     </SelectContent>
                                 </Select>
@@ -1200,20 +1211,20 @@ const DevOptions = () => {
                                 className="mb-4 cursor-pointer"
                                 onClick={showOrHideSendInvitationHelp}
                             >
-                                More info
+                                {t('developeroptions:memberInvitationDialog.moreInfo')}
                             </Button>
                         )}
 
                         {showInvitationHelp && (
                             <div className="mb-4">
                                 <p className="comment-text">
-                                    Once you enter the email address of the user you wish to invite and select the role they will have (Member by default), an email will be sent containing a code/token. The invited user can then enter this code/token in the "Home" section under "Join Organization." Upon entering the code/token, access to your organization will be granted. 
+                                    {t('developeroptions:memberInvitationDialog.info')} 
                                 </p>
                                 <Button
                                     className="cursor-pointer"
                                     onClick={showOrHideSendInvitationHelp}
                                 >
-                                    Close information
+                                    {t('developeroptions:memberInvitationDialog.closeInfo')} 
                                 </Button>
                             </div>
                         )}
@@ -1228,13 +1239,13 @@ const DevOptions = () => {
                                     setInvitationRoleSelected("member")
                                 }}
                             >
-                                Cancel
+                                {t('common:cancel')}
                             </Button>
                             <Button
                                 className="cursor-pointer"
                                 type="submit"
                             >
-                                Send
+                                {t('developeroptions:memberInvitationDialog.confirm')}
                             </Button>
                         </DialogFooter>
 
@@ -1245,27 +1256,25 @@ const DevOptions = () => {
                 {/* SENDING INVITATION */}
                 <Toast
                     open={isSendingInvitation}
-                    title="Sending invite"
-                    description="Please wait while your invitations is being sent..."
+                    title={t('developeroptions:sendingInvitation.title')}
+                    description={t('developeroptions:sendingInvitation.description')}
                 />
 
                 {/* INVITATION SENT SUCCESSFULLY */}
                 <InfoDialog
                     open={invitationSent}
                     onOpenChange={setInvitationSent}
-                    title="Invitation sent successfuly"
-                    description="The user will recive an email containing a six digit code that has to enter at the home section to gain access to the organization."
+                    title={t('developeroptions:invitationSent.title')}
+                    description={t('developeroptions:invitationSent.description')}
                 />
 
                 {/* INVITATION ALREDY EXISTS */}
                 <Dialog open={invitationExists} onOpenChange={setInvitationExists}>
                 <DialogContent className="sm:max-w-sm">
                     <DialogHeader>
-                        <DialogTitle>Invitation alredy exists</DialogTitle>
+                        <DialogTitle>{t('developeroptions:invitationExists.title')}</DialogTitle>
                             <DialogDescription>
-                                An invitation for this email and organization alredy exists. 
-                                A pending invitation has by default a duration of 24h, if the user invited doesnt log in in that period of time the invitation expires. 
-                                If the invited user does not log in during that period, the invitation expires.
+                                {t('developeroptions:invitationExists.description')}
                             </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
@@ -1275,7 +1284,7 @@ const DevOptions = () => {
                             variant="outline"
                             onClick={() => setInvitationExists(false)}
                         >
-                            Ok
+                            {t('common:ok')}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -1286,22 +1295,22 @@ const DevOptions = () => {
                 <DialogContent className="sm:max-w-sm">
                     
                     <DialogHeader>
-                        <DialogTitle>Add user</DialogTitle>
+                        <DialogTitle>{t('developeroptions:addUserDialog.title')}</DialogTitle>
                         <DialogDescription>
-                            You will add an user to the organization "{selectedOrganizationForAddUser?.name}" directly, without sending an invitation.
+                            {t('developeroptions:addUserDialog.description', {name: selectedOrganizationForAddUser?.name})}
                         </DialogDescription>
                     </DialogHeader>
 
                     <FieldGroup className="space-y-4 my-6">
 
                         <Field>
-                            <Label htmlFor="users">Platform users (minus current members)</Label>
+                            <Label htmlFor="users">{t('developeroptions:addUserDialog.platformUsers')}</Label>
                             <Select
                                 value={selectedUserForAddUserId}
                                 onValueChange={setSelectedUserForAddUserId}
                             >
                                 <SelectTrigger className="cursor-pointer">
-                                    <SelectValue placeholder="Select a user"></SelectValue>
+                                    <SelectValue placeholder={t('developeroptions:addUserDialog.selectUserPlaceholder')}></SelectValue>
                                 </SelectTrigger>
 
                                 <SelectContent position="popper">
@@ -1322,7 +1331,7 @@ const DevOptions = () => {
 
 
                         <Field>
-                            <Label htmlFor="email">Role within organization</Label>
+                            <Label htmlFor="role">{t('developeroptions:addUserDialog.organizationRole')}</Label>
                             <Select 
                                 defaultValue="member"
                                 onValueChange={(value) => setInvitationRoleSelected(value as OrganizationRole)} 
@@ -1334,8 +1343,8 @@ const DevOptions = () => {
                                     position="popper"
                                 >
                                     <SelectGroup>
-                                        <SelectItem value="member">Member</SelectItem>
-                                        <SelectItem value="admin">Admin</SelectItem>
+                                        <SelectItem value="member">{t('user:roles.member')}</SelectItem>
+                                        <SelectItem value="admin">{t('user:roles.admin')}</SelectItem>
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>
@@ -1355,7 +1364,7 @@ const DevOptions = () => {
                                 setSelectedUserForAddUserId("")
                             }}
                         >
-                            Cancel
+                            {t('common:cancel')}
                         </Button>
                         <Button
                             className="cursor-pointer"
@@ -1363,7 +1372,7 @@ const DevOptions = () => {
                             variant="outline"
                             onClick={() => handleAddUser()}
                         >
-                            Add user
+                            {t('developeroptions:addUserDialog.confirm')}
                         </Button>
                     </DialogFooter>
 
@@ -1374,23 +1383,23 @@ const DevOptions = () => {
                 <ConfirmDeleteDialog
                     open={openDeleteDialog}
                     onOpenChange={setOpenDeleteDialog}
-                    title={`Delete ${selectedOrganizationForDelete?.name ?? "organization"}`}
-                    description="This action cannot be undone. This will permanently delete this organization, along with it's projects and blueprints (files included)."
+                    title={t('developeroptions:deleteOrganizationDialog.title', {name: selectedOrganizationForDelete?.name ?? "organization"})}
+                    description={t('developeroptions:deleteOrganizationDialog.description')}
                     onConfirm={() => handleDeleteOrganization(selectedOrganizationForDelete!._id)}
                 />
 
                 {/* CREATING ORGANIZATION */}
                 <Toast
                     open={isCreatingOrganization}
-                    title="Creating new organization"
-                    description="Please wait while this new organization is being created..."
+                    title={t('developeroptions:creatingOrganization.title')}
+                    description={t('developeroptions:creatingOrganization.description')}
                 />
 
                 {/* ERROR ALERT */}
                 <InfoDialog
                     open={openError}
                     onOpenChange={setOpenError}
-                    title="Error"
+                    title={t('error:error')}
                     description={errorMessage}
                 />
 
@@ -1400,10 +1409,10 @@ const DevOptions = () => {
 
                             <AlertDialogHeader>
                                 <AlertDialogTitle>
-                                    Kick user
+                                    {t('developeroptions:kickUserDialog.title')}
                                 </AlertDialogTitle>
                                 <AlertDialogDescription>
-                                    Are you sure you want to kick this user? This action cannot be undone.
+                                    {t('developeroptions:kickUserDialog.description')}
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
 
@@ -1411,7 +1420,7 @@ const DevOptions = () => {
                                 <AlertDialogCancel
                                     className="cursor-pointer"
                                 >
-                                    Cancel
+                                    {t('common:cancel')}
                                 </AlertDialogCancel>
 
                                 <AlertDialogAction
@@ -1419,7 +1428,7 @@ const DevOptions = () => {
                                     variant="destructive"
                                     onClick={handleKickUser}
                                 >
-                                    Kick user
+                                    {t('developeroptions:kickUserDialog.confirm')}
                                 </AlertDialogAction>
                             </AlertDialogFooter>
 
@@ -1429,8 +1438,8 @@ const DevOptions = () => {
                 {/* KICKING USER */}
                 <Toast
                     open={isKickingUser}
-                    title="Kicking user"
-                    description="Please wait while the user is being kicked from this organization..."
+                    title={t('developeroptions:kickingUser.title')}
+                    description={t('developeroptions:kickingUser.description')}
                 />
 
                 {/* REFRESH INVITATION DIALOG */}
@@ -1439,33 +1448,33 @@ const DevOptions = () => {
 
                         <AlertDialogHeader>
                             <AlertDialogTitle>
-                                Refresh invitation
+                                {t('developeroptions:refreshInvitationDialog.title')}
                             </AlertDialogTitle>
                             <AlertDialogDescription>
-                                You will reset the duration of this invitation making it valid for another 24h without the need of sending another invitation.
+                                {t('developeroptions:refreshInvitationDialog.description.general')}
                                 <br />
                                 <br />
-                                Invitation data
+                                {t('developeroptions:refreshInvitationDialog.description.data')}
                                 <br />
-                                - Email: {selectedInvitation?.userEmail}
+                                - {t('common:generalCharacteristics.email')}: {selectedInvitation?.userEmail}
                                 <br />
-                                - Sent by: {selectedInvitation?.sentByUserName}
+                                - {t('items:invitationItem.sentBy')}: {selectedInvitation?.sentByUserName}
                                 <br />
-                                - Organization: {selectedInvitation?.organizationName}
+                                - {t('items:invitationItem.organization')}: {selectedInvitation?.organizationName}
                                 <br />
-                                - Creation date:{" "}
+                                - {t('items:invitationItem.created')}:{" "}
                                     {selectedInvitation?.creationDate
                                     ? new Date(selectedInvitation.creationDate).toLocaleDateString()
                                     : ""}
                                 <br />
-                                - Current status: {
+                                - {t('developeroptions:refreshInvitationDialog.description.currentStatus')}: {
                                     selectedInvitation
-                                        ? (selectedInvitation.expired ? "Expired" : "Valid")
+                                        ? (selectedInvitation.expired ? t('developeroptions:refreshInvitationDialog.description.status.expired') : t('developeroptions:refreshInvitationDialog.description.status.valid'))
                                         : ""
                                     }
                                 <br />
                                 <br />
-                                Are you sure you want to procede?
+                                {t('developeroptions:refreshInvitationDialog.description.question')}
                             </AlertDialogDescription>
                         </AlertDialogHeader>
 
@@ -1473,7 +1482,7 @@ const DevOptions = () => {
                             <AlertDialogCancel
                                 className="cursor-pointer"
                             >
-                                Cancel
+                                {t('common:cancel')}
                             </AlertDialogCancel>
 
                             <AlertDialogAction
@@ -1481,7 +1490,7 @@ const DevOptions = () => {
                                 variant="outline"
                                 onClick={handleRefreshInvitation}
                             >
-                                Refresh invitation
+                                {t('developeroptions:refreshInvitationDialog.confirm')}
                             </AlertDialogAction>
                         </AlertDialogFooter>
 
@@ -1494,33 +1503,33 @@ const DevOptions = () => {
 
                         <AlertDialogHeader>
                             <AlertDialogTitle>
-                                Delete invitation
+                                {t('developeroptions:deleteInvitationDialog.title')}
                             </AlertDialogTitle>
                             <AlertDialogDescription>
-                                You will delete this invitation and the user will not be able to enter the organization that was invited to.
+                                {t('developeroptions:deleteInvitationDialog.description.general')}
                                 <br />
                                 <br />
-                                Invitation data
+                                {t('developeroptions:deleteInvitationDialog.description.data')}
                                 <br />
-                                - Email: {selectedInvitation?.userEmail}
+                                - {t('common:generalCharacteristics.email')}: {selectedInvitation?.userEmail}
                                 <br />
-                                - Sent by: {selectedInvitation?.sentByUserName}
+                                - {t('items:invitationItem.sentBy')}: {selectedInvitation?.sentByUserName}
                                 <br />
-                                - Organization: {selectedInvitation?.organizationName}
+                                - {t('items:invitationItem.organization')}: {selectedInvitation?.organizationName}
                                 <br />
-                                - Creation date:{" "}
+                                - {t('items:invitationItem.created')}:{" "}
                                     {selectedInvitation?.creationDate
                                     ? new Date(selectedInvitation.creationDate).toLocaleDateString()
                                     : ""}
                                 <br />
                                 - Current status: {
                                     selectedInvitation
-                                        ? (selectedInvitation.expired ? "Expired" : "Valid")
+                                        ? (selectedInvitation.expired ? t('developeroptions:refreshInvitationDialog.description.status.expired') : t('developeroptions:refreshInvitationDialog.description.status.valid'))
                                         : ""
                                     }
                                 <br />
                                 <br />
-                                Are you sure you want to procede? This action cannot be undone.
+                                {t('developeroptions:deleteInvitationDialog.description.question')}
                             </AlertDialogDescription>
                         </AlertDialogHeader>
 
@@ -1528,7 +1537,7 @@ const DevOptions = () => {
                             <AlertDialogCancel
                                 className="cursor-pointer"
                             >
-                                Cancel
+                                {t('common:cancel')}
                             </AlertDialogCancel>
 
                             <AlertDialogAction
@@ -1536,7 +1545,7 @@ const DevOptions = () => {
                                 variant="destructive"
                                 onClick={handleDeleteInvitation}
                             >
-                                Delete invitation
+                                {t('developeroptions:deleteInvitationDialog.confirm')}
                             </AlertDialogAction>
                         </AlertDialogFooter>
 
@@ -1545,8 +1554,8 @@ const DevOptions = () => {
 
                  <Toast
                     open={isDeletingOrganization}
-                    title="Deleting organization"
-                    description="Wait while the selected organizations is being deleted..."
+                    title={t('developeroptions:deletingOrganization.title')}
+                    description={t('developeroptions:deletingOrganization.description')}
                 />
 
             </div>

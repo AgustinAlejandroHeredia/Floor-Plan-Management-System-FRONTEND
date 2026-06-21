@@ -95,7 +95,7 @@ const InvitationItem = ({
         </span>
 
         <span className="text-[var(--text)]">
-          {t("items:invitationItem.timeleft")}: {timeLeft}
+          {t("items:invitationItem.timeLeft")}: {timeLeft}
         </span>
 
       </ItemContent>

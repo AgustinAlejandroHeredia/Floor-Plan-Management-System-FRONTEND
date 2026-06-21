@@ -11,6 +11,10 @@ import organizationEn from "./locals/en/organization.json";
 import projectEn from "./locals/en/project.json"
 import blueprintEn from "./locals/en/blueprint.json"
 import itemsEn from "./locals/en/items.json"
+import developerOptionsEn from "./locals/en/developeroptions.json"
+import myfilesEn from "./locals/en/myfiles.json"
+import myuploadsEn from "./locals/en/myuploads.json"
+import recentactivityEn from "./locals/en/recentactivity.json"
 
 import commonEs from "./locals/es/common.json";
 import userEs from "./locals/es/user.json"
@@ -21,6 +25,10 @@ import organizationEs from "./locals/es/organization.json";
 import projectEs from "./locals/es/project.json"
 import blueprintEs from "./locals/es/blueprint.json"
 import itemsEs from "./locals/es/items.json"
+import developerOptionsEs from "./locals/es/developeroptions.json"
+import myfilesEs from "./locals/es/myfiles.json"
+import myuploadsEs from "./locals/es/myuploads.json"
+import recentactivityEs from "./locals/es/recentactivity.json"
 
 i18n
   .use(LanguageDetector)
@@ -41,7 +49,11 @@ i18n
       "organization",
       "project",
       "blueprint",
-      "items"
+      "items",
+      "developeroptions",
+      "myfiles",
+      "myuploads",
+      "recentactivity",
     ],
 
     defaultNS: "common",
@@ -57,6 +69,10 @@ i18n
         project: projectEn,
         blueprint: blueprintEn,
         items: itemsEn,
+        developeroptions: developerOptionsEn,
+        myfiles: myfilesEn,
+        myupoloads: myuploadsEn,
+        recentactivity: recentactivityEn,
       },
       es: {
         common: commonEs,
@@ -68,6 +84,10 @@ i18n
         project: projectEs,
         blueprint: blueprintEs,
         items: itemsEs,
+        developeroptions: developerOptionsEs,
+        myfiles: myfilesEs,
+        myupoloads: myuploadsEs,
+        recentactivity: recentactivityEs,
       },
     },
   });

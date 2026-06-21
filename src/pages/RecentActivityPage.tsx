@@ -4,6 +4,9 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import { useRecentActivity } from "@/hooks/useRecentActivityPage"
 import { useParams } from "react-router-dom"
 
+// HELPER
+import { parseActivityLogFields } from "@/utils/activityLogParamConverter"
+
 // TRANSLATION
 import { useTranslation } from "react-i18next";
 
@@ -34,34 +37,45 @@ const RecentActivityPage = () => {
                 <p className="comment-text">{t('recentactivity:logs')} {recentActivityList.length}</p>
 
                 <div className="flex flex-col items-center gap-6">
-                    {recentActivityList.map((action) => (
+                    {recentActivityList.map((action) => {
+
+                        const translationParams = parseActivityLogFields(action.fields, t)
+                        
+                        return (
+
                         <Card
-                        key={action._id}
-                        className="
-                            w-full
-                            bg-[var(--accent-bg)]
-                            hover:bg-[var(--accent-bg2)]
-                        "
+                            key={action._id}
+                            className="
+                                w-full
+                                bg-[var(--accent-bg)]
+                                hover:bg-[var(--accent-bg2)]
+                            "
                         >
                         <CardContent className="flex flex-col gap-4">
+
                             <CardTitle className="text-[var(--text)]">
-                            {action.action.charAt(0).toUpperCase() + action.action.slice(1)}
+                                {t(`items:activityLog.eventTypes.${action.action.toLocaleLowerCase()}.title`)}
                             </CardTitle>
 
                             <p className="text-[var(--text)]">
-                            {t('items:activityLog.description')}: {action.description}
+                                {t('items:activityLog.description')}: {t(`items:activityLog.eventTypes.${action.action.toLocaleLowerCase()}.description`, {
+                                    ...translationParams,
+                                    defaultValue: action.description
+                                })}
                             </p>
 
                             <p className="text-[var(--text)]">
-                            {t('items:activityLog.target')}: {action.targetName}
+                                {t('items:activityLog.target')}: {action.targetName}
                             </p>
 
                             <p className="text-[var(--text)]">
-                            {new Date(action.timestamp).toLocaleString()}
+                                {new Date(action.timestamp).toLocaleString()}
                             </p>
+
                         </CardContent>
+
                         </Card>
-                    ))}
+                    )})}
                 </div>
 
             </div>

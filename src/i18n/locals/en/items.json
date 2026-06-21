@@ -17,11 +17,146 @@
         "target": "Target",
 
         "eventTypes": {
+
+            "user joins platform": {
+                "title": "User joins platform",
+                "description": "New user \"{{userName}}\" joined the platform."
+            },
+
+            "user edit self credentials": {
+                "title": "User edits own credentials",
+                "description": "User \"{{userName}}\" edited their credentials. Name: \"{{oldUserName}}\" → \"{{newUserName}}\". Email: \"{{oldUserEmail}}\" → \"{{newUserEmail}}\"."
+            },
+
+            "change user global role": {
+                "title": "Change user global role",
+                "description": "Changed user ({{userName}} - {{userEmail}}) global role from \"{{oldUserGlobalRole}}\" to \"{{newUserGlobalRole}}\"."
+            },
             
-            "send invitation":{
+            "send invitation": {
                 "title": "Send invitation",
-                "description": "Invitation created for \"{{email}}\" with role \"member\"."
-            }
+                "description": "Invitation created for \"{{email}}\" with role \"{{role}}\"."
+            },
+
+            "refresh invitation": {
+                "title": "Refresh invitation",
+                "description": "Invitation refreshed for user \"{{email}}\" with role \"{{role}}\"."
+            },
+
+            "delete invitation": {
+                "title": "Delete invitation",
+                "description": "Invitation deleted for user \"{{email}}\" with role \"{{role}}\"."
+            },
+
+            "change actions permissions": {
+                "title": "Change action permissions",
+                "description": "Organization \"{{organizationName}}\" updated. Create permission: \"{{oldCreatePermission}}\" → \"{{newCreatePermission}}\". Invite permission: \"{{oldInvitePermission}}\" → \"{{newInvitePermission}}\"."
+            },
+
+            "create organization": {
+                "title": "New organization created",
+                "description": "Organization created with the name \"{{organizationName}}\"."
+            },
+
+            "edit organization": {
+                "title": "Edit organization",
+                "description": "Organization \"{{organizationName}}\" was edited."
+            },
+
+            "edit organization permissions": {
+                "title": "Edit organization permissions",
+                "description": "Organization \"{{organizationName}}\" updated. Create permission: \"{{oldCreatePermission}}\" → \"{{newCreatePermission}}\". Invite permission: \"{{oldInvitePermission}}\" → \"{{newInvitePermission}}\"."
+            },
+
+            "delete organization": {
+                "title": "Delete organization",
+                "description": "Deleted organization \"{{name}}\", including its projects, blueprints, files, and user memberships."
+            },
+
+            "update organization user role": {
+                "title": "Change organization user role",
+                "description": "Organization user role updated. Role: \"{{oldRole}}\" → \"{{newRole}}\".",
+                "target": "Organization role update"
+            },
+
+            "join organization": {
+                "title": "Joined organization",
+                "description": "Joined organization \"{{organizationName}}\" with role \"{{role}}\"."
+            },
+
+            "add user": {
+                "title": "Added user to organization",
+                "description": "Added user to organization \"{{organizationName}}\".",
+                "target": "New organization membership"
+            },
+
+            "kick user": {
+                "title": "Kicked user",
+                "description": "User was removed from organization \"{{organizationName}}\".",
+                "target": "Deleted membership"
+            },
+
+            "user left organization": {
+                "title": "User left organization",
+                "description": "User left organization \"{{organizationName}}\".",
+                "target": "User left"
+            },
+
+            "create new project": {
+                "title": "New project created",
+                "description": "Project created with the name \"{{projectName}}\"."
+            },
+
+            "edit project": {
+                "title": "Edited project",
+                "description": "Project \"{{projectName}}\" was edited."
+            },
+
+            "delete project": {
+                "title": "Deleted project",
+                "description": "Deleted project \"{{projectName}}\", including its blueprints, files, and user memberships."
+            },
+
+            "update project user role": {},
+
+            "upload blueprint": {
+                "title": "Blueprint uploaded",
+                "description": "Blueprint was uploaded for organization \"{{organizationName}}\"."
+            },
+
+            "edit blueprint": {
+                "title": "Edited blueprint",
+                "description": "Blueprint \"{{blueprintName}}\" was edited."
+            },
+
+            "update blueprint section views": {
+                "title": "Saved new areas",
+                "description": "Section views for blueprint \"{{blueprintName}}\" were updated."
+            },
+
+            "delete blueprint": {
+                "title": "Deleted blueprint",
+                "description": "Blueprint \"{{blueprintName}}\" was deleted."
+            },
+
+            "download blueprint": {
+                "title": "Downloaded blueprint",
+                "description": "Blueprint \"{{blueprintName}}\" was downloaded."
+            },
+
+            "ask for inference job": {
+                "title": "Started inference job",
+                "description": "New AI inference job started for blueprint \"{{blueprintName}}\" using models {{models}}.",
+                "target": "New inference job"
+            },
+
+            "cancel pending inference job": {
+                "title": "Canceled inference job",
+                "description": "Canceled inference job for blueprint \"{{blueprintName}}\".",
+                "target": "Canceled inference job"
+            },
+
+            "testing action log": {}
         
         }
     }

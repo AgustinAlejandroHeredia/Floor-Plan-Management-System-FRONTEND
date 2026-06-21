@@ -444,6 +444,11 @@ export interface MyUploadsBlurpintType {
   processed: boolean
 }
 
+export interface LogField {
+  key: string,
+  value: string,
+}
+
 export interface RecentActivityItem {
   _id: string,
   userId: string,
@@ -452,6 +457,7 @@ export interface RecentActivityItem {
   targetName: string,
   targetId: string,
   timestamp: Date,
+  fields: LogField[]
 }
 
 export type Point = {

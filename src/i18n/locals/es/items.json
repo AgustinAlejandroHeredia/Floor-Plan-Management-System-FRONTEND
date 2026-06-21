@@ -4,7 +4,7 @@
         "sentBy": "Enviado por",
         "organization": "Organización",
         "role": "Rol",
-        "created": "Creada",
+        "created": "Creado",
         "timeLeft": "Tiempo restante",
         "status": {
             "valid": "Válida",
@@ -17,11 +17,146 @@
         "target": "Objetivo",
 
         "eventTypes": {
+
+            "user joins platform": {
+                "title": "Usuario se une a la plataforma",
+                "description": "Nuevo usuario \"{{userName}}\" se unió a la plataforma."
+            },
+
+            "user edit self credentials": {
+                "title": "Usuario edita sus credenciales",
+                "description": "El usuario \"{{userName}}\" editó sus credenciales. Nombre: \"{{oldUserName}}\" → \"{{newUserName}}\". Email: \"{{oldUserEmail}}\" → \"{{newUserEmail}}\"."
+            },
+
+            "change user global role": {
+                "title": "Cambiar rol global de usuario",
+                "description": "Se cambió el rol global del usuario ({{userName}} - {{userEmail}}) de \"{{oldUserGlobalRole}}\" a \"{{newUserGlobalRole}}\"."
+            },
             
-            "send invitation":{
-                "title": "Envío de invitación",
+            "send invitation": {
+                "title": "Enviar invitación",
                 "description": "Invitación creada para \"{{email}}\" con el rol \"{{role}}\"."
-            }
+            },
+
+            "refresh invitation": {
+                "title": "Reiniciar invitación",
+                "description": "Invitación reiniciada para el usuario \"{{email}}\" con el rol \"{{role}}\"."
+            },
+
+            "delete invitation": {
+                "title": "Eliminar invitación",
+                "description": "Invitación eliminada para el usuario \"{{email}}\" con el rol \"{{role}}\"."
+            },
+
+            "change actions permissions": {
+                "title": "Cambiar permisos de acciones",
+                "description": "La organización \"{{organizationName}}\" fue actualizada. Permiso de creación: \"{{oldCreatePermission}}\" → \"{{newCreatePermission}}\". Permiso de invitación: \"{{oldInvitePermission}}\" → \"{{newInvitePermission}}\"."
+            },
+
+            "create organization": {
+                "title": "Nueva organización creada",
+                "description": "Organización creada con el nombre \"{{organizationName}}\"."
+            },
+
+            "edit organization": {
+                "title": "Editar organización",
+                "description": "La organización \"{{organizationName}}\" fue editada."
+            },
+
+            "edit organization permissions": {
+                "title": "Editar permisos de la organización",
+                "description": "La organización \"{{organizationName}}\" fue actualizada. Permiso de creación: \"{{oldCreatePermission}}\" → \"{{newCreatePermission}}\". Permiso de invitación: \"{{oldInvitePermission}}\" → \"{{newInvitePermission}}\"."
+            },
+
+            "delete organization": {
+                "title": "Eliminar organización",
+                "description": "Se eliminó la organización \"{{name}}\", incluyendo sus proyectos, planos, archivos y membresías de usuarios."
+            },
+
+            "update organization user role": {
+                "title": "Cambiar rol de usuario en la organización",
+                "description": "Rol de usuario actualizado en la organización. Rol: \"{{oldRole}}\" → \"{{newRole}}\".",
+                "target": "Actualización de rol en la organización"
+            },
+
+            "join organization": {
+                "title": "Se unió a la organización",
+                "description": "Se unió a la organización \"{{organizationName}}\" con el rol \"{{role}}\"."
+            },
+
+            "add user": {
+                "title": "Usuario agregado a la organización",
+                "description": "Se agregó un usuario a la organización \"{{organizationName}}\".",
+                "target": "Nueva membresía en la organización"
+            },
+
+            "kick user": {
+                "title": "Usuario expulsado",
+                "description": "El usuario fue eliminado de la organización \"{{organizationName}}\".",
+                "target": "Membresía eliminada"
+            },
+
+            "user left organization": {
+                "title": "Usuario abandonó la organización",
+                "description": "El usuario abandonó la organización \"{{organizationName}}\".",
+                "target": "Usuario abandonó"
+            },
+
+            "create new project": {
+                "title": "Nuevo proyecto creado",
+                "description": "Proyecto creado con el nombre \"{{projectName}}\"."
+            },
+
+            "edit project": {
+                "title": "Proyecto editado",
+                "description": "El proyecto \"{{projectName}}\" fue editado."
+            },
+
+            "delete project": {
+                "title": "Proyecto eliminado",
+                "description": "Se eliminó el proyecto \"{{projectName}}\", incluyendo sus planos, archivos y membresías de usuarios."
+            },
+
+            "update project user role": {},
+
+            "upload blueprint": {
+                "title": "Plano subido",
+                "description": "Se subió un plano para la organización \"{{organizationName}}\"."
+            },
+
+            "edit blueprint": {
+                "title": "Plano editado",
+                "description": "El plano \"{{blueprintName}}\" fue editado."
+            },
+
+            "update blueprint section views": {
+                "title": "Nuevas áreas guardadas",
+                "description": "Las vistas de secciones del plano \"{{blueprintName}}\" fueron actualizadas."
+            },
+
+            "delete blueprint": {
+                "title": "Plano eliminado",
+                "description": "El plano \"{{blueprintName}}\" fue eliminado."
+            },
+
+            "download blueprint": {
+                "title": "Plano descargado",
+                "description": "El plano \"{{blueprintName}}\" fue descargado."
+            },
+
+            "ask for inference job": {
+                "title": "Trabajo de inferencia iniciado",
+                "description": "Se inició un nuevo trabajo de inferencia con IA para el plano \"{{blueprintName}}\" usando los modelos {{models}}.",
+                "target": "Nuevo trabajo de inferencia"
+            },
+
+            "cancel pending inference job": {
+                "title": "Trabajo de inferencia cancelado",
+                "description": "Se canceló el trabajo de inferencia para el plano \"{{blueprintName}}\".",
+                "target": "Trabajo de inferencia cancelado"
+            },
+
+            "testing action log": {}
         
         }
     }

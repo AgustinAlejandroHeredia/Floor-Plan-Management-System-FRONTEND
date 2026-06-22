@@ -71,7 +71,7 @@ i18n
         items: itemsEn,
         developeroptions: developerOptionsEn,
         myprojects: myprojectsEn,
-        myupoloads: myuploadsEn,
+        myuploads: myuploadsEn,
         recentactivity: recentactivityEn,
       },
       es: {
@@ -86,7 +86,7 @@ i18n
         items: itemsEs,
         developeroptions: developerOptionsEs,
         myprojects: myprojectsEs,
-        myupoloads: myuploadsEs,
+        myuploads: myuploadsEs,
         recentactivity: recentactivityEs,
       },
     },

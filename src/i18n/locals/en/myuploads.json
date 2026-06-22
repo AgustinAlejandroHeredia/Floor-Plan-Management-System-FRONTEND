@@ -1,3 +1,21 @@
 {
-    
+    "title": "Your Uploads",
+    "totalUploads": "Total Uploads",
+
+    "uploadItem": {
+        "organization": "Organization",
+        "processed": "Processed by AI",
+        "created": "Created"
+    },
+
+    "messages": {
+        "redirecting": {
+            "title": "Redirecting to the selected blueprint",
+            "description": "Loading URL..."
+        }
+    },
+
+    "errorMessages": {
+        "errorRedirecting": "An error occurred while redirecting. Please try again."
+    }
 }

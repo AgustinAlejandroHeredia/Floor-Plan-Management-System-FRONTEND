@@ -8,14 +8,27 @@ import type { MyUploadsBlurpintType } from "@/types/types"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 
+// TRANSLATION
+import { useTranslation } from "react-i18next";
+import InfoDialog from "@/components/InfoDialog"
+
 const MyUploadsPage = () => {
 
     const navigate = useNavigate()
 
+    const { t } = useTranslation([
+        "myuploads",
+        "breadcrumb",
+        "common",
+    ])
+
     const {userUploadsList, loading, error} = useMyUploads()
 
+    // ERROR
+    const [openError, setOpenError ] = useState<boolean>(false)
+    const [errorMessage, setErrorMessage] = useState<string>("")
+
     const [isRedirecting, setIsRedirecting] = useState<boolean>(false)
-    const [showErrorToast, setShowErrorToast] = useState<boolean>(false)
 
     const handleSelectBlueprint = async (selectedBluerpint: MyUploadsBlurpintType) => {
         setIsRedirecting(true)
@@ -25,10 +38,8 @@ const MyUploadsPage = () => {
             navigate(`/BlueprintView/${selectedBluerpint.organizationName}/${selectedBluerpint.organizationId}/${projectData.projectName}/${projectData.projectId}/${selectedBluerpint.blueprintName}/${selectedBluerpint._id}`)
         } catch(error: any){
             setIsRedirecting(false)
-            setShowErrorToast(true)
-            setTimeout(() => {
-                setShowErrorToast(false)
-            }, 3000)
+            setErrorMessage(t('myuploads:errorMessages.errorRedirecting'))
+            setOpenError(true)
         }
     }
 
@@ -36,15 +47,15 @@ const MyUploadsPage = () => {
 
     return (
         <div>
-        <BreadcrumbBar items={[{ label: "My Uploads" }]} />
+        <BreadcrumbBar items={[{ label: t('breadcrumb:myUploads') }]} />
 
         <div className="main-content">
             
             <div className="main-content-item">
 
-                <h3 className="sub-heading">Your uploads: </h3>
+                <h3 className="sub-heading">{t('myuploads:title')}: </h3>
 
-                <p className="comment-text">Total uploads {userUploadsList.length}</p>
+                <p className="comment-text">{t('myuploads:totalUploads')} {userUploadsList.length}</p>
 
                 <div className="flex flex-wrap gap-4 justify-start">
                     {userUploadsList.map((upload) => (
@@ -68,15 +79,17 @@ const MyUploadsPage = () => {
                                 </CardTitle>
 
                                 <p className="text-[var(--text)]">
-                                    Organization: {upload.organizationName}
+                                    {t('myuploads:uploadItem.organization')}: {upload.organizationName}
                                 </p>
 
                                 <p className="text-[var(--text)]">
-                                    Processed by AI: {upload.processed ? "Yes" : "No"}
+                                    {t('myuploads:uploadItem.processed')}: {upload.processed ? 
+                                    t('common:yes') : 
+                                    t('common:no') }
                                 </p>
 
                                 <p className="text-[var(--text)]">
-                                    Created: {new Date(upload.creationDate).toLocaleDateString()}
+                                    {t('myuploads:uploadItem.created')}: {new Date(upload.creationDate).toLocaleDateString()}
                                 </p>
 
                                 {upload.thumbnailUrl && (
@@ -101,15 +114,16 @@ const MyUploadsPage = () => {
             {/* REDIRECTING TO BLUEPRINT */}
             <Toast
                 open={isRedirecting}
-                title="Redirecting user to selected blueprint"
-                description="Getting url..."
+                title={t('myuploads:messages.redirecting.title')}
+                description={t('myuploads:messages.redirecting.description')}
             />
 
-            {/* ERROR TOAST */}
-            <Toast
-                open={showErrorToast}
-                title="An error has ocurred getting the url, try again"
-                description="Getting url error..."
+            {/* ERROR ALERT */}
+            <InfoDialog
+                open={openError}
+                onOpenChange={setOpenError}
+                title={t('error:error')}
+                description={errorMessage}
             />
 
         </div>

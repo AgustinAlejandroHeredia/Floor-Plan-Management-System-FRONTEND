@@ -1,3 +1,21 @@
 {
-    
+    "title": "Tus archivos subidos",
+    "totalUploads": "Total de archivos subidos",
+
+    "uploadItem": {
+        "organization": "Organización",
+        "processed": "Procesado por IA",
+        "created": "Creado"
+    },
+
+    "messages": {
+        "redirecting": {
+            "title": "Redirigiendo al plano seleccionado",
+            "description": "Cargando URL..."
+        }
+    },
+
+    "errorMessages": {
+        "errorRedirecting": "Ha ocurrido un error al redirigir. Por favor, inténtelo de nuevo."
+    }
 }

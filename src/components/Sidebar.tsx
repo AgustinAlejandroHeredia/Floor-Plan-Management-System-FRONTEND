@@ -1,12 +1,13 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useUser } from "../context/UserContext";
 
 import { useAuth0 } from "@auth0/auth0-react";
 
+import { Button } from "@/components/ui/button";
+
 // UI
 import { Separator } from "./ui/separator";
-import { Button } from "./ui/button";
 
 // TRANSLATION
 import { useTranslation } from "react-i18next";
@@ -30,6 +31,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { IoMdCode, IoMdHome } from "react-icons/io";
+import { FaFileUpload, FaFolder, FaHistory } from "react-icons/fa";
+import { FiSidebar } from "react-icons/fi";
 
 
 
@@ -46,7 +50,9 @@ const Sidebar = () => {
 
   const { user, lodaingUserContext, error } = useUser();
   const { logout } = useAuth0();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<boolean>(false);
+
+  const [isMinimized, setIsMinimized] = useState<boolean>(false)
 
   useEffect(() => {
     if(error){
@@ -63,8 +69,16 @@ const Sidebar = () => {
 
   const handleCancelLogout = () => setOpen(false)
 
-  const handleViewProfile = () => {
-    navigate("/UserProfile")
+  const handleRedirect = (url: string) => {
+    navigate(url)
+  }
+
+  const minimizeOrMaximizeSidebar = () => {
+    if(isMinimized){
+      setIsMinimized(false)
+    }else{
+      setIsMinimized(true)
+    }
   }
 
   if (lodaingUserContext) return null;
@@ -76,44 +90,125 @@ const Sidebar = () => {
       <div>
         {/* Organización */}
         <div
+          className={`m-0 p-3 flex items-center w-full transition-all duration-200 ${
+            isMinimized ? "justify-center" : "justify-between"
+          }`}
           style={{
-            padding: "14px 16px",
             fontWeight: 500,
             color: "var(--text-h)",
-            textAlign: "left",
           }}
         >
-          Floor Plan Management
+          {!isMinimized && (
+            <span className="truncate pr-2">
+              Floor Plan Management
+            </span>
+          )}
+
+          <Button 
+            className="w-7 h-7 flex items-center justify-center rounded-lg bg-transparent hover:bg-[var(--text-h)] cursor-pointer group transition-colors duration-200 shrink-0"
+            onClick={minimizeOrMaximizeSidebar}
+          >
+            <FiSidebar className="w-5 h-5 text-[var(--text-h)] group-hover:text-black transition-colors duration-200"/>
+          </Button>
         </div>
 
         <Separator />
 
         {/* Navegación */}
-        <div className="p-6 px-2 flex flex-col gap-2">
+        <div className="pt-3 pb-6 px-2 flex flex-col gap-2">
           
           {/* HOME */}
-          <Button asChild variant="sidebar_nav_button">
-            <Link to="/">{t('sidebar:home')}</Link>
-          </Button>
+          {!isMinimized ? (
+            <Button 
+              variant="sidebar_nav_button"
+              onClick={() => handleRedirect("/")}  
+            >
+              {t('sidebar:home')}
+            </Button>
+          ) : (
+            <Button 
+              variant="sidebar_nav_button"
+              className="w-full flex items-center justify-center p-2"
+              onClick={() => handleRedirect("/")}
+            >
+              <IoMdHome className="w-6 h-6 shrink-0"/>
+            </Button>
+          )}
 
           {/* MY PROJECTS */}
-          <Button asChild variant="sidebar_nav_button">
-            <Link to="/MyProjects">{t('sidebar:myProjects')}</Link>
-          </Button>
+          {!isMinimized ? (
+            <Button 
+              variant="sidebar_nav_button"
+              onClick={() => handleRedirect("/MyProjects")}
+            >
+              {t('sidebar:myProjects')}
+            </Button>
+          ) : (
+            <Button
+              variant="sidebar_nav_button"
+              className="w-full flex items-center justify-center p-2"
+              onClick={() => handleRedirect("/MyProjects")}
+            >
+              <FaFolder className="w-6 h-6 shrink-0"/>
+            </Button> 
+          )}
 
-          <Button asChild variant="sidebar_nav_button">
-            <Link to="/MyUploads">{t('sidebar:myUploads')}</Link>
-          </Button>
+          {/* MY UPLOADS */}
+          {!isMinimized ? (
+            <Button
+              variant="sidebar_nav_button"
+              onClick={() => handleRedirect("/MyUploads")}
+            >
+              {t('sidebar:myUploads')}
+            </Button>
+          ) : (
+            <Button
+              variant="sidebar_nav_button"
+              className="w-full flex items-center justify-center p-2"
+              onClick={() => handleRedirect("/MyUploads")}
+            >
+              <FaFileUpload className="w-6 h-6 shrink-0"/>
+            </Button> 
+          )}
 
-          <Button asChild variant="sidebar_nav_button">
-            <Link to="/RecentActivity">{t('sidebar:recentActivity')}</Link>
-          </Button>
+          {/* RECENT ACTIVITY */}
+          {!isMinimized ? (
+            <Button
+              variant="sidebar_nav_button"
+              onClick={() => handleRedirect("/RecentActivity")}
+            >
+              {t('sidebar:recentActivity')}
+            </Button>
+          ) : (
+            <Button
+              variant="sidebar_nav_button"
+              className="w-full flex items-center justify-center p-2"
+              onClick={() => handleRedirect("/RecentActivity")}
+            >
+              <FaHistory className="w-6 h-6 shrink-0"/>
+            </Button> 
+          )}
 
           {/* SOLO SUPER ADMIN */}
           {user?.globalRole === "super_admin" && (
-            <Button asChild variant="sidebar_nav_button">
-              <Link to="/devOptions">{t('sidebar:devOptions')}</Link>
-            </Button>
+            <>
+            {!isMinimized ? (
+              <Button
+                variant="sidebar_nav_button"
+                onClick={() => handleRedirect("/devOptions")}
+              >
+                {t('sidebar:devOptions')}
+              </Button>
+            ) : (
+              <Button
+                variant="sidebar_nav_button"
+                className="w-full flex items-center justify-center p-2"
+                onClick={() => handleRedirect("/devOptions")}
+              >
+                <IoMdCode className="w-6 h-6 shrink-0"/>
+              </Button> 
+            )}
+            </>
           )}
 
         </div>
@@ -123,6 +218,9 @@ const Sidebar = () => {
       <div style={{ padding: "12px" }}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
+
+            {!isMinimized ? (
+
             <div
               style={{
                 display: "flex",
@@ -185,13 +283,42 @@ const Sidebar = () => {
                 </>
               )}
             </div>
+
+            ) : (
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: "100%",
+                  cursor: "pointer",
+                }}
+              >
+                {user && (
+                  <img
+                    src={user.picture}
+                    alt="user"
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                      flexShrink: 0,
+                      cursor: "pointer",
+                    }}
+                  />
+                )}
+              </div>
+
+            )}
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align="end" side="top" className="bg-[var(--bg)] border border-[var(--border)]">
             <DropdownMenuItem 
               className="text-[var(--text)]"
               onClick={() => {
-                handleViewProfile()
+                handleRedirect("/UserProfile")
               }}
             >
               <UserIcon />

@@ -189,16 +189,16 @@ const HomePage = () => {
         <Dialog open={openFirstTokenDialog} onOpenChange={setOpenFirstTokenDialog}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{t('home.joinOrganization')}</DialogTitle>
+              <DialogTitle>{t('home:joinOrganization')}</DialogTitle>
               <DialogDescription>
-                {t('home.firstToken')}
+                {t('home:firstToken')}
               </DialogDescription>
             </DialogHeader>
 
             <Field orientation="horizontal">
               <Input
                 type="search"
-                placeholder={t('home.joinOrganizationPlaceholder')}
+                placeholder={t('home:joinOrganizationPlaceholder')}
                 className="w-full"
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
@@ -206,13 +206,13 @@ const HomePage = () => {
               <Button
                 onClick={() => handleValidateToken(token)}
               >
-                {t('home.joinOrganizationJoinButton')}
+                {t('home:joinOrganizationJoinButton')}
               </Button>
             </Field>
 
             <DialogFooter className="sm:justify-start">
               <DialogClose asChild>
-                <Button type="button">{t('common.cancel')}</Button>
+                <Button type="button">{t('common:cancel')}</Button>
               </DialogClose>
             </DialogFooter>
           </DialogContent>
@@ -220,8 +220,8 @@ const HomePage = () => {
 
         <Toast
           open={isValidating}
-          title={t('home.validatingTokenTitle')}
-          description={t('home.validatingTokenDescription')}
+          title={t('home:validatingTokenTitle')}
+          description={t('home:validatingTokenDescription')}
         />
 
       </div>

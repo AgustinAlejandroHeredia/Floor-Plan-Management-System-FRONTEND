@@ -370,7 +370,7 @@ const Sidebar = () => {
             )}
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent align="end" side="right" className="bg-[var(--bg)] border border-[var(--border)]">
+          <DropdownMenuContent align="end" side={isMinimized ? "right" : "top"} className="bg-[var(--bg)] border border-[var(--border)]">
             <DropdownMenuItem 
               className="text-[var(--text)]"
               onClick={() => {

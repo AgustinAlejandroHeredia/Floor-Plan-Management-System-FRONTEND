@@ -1,0 +1,27 @@
+{
+    "joinedAt": "Joined On",
+
+    "administrator": "Platform Administrator",
+
+    "yourOrganizations": "Your Organizations",
+    "organizationsInCommon": "Organizations in Common",
+    "totalOrganizations": "Total Organizations",
+    "noOrganizations": "No Organizations Yet",
+
+    "myRole": "Your Role",
+
+    "projects": "Projects You Have Participated In",
+    "totalProjects": "Total Projects",
+    "noParticipationYet": "No Participation Yet",
+
+    "projectFields": {
+        "yourUploads": "Your uploads",
+        "organization": "Organization"
+    },
+
+    "moreOptions": {
+        "title": "More Options",
+        "viewRecentActivity": "View Recent Activity",
+        "viewMyUploads": "View My Uploads"
+    }
+}

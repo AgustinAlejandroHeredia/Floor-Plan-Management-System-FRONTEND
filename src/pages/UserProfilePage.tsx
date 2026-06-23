@@ -8,9 +8,20 @@ import { ItemGroup } from "@/components/ui/item"
 import { Button } from "@/components/ui/button"
 import BreadcrumbBar from "@/components/BreadcrumbBar"
 
+// TRANSLATION
+import { useTranslation } from "react-i18next";
+
 const UserProfilePage = () => {
 
     const navigate = useNavigate()
+
+    const { t } = useTranslation([
+        "breadcrumb",
+        "userprofile",
+        "project",
+        "common",
+        "user",
+    ])
 
     const { userId } = useParams()
 
@@ -65,7 +76,7 @@ const UserProfilePage = () => {
                 </p>
 
                 <p className="text-sm text-[var(--text)]">
-                    Joined at{" "}
+                    {t('userprofile:joinedAt')}{" "}
                     {user?.joinedAt
                         ? new Date(user.joinedAt).toLocaleDateString()
                         : ""}
@@ -73,7 +84,7 @@ const UserProfilePage = () => {
 
                 {user?.globalRole === "super_admin" && (
                     <p className="text-xl font-semibold text-[var(--text-h)]">
-                        Platform Administrator
+                        {t('userprofile:administrator')}
                     </p>
                 )}
 
@@ -83,17 +94,17 @@ const UserProfilePage = () => {
             <div className="main-content-item">
 
                 {user?.self === true ? (
-                    <h3 className="sub-heading">Your organizations</h3>
+                    <h3 className="sub-heading">{t('userprofile:yourOrganizations')}</h3>
                 ) : (
-                    <h3 className="sub-heading">Organizations in common</h3>
+                    <h3 className="sub-heading">{t('userprofile:organizationsInCommon')}</h3>
                 )}
 
-                <p className="comment-text">Total organizations {userOrganizationsAndRoles.length}</p>
+                <p className="comment-text">{t('userprofile:totalOrganizations')} {userOrganizationsAndRoles.length}</p>
 
                 {userOrganizationsAndRoles.length === 0 ? (
 
                     <div className="space-y-4">
-                        No org yet
+                        {t('userprofile:noOrganizations')}
                     </div>
 
                 ) : userOrganizationsAndRoles.length <= 6 ? (
@@ -124,7 +135,7 @@ const UserProfilePage = () => {
                                     </CardTitle>
 
                                     <CardTitle className="text-[var(--text)] mt-6 font-semibold">
-                                        My role: {org.role}
+                                        {t('userprofile:myRole')}: {t(`user:roles.${org.role}`)}
                                     </CardTitle>
 
                                 </CardContent>
@@ -163,7 +174,7 @@ const UserProfilePage = () => {
                                             </CardTitle>
 
                                             <CardTitle className="text-[var(--text)] mt-6 font-semibold">
-                                                My role: {org.role}
+                                                {t('userprofile:myRole')}: {org.role}
                                             </CardTitle>
 
                                         </CardContent>
@@ -181,13 +192,13 @@ const UserProfilePage = () => {
             {user?.self === true && (
             <div className="main-content-item">
 
-                <h3 className="sub-heading">Projects where you have participated</h3>
+                <h3 className="sub-heading">{t('userprofile:projects')}</h3>
 
-                <p className="comment-text">Total organizations {userProjectsList.length}</p>
+                <p className="comment-text">{t('userprofile:totalProjects')} {userProjectsList.length}</p>
 
                 {userProjectsList.length === 0 ? (
 
-                    <div className="comment-text">You have no uploads yet</div>
+                    <div className="comment-text">{t('userprofile:noParticipationYet')}</div>
 
                 ) : userProjectsList.length <= 4 ? (
 
@@ -205,15 +216,15 @@ const UserProfilePage = () => {
                                     </CardTitle>
 
                                     <CardTitle className="text-[var(--text)]">
-                                        Status: {project.status}
+                                        {t('project:projectCharacteristics.status')}: {t(`project:projectCharacteristics.statusType.${project.status}`)}
                                     </CardTitle>
 
                                     <CardTitle className="text-[var(--text)]">
-                                        Your uploads: {project.uploads}
+                                        {t('userprofile:projectFields.yourUploads')}: {project.uploads}
                                     </CardTitle>
 
                                     <CardTitle className="text-[var(--text)] mt-6 font-semibold">
-                                        Organization: {project.organizationName}
+                                        {t('userprofile:projectFields.organization')}: {project.organizationName}
                                     </CardTitle>
 
                                 </CardContent>
@@ -240,15 +251,15 @@ const UserProfilePage = () => {
                                                 </CardTitle>
 
                                                 <CardTitle className="text-[var(--text)]">
-                                                    Status: {project.status}
+                                                    {t('project:status')}: {t(`project:statusType.${project.status}`)}
                                                 </CardTitle>
 
                                                 <CardTitle className="text-[var(--text)]">
-                                                    Your uploads: {project.uploads}
+                                                    {t('userprofile:projectFields.yourUploads')}: {project.uploads}
                                                 </CardTitle>
 
                                                 <CardTitle className="text-[var(--text)] mt-6 font-semibold">
-                                                    Organization: {project.organizationName}
+                                                    {t('userprofile:projectFields.organization')}: {project.organizationName}
                                                 </CardTitle>
 
                                             </CardContent>
@@ -266,14 +277,14 @@ const UserProfilePage = () => {
 
             {user?.self === true && (
             <div className="main-content-item">
-                <h3 className="sub-heading">More options</h3>
+                <h3 className="sub-heading">{t('userprofile:moreOptions.title')}</h3>
 
                 <Button
                     variant="ghost"
                     className="text-[var(--text)]"
                     onClick={() => handleGoToRecentActivity()}
                 >
-                    View my recent activity
+                    {t('userprofile:moreOptions.viewRecentActivity')}
                 </Button>
 
                 <Button
@@ -281,7 +292,7 @@ const UserProfilePage = () => {
                     className="text-[var(--text)]"
                     onClick={() => handleGoToMyUploads()}
                 >
-                    View my uploads
+                    {t('userprofile:moreOptions.viewMyUploads')}
                 </Button>
 
             </div>

@@ -1,0 +1,27 @@
+{
+    "joinedAt": "Miembro desde",
+
+    "administrator": "Administrador de la Plataforma",
+
+    "yourOrganizations": "Tus Organizaciones",
+    "organizationsInCommon": "Organizaciones en Común",
+    "totalOrganizations": "Total de Organizaciones",
+    "noOrganizations": "Aún No Hay Organizaciones",
+
+    "myRole": "Tu Rol",
+
+    "projects": "Proyectos en los que Has Participado",
+    "totalProjects": "Total de Proyectos",
+    "noParticipationYet": "Aún No Has Participado en Ningún Proyecto",
+
+    "projectFields": {
+        "yourUploads": "Tus archivos",
+        "organization": "Organización"
+    },
+
+    "moreOptions": {
+        "title": "Más Opciones",
+        "viewRecentActivity": "Ver Actividad Reciente",
+        "viewMyUploads": "Ver Mis Archivos Subidos"
+    }
+}

@@ -347,7 +347,7 @@ const BlueprintView = () => {
     const handleDownloadFile = async () => {
         setIsDownloading(true)
         if (!blueprtinImageUrl) {
-            setErrorAlertMessage(t('errorMessages.imageNotAvailable'));
+            setErrorAlertMessage(t('blueprint:errorMessages.imageNotAvailable'));
             setOpenErrorAlert(true);
             return;
         }
@@ -408,7 +408,7 @@ const BlueprintView = () => {
         if(response){
             refreshBlueprint()
         } else {
-            setErrorAlertMessage(t('errorMessages.errorSavingChanges'))
+            setErrorAlertMessage(t('blueprint:errorMessages.errorSavingChanges'))
             setOpenErrorAlert(true)
         }
 
@@ -423,7 +423,7 @@ const BlueprintView = () => {
         if(response){
             navigate(`/Project/${organizationName}/${organizationId}/${projectName}/${projectId}`)
         }
-        setErrorAlertMessage(t('errorMessages.errorDeletingBlueprint'))
+        setErrorAlertMessage(t('blueprint:errorMessages.errorDeletingBlueprint'))
         setOpenErrorAlert(true)
     }
 
@@ -476,7 +476,7 @@ const BlueprintView = () => {
         if (success) {
             setCropSuccesfullyUploaded(true);
         } else {
-            setErrorAlertMessage(t('errorMessages.errorUploadingBlueprint'));
+            setErrorAlertMessage(t('blueprint:errorMessages.errorUploadingBlueprint'));
             setOpenErrorAlert(true);
         }
     };
@@ -605,7 +605,7 @@ const BlueprintView = () => {
     const handleAiCall = () => {
 
         if (!blueprint?.specialties?.length) {
-            setErrorAlertMessage(t('errorMessages.noSpecialtiesSelected'));
+            setErrorAlertMessage(t('blueprint:errorMessages.noSpecialtiesSelected'));
             setOpenErrorAlert(true);
             return;
         }
@@ -620,7 +620,7 @@ const BlueprintView = () => {
         );
 
         if (specialtiesWithModels.length === 0) {
-            setErrorAlertMessage(t('errorMessages.noAiModelsForSpecialties'));
+            setErrorAlertMessage(t('blueprint:errorMessages.noAiModelsForSpecialties'));
             setOpenErrorAlert(true);
             return;
         }
@@ -630,7 +630,7 @@ const BlueprintView = () => {
 
     const handleAiProcess = async () => {
         if (blueprint?.view === "undefined" || blueprint?.specialties.length === 0 || blueprint?.levels.length === 0) {
-            setErrorAlertMessage(t('errorMessages.needEditionForAi'))
+            setErrorAlertMessage(t('blueprint:errorMessages.needEditionForAi'))
             setOpenErrorAlert(true)
             return
         }
@@ -646,7 +646,7 @@ const BlueprintView = () => {
             ).length;
         }
         if(countMatches() != Object.values(selectedModels).length){
-            setErrorAlertMessage(t('errorMessages.noModelSelected'))
+            setErrorAlertMessage(t('blueprint:errorMessages.noModelSelected'))
             setOpenErrorAlert(true)
             return
         }
@@ -679,14 +679,14 @@ const BlueprintView = () => {
                     }
                 })
             } else if (completed.status === 'Error') {
-                setErrorAlertMessage(completed.result?.error ?? t('errorMessages.processingFailed'))
+                setErrorAlertMessage(completed.result?.error ?? t('blueprint:errorMessages.processingFailed'))
                 setOpenErrorAlert(true)
             } else if (completed.status === 'Cancelled') {
-                setErrorAlertMessage(t('errorMessages.inferenceJobCancelled'))
+                setErrorAlertMessage(t('blueprint:errorMessages.inferenceJobCancelled'))
                 setOpenErrorAlert(true)
             }
         } catch (error) {
-            setErrorAlertMessage(t('errorMessages.errorProcessingBlueprint'))
+            setErrorAlertMessage(t('blueprint:errorMessages.errorProcessingBlueprint'))
             setOpenErrorAlert(true)
         } finally {
             setIsProcessing(false)
@@ -702,7 +702,7 @@ const BlueprintView = () => {
     const handleDeleteArea = () => {
 
         if (!areaForDelete) {
-            setErrorAlertMessage(t('errorMessages.noSelectedArea'))
+            setErrorAlertMessage(t('blueprint:errorMessages.noSelectedArea'))
             setOpenErrorAlert(true)
             return
         }
@@ -762,7 +762,7 @@ const BlueprintView = () => {
             blueprint?.sectionViews ?? []
 
         if (areasToSave.length === 0) {
-            setErrorAlertMessage(t('errorMessages.noAreasToSave'))
+            setErrorAlertMessage(t('blueprint:errorMessages.noAreasToSave'))
             setOpenErrorAlert(true)
             return
         }
@@ -775,7 +775,7 @@ const BlueprintView = () => {
                 areasToSave,
             )
         } catch (error) {
-            setErrorAlertMessage(t('errorMessages.errorSavingAreas'))
+            setErrorAlertMessage(t('blueprint:errorMessages.errorSavingAreas'))
             setOpenErrorAlert(true)
         } finally {
             setIsSavingAreas(false)
@@ -888,7 +888,7 @@ const BlueprintView = () => {
 
     const saveEditedArea = () => {
         if (selectedAreaForEdit.index === null || !selectedAreaForEdit.area || !blueprint) {
-            setErrorAlertMessage(t('errorMessages.errorSelectingAreaForEdit'))
+            setErrorAlertMessage(t('blueprint:errorMessages.errorSelectingAreaForEdit'))
             setOpenErrorAlert(true)
             return
         }

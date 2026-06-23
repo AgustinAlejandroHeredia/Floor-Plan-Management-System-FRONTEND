@@ -34,6 +34,7 @@ import {
 import { IoMdCode, IoMdHome } from "react-icons/io";
 import { FaFileUpload, FaFolder, FaHistory } from "react-icons/fa";
 import { FiSidebar } from "react-icons/fi";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "./ui/tooltip";
 
 
 
@@ -84,7 +85,10 @@ const Sidebar = () => {
   if (lodaingUserContext) return null;
 
   return (
-    <div className="sidebar">
+    <div 
+      className="sidebar" 
+      style={{ width: isMinimized ? "60px" : "260px" }}
+    >
       
       {/* TOP */}
       <div>
@@ -115,6 +119,7 @@ const Sidebar = () => {
         <Separator />
 
         {/* Navegación */}
+        <TooltipProvider delayDuration={200}>
         <div className="pt-3 pb-6 px-2 flex flex-col gap-2">
           
           {/* HOME */}
@@ -126,13 +131,20 @@ const Sidebar = () => {
               {t('sidebar:home')}
             </Button>
           ) : (
-            <Button 
-              variant="sidebar_nav_button"
-              className="w-full flex items-center justify-center p-2"
-              onClick={() => handleRedirect("/")}
-            >
-              <IoMdHome className="w-6 h-6 shrink-0"/>
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="sidebar_nav_button"
+                  className="w-full flex items-center justify-center p-2"
+                  onClick={() => handleRedirect("/")}
+                >
+                  <IoMdHome className="w-6 h-6 shrink-0"/>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>{t('sidebar:home')}</p>
+              </TooltipContent>
+            </Tooltip>
           )}
 
           {/* MY PROJECTS */}
@@ -144,13 +156,20 @@ const Sidebar = () => {
               {t('sidebar:myProjects')}
             </Button>
           ) : (
-            <Button
-              variant="sidebar_nav_button"
-              className="w-full flex items-center justify-center p-2"
-              onClick={() => handleRedirect("/MyProjects")}
-            >
-              <FaFolder className="w-6 h-6 shrink-0"/>
-            </Button> 
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="sidebar_nav_button"
+                  className="w-full flex items-center justify-center p-2"
+                  onClick={() => handleRedirect("/MyProjects")}
+                >
+                  <FaFolder className="w-6 h-6 shrink-0"/>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>{t('sidebar:myProjects')}</p>
+              </TooltipContent>
+            </Tooltip>
           )}
 
           {/* MY UPLOADS */}
@@ -162,13 +181,20 @@ const Sidebar = () => {
               {t('sidebar:myUploads')}
             </Button>
           ) : (
-            <Button
-              variant="sidebar_nav_button"
-              className="w-full flex items-center justify-center p-2"
-              onClick={() => handleRedirect("/MyUploads")}
-            >
-              <FaFileUpload className="w-6 h-6 shrink-0"/>
-            </Button> 
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="sidebar_nav_button"
+                  className="w-full flex items-center justify-center p-2"
+                  onClick={() => handleRedirect("/MyUploads")}
+                >
+                  <FaFileUpload className="w-6 h-6 shrink-0"/>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>{t('sidebar:myUploads')}</p>
+              </TooltipContent>
+            </Tooltip>
           )}
 
           {/* RECENT ACTIVITY */}
@@ -180,13 +206,20 @@ const Sidebar = () => {
               {t('sidebar:recentActivity')}
             </Button>
           ) : (
-            <Button
-              variant="sidebar_nav_button"
-              className="w-full flex items-center justify-center p-2"
-              onClick={() => handleRedirect("/RecentActivity")}
-            >
-              <FaHistory className="w-6 h-6 shrink-0"/>
-            </Button> 
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="sidebar_nav_button"
+                  className="w-full flex items-center justify-center p-2"
+                  onClick={() => handleRedirect("/RecentActivity")}
+                >
+                  <FaHistory className="w-6 h-6 shrink-0"/>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>{t('sidebar:recentActivity')}</p>
+              </TooltipContent>
+            </Tooltip>
           )}
 
           {/* SOLO SUPER ADMIN */}
@@ -200,18 +233,26 @@ const Sidebar = () => {
                 {t('sidebar:devOptions')}
               </Button>
             ) : (
-              <Button
-                variant="sidebar_nav_button"
-                className="w-full flex items-center justify-center p-2"
-                onClick={() => handleRedirect("/devOptions")}
-              >
-                <IoMdCode className="w-6 h-6 shrink-0"/>
-              </Button> 
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="sidebar_nav_button"
+                    className="w-full flex items-center justify-center p-2"
+                    onClick={() => handleRedirect("/devOptions")}
+                  >
+                    <IoMdCode className="w-6 h-6 shrink-0"/>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>{t('sidebar:devOptions')}</p>
+                </TooltipContent>
+              </Tooltip>
             )}
             </>
           )}
 
         </div>
+        </TooltipProvider>
       </div>
 
       {/* USER DATA */}
@@ -300,8 +341,8 @@ const Sidebar = () => {
                     src={user.picture}
                     alt="user"
                     style={{
-                      width: "40px",
-                      height: "40px",
+                      width: "35px",
+                      height: "35px",
                       borderRadius: "50%",
                       objectFit: "cover",
                       flexShrink: 0,
@@ -314,7 +355,7 @@ const Sidebar = () => {
             )}
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent align="end" side="top" className="bg-[var(--bg)] border border-[var(--border)]">
+          <DropdownMenuContent align="end" side="right" className="bg-[var(--bg)] border border-[var(--border)]">
             <DropdownMenuItem 
               className="text-[var(--text)]"
               onClick={() => {

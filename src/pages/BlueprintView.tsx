@@ -985,7 +985,7 @@ const BlueprintView = () => {
                                 <p className="font-semibold text-[var(--text-h)]">
                                     {
                                         blueprint?.view && blueprint?.view.toLocaleLowerCase() !== "undefined"
-                                            ? t(`specialtiesOptions.${blueprint.view}`)
+                                            ? t(`blueprint:pointOfViewOptions.${blueprint.view}`)
                                             : t('blueprint:unspecified')
                                     }
                                 </p>
@@ -1000,7 +1000,7 @@ const BlueprintView = () => {
                                     {
                                         blueprint?.specialties?.length
                                             ? (blueprint.specialties
-                                                .map(specialty => t(`specialtiesOptions.${specialty}`))
+                                                .map(specialty => t(`blueprint:specialtiesOptions.${specialty}`))
                                                 .join(", ")
                                             )
                                             : t('blueprint:unspecified')

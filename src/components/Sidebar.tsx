@@ -126,9 +126,12 @@ const Sidebar = () => {
           {!isMinimized ? (
             <Button 
               variant="sidebar_nav_button"
-              onClick={() => handleRedirect("/")}  
+              onClick={() => handleRedirect("/")}
+              className="w-full flex justify-start items-center"
             >
-              {t('sidebar:home')}
+              <span className="truncate w-full text-left">
+                {t('sidebar:home')}
+              </span>
             </Button>
           ) : (
             <Tooltip>
@@ -152,8 +155,11 @@ const Sidebar = () => {
             <Button 
               variant="sidebar_nav_button"
               onClick={() => handleRedirect("/MyProjects")}
+              className="w-full flex justify-start items-center"
             >
-              {t('sidebar:myProjects')}
+              <span className="truncate w-full text-left">
+                {t('sidebar:myProjects')}
+              </span>
             </Button>
           ) : (
             <Tooltip>
@@ -177,8 +183,11 @@ const Sidebar = () => {
             <Button
               variant="sidebar_nav_button"
               onClick={() => handleRedirect("/MyUploads")}
+              className="w-full flex justify-start items-center"
             >
-              {t('sidebar:myUploads')}
+              <span className="truncate w-full text-left">
+                {t('sidebar:myUploads')}
+              </span>
             </Button>
           ) : (
             <Tooltip>
@@ -202,8 +211,11 @@ const Sidebar = () => {
             <Button
               variant="sidebar_nav_button"
               onClick={() => handleRedirect("/RecentActivity")}
+              className="w-full flex justify-start items-center"
             >
-              {t('sidebar:recentActivity')}
+              <span className="truncate w-full text-left">
+                {t('sidebar:recentActivity')}
+              </span>
             </Button>
           ) : (
             <Tooltip>
@@ -229,8 +241,11 @@ const Sidebar = () => {
               <Button
                 variant="sidebar_nav_button"
                 onClick={() => handleRedirect("/devOptions")}
+                className="w-full flex justify-start items-center"
               >
-                {t('sidebar:devOptions')}
+                <span className="truncate w-full text-left">
+                  {t('sidebar:devOptions')}
+                </span>
               </Button>
             ) : (
               <Tooltip>

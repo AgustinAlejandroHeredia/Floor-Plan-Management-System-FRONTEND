@@ -48,7 +48,7 @@ const UserProfilePage = () => {
     return (
         <div>
         <BreadcrumbBar items={[ 
-            {label: "My Profile"},
+            {label: t('breadcrumb:myProfile')},
         ]} />
 
         <div className="main-content">

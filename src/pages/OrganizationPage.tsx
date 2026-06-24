@@ -578,7 +578,7 @@ const OrganizationPage = () => {
 
         <div className="main-content">
 
-            <h1 className="sub-heading">{t('organization:name', {name})}</h1>
+            <h1 className="sub-heading">{name}</h1>
 
             <div ref={navigationRef} className="main-content-item flex gap-4">
 
@@ -635,6 +635,8 @@ const OrganizationPage = () => {
             ) : (
 
                 <div className="main-content-item">
+
+                    <h2 className="sub-heading-2">{t('organization:availableProjects')}: </h2>
 
                     <div
                     style={{

@@ -1,12 +1,12 @@
 {
-    "name": "Proyectos de {{name}}",
-
     "options": {
         "createProject": "Crear proyecto",
         "inviteMember": "Invitar miembro",
         "viewMember": "Ver miembros",
         "changeActionPermissions": "Cambiar permisos de acciones"
     },
+
+    "availableProjects": "Proyectos disponibles",
 
     "floatingIndex": {
         "top": "Arriba",

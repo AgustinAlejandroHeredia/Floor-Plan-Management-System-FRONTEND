@@ -140,7 +140,7 @@ const Sidebar = () => {
             <Button 
               variant="sidebar_nav_button"
               onClick={() => handleRedirect("/")}
-              className="w-full flex justify-start items-center"
+              className="w-full flex justify-start items-center cursor-pointer"
             >
               <span className="truncate w-full text-left">
                 {t('sidebar:home')}
@@ -151,7 +151,7 @@ const Sidebar = () => {
               <TooltipTrigger asChild>
                 <Button 
                   variant="sidebar_nav_button"
-                  className="w-full flex items-center justify-center p-2"
+                  className="w-full flex items-center justify-center p-2 cursor-pointer"
                   onClick={() => handleRedirect("/")}
                 >
                   <IoMdHome className="w-6 h-6 shrink-0"/>
@@ -168,7 +168,7 @@ const Sidebar = () => {
             <Button 
               variant="sidebar_nav_button"
               onClick={() => handleRedirect("/MyProjects")}
-              className="w-full flex justify-start items-center"
+              className="w-full flex justify-start items-center cursor-pointer"
             >
               <span className="truncate w-full text-left">
                 {t('sidebar:myProjects')}
@@ -179,7 +179,7 @@ const Sidebar = () => {
               <TooltipTrigger asChild>
                 <Button
                   variant="sidebar_nav_button"
-                  className="w-full flex items-center justify-center p-2"
+                  className="w-full flex items-center justify-center p-2 cursor-pointer"
                   onClick={() => handleRedirect("/MyProjects")}
                 >
                   <FaFolder className="w-6 h-6 shrink-0"/>
@@ -196,7 +196,7 @@ const Sidebar = () => {
             <Button
               variant="sidebar_nav_button"
               onClick={() => handleRedirect("/MyUploads")}
-              className="w-full flex justify-start items-center"
+              className="w-full flex justify-start items-center cursor-pointer"
             >
               <span className="truncate w-full text-left">
                 {t('sidebar:myUploads')}
@@ -207,7 +207,7 @@ const Sidebar = () => {
               <TooltipTrigger asChild>
                 <Button
                   variant="sidebar_nav_button"
-                  className="w-full flex items-center justify-center p-2"
+                  className="w-full flex items-center justify-center p-2 cursor-pointer"
                   onClick={() => handleRedirect("/MyUploads")}
                 >
                   <FaFileUpload className="w-6 h-6 shrink-0"/>
@@ -224,7 +224,7 @@ const Sidebar = () => {
             <Button
               variant="sidebar_nav_button"
               onClick={() => handleRedirect("/RecentActivity")}
-              className="w-full flex justify-start items-center"
+              className="w-full flex justify-start items-center cursor-pointer"
             >
               <span className="truncate w-full text-left">
                 {t('sidebar:recentActivity')}
@@ -235,7 +235,7 @@ const Sidebar = () => {
               <TooltipTrigger asChild>
                 <Button
                   variant="sidebar_nav_button"
-                  className="w-full flex items-center justify-center p-2"
+                  className="w-full flex items-center justify-center p-2 cursor-pointer"
                   onClick={() => handleRedirect("/RecentActivity")}
                 >
                   <FaHistory className="w-6 h-6 shrink-0"/>
@@ -254,7 +254,7 @@ const Sidebar = () => {
               <Button
                 variant="sidebar_nav_button"
                 onClick={() => handleRedirect("/devOptions")}
-                className="w-full flex justify-start items-center"
+                className="w-full flex justify-start items-center cursor-pointer"
               >
                 <span className="truncate w-full text-left">
                   {t('sidebar:devOptions')}
@@ -265,7 +265,7 @@ const Sidebar = () => {
                 <TooltipTrigger asChild>
                   <Button
                     variant="sidebar_nav_button"
-                    className="w-full flex items-center justify-center p-2"
+                    className="w-full flex items-center justify-center p-2 cursor-pointer"
                     onClick={() => handleRedirect("/devOptions")}
                   >
                     <IoMdCode className="w-6 h-6 shrink-0"/>

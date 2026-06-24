@@ -178,5 +178,12 @@
         "noAreasToSave": "No hay áreas para guardar",
         "errorSavingAreas": "Ha ocurrido un error al guardar las áreas. Por favor, inténtalo de nuevo más tarde.",
         "errorSelectingAreaForEdit": "Error al seleccionar el área para editar"
+    },
+
+    "blueprintLevelsDialogComponent": {
+        "title": "Seleccionar Niveles para el Plano",
+        "basementLabel": "Sótano",
+        "levelsLabel": "Niveles",
+        "roofLabel": "Techo"
     }
 }

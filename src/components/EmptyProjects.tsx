@@ -10,12 +10,20 @@ import {
 } from "@/components/ui/empty";
 import type { OrganizationRole } from "@/types/types";
 
+// TRANSLATION
+import { useTranslation } from "react-i18next";
+
 interface EmptyProjectsProps {
   userRole: OrganizationRole;
-  onCreateClick: () => void; // 👈 importante
+  onCreateClick: () => void;
 }
 
 export function EmptyProjects({ userRole, onCreateClick }: EmptyProjectsProps) {
+
+  const { t } = useTranslation([
+      "organization"
+  ])
+
   return (
     <>
       {userRole === "admin" ? (
@@ -26,12 +34,11 @@ export function EmptyProjects({ userRole, onCreateClick }: EmptyProjectsProps) {
             </EmptyMedia>
 
             <EmptyTitle className="text-[var(--text-h)]">
-              No projects to show
+              {t('organization:emptyProjectsComponent.admin.title')}
             </EmptyTitle>
 
             <EmptyDescription>
-              Currently there are no projects for this organization.
-              If you see this message it means that you have the permissions to create the first project.
+              {t('organization:emptyProjectsComponent.admin.description')}
             </EmptyDescription>
           </EmptyHeader>
 
@@ -39,9 +46,9 @@ export function EmptyProjects({ userRole, onCreateClick }: EmptyProjectsProps) {
             <Button
               variant="outline"
               size="sm"
-              onClick={onCreateClick} // 👈 abre el dialog
+              onClick={onCreateClick}
             >
-              Create project!
+              {t('organization:emptyProjectsComponent.admin.action')}!
             </Button>
           </EmptyContent>
         </Empty>
@@ -53,12 +60,11 @@ export function EmptyProjects({ userRole, onCreateClick }: EmptyProjectsProps) {
             </EmptyMedia>
 
             <EmptyTitle className="text-[var(--text-h)]">
-              No projects to show
+              {t('organization:emptyProjectsComponent.member.title')}
             </EmptyTitle>
 
             <EmptyDescription>
-              Currently there are no projects for this organization.
-              You have to wait for someone with the permissions to create a project.
+              {t('organization:emptyProjectsComponent.member.description')}
             </EmptyDescription>
           </EmptyHeader>
         </Empty>

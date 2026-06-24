@@ -14,6 +14,9 @@ import {
 } from "@/components/ui/field";
 import { Button } from "./ui/button";
 
+// TRANSLATION
+import { useTranslation } from "react-i18next";
+
 type ProjectInfo = {
   levels?: string;
   basement?: boolean;
@@ -34,6 +37,12 @@ export function BlueprintLevelsDialog({
   onSave,
   initialSelection,
 }: Props) {
+
+  const { t } = useTranslation([
+      "blueprint",
+      "common"
+  ])
+
   const levelCount = Number(projectInfo.levels ?? 0);
 
   const [selection, setSelection] = useState<string[]>([]);
@@ -82,7 +91,7 @@ export function BlueprintLevelsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Select Blueprint Levels</DialogTitle>
+          <DialogTitle>{t('blueprint:blueprintLevelsDialogComponent.title')}</DialogTitle>
         </DialogHeader>
 
         <FieldGroup className="space-y-3">
@@ -98,7 +107,7 @@ export function BlueprintLevelsDialog({
               />
 
               <FieldLabel>
-                Basement
+                {t('blueprint:blueprintLevelsDialogComponent.basementLabel')}
               </FieldLabel>
             </Field>
           )}
@@ -117,7 +126,7 @@ export function BlueprintLevelsDialog({
                 />
 
                 <FieldLabel>
-                  Level {key}
+                  {t('blueprint:blueprintLevelsDialogComponent.levelsLabel')} {key}
                 </FieldLabel>
               </Field>
             );
@@ -133,7 +142,7 @@ export function BlueprintLevelsDialog({
             />
 
             <FieldLabel>
-              Roof
+              {t('blueprint:blueprintLevelsDialogComponent.roofLabel')}
             </FieldLabel>
           </Field>
 
@@ -145,7 +154,7 @@ export function BlueprintLevelsDialog({
             variant="outline"
             onClick={() => onOpenChange(false)}
           >
-            Cancel
+            {t('common:cancel')}
           </Button>
 
           <Button
@@ -155,7 +164,7 @@ export function BlueprintLevelsDialog({
               onOpenChange(false);
             }}
           >
-            Save
+            {t('common:save')}
           </Button>
 
         </DialogFooter>

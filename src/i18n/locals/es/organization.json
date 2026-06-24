@@ -162,6 +162,36 @@
     },
 
     "errorMessages": {
-        
+        "general": "Algo salió mal. Por favor, inténtelo de nuevo más tarde.",
+        "noName": "No se proporcionó un nombre para el nuevo proyecto.",
+        "shortName": "El nombre del proyecto es demasiado corto (mínimo 3 caracteres).",
+        "longName": "El nombre del proyecto es demasiado largo (máximo 100 caracteres).",
+        "exceededMaximumLevels": "La cantidad de niveles seleccionada excede el máximo permitido.",
+        "minimumLevel": "El nivel mínimo es 1.",
+        "noLevels": "No se seleccionaron niveles.",
+        "errorCreatingProject": "Algo salió mal al crear el proyecto.",
+        "unexpectedError": "Ocurrió un error inesperado.",
+        "noEmail": "No se proporcionó un email de usuario.",
+        "errorSendingInvitation": "Error al enviar la invitación. Por favor, inténtelo de nuevo más tarde.",
+        "noInvitationSelected": "No se seleccionó ninguna invitación.",
+        "errorRefreshingInvitation": "Algo salió mal al reiniciar la invitación. Por favor, inténtelo de nuevo más tarde.",
+        "noUserToKickSelected": "Se intentó expulsar a un usuario, pero no se seleccionó ninguno.",
+        "errorKickingUser": "Ocurrió un error al expulsar al usuario. Por favor, inténtelo de nuevo más tarde.",
+        "noUserSelected": "No se seleccionó ningún usuario.",
+        "errorChangingUserRole": "Algo salió mal al cambiar el rol del usuario. Por favor, inténtelo de nuevo más tarde.",
+        "errorLeavingOrganization": "Ocurrió un error al abandonar la organización. Por favor, inténtelo de nuevo más tarde.",
+        "errorSavingChanges": "Algo salió mal al guardar los cambios. Por favor, inténtelo de nuevo más tarde."
+    },
+
+    "emptyProjectsComponent": {
+        "admin": {
+            "title": "No hay proyectos para mostrar",
+            "description": "Actualmente no hay proyectos para esta organización.\nSi ves este mensaje significa que tienes los permisos necesarios para crear el primer proyecto.",
+            "action": "Crear proyecto"
+        },
+        "member": {
+            "title": "No hay proyectos para mostrar",
+            "description": "Actualmente no hay proyectos para esta organización.\nDebes esperar a que alguien con permisos cree un proyecto."
+        }
     }
 }

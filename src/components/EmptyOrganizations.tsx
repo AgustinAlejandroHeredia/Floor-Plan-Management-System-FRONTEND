@@ -9,21 +9,28 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 
+// TRANSLATION
+import { useTranslation } from "react-i18next";
+
 interface EmptyOrganizationsProps {
   onJoinClick: () => void;
 }
 
 export function EmptyOrganizations({ onJoinClick }: EmptyOrganizationsProps) {
+
+  const { t } = useTranslation([
+      "home"
+  ])
+
   return (
     <Empty className="border border-dashed p-6 max-w-md mx-auto mt-30">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <TbHomeOff  size={24} color="black" />
         </EmptyMedia>
-        <EmptyTitle className="text-[var(--text-h)]">No organizations to show</EmptyTitle>
+        <EmptyTitle className="text-[var(--text-h)]">{t('organization:emptyOrganizationsComponent.title')}</EmptyTitle>
         <EmptyDescription>
-          You currently do not belong to any organization. 
-          You can join an arganization by entering the token sent to your email!
+          {t('organization:emptyOrganizationsComponent.description')}
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
@@ -33,7 +40,7 @@ export function EmptyOrganizations({ onJoinClick }: EmptyOrganizationsProps) {
           size="sm"
           onClick={onJoinClick}
         >
-          Enter token
+          {t('organization:emptyOrganizationsComponent.action')}
         </Button>
       </EmptyContent>
     </Empty>

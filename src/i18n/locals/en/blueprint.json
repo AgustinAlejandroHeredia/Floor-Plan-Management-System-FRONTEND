@@ -178,5 +178,12 @@
         "noAreasToSave": "No areas to save",
         "errorSavingAreas": "An error occurred while saving areas. Please try again later.",
         "errorSelectingAreaForEdit": "Error selecting area for editing"
+    },
+
+    "blueprintLevelsDialogComponent": {
+        "title": "Select Blueprint Levels",
+        "basementLabel": "Basement",
+        "levelsLabel": "Levels",
+        "roofLabel": "Roof"
     }
 }

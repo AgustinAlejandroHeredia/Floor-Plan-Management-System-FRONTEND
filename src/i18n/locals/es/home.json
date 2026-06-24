@@ -17,5 +17,11 @@
     "firstTokenDescription": "Ingresa el token que fue enviado a tu email.",
 
     "validatingTokenTitle": "Validando token...",
-    "validatingTokenDescription": "Por favor espera mientras tu token es validado..."
+    "validatingTokenDescription": "Por favor espera mientras tu token es validado...",
+
+    "emptyOrganizationsComponent": {
+        "title": "No hay organizaciones para mostrar",
+        "description": "Actualmente no perteneces a ninguna organización.\n¡Puedes unirte a una organización ingresando el token enviado a tu correo electrónico!",
+        "action": "Ingresar token"
+    }
 }

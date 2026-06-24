@@ -17,5 +17,11 @@
     "firstTokenDescription": "Enter the invitation token sent to your email.",
 
     "validatingTokenTitle": "Validating token...",
-    "validatingTokenDescription": "Please wait while your token is being validated..."
+    "validatingTokenDescription": "Please wait while your token is being validated...",
+
+    "emptyOrganizationsComponent": {
+        "title": "No Organizations to Show",
+        "description": "You currently do not belong to any organization.\nYou can join an organization by entering the token sent to your email!",
+        "action": "Enter Token"
+    }
 }

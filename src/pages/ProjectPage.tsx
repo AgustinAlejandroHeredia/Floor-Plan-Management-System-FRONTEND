@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dialog";
 
 import Loading from "@/components/Loading";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ProjectService } from "@/services/ProjectService";
 import { Button } from "@/components/ui/button";
 import { FieldGroup, Field } from "@/components/ui/field";
@@ -247,6 +247,15 @@ const ProjectPage = () => {
       }
   }
 
+  // FILTERED LIST
+
+  const filteredList = useMemo(() => {
+    if (filterValue === 'newest_first' || filterValue === 'oldest_first') {
+      return filterValue === 'oldest_first' ? blueprints.toReversed() : blueprints;
+    }
+    return blueprints.filter((bp) => bp.specialties.includes(filterValue));
+  }, [blueprints, filterValue])
+
   if (loadingProject) return <Loading />;
 
   if (error) {
@@ -329,38 +338,39 @@ const ProjectPage = () => {
         <div className="main-content-item">
           <h1 className="sub-heading">{t('project:uploadedBlueprints')}</h1>
 
-          <div className="flex items-center justify-between w-full">
+          <div className="flex flex-col items-start gap-4 w-full">
 
-                <p className="comment-text">{t('project:uploadedBlueprintsCount')} {blueprints.length}</p>
-                
-                <div className="flex flex-col gap-1.5">
-                  <Label 
-                    htmlFor="filterLabel"
-                    style={{ color: 'var(--text-h)' }}
-                    className="text-sm font-medium"
-                  >
-                    {t('project:orderBy')}
-                  </Label>
-                  <Select
-                    defaultValue="newest_first"
-                    onValueChange={(value) => setFilterValue(value as ProjectBlueprintsFilterTypes)}
-                  >
-                    <SelectTrigger className="w-full min-w-44 max-w-48 bg-white text-black border border-input cursor-pointer">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent
-                      position="popper"
-                    >
-                      <SelectGroup>
-                        {projectBlueprintsFilterOptions.map((filter) => (
-                          <SelectItem key={filter} value={filter}>
-                            {t(`project:filterOptions.${filter}`)}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
+            <div className="flex flex-col gap-1.5">
+              <Label 
+                htmlFor="filterLabel"
+                style={{ color: 'var(--text-h)' }}
+                className="text-sm font-medium"
+              >
+                {t('project:orderBy')}
+              </Label>
+              <Select
+                defaultValue="newest_first"
+                onValueChange={(value) => setFilterValue(value as ProjectBlueprintsFilterTypes)}
+              >
+                <SelectTrigger className="w-full min-w-44 max-w-48 bg-white text-black border border-input cursor-pointer">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent position="popper">
+                  <SelectGroup>
+                    {projectBlueprintsFilterOptions.map((filter) => (
+                      <SelectItem key={filter} value={filter}>
+                        {t(`project:filterOptions.${filter}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <p className="comment-text">
+              {t('project:uploadedBlueprintsCount')} {filteredList.length}
+            </p>
+            
           </div>
 
           <div
@@ -371,64 +381,76 @@ const ProjectPage = () => {
               paddingBottom: "8px",
             }}
           >
-            {blueprints?.map((bp) => (
-              <Card
-                key={bp._id}
-                onClick={() => handleOpenBlueprint(bp._id, bp.blueprintName)}
-                className="cursor-pointer overflow-hidden bg-transparent border-0 shadow-none"
-                style={{
-                  minWidth: "400px",
-                  height: "300px",
-                }}
-              >
-                <div style={{ position: "relative", width: "100%", height: "100%" }}>
-                  
-                  {/* IMAGE */}
-                  <img
-                    src={bp.downloadUrl}
-                    alt={bp.filename}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                    onError={(e) => {
-                      e.currentTarget.src = "/fallback.png";
-                    }}
-                  />
+            {filteredList?.length === 0 ? (
+              
+              <div className="flex w-full min-h-[400px] items-center justify-center p-8">
+                <p className="text-muted-foreground text-sm font-medium">
+                  No blueprints to show
+                </p>
+              </div>
 
-                  {/* OVERLAY INFO */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      width: "100%",
-                      padding: "8px",
-                      background: "linear-gradient(to bottom, rgba(0,0,0,0.9), transparent)",
-                     color: "var(--text-h)",
-                    }}
-                  >
-                    <p style={{ fontWeight: "600" }}>{bp.blueprintName}</p>
-                    <p style={{ fontSize: "12px" }}>
-                      {new Date(bp.creationDate).toLocaleDateString()}
-                    </p>
-                    {bp.tags && bp.tags.length > 0 && (
-                      <p
-                        style={{
-                          fontSize: "11px",
-                          marginTop: "4px",
-                          opacity: 0.9,
-                        }}
-                      >
-                        {bp.tags.join(", ")}
+            ) : (
+              
+              filteredList?.map((bp) => (
+                <Card
+                  key={bp._id}
+                  onClick={() => handleOpenBlueprint(bp._id, bp.blueprintName)}
+                  className="cursor-pointer overflow-hidden bg-transparent border-0 shadow-none"
+                  style={{
+                    minWidth: "400px",
+                    height: "300px",
+                  }}
+                >
+                  <div style={{ position: "relative", width: "100%", height: "100%" }}>
+                    
+                    {/* IMAGE */}
+                    <img
+                      src={bp.downloadUrl}
+                      alt={bp.filename}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                      onError={(e) => {
+                        e.currentTarget.src = "/fallback.png";
+                      }}
+                    />
+
+                    {/* OVERLAY INFO */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        padding: "8px",
+                        background: "linear-gradient(to bottom, rgba(0,0,0,0.9), transparent)",
+                        color: "var(--text-h)",
+                      }}
+                    >
+                      <p style={{ fontWeight: "600" }}>{bp.blueprintName}</p>
+                      <p style={{ fontSize: "12px" }}>
+                        {new Date(bp.creationDate).toLocaleDateString()}
                       </p>
-                    )}
-                  </div>
+                      {bp.tags && bp.tags.length > 0 && (
+                        <p
+                          style={{
+                            fontSize: "11px",
+                            marginTop: "4px",
+                            opacity: 0.9,
+                          }}
+                        >
+                          {bp.tags.join(", ")}
+                        </p>
+                      )}
+                    </div>
 
-                </div>
-              </Card>
-            ))}
+                  </div>
+                </Card>
+              ))
+
+            )}
           </div>
         </div>
 

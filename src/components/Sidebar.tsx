@@ -90,6 +90,7 @@ const Sidebar = () => {
       style={{ width: isMinimized ? "60px" : "260px" }}
     >
       
+      <TooltipProvider delayDuration={200}>
       {/* TOP */}
       <div>
         {/* Organización */}
@@ -108,18 +109,30 @@ const Sidebar = () => {
             </span>
           )}
 
-          <Button 
-            className="w-7 h-7 flex items-center justify-center rounded-lg bg-transparent hover:bg-[var(--text-h)] cursor-pointer group transition-colors duration-200 shrink-0"
-            onClick={minimizeOrMaximizeSidebar}
-          >
-            <FiSidebar className="w-5 h-5 text-[var(--text-h)] group-hover:text-black transition-colors duration-200"/>
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                className="w-7 h-7 flex items-center justify-center rounded-lg bg-transparent hover:bg-[var(--text-h)] cursor-pointer group transition-colors duration-200 shrink-0"
+                onClick={minimizeOrMaximizeSidebar}
+              >
+                <FiSidebar className="w-5 h-5 text-[var(--text-h)] group-hover:text-black transition-colors duration-200"/>
+              </Button>
+            </TooltipTrigger>
+            {isMinimized ? (
+              <TooltipContent side="right">
+                <p>{t('sidebar:sidebarTooltip.expand')}</p>
+              </TooltipContent>
+            ) : (
+              <TooltipContent side="right">
+                <p>{t('sidebar:sidebarTooltip.collapse')}</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
         </div>
 
         <Separator />
 
         {/* Navegación */}
-        <TooltipProvider delayDuration={200}>
         <div className="pt-3 pb-6 px-2 flex flex-col gap-2">
           
           {/* HOME */}
@@ -267,8 +280,8 @@ const Sidebar = () => {
           )}
 
         </div>
-        </TooltipProvider>
       </div>
+      </TooltipProvider>
 
       {/* USER DATA */}
       <div style={{ padding: "12px" }}>

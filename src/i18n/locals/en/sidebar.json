@@ -14,5 +14,10 @@
         "title": "Log out?",
         "description": "Are you sure you want to log out?",
         "confirm": "Log out"
+    },
+
+    "sidebarTooltip": {
+        "collapse": "Collapse Sidebar",
+        "expand": "Expand Sidebar"
     }
 }

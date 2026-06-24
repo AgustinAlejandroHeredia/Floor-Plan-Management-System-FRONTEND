@@ -14,5 +14,10 @@
         "title": "¿Cerrar sesión?",
         "description": "¿Estás seguro de que quieres cerrar sesión?",
         "confirm": "Cerrar sesión"
+    },
+
+    "sidebarTooltip": {
+        "collapse": "Contraer barra lateral",
+        "expand": "Expandir barra lateral"
     }
 }

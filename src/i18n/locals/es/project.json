@@ -7,7 +7,8 @@
             "approved": "Aprobado"
         },
         "levels": "Niveles",
-        "basement": "Sótano"
+        "basement": "Sótano",
+        "aditionalFields": "Campos adicionales"
     },
 
     "information": "Información del proyecto",
@@ -24,6 +25,22 @@
 
     "uploadedBlueprints": "Planos subidos",
     "uploadedBlueprintsCount": "Planos totales",
+
+    "orderBy": "Ordenado por",
+    "filterOptions": {
+        "structure": "Estructura",
+        "architecture": "Arquitectura",
+        "cold_water": "Agua fria",
+        "hot_water": "Agua caliente",
+        "electrical": "Eléctrica",
+        "gas": "Gas",
+        "sewerage": "Alcantarillado",
+        "rainwater": "Agua de lluvia",
+        "notes": "Notas",
+        "tables": "Tablas",
+        "oldest_first": "Más antiguo primero",
+        "newest_first": "Más nuevo primero"
+    },
 
     "dangerZone": "Área de peligro",
 

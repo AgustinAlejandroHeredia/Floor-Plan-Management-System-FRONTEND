@@ -32,12 +32,14 @@ import { convertPdfToImages } from "@/utils/pdfToImage";
 import Toast from "@/components/Toast";
 import InfoDialog from "@/components/InfoDialog";
 import { Separator } from "@/components/ui/separator";
-import type { ProjectOrganizationType } from "@/types/types";
+import { projectBlueprintsFilterOptions, type ProjectBlueprintsFilterTypes, type ProjectOrganizationType } from "@/types/types";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 import SectionNavigation from "@/components/SectionNavigation";
 
 // TRANSLATION
 import { useTranslation } from "react-i18next";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const ProjectPage = () => {
   const { organizationName, organizationId, projectName, projectId } =
@@ -80,6 +82,9 @@ const ProjectPage = () => {
   // PORCESS & UPLOAD
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [isUploading, setIsUploading] = useState(false);
+
+  // FILTER
+  const [filterValue, setFilterValue] = useState<ProjectBlueprintsFilterTypes>("newest_first")
 
   const {
     project,
@@ -299,7 +304,7 @@ const ProjectPage = () => {
                     Object.keys(project.customFields).length > 0 && (
                       <CardDescription>
                         <div>
-                          <span>Additional fields:</span>
+                          <span>{t('project:projectCharacteristics.aditionalFields')}:</span>
                         </div>
 
                         {Object.entries(project.customFields).map(([key, value]) => (
@@ -324,7 +329,39 @@ const ProjectPage = () => {
         <div className="main-content-item">
           <h1 className="sub-heading">{t('project:uploadedBlueprints')}</h1>
 
-          <p className="comment-text">{t('project:uploadedBlueprintsCount')} {blueprints.length}</p>
+          <div className="flex items-center justify-between w-full">
+
+                <p className="comment-text">{t('project:uploadedBlueprintsCount')} {blueprints.length}</p>
+                
+                <div className="flex flex-col gap-1.5">
+                  <Label 
+                    htmlFor="filterLabel"
+                    style={{ color: 'var(--text-h)' }}
+                    className="text-sm font-medium"
+                  >
+                    {t('project:orderBy')}
+                  </Label>
+                  <Select
+                    defaultValue="newest_first"
+                    onValueChange={(value) => setFilterValue(value as ProjectBlueprintsFilterTypes)}
+                  >
+                    <SelectTrigger className="w-full min-w-44 max-w-48 bg-white text-black border border-input cursor-pointer">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent
+                      position="popper"
+                    >
+                      <SelectGroup>
+                        {projectBlueprintsFilterOptions.map((filter) => (
+                          <SelectItem key={filter} value={filter}>
+                            {t(`project:filterOptions.${filter}`)}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+          </div>
 
           <div
             style={{

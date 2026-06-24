@@ -183,6 +183,10 @@ export type SpecialtyTag =
   | 'notes'
   | 'tables'
 
+export type ProjectBlueprintsFilterTypes = SpecialtyTag 
+  | 'oldest_first' 
+  | 'newest_first'
+
 export type BlueprintViewType =
   | 'top'
   | 'front'
@@ -208,6 +212,23 @@ export const specialtyTagOptions: SpecialtyTag[] = [
   'notes',
   'tables',
 ]
+
+export const filterMapping: Record<ProjectBlueprintsFilterTypes, true> = {
+  structure: true,
+  architecture: true,
+  cold_water: true,
+  hot_water: true,
+  electrical: true,
+  gas: true,
+  sewerage: true,
+  rainwater: true,
+  notes: true,
+  tables: true,
+  oldest_first: true,
+  newest_first: true,
+}
+
+export const projectBlueprintsFilterOptions = Object.keys(filterMapping) as ProjectBlueprintsFilterTypes[]
 
 export const blueprintViewOptions: BlueprintViewType[] = [
   'front',

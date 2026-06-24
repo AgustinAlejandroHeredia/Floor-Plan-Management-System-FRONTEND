@@ -7,7 +7,8 @@
             "approved": "Approved"
         },
         "levels": "Levels",
-        "basement": "Basement"
+        "basement": "Basement",
+        "aditionalFields": "Additional fields"
     },
 
     "information": "Project information",
@@ -24,6 +25,22 @@
 
     "uploadedBlueprints": "Uploaded blueprints",
     "uploadedBlueprintsCount": "Total blueprints",
+
+    "orderBy": "Order by",
+    "filterOptions": {
+        "structure": "Structure",
+        "architecture": "Architecture",
+        "cold_water": "Cold water",
+        "hot_water": "Hot water",
+        "electrical": "Electrical",
+        "gas": "Gas",
+        "sewerage": "Sewerage",
+        "rainwater": "Rainwater",
+        "notes": "Notes",
+        "tables": "Tables",
+        "oldest_first": "Oldest first",
+        "newest_first": "Newest first"
+    },
 
     "dangerZone": "Danger zone",
 

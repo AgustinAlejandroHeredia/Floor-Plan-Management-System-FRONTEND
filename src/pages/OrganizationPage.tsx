@@ -52,7 +52,7 @@ import { useState } from "react";
 
 import OrganizationMemberItem from "@/components/OrganizationMemberItem";
 import { Label } from "@/components/ui/label";
-import type { ActionPermission, CreateProjectPayload, InvitationItemData, InvitationPayload, OrganizationActionPermissions, OrganizationMembersList, OrganizationRole } from "@/types/types";
+import type { ActionPermission, CreateProjectPayload, InvitationItemData, InvitationPayload, OrganizationActionPermissions, OrganizationMembersList, OrganizationRole, ProjectStatus } from "@/types/types";
 import Toast from "@/components/Toast";
 import InfoDialog from "@/components/InfoDialog";
 import InvitationItem from "@/components/InvitationItem";
@@ -514,6 +514,21 @@ const OrganizationPage = () => {
         })
     }
 
+    // COLORS
+
+    const getProjectStatusColor = (status: ProjectStatus): string => {
+        switch (status.toLocaleLowerCase()) {
+            case "pending":
+                return "var(--status-medium)"
+            case "approved":
+                return "var(--status-excellent)"
+            case "canceled":
+                return "var(--status-low)"
+            default:
+                return "var(--text)"
+        }
+    }
+
     if(loadingGeneral) return <Loading/>
 
     return (
@@ -664,7 +679,12 @@ const OrganizationPage = () => {
 
                             <div className="mt-2 text-[var(--text)] text-sm space-y-1">
                                 <div>
-                                    <span className="font-medium">{t('project:projectCharacteristics.status')}:</span> {t(`project:projectCharacteristics.statusType.${project.status}`)}
+                                    <span className="font-medium">{t('project:projectCharacteristics.status')}:</span> 
+                                    <span 
+                                        style={{
+                                            color: getProjectStatusColor(project.status)
+                                        }}
+                                    > {t(`project:projectCharacteristics.statusType.${project.status}`)}</span>
                                 </div>
 
                                 {project.levels && (

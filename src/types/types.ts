@@ -87,6 +87,12 @@ export interface OrganizationUserProfile {
   role: OrganizationRole,
 }
 
+export type ProjectStatus =
+  | "pending"
+  | "approved"
+  | "canceled"
+
+
 export interface ProjectMembersList {
   _id: string
   name: string
@@ -147,12 +153,7 @@ export interface CreateProjectPayload {
   levels: string
   basement: boolean
   customFields?: Record<string, any>
-};
-
-export type ProjectStatusColor =
-  | "red"
-  | "yellow"
-  | "green" 
+}
 
 export interface UserProjectListItem {
   _id: string

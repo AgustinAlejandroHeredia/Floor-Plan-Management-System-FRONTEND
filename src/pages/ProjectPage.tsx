@@ -32,7 +32,7 @@ import { convertPdfToImages } from "@/utils/pdfToImage";
 import Toast from "@/components/Toast";
 import InfoDialog from "@/components/InfoDialog";
 import { Separator } from "@/components/ui/separator";
-import { projectBlueprintsFilterOptions, type ProjectBlueprintsFilterTypes, type ProjectOrganizationType } from "@/types/types";
+import { projectBlueprintsFilterOptions, type ProjectBlueprintsFilterTypes, type ProjectOrganizationType, type ProjectStatus } from "@/types/types";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 import SectionNavigation from "@/components/SectionNavigation";
 
@@ -266,6 +266,21 @@ const ProjectPage = () => {
     );
   }
 
+  // COLORS
+  
+  const getProjectStatusColor = (status: ProjectStatus): string => {
+      switch (status.toLocaleLowerCase()) {
+          case "pending":
+              return "var(--status-medium)"
+          case "approved":
+              return "var(--status-excellent)"
+          case "canceled":
+              return "var(--status-low)"
+          default:
+              return "var(--text)"
+      }
+  }
+
   return (
     <div>
       <BreadcrumbBar
@@ -303,7 +318,14 @@ const ProjectPage = () => {
 
                 <CardDescription className="text-[var(--text-h)] mt-2 text-left flex flex-col gap-2">
                   <div><span className="font-semibold capitalize">{t('common:generalCharacteristics.name')}:</span> {project?.projectName}</div>
-                  <div><span className="font-semibold capitalize">{t('project:projectCharacteristics.status')}:</span> {t(`project:projectCharacteristics.statusType.${project?.status.toLocaleLowerCase()}`)}</div>
+                  <div>
+                    <span className="font-semibold capitalize">{t('project:projectCharacteristics.status')}:</span>
+                    <span
+                      style={{
+                        color: getProjectStatusColor(project?.status || "pending")
+                      }}
+                    > {t(`project:projectCharacteristics.statusType.${project?.status.toLocaleLowerCase()}`)}</span>
+                  </div>
                   <div><span className="font-semibold capitalize">{t('project:projectCharacteristics.levels')}:</span> {project?.levels}</div>
                   <div><span className="font-semibold capitalize">{t('project:projectCharacteristics.basement')}:</span> {project?.basement ? t('common:yes') : t('common:no') }</div>
                 </CardDescription>

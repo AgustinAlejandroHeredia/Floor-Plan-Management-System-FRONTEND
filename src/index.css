@@ -59,6 +59,12 @@
 
   --success: #16a34a;
   --error: #dc2626;
+
+  --status-critical: #DC2626;
+  --status-low: #EA580C;
+  --status-medium: #EAB308;
+  --status-high: #84CC16;
+  --status-excellent: #16A34A;
 }
 
 @import "tailwindcss";

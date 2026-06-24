@@ -67,6 +67,16 @@ const InvitationItem = ({
             (1000 * 60),
         )}m`;
 
+  // COLORS
+
+  const getStatusStateColor = (): string => {
+    if(msLeft <= 0){
+      return "var(--status-low)"
+    }else{
+      return "var(--status-excellent)"
+    }
+  }
+
   return (
     <Item
       variant="outline"
@@ -95,7 +105,10 @@ const InvitationItem = ({
         </span>
 
         <span className="text-[var(--text)]">
-          {t("items:invitationItem.timeLeft")}: {timeLeft}
+          {t("items:invitationItem.timeLeft")}:{" "}
+          <span style={{ color: getStatusStateColor() }}>
+            {timeLeft}
+          </span>
         </span>
 
       </ItemContent>

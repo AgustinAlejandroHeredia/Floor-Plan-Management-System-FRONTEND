@@ -531,6 +531,23 @@ const DevOptions = () => {
         }
     }
 
+    // STATUS COLOR
+
+    const getStorageStateColor = (
+        uploadedBlueprints: number,
+        max: number | string
+    ): string => {
+        const maxNumberValue = Number(max)
+        const usage = uploadedBlueprints / maxNumberValue;
+
+        if (usage <= 0.25) return "var(--status-excellent)"
+        if (usage <= 0.5) return "var(--status-high)"
+        if (usage <= 0.75) return "var(--status-medium)"
+        if (usage < 1) return "var(--status-low)"
+
+        return "var(--status-critical)"
+    }
+
     if(loadingGeneral) return <Loading/>
 
     return (
@@ -660,8 +677,21 @@ const DevOptions = () => {
                         {org.record}
                         </CardTitle>
 
-                        <CardTitle className="text-[var(--text-h)]">
-                        {t('developeroptions:organizationsFields.uploadedBlueprints')}: {organizationBlueprintCounts.find((item)=>item.organizationId === org._id)?.count ?? 0}/{org.maxBlueprints}
+                        <CardTitle
+                            style={{
+                                color: getStorageStateColor(
+                                    organizationBlueprintCounts.find(
+                                        (item) => item.organizationId === org._id
+                                    )?.count ?? 0,
+                                    org.maxBlueprints
+                                ),
+                            }}
+                        >
+                            {t('developeroptions:organizationsFields.uploadedBlueprints')}:{" "}
+                            {organizationBlueprintCounts.find(
+                                (item) => item.organizationId === org._id
+                            )?.count ?? 0}
+                            /{org.maxBlueprints}
                         </CardTitle>
 
                         <div className="mt-4">

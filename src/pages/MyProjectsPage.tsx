@@ -37,8 +37,10 @@ const MyProjectsPage = () => {
 
                 <div className="main-content-item">
 
-                    <h3 className="sub-heading">{t('myprojects:title')}: </h3>
+                    <h3 className="sub-heading">{t('myprojects:title')}</h3>
 
+                    <p className="comment-text">{t('myprojects:description')}</p>
+                    <p></p>
                     <p className="comment-text">{t('myprojects:totalProjects')} {userProjectsList.length}</p>
 
                     {userProjectsList.length > 0 && (

@@ -186,7 +186,8 @@
         "noSelectedArea": "No se ha seleccionado un área",
         "noAreasToSave": "No hay áreas para guardar",
         "errorSavingAreas": "Ha ocurrido un error al guardar las áreas. Por favor, inténtalo de nuevo más tarde.",
-        "errorSelectingAreaForEdit": "Error al seleccionar el área para editar"
+        "errorSelectingAreaForEdit": "Error al seleccionar el área para editar",
+        "noSpaceLeft": "No queda espacio disponible para subir más planos. Puedes eliminar un plano existente para liberar espacio y subir uno nuevo."
     },
 
     "blueprintLevelsDialogComponent": {

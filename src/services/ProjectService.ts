@@ -20,7 +20,7 @@ export const ProjectService = {
         return response.data
     },
 
-    createBlueprint: async (data: CreateBlueprintPayload): Promise<boolean> => {
+    createBlueprint: async (data: CreateBlueprintPayload): Promise<{status: boolean, message: string}> => {
         try {
             const formData = new FormData();
 
@@ -31,11 +31,26 @@ export const ProjectService = {
 
             await api.post("/blueprints", formData);
 
-            return true;
+            return {status:true, message:""};
 
-        } catch (error) {
-            console.log("ERROR ON CREATION:", error);
-            return false;
+            //return {status: false, message: "noSpaceLeft"} // test of no space left
+
+        } catch (error: any) {
+            
+            let response = {status: false, message: ""}
+            
+            if(error.response && error.response.status === 400){
+
+                const errorMessage = error.response.data?.message
+
+                if (errorMessage === 'Maximum organization blueprint count reached, cannot upload this file.') {
+                    response.message = "noSpaceLeft"
+                }
+            }else{
+                response.message = "errorUpload"
+            }
+
+            return response
         }
     },
 

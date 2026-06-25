@@ -474,16 +474,17 @@ const BlueprintView = () => {
             height: imageRes.height,
         };
 
-        const success = await BlueprintViewService.createBlueprint(payload);
-        setIsUploadingCrop(false);
+        const response = await BlueprintViewService.createBlueprint(payload)
 
-        if (success) {
-            setCropSuccesfullyUploaded(true);
+        setIsUploadingCrop(false)
+
+        if (response.status) {
+            setCropSuccesfullyUploaded(true)
         } else {
-            setErrorAlertMessage(t('blueprint:errorMessages.errorUploadingBlueprint'));
-            setOpenErrorAlert(true);
+            setErrorAlertMessage(t(`blueprint:errorMessages.${response.message}`))
+            setOpenErrorAlert(true)
         }
-    };
+    }
 
     const handleRefreshAfterCrop = () => {
         setCropSuccesfullyUploaded(false)
@@ -2007,7 +2008,8 @@ const BlueprintView = () => {
 
                                     {/* BOTONES */}
                                     <div className="flex gap-2 mt-4">
-                                        <Button 
+                                        <Button
+                                            variant="secondary"
                                             className="cursor-pointer"
                                             onClick={() => setOpenCropForm(true)}
                                         >

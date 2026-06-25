@@ -96,5 +96,13 @@
 
     "errorMessages": {
         "errorDeletingProject": "Ha ocurrido un error eliminando el proyecto. Por favor intente de nuevo más tarde."
+    },
+
+    "alertMessages": {
+        "errorProcessingPdf": "Error procesando el PDF.",
+        "noFileSelected": "No se seleccionó archivo.",
+        "errorUpload": "Algo salió mal subiendo el plano.",
+        "unexpectedError": "Ocurrió un error inesperado.",
+        "noSpaceLeft": "No queda espacio disponible para subir más planos. Puedes eliminar un plano existente para liberar espacio y subir uno nuevo."
     }
 }

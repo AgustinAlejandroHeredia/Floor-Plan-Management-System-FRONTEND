@@ -187,11 +187,11 @@ const ProjectPage = () => {
 
           const response = await ProjectService.createBlueprint(payload);
 
-          if (!response) {
-            setIsUploading(false)
-            setAlertMessage(t('project:errorUpload'));
-            setOpenAlert(true);
-            return;
+          setIsUploading(false)
+          if(!response.status){
+            setAlertMessage(t(`project:alertMessages.${response.message}`))
+            setOpenAlert(true)
+            return
           }
         }
 
@@ -207,13 +207,13 @@ const ProjectPage = () => {
           organizationId: organizationId!,
         };
 
-        const response = await ProjectService.createBlueprint(payload);
+        const response = await ProjectService.createBlueprint(payload)
 
-        if (!response) {
-          setIsUploading(false)
-          setAlertMessage(t('project:errorUpload'));
-          setOpenAlert(true);
-          return;
+        setIsUploading(false)
+        if(!response.status){
+          setAlertMessage(t(`project:alertMessages.${response.message}`))
+          setOpenAlert(true)
+          return
         }
 
       }

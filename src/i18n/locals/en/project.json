@@ -102,6 +102,7 @@
         "errorProcessingPdf": "Error processing PDF",
         "noFileSelected": "No file selected",
         "errorUpload": "Something went wrong uploading the blueprint",
-        "unexpectedError": "An unexpected error occurred"
+        "unexpectedError": "An unexpected error occurred",
+        "noSpaceLeft": "There is no space left to upload more blueprints. You can delete an existing blueprint to free up space for the new one."
     }
 }

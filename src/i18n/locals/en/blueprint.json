@@ -186,7 +186,8 @@
         "noSelectedArea": "No area selected",
         "noAreasToSave": "No areas to save",
         "errorSavingAreas": "An error occurred while saving areas. Please try again later.",
-        "errorSelectingAreaForEdit": "Error selecting area for editing"
+        "errorSelectingAreaForEdit": "Error selecting area for editing",
+        "noSpaceLeft": "There is no space left to upload more blueprints. You can delete an existing blueprint to free up space for the new one."
     },
 
     "blueprintLevelsDialogComponent": {

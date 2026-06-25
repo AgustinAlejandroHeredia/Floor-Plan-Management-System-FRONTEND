@@ -214,6 +214,10 @@ const BlueprintView = () => {
         orinigalAreaCoordsList: null,
     })
     const [dragState, setDragState] = useState<DragAreaState>(null)
+        // edit properties
+        const [selectedAreaForEditOriginalRadius, setSelectedAreaForEditOriginalRadius] = useState<number>(1)
+        const [selectedAreaForEditPolygonOriginalVertices, setSelectedAreaForEditPolygonOriginalVertices] = useState<number>(3)
+        const [selectedAreaForEditPolylineOriginalVertices, setSelectedAreaForEditPolylineOriginalVertices] = useState<number>(2)
 
     // EDIT AREA USE EFFECT
     useEffect(() => {
@@ -721,7 +725,7 @@ const BlueprintView = () => {
 
             sectionViews:
                 prev.sectionViews.filter(
-                section => section !== areaForDelete
+                    section => section !== areaForDelete
                 ),
             }
         })
@@ -769,11 +773,15 @@ const BlueprintView = () => {
 
         setIsSavingAreas(true)
 
+        // reset before update
+        setDeletedAreasList([])
+
         try {
             await BlueprintViewService.saveAreas(
                 blueprintId!,
                 areasToSave,
             )
+            refreshBlueprint()
         } catch (error) {
             setErrorAlertMessage(t('blueprint:errorMessages.errorSavingAreas'))
             setOpenErrorAlert(true)
@@ -883,6 +891,11 @@ const BlueprintView = () => {
             area: structuredClone(area),
             orinigalAreaCoordsList: area.coordsList
         })
+        switch (area.type) {
+            case "circle" :
+                setSelectedAreaForEditOriginalRadius(area.radius! | 40)
+                break
+        }
         setEditAreaMode(true)
     }
 
@@ -910,6 +923,135 @@ const BlueprintView = () => {
             orinigalAreaCoordsList: null,
         })
         setDragState(null)
+    }
+
+    const changeSelectedAreaRadius = (radius: number) => {
+        setSelectedAreaForEdit((prev) => {
+            
+            if (!prev?.area) return prev
+
+            return {
+            ...prev,
+            area: {
+                ...prev.area,
+                radius: radius,
+            },
+            }
+        })
+    }
+
+    const addVertexToPolygon = (desiredVertexCount: number) => {
+        if (!blueprint || selectedAreaForEdit.index === undefined || !selectedAreaForEdit.area) return
+  
+        if (desiredVertexCount < 3) return
+
+        const currentCoords = selectedAreaForEdit.area.coordsList ?? []
+        const currentCount = currentCoords.length
+
+        if (currentCount === desiredVertexCount) return
+
+        let updatedCoords = [...currentCoords]
+
+        if (currentCount < desiredVertexCount) {
+
+            const verticesToAdd = desiredVertexCount - currentCount
+            
+            let lastVertex = currentCoords[currentCount - 1] ?? { x: 3000, y: 3000 }
+
+            for (let i = 0; i < verticesToAdd; i++) {
+                const newVertex = {
+                    x: lastVertex.x + 50 * (i + 1),
+                    y: lastVertex.y + (i % 2 === 0 ? 30 : -30),
+                }
+                updatedCoords.push(newVertex)
+            }
+        } else {
+            updatedCoords = updatedCoords.slice(0, desiredVertexCount)
+        }
+
+        setBlueprint((prev) => {
+            if (!prev) return prev
+
+            const updatedSectionViews = [...prev.sectionViews]
+            
+            updatedSectionViews[selectedAreaForEdit.index!] = {
+                ...updatedSectionViews[selectedAreaForEdit.index!],
+                coordsList: updatedCoords,
+            }
+
+            return { ...prev, sectionViews: updatedSectionViews }
+        });
+
+        setSelectedAreaForEdit((prev) => {
+            if (!prev?.area) return prev
+            return {
+                ...prev,
+                area: {
+                    ...prev.area,
+                    coordsList: updatedCoords,
+                },
+            }
+        })
+    }
+
+    const changeSelectedAreaPolylineVertices = (desiredVertexCount: number) => {
+        if (!blueprint || selectedAreaForEdit.index === undefined || !selectedAreaForEdit.area) return
+        
+        if (desiredVertexCount < 2) return
+
+        const currentCoords = selectedAreaForEdit.area.coordsList ?? []
+        const currentCount = currentCoords.length
+
+        if (currentCount === desiredVertexCount) return
+
+        let updatedCoords = [...currentCoords]
+
+        if (currentCount < desiredVertexCount) {
+            
+            const verticesToAdd = desiredVertexCount - currentCount
+            
+            let lastVertex = currentCoords[currentCount - 1] ?? { x: 3000, y: 3000 }
+
+            for (let i = 0; i < verticesToAdd; i++) {
+            const newVertex = {
+                x: lastVertex.x + 60 * (i + 1),
+                y: lastVertex.y + (i % 2 === 0 ? 40 : -40),
+            };
+            updatedCoords.push(newVertex)
+            }
+        } else {
+            updatedCoords = updatedCoords.slice(0, desiredVertexCount)
+        }
+
+        setBlueprint((prev) => {
+
+            if (!prev) return prev
+
+            const updatedSectionViews = [...prev.sectionViews]
+            
+            updatedSectionViews[selectedAreaForEdit.index!] = {
+                ...updatedSectionViews[selectedAreaForEdit.index!],
+                coordsList: updatedCoords,
+            }
+
+            return { ...prev, sectionViews: updatedSectionViews }
+        })
+
+        setSelectedAreaForEdit((prev) => {
+            if (!prev?.area) return prev
+            return {
+                ...prev,
+                area: {
+                    ...prev.area,
+                    coordsList: updatedCoords,
+                },
+            }
+        })
+    }
+
+    const addTestingAreas = async () => {
+        await BlueprintViewService.addTestingAreas(blueprintId!)
+        refreshBlueprint()
     }
 
     if (loadingBlueprint || !blueprint) return <Loading/>
@@ -1555,26 +1697,35 @@ const BlueprintView = () => {
                                                     .join(" ")
 
                                                 const isHighlighted = highlightedAreaIndex === index
-
                                                 const color = getColor(section.label ?? "unknown")
 
                                                 return (
                                                     <TooltipProvider key={index}>
                                                         <ContextMenu>
-
                                                             <Tooltip>
-
                                                                 <ContextMenuTrigger asChild>
                                                                     <TooltipTrigger asChild>
-                                                                        <g>
+                                                                        <g style={{ cursor: "pointer" }}>
+
+                                                                            {/* HITBOX */}
+                                                                            <polyline
+                                                                                points={points}
+                                                                                fill="none"
+                                                                                stroke="transparent"
+                                                                                strokeWidth={24}
+                                                                                style={{
+                                                                                    pointerEvents: "stroke",
+                                                                                }}
+                                                                            />
+
+                                                                            {/* LINEA REAL */}
                                                                             <polyline
                                                                                 points={points}
                                                                                 fill="none"
                                                                                 stroke={color.stroke}
                                                                                 strokeWidth={isHighlighted ? "5" : "3"}
                                                                                 style={{
-                                                                                    pointerEvents: "auto",
-                                                                                    cursor: "pointer",
+                                                                                    pointerEvents: "none",
                                                                                 }}
                                                                             />
                                                                         </g>
@@ -1590,15 +1741,11 @@ const BlueprintView = () => {
                                                                         </p>
                                                                     </TooltipContent>
                                                                 )}
-
                                                             </Tooltip>
 
                                                             <ContextMenuContent className="w-48">
-
                                                                 <ContextMenuGroup>
-
                                                                     <ContextMenuLabel>Area: {section.label}</ContextMenuLabel>
-
                                                                     <ContextMenuItem
                                                                         onClick={() => {
                                                                             selectAreaForEdit(section, index)
@@ -1606,7 +1753,6 @@ const BlueprintView = () => {
                                                                     >
                                                                         {t('blueprint:areaOptions.edit')}
                                                                     </ContextMenuItem>
-
                                                                     <ContextMenuItem
                                                                         onClick={() => {
                                                                             console.log("Delete area", section)
@@ -1614,7 +1760,6 @@ const BlueprintView = () => {
                                                                     >
                                                                         {t('blueprint:areaOptions.delete')}
                                                                     </ContextMenuItem>
-
                                                                     <ContextMenuItem
                                                                         onClick={() => {
                                                                             if (!section.label) return
@@ -1623,11 +1768,8 @@ const BlueprintView = () => {
                                                                     >
                                                                         {t('blueprint:areaOptions.hideTypeOfArea')} ({section.label})
                                                                     </ContextMenuItem>
-
                                                                 </ContextMenuGroup>
-
                                                             </ContextMenuContent>
-
                                                         </ContextMenu>
                                                     </TooltipProvider>
                                                 )
@@ -1720,7 +1862,6 @@ const BlueprintView = () => {
                                                             }}
                                                         />
                                                     )
-
                                                 })()}
 
                                                 {/* POLYLINE */}
@@ -1738,7 +1879,7 @@ const BlueprintView = () => {
                                                             stroke="blue"
                                                             strokeWidth={4}
                                                             style={{
-                                                                pointerEvents: "auto",
+                                                                pointerEvents: "none",
                                                                 cursor: "move",
                                                             }}
                                                         />
@@ -1747,7 +1888,7 @@ const BlueprintView = () => {
                                                 })()}
 
                                                 {/* VERTICES */}
-                                                {selectedAreaForEdit.area.coordsList.map((point, vertexIndex) => (
+                                                {selectedAreaForEdit.area.type !== "circle" && selectedAreaForEdit.area.coordsList.map((point, vertexIndex) => (
                                                     <circle
                                                         key={vertexIndex}
                                                         cx={point.x}
@@ -2018,6 +2159,85 @@ const BlueprintView = () => {
 
                 {/* EDIT AREA */}
                 <div className="flex flex-col items-center">
+
+                    <div className="mt-2">
+                        {editAreaMode && selectedAreaForEdit && selectedAreaForEdit.area?.type === "circle" && (
+                            <div className="flex flex-col gap-2">
+                                <Label
+                                    htmlFor="cicleRadius"
+                                    style={{ color: 'var(--text-h)' }}
+                                >
+                                    {t('blueprint:editAreaOptions.circleRadius')}
+                                </Label>
+                                <Input
+                                    id="radiusSelection"
+                                    name="radius"
+                                    type="number"
+                                    min={1}
+                                    max={2000}
+                                    step={10}
+                                    className="bg-white dark:bg-zinc-950"
+                                    defaultValue={selectedAreaForEdit.area.radius}
+                                    onChange={(e) => {
+                                        const targetRadius = e.target.valueAsNumber;
+                                        if (isNaN(targetRadius)) return;
+                                        changeSelectedAreaRadius(targetRadius); 
+                                    }}
+                                />
+                            </div>
+                        )}
+
+                        {editAreaMode && selectedAreaForEdit && selectedAreaForEdit.area?.type === "polygon" && (
+                            <div className="flex flex-col gap-2">
+                                <Label
+                                    htmlFor="polygonVertices"
+                                    style={{ color: 'var(--text-h)' }}
+                                >
+                                    {t('blueprint:editAreaOptions.polygonVertices')}
+                                </Label>
+                                <Input
+                                    id="polygonVerticesId"
+                                    name="polygonVerticesInput"
+                                    type="number"
+                                    min={1}
+                                    max={10}
+                                    className="bg-white dark:bg-zinc-950"
+                                    defaultValue={selectedAreaForEdit.area.coordsList.length}
+                                    onChange={(e) => {
+                                        const targetPolygonVertices = e.target.valueAsNumber;
+                                        if (isNaN(targetPolygonVertices)) return;
+                                        addVertexToPolygon(targetPolygonVertices); 
+                                    }}
+                                />
+                            </div>
+                        )}
+
+                        {editAreaMode && selectedAreaForEdit && selectedAreaForEdit.area?.type === "polyline" && (
+                            <div className="flex flex-col gap-2">
+                                <Label
+                                    htmlFor="polylineVertices"
+                                    style={{ color: 'var(--text-h)' }}
+                                >
+                                    {t('blueprint:editAreaOptions.polylineVertices')}
+                                </Label>
+                                <Input
+                                    id="polylineVerticesId"
+                                    name="polylineVerticesInput"
+                                    type="number"
+                                    min={1}
+                                    max={25}
+                                    className="bg-white dark:bg-zinc-950"
+                                    defaultValue={selectedAreaForEdit.area.coordsList.length}
+                                    onChange={(e) => {
+                                        const targetPolylineVertices = e.target.valueAsNumber;
+                                        if (isNaN(targetPolylineVertices)) return;
+                                        changeSelectedAreaPolylineVertices(targetPolylineVertices); 
+                                    }}
+                                />
+                            </div>
+                        )}
+                    </div>
+
                     {editAreaMode && (
                         <div className="flex flex-wrap items-start justify-center gap-8 mt-2">
 
@@ -2026,7 +2246,7 @@ const BlueprintView = () => {
                                 variant="secondary"
                                 onClick={saveEditedArea}
                             >
-                                {t('blueprint:sidebar.saveGeneratedAreas')}
+                                {t('blueprint:editAreaOptions.saveEditedArea')}
                             </Button>
 
                             <Button
@@ -2037,30 +2257,6 @@ const BlueprintView = () => {
                                 {t('common:cancel')}
                             </Button>
 
-                        </div>
-                    )}
-
-                    {editAreaMode && selectedAreaForEdit && selectedAreaForEdit.area?.type === "circle" && (
-                        <div>
-                            <Button>
-                                Here will be the option to select circle radius
-                            </Button>
-                        </div>
-                    )}
-
-                    {editAreaMode && selectedAreaForEdit && selectedAreaForEdit.area?.type === "polyline" && (
-                        <div>
-                            <Button>
-                                Here will be the option to how many vertices there are for the polyline
-                            </Button>
-                        </div>
-                    )}
-
-                    {editAreaMode && selectedAreaForEdit && selectedAreaForEdit.area?.type === "polygon" && (
-                        <div>
-                            <Button>
-                                Here will be the option to how many vertices there are for the polygon
-                            </Button>
                         </div>
                     )}
                 </div>
@@ -2137,6 +2333,15 @@ const BlueprintView = () => {
 
                     </div>
                 )}
+
+                {/* ADD TEST AREAS */} 
+                {/*
+                <Button
+                    onClick={addTestingAreas}
+                >
+                    Add testing areas
+                </Button>
+                */}
 
             </div>
 

@@ -98,6 +98,15 @@
     },
 
     "unspecified": "Inespecificado",
+    
+    "editAreaOptions": {
+
+        "circleRadius": "Radio del cículo",
+        "polygonVertices": "Vértices del polígono",
+        "polylineVertices": "Vértices de la multilínea",
+
+        "saveEditedArea": "Save edited area"
+    },
 
     "savingChanges": {
         "title": "Guardando cambios",

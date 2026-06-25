@@ -99,6 +99,15 @@
 
     "unspecified": "Unspecified",
 
+    "editAreaOptions": {
+
+        "circleRadius": "Circle radius",
+        "polygonVertices": "Polygon vertices",
+        "polylineVertices": "Polyline vertices",
+
+        "saveEditedArea": "Save edited area"
+    },
+
     "savingChanges": {
         "title": "Saving changes",
         "description": "Please wait while your changes are being saved..."

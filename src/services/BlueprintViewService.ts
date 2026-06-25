@@ -106,6 +106,14 @@ export const BlueprintViewService = {
             {sectionViews}
         )
         return response.data
-    }
+    },
+
+    addTestingAreas: async (blueprintId: string) => {
+        try {
+            await api.patch(`/blueprints/admin/addTestAreas/${blueprintId}`, {})
+        } catch (error) {
+            console.log("ERROR ADDING TEST AREAS")
+        }
+    },
 
 }

@@ -393,7 +393,7 @@ const DevOptions = () => {
         try {
             await DevOptionsService.addUser(selectedOrganizationForAddUser._id, selectedUserForAddUserId, addRoleSelected)
             setIsAddingUser(false)
-            refreshUsers(currentUserPage)
+            refreshOrganizations(1)
         } catch (error: any) {
             setErrorMessage(t('developeroptions:errorMessages.errorAddingUser'))
             setOpenError(true)
@@ -426,6 +426,7 @@ const DevOptions = () => {
             setUserIdForKick("")
             setUserOrganizationIdForKick("")
             refreshUsers(currentUserPage)
+            refreshOrganizations(1)
         } catch (error) {
             setIsKickingUser(false)
             setErrorMessage(t('developeroptions:errorMessages.errorKickingUser'))

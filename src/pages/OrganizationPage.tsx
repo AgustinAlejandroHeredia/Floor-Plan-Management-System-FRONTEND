@@ -725,12 +725,10 @@ const OrganizationPage = () => {
                                     </div>
                                 )}
 
-                                {project.basement && (
-                                    <div>
-                                        <span className="font-medium">{t('project:projectCharacteristics.basement')}:</span>{" "}
-                                        {project.basement ? t('common:yes') : t('common:no')}
-                                    </div>
-                                )}
+                                <div>
+                                    <span className="font-medium">{t('project:projectCharacteristics.basement')}:</span>{" "}
+                                    {project.basement ? t('common:yes') : t('common:no')}
+                                </div>
                             </div>
 
                             <div
@@ -978,8 +976,8 @@ const OrganizationPage = () => {
                                 position="popper"
                             >
                                 <SelectGroup>
-                                    <SelectItem value="no">{t('common:yes')}</SelectItem>
-                                    <SelectItem value="yes">{t('common:no')}</SelectItem>
+                                    <SelectItem value="yes">{t('common:yes')}</SelectItem>
+                                    <SelectItem value="no">{t('common:no')}</SelectItem>
                                 </SelectGroup>
                             </SelectContent>
                         </Select>

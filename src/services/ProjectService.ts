@@ -15,12 +15,9 @@ export const ProjectService = {
     },
 
     getProjectBlueprints: async (projectId: string) => {
-        /*
         const response = await api.get(`/blueprints/projectThumbnails/${projectId}`)
         console.log("BLUEPRINTS LIST : ", response.data)
         return response.data
-        */
-        return []
     },
 
     createBlueprint: async (data: CreateBlueprintPayload): Promise<boolean> => {

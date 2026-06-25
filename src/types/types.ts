@@ -118,13 +118,21 @@ export type ProjectRole =
   | "viewer"
   | "creator" 
 
+export type CustomFieldType = "text" | "number" | "date";
+
+export interface CustomField {
+  name: string;
+  type: CustomFieldType;
+  value: string | number | Date;
+}
+
 export interface ProjectType {
   _id: string
   projectName: string
   status: StatusType
   creatorUserId: string
   organizationId: string
-  customFields?: Record<string, any>
+  customFields?: CustomField[]
   levels: string
   basement: boolean
 }
@@ -136,7 +144,7 @@ export interface ProjectOrganizationType {
   basement: boolean
   status: StatusType
   oldestBlueprintThumbnailUrl?: string
-  customFields?: Record<string, any>
+  customFields?: CustomField[]
 }
 
 export interface ProjectOrganizationResponse {
@@ -152,7 +160,15 @@ export interface CreateProjectPayload {
   organizationId: string
   levels: string
   basement: boolean
-  customFields?: Record<string, any>
+  customFields?: CustomField[]
+}
+
+export interface EditProjectPayload {
+  projectName?: string
+  status?: string
+  levels?: string
+  basement?: boolean
+  customFields?: CustomField[]
 }
 
 export interface UserProjectListItem {

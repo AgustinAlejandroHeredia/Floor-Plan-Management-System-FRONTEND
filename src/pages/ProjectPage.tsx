@@ -13,6 +13,7 @@ import {
 
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -32,14 +33,14 @@ import { convertPdfToImages } from "@/utils/pdfToImage";
 import Toast from "@/components/Toast";
 import InfoDialog from "@/components/InfoDialog";
 import { Separator } from "@/components/ui/separator";
-import { projectBlueprintsFilterOptions, type ProjectBlueprintsFilterTypes, type ProjectOrganizationType, type ProjectStatus } from "@/types/types";
+import { projectBlueprintsFilterOptions, type CustomField, type CustomFieldType, type EditProjectPayload, type ProjectBlueprintsFilterTypes, type ProjectOrganizationType, type ProjectStatus } from "@/types/types";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
-import SectionNavigation from "@/components/SectionNavigation";
 
 // TRANSLATION
 import { useTranslation } from "react-i18next";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import DatePickerField from "@/components/DatePickerField";
 
 const ProjectPage = () => {
   const { organizationName, organizationId, projectName, projectId } =
@@ -57,6 +58,7 @@ const ProjectPage = () => {
       "project",
       "blueprint",
       "common",
+      "organization",
   ])
 
   // ERROR VARIABLES
@@ -86,6 +88,16 @@ const ProjectPage = () => {
   // FILTER
   const [filterValue, setFilterValue] = useState<ProjectBlueprintsFilterTypes>("newest_first")
 
+  // EDIT VARIABLES
+  const [openEditProjectDialog, setOpenEditProjectDialog] = useState<boolean>(false)
+  const [newStatus, setNewStatus] = useState<ProjectStatus | null>()
+  const [newHasBasement, setNewHasBasement] = useState<string | null>()
+    // custom fields
+    const [customFields, setCustomFields] = useState<CustomField[]>([])
+    const [openNewFieldDialog, setOpenNewFieldDialog] = useState(false);
+    const [newFieldName, setNewFieldName] = useState("");
+    const [newFieldType, setNewFieldType] = useState<string>("text");
+
   const {
     project,
     blueprints,
@@ -99,23 +111,20 @@ const ProjectPage = () => {
   const formatKey = (key: string) =>
     key
       .replace(/([A-Z])/g, " $1")
-      .replace(/^./, (str) => str.toUpperCase());
+      .replace(/^./, (str) => str.toUpperCase())
 
-  const projectEntries = project
-  ? [
-      ...Object.entries(project).filter(
-        ([key]) =>
-          key !== "creatorUserId" &&
-          key !== "organizationId" &&
-          key !== "_id" &&
-          key !== "__v" &&
-          key !== "customFields"
-      ),
-      ...(project.customFields
-        ? Object.entries(project.customFields)
-        : []),
-    ]
-  : [];
+  const formatCustomFieldValue = (field: CustomField): string => {
+    switch (field.type) {
+      case "number":
+        return String(Number(field.value));
+
+      case "date":
+        return new Date(field.value).toLocaleDateString();
+
+      default:
+        return String(field.value ?? "");
+    }
+  }
 
   // Cuando seleccionan archivo → abrir dialog
   const handleUploadFile = async (file: File) => {
@@ -256,14 +265,143 @@ const ProjectPage = () => {
     return blueprints.filter((bp) => bp.specialties.includes(filterValue));
   }, [blueprints, filterValue])
 
-  if (loadingProject) return <Loading />;
+  // EDIT PROJECT
 
-  if (error) {
-    return (
-      <p className="fail-message-s">
-        Error loading project: {error.message}
-      </p>
-    );
+  const openEditProject = () => {
+    const fields: CustomField[] = project?.customFields ?? [];
+    setCustomFields(fields);
+    setNewStatus(project?.status);
+    setNewHasBasement(project?.basement ? "yes" : "no");
+    setOpenEditProjectDialog(true);
+  }
+
+  const resetEditValues = () => {
+    setCustomFields([])
+    setNewStatus(null)
+    setNewHasBasement(null)
+  }
+
+  const createEmptyValue = (type: CustomFieldType) => {
+    switch (type) {
+      case "number":
+        return 0;
+      case "date":
+        return new Date();
+      default:
+        return "";
+    }
+  }
+
+  const capitalizeFirstLetter = (str: string) =>
+    str.charAt(0).toUpperCase() + str.slice(1)
+
+  const handleAddField = () => {
+    if (!newFieldName.trim()) return;
+
+    setCustomFields((prev) => [
+      ...prev,
+      {
+        name: capitalizeFirstLetter(newFieldName),
+        type: newFieldType as CustomFieldType,
+        value: createEmptyValue(newFieldType as CustomFieldType)
+      },
+    ]);
+
+    setNewFieldName("");
+    setNewFieldType("text");
+    setOpenNewFieldDialog(false);
+  };
+
+  const handleCustomFieldChange = (index: number, value: any) => {
+    setCustomFields((prev) =>
+      prev.map((field, i) =>
+        i === index ? { ...field, value } : field
+      )
+    )
+  }
+
+  const getInputValue = (field: CustomField) => {
+    switch (field.type) {
+      case "date":
+        return field.value instanceof Date
+          ? field.value.toISOString().split("T")[0]
+          : field.value;
+
+      case "number":
+        return field.value === "" ? "" : Number(field.value);
+
+      default:
+        return String(field.value ?? "");
+    }
+  }
+
+  const saveChanges = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    setOpenEditProjectDialog(false)
+
+    const form = e.currentTarget
+    const formData = new FormData(form)
+
+    try {
+
+      if(!formData.get("projectName") || formData.get("projectName") === ""){
+        setErrorMessage("noName")
+        setErrorOpen(true)
+        return
+      }
+      if((formData.get("projectName") as string).length < 3){
+        setErrorMessage("shortName")
+        setErrorOpen(true)
+        return
+      }
+      if((formData.get("projectName") as string).length > 100){
+        setErrorMessage("longName")
+        setErrorOpen(true)
+        return
+      }
+
+      if(formData.get("levels")){
+          if(Number(formData.get("levels")) > 163){
+              setErrorMessage("exceededMaximumLevels")
+              setErrorOpen(true)
+              return
+          }
+          if(Number(formData.get("levels")) < 1){
+              setErrorMessage("minimumLevel")
+              setErrorOpen(true)
+              return
+          }
+      }else{
+          setErrorMessage("noLevels")
+          setErrorOpen(true)
+          return
+      }
+
+      let hasBasement
+      if(newHasBasement === "yes"){
+        hasBasement = true
+      }else{
+        hasBasement = false
+      }
+
+      const payload: EditProjectPayload = {
+        projectName: formData.get("projectName") as string,
+        status: newStatus as string,
+        levels: formData.get("levels") as string,
+        basement: hasBasement,
+        customFields: customFields,
+      }
+
+      resetEditValues()
+
+      await ProjectService.saveEditedProject(projectId!, payload)
+
+      refreshProject()
+
+    } catch (error) {
+      console.log("An unexpected error occurred")
+    }
   }
 
   // COLORS
@@ -279,6 +417,16 @@ const ProjectPage = () => {
           default:
               return "var(--text)"
       }
+  }
+
+  if (loadingProject) return <Loading />;
+
+  if (error) {
+    return (
+      <p className="fail-message-s">
+        Error loading project: {error.message}
+      </p>
+    );
   }
 
   return (
@@ -307,46 +455,56 @@ const ProjectPage = () => {
             }}
           >
             {/* INFO */}
-            <Card className="border border-[var(--border)] bg-transparent">
-              <CardHeader>
-                <CardTitle className="text-[var(--text-h)]">
-                  {t('project:information')}
-                </CardTitle>
-              </CardHeader>
+            <div>
+              <Card className="border border-[var(--border)] bg-transparent">
+                <CardHeader>
+                  <CardTitle className="text-[var(--text-h)]">
+                    {t('project:information')}
+                  </CardTitle>
+                </CardHeader>
 
-              <CardContent>
+                <CardContent>
 
-                <CardDescription className="text-[var(--text-h)] mt-2 text-left flex flex-col gap-2">
-                  <div><span className="font-semibold capitalize">{t('common:generalCharacteristics.name')}:</span> {project?.projectName}</div>
-                  <div>
-                    <span className="font-semibold capitalize">{t('project:projectCharacteristics.status')}:</span>
-                    <span
-                      style={{
-                        color: getProjectStatusColor(project?.status || "pending")
-                      }}
-                    > {t(`project:projectCharacteristics.statusType.${project?.status.toLocaleLowerCase()}`)}</span>
-                  </div>
-                  <div><span className="font-semibold capitalize">{t('project:projectCharacteristics.levels')}:</span> {project?.levels}</div>
-                  <div><span className="font-semibold capitalize">{t('project:projectCharacteristics.basement')}:</span> {project?.basement ? t('common:yes') : t('common:no') }</div>
-                </CardDescription>
+                  <CardDescription className="text-[var(--text-h)] mt-2 text-left flex flex-col gap-2">
+                    <div><span className="font-semibold capitalize">{t('common:generalCharacteristics.name')}:</span> {project?.projectName}</div>
+                    <div>
+                      <span className="font-semibold capitalize">{t('project:projectCharacteristics.status')}:</span>
+                      <span
+                        style={{
+                          color: getProjectStatusColor(project?.status || "pending")
+                        }}
+                      > {t(`project:projectCharacteristics.statusType.${project?.status.toLocaleLowerCase()}`)}</span>
+                    </div>
+                    <div><span className="font-semibold capitalize">{t('project:projectCharacteristics.levels')}:</span> {project?.levels}</div>
+                    <div><span className="font-semibold capitalize">{t('project:projectCharacteristics.basement')}:</span> {project?.basement ? t('common:yes') : t('common:no') }</div>
+                  </CardDescription>
 
-                {project &&
-                  project.customFields &&
-                    Object.keys(project.customFields).length > 0 && (
-                      <CardDescription>
-                        <div>
-                          <span>{t('project:projectCharacteristics.aditionalFields')}:</span>
-                        </div>
-
-                        {Object.entries(project.customFields).map(([key, value]) => (
-                          <div key={key}>
-                            <span>{formatKey(key)}:</span> {String(value)}
+                  {project &&
+                    project.customFields &&
+                      Object.keys(project.customFields).length > 0 && (
+                        <CardDescription className="mt-2 flex flex-col gap-2">
+                          <div>
+                            <span>- {t('project:projectCharacteristics.aditionalFields')} -</span>
                           </div>
-                        ))}
-                      </CardDescription>
-                )}
-              </CardContent>
-            </Card>
+
+                          {Object.entries(project.customFields).map(([index, field]: any) => (
+                            <div className="text-[var(--text-h)] font-semibold capitalize" key={index}>
+                              <span>{formatKey(field.name)}:</span>{" "}
+                              {formatCustomFieldValue(field)}
+                            </div>
+                          ))}
+                        </CardDescription>
+                  )}
+                </CardContent>
+              </Card>
+              <Button
+                variant="ghost"
+                className="text-[var(--text)] cursor-pointer mt-2"
+                onClick={openEditProject}
+              >
+                {t('project:edit')}
+              </Button>
+            </div>
 
             {/* UPLOAD */}
             <div>
@@ -407,7 +565,7 @@ const ProjectPage = () => {
               
               <div className="flex w-full min-h-[400px] items-center justify-center p-8">
                 <p className="text-muted-foreground text-sm font-medium">
-                  No blueprints to show
+                  {t('project:noBlueprints')}
                 </p>
               </div>
 
@@ -602,10 +760,220 @@ const ProjectPage = () => {
           description={t('project:deletingProject.description')}
         />
 
+        {/* EDIT PROJECT DIALOG */}
+        <Dialog
+          open={openEditProjectDialog}
+          onOpenChange={setOpenEditProjectDialog}
+        >
+          <DialogContent className="sm:max-w-sm">
+            <form onSubmit={saveChanges}>
+
+              <DialogHeader>
+                <DialogTitle>{t('project:editDialog.title')}</DialogTitle>
+                <DialogDescription>{t('project:editDialog.description')}</DialogDescription>
+              </DialogHeader>
+
+              <FieldGroup className="space-y-4 my-6">
+
+                  {/* Project name */}
+                  <Field>
+                    <Label htmlFor="projectName">{t('project:editDialog.name')}</Label>
+                    <Input
+                      id="projectName-1"
+                      name="projectName"
+                      required
+                      minLength={3}
+                      maxLength={100}
+                      defaultValue={project?.projectName}
+                    />
+                  </Field>
+                  
+                  {/* Project status */}
+                  <Field>
+                    <Label htmlFor="projectState">{t('project:editDialog.status')}</Label>
+                    <Select
+                      defaultValue={project?.status}
+                      onValueChange={(value) => setNewStatus(value as ProjectStatus)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={project?.status}/>
+                      </SelectTrigger>
+
+                      <SelectContent position="popper">
+                        <SelectGroup>
+                          <SelectItem value="pending">{t('project:editDialog.statusType.pending')}</SelectItem>
+                          <SelectItem value="canceled">{t('project:editDialog.statusType.canceled')}</SelectItem>
+                          <SelectItem value="approved">{t('project:editDialog.statusType.approved')}</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+
+                    </Select>
+                  </Field>
+
+                  {/* Project levels / floors */}
+                  <Field>
+                    <Label htmlFor="levels">{t('project:editDialog.levels')}</Label>
+                    <Input
+                        id="levels"
+                        name="levels"
+                        required
+                        type="number"
+                        min={1}
+                        max={163}
+                        defaultValue={project?.levels}
+                    />
+                  </Field>
+
+                  {/* Project has basement */}
+                  <Field>
+                    <Label htmlFor="hasBasement">{t('organization:projectCreationDialog.hasBasement')}</Label>
+                    <Select 
+                        defaultValue={project?.basement ? "yes" : "no"} 
+                        onValueChange={setNewHasBasement}
+                    >
+                        <SelectTrigger>
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent
+                            position="popper"
+                        >
+                            <SelectGroup>
+                                <SelectItem value="yes">{t('common:yes')}</SelectItem>
+                                <SelectItem value="no">{t('common:no')}</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                  </Field>
+
+                  {/* Dynamic fields */}
+                  {customFields.map((field, index) => {
+                    
+                    console.log(field)
+
+                    return (
+                    <Field key={index}>
+                        <Label>{field.name}</Label>
+
+                        {field.type === "text" && (
+                        <Input
+                            minLength={1}
+                            maxLength={300}
+                            value={getInputValue(field)}
+                            onChange={(e) =>
+                              handleCustomFieldChange(index, e.target.value)
+                            }
+                        />
+                        )}
+
+                        {field.type === "number" && (
+                        <Input
+                            min={-1000000}
+                            max={1000000}
+                            type="number"
+                            value={getInputValue(field)}
+                            onChange={(e) =>
+                              handleCustomFieldChange(index, Number(e.target.value))
+                            }
+                        />
+                        )}
+
+                        {field.type === "date" && (
+                        <DatePickerField
+                            value={
+                              field.value instanceof Date
+                                ? field.value
+                                : field.value
+                                  ? new Date(field.value)
+                                  : undefined
+                            }
+                            onChange={(date) =>
+                              handleCustomFieldChange(index, date)
+                            }
+                        />
+                        )}
+                    </Field>
+                  ) } )}
+
+                  {/* Add field button */}
+                  <Button
+                      className="cursor-pointer"
+                      type="button"
+                      variant="outline"
+                      onClick={() => setOpenNewFieldDialog(true)}
+                  >
+                      {t('organization:projectCreationDialog.addNewField')}
+                  </Button>
+
+              </FieldGroup>
+
+              <DialogFooter>
+                  <DialogClose asChild>
+                      <Button variant="outline">{t('common:cancel')}</Button>
+                  </DialogClose>
+                  <Button type="submit">{t('common:save')}</Button>
+              </DialogFooter>
+
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* CREATE FIELD DIALOG */}
+        <Dialog open={openNewFieldDialog} onOpenChange={setOpenNewFieldDialog}>
+            <DialogContent className="sm:max-w-sm">
+
+                <DialogHeader>
+                <DialogTitle>{t('organization:createFieldDialog.title')}</DialogTitle>
+                </DialogHeader>
+
+                <FieldGroup className="space-y-2 my-2">
+
+                  <Field>
+                      <Label>{t('organization:createFieldDialog.fieldname')}</Label>
+                      <Input
+                      value={newFieldName}
+                      onChange={(e) => setNewFieldName(e.target.value)}
+                      />
+                  </Field>
+
+                  <Field>
+                      <Label>{t('organization:createFieldDialog.fieldtype')}</Label>
+                      <Select onValueChange={setNewFieldType}>
+                      <SelectTrigger>
+                          <SelectValue placeholder={t('organization:createFieldDialog.fieldtypeplaceholder')} />
+                      </SelectTrigger>
+
+                      <SelectContent>
+                          <SelectGroup>
+                          <SelectItem value="text">{t('organization:createFieldDialog.text')}</SelectItem>
+                          <SelectItem value="number">{t('organization:createFieldDialog.number')}</SelectItem>
+                          <SelectItem value="date">{t('organization:createFieldDialog.date')}</SelectItem>
+                          </SelectGroup>
+                      </SelectContent>
+                      </Select>
+                  </Field>
+
+                </FieldGroup>
+
+                <DialogFooter>
+                <DialogClose asChild>
+                    <Button variant="outline">{t('common:cancel')}</Button>
+                </DialogClose>
+
+                <Button
+                    className="cursor-pointer" 
+                    onClick={handleAddField}
+                >
+                    {t('common:create')}
+                </Button>
+                </DialogFooter>
+
+            </DialogContent>
+        </Dialog>
+
       </div>
 
     </div>
-  );
-};
+  )
+}
 
 export default ProjectPage;

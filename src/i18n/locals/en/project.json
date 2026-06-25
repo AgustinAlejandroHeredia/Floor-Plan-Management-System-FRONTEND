@@ -13,6 +13,23 @@
 
     "information": "Project information",
 
+    "edit": "Edit project",
+
+    "editDialog": {
+        "title": "Editing project",
+        "description": "Edit project fields and save.",
+        "name": "Name",
+        "status": "Status",
+        "statusType": {
+            "pending": "Pending",
+            "canceled": "Canceled",
+            "approved": "Approved"
+        },
+        "levels": "Levels",
+        "hasBasement": "Has basement",
+        "addNewField": "Add new field"
+    },
+
     "upload": "Upload blueprint",
 
     "uploadDescription": {
@@ -25,6 +42,8 @@
 
     "uploadedBlueprints": "Uploaded blueprints",
     "uploadedBlueprintsCount": "Total blueprints",
+
+    "noBlueprints": "No blueprints to show yet",
 
     "orderBy": "Order by",
     "filterOptions": {

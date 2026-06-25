@@ -1,4 +1,4 @@
-import type { CreateBlueprintPayload } from "@/types/types";
+import type { CreateBlueprintPayload, EditProjectPayload } from "@/types/types";
 import { api } from "../api/api";
 
 export const ProjectService = {
@@ -55,5 +55,11 @@ export const ProjectService = {
         console.log(response.data)
         return response.data
     },
+
+    saveEditedProject: async (projectId: string, payload: EditProjectPayload): Promise<void> => {
+        console.log("PAYLOAD : ", payload)
+        const response = await api.patch(`/projects/${projectId}`, payload)
+        return response.data
+    }
     
 }

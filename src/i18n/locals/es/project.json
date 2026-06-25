@@ -13,6 +13,23 @@
 
     "information": "Información del proyecto",
 
+    "edit": "Editar proyecto",
+
+    "editDialog": {
+        "title": "Editando proyecto",
+        "description": "Edite los campos del proyecto y guardelos.",
+        "name": "Nombre",
+        "status": "Estado",
+        "statusType": {
+            "pending": "Pendiente",
+            "canceled": "Cancelado",
+            "approved": "Aprobado"
+        },
+        "levels": "Niveles",
+        "hasBasement": "Tiene sótano",
+        "addNewField": "Añadir nuevo campo"
+    },
+
     "upload": "Subir plano",
 
     "uploadDescription": {
@@ -25,6 +42,8 @@
 
     "uploadedBlueprints": "Planos subidos",
     "uploadedBlueprintsCount": "Planos totales",
+
+    "noBlueprints": "Todavía no hay planos para mostrar",
 
     "orderBy": "Ordenado por",
     "filterOptions": {

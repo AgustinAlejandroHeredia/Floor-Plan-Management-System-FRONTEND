@@ -52,7 +52,7 @@ import { useState } from "react";
 
 import OrganizationMemberItem from "@/components/OrganizationMemberItem";
 import { Label } from "@/components/ui/label";
-import type { ActionPermission, CreateProjectPayload, InvitationItemData, InvitationPayload, OrganizationActionPermissions, OrganizationMembersList, OrganizationRole, ProjectStatus } from "@/types/types";
+import type { ActionPermission, CreateProjectPayload, CustomField, CustomFieldType, InvitationItemData, InvitationPayload, OrganizationActionPermissions, OrganizationMembersList, OrganizationRole, ProjectStatus } from "@/types/types";
 import Toast from "@/components/Toast";
 import InfoDialog from "@/components/InfoDialog";
 import InvitationItem from "@/components/InvitationItem";
@@ -96,7 +96,7 @@ const OrganizationPage = () => {
     const [hasBasement, setHasBasement] = useState<string>("no")
 
     // CREATION VARIABLES / CUSTOM FIELDS
-    const [customFields, setCustomFields] = useState<{ name: string; type: string; value: any }[]>([]);
+    const [customFields, setCustomFields] = useState<CustomField[]>([])
     const [openNewFieldDialog, setOpenNewFieldDialog] = useState(false);
     const [newFieldName, setNewFieldName] = useState("");
     const [newFieldType, setNewFieldType] = useState<string>("text");
@@ -158,6 +158,17 @@ const OrganizationPage = () => {
         navigate(`/Project/${name}/${id}/${projectName}/${projectId}`)
     }
 
+    const createEmptyValue = (type: CustomFieldType) => {
+        switch (type) {
+        case "number":
+            return 0;
+        case "date":
+            return new Date();
+        default:
+            return "";
+        }
+    }
+
     const handleAddField = () => {
         if (!newFieldName.trim()) return;
 
@@ -165,16 +176,15 @@ const OrganizationPage = () => {
             ...prev,
             {
             name: newFieldName,
-            type: newFieldType,
-            value: "",
+            type: newFieldType as CustomFieldType,
+            value: createEmptyValue(newFieldType as CustomFieldType)
             },
         ]);
 
-        // reset
-        setNewFieldName("")
-        setNewFieldType("text")
-        setOpenNewFieldDialog(false)
-    }
+        setNewFieldName("");
+        setNewFieldType("text");
+        setOpenNewFieldDialog(false);
+    };
 
     const handleCustomFieldChange = (index: number, value: any) => {
         const updated = [...customFields]
@@ -186,6 +196,21 @@ const OrganizationPage = () => {
         setNewFieldName("")
         setNewFieldType("text")
         setCustomFields([])
+    }
+
+    const getInputValue = (field: CustomField) => {
+        switch (field.type) {
+        case "date":
+            return field.value instanceof Date
+            ? field.value.toISOString().split("T")[0]
+            : field.value;
+
+        case "number":
+            return field.value === "" ? "" : Number(field.value);
+
+        default:
+            return String(field.value ?? "");
+        }
     }
 
     const handleCreateProject = async (e: React.SyntheticEvent<HTMLFormElement>) => {
@@ -237,10 +262,6 @@ const OrganizationPage = () => {
                 return
             }
 
-            const customFieldsObject = Object.fromEntries(
-                customFields.map((field) => [field.name, field.value])
-            )
-
             var basement
             if(hasBasement === "yes"){
                 basement = true
@@ -253,8 +274,10 @@ const OrganizationPage = () => {
                 organizationId: id,
                 levels: formData.get("levels") as string,
                 basement: basement,
-                customFields: customFieldsObject,
-            };
+                customFields: customFields,
+            }
+
+            console.log("PAYLOAD : ", payload)
 
             const response = await OrganizationService.createNewProject(payload)
 
@@ -469,7 +492,7 @@ const OrganizationPage = () => {
         }
     }
 
-     // PAGE SELECTION
+    // PAGE SELECTION
 
     const selectProjectPage = async (selectedPage: number) => {
         if(selectedPage !== currentProjectPage){
@@ -960,28 +983,38 @@ const OrganizationPage = () => {
 
                             {field.type === "text" && (
                             <Input
-                                value={field.value}
+                                min={1}
+                                max={300}
+                                value={getInputValue(field)}
                                 onChange={(e) =>
-                                handleCustomFieldChange(index, e.target.value)
+                                    handleCustomFieldChange(index, e.target.value)
                                 }
                             />
                             )}
 
                             {field.type === "number" && (
                             <Input
+                                min={-1000000}
+                                max={1000000}
                                 type="number"
-                                value={field.value}
+                                value={getInputValue(field)}
                                 onChange={(e) =>
-                                handleCustomFieldChange(index, Number(e.target.value))
+                                    handleCustomFieldChange(index, Number(e.target.value))
                                 }
                             />
                             )}
 
                             {field.type === "date" && (
                             <DatePickerField
-                                value={field.value}
+                                value={
+                                    field.value instanceof Date
+                                        ? field.value
+                                        : field.value
+                                        ? new Date(field.value)
+                                        : undefined
+                                }
                                 onChange={(date) =>
-                                handleCustomFieldChange(index, date)
+                                    handleCustomFieldChange(index, date)
                                 }
                             />
                             )}
@@ -1004,7 +1037,7 @@ const OrganizationPage = () => {
                         <DialogClose asChild>
                             <Button variant="outline">{t('common:cancel')}</Button>
                         </DialogClose>
-                        <Button onClick={closeCreateDialog} type="submit">{t('common:create')}</Button>
+                        <Button type="submit">{t('common:create')}</Button>
                     </DialogFooter>
 
                     </form>

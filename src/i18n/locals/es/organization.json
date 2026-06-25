@@ -30,7 +30,8 @@
         "projectName": "Nombre del proyecto",
         "levels": "Niveles / pisos",
         "hasBasement": "Tiene sótano",
-        "addNewField": "Añadir nuevo campo"
+        "addNewField": "Añadir nuevo campo",
+        "deleteField": "Eliminar este campo"
     },
 
     "createFieldDialog": {

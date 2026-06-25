@@ -27,7 +27,8 @@
         },
         "levels": "Levels",
         "hasBasement": "Has basement",
-        "addNewField": "Add new field"
+        "addNewField": "Add new field",
+        "deleteField": "Delete this field"
     },
 
     "upload": "Upload blueprint",

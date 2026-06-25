@@ -27,7 +27,8 @@
         },
         "levels": "Niveles",
         "hasBasement": "Tiene sótano",
-        "addNewField": "Añadir nuevo campo"
+        "addNewField": "Añadir nuevo campo",
+        "deleteField": "Eliminar este campo"
     },
 
     "upload": "Subir plano",

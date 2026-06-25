@@ -61,6 +61,8 @@ import SectionNavigation from "@/components/SectionNavigation";
 
 // TRANSLATION
 import { useTranslation } from "react-i18next";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 const OrganizationPage = () => {
 
@@ -169,13 +171,16 @@ const OrganizationPage = () => {
         }
     }
 
+    const capitalizeFirstLetter = (str: string) =>
+        str.charAt(0).toUpperCase() + str.slice(1)
+
     const handleAddField = () => {
         if (!newFieldName.trim()) return;
 
         setCustomFields((prev) => [
             ...prev,
             {
-            name: newFieldName,
+            name: capitalizeFirstLetter(newFieldName),
             type: newFieldType as CustomFieldType,
             value: createEmptyValue(newFieldType as CustomFieldType)
             },
@@ -185,6 +190,10 @@ const OrganizationPage = () => {
         setNewFieldType("text");
         setOpenNewFieldDialog(false);
     };
+
+    const handleDeleteCustomField = (index: number) => {
+        setCustomFields((prev) => prev.filter((_, i) => i !== index))
+    }
 
     const handleCustomFieldChange = (index: number, value: any) => {
         const updated = [...customFields]
@@ -979,7 +988,26 @@ const OrganizationPage = () => {
                         {/* Dynamic fields */}
                         {customFields.map((field, index) => (
                         <Field key={index}>
-                            <Label>{field.name}</Label>
+                            <div className="flex items-center justify-between">
+                                <Label>{field.name}</Label>
+                                <TooltipProvider>
+                                    <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                        type="button"
+                                        variant="ghost"
+                                        className="cursor-pointer"
+                                        onClick={() => handleDeleteCustomField(index)}
+                                        >
+                                        <RiDeleteBin6Line />
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="left">
+                                        {t('project:editDialog.deleteField')}
+                                    </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            </div>
 
                             {field.type === "text" && (
                             <Input

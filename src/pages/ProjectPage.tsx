@@ -41,6 +41,8 @@ import { useTranslation } from "react-i18next";
 
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import DatePickerField from "@/components/DatePickerField";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const ProjectPage = () => {
   const { organizationName, organizationId, projectName, projectId } =
@@ -310,7 +312,11 @@ const ProjectPage = () => {
     setNewFieldName("");
     setNewFieldType("text");
     setOpenNewFieldDialog(false);
-  };
+  }
+
+  const handleDeleteCustomField = (index: number) => {
+    setCustomFields((prev) => prev.filter((_, i) => i !== index))
+  }
 
   const handleCustomFieldChange = (index: number, value: any) => {
     setCustomFields((prev) =>
@@ -852,7 +858,26 @@ const ProjectPage = () => {
 
                     return (
                     <Field key={index}>
-                        <Label>{field.name}</Label>
+                        <div className="flex items-center justify-between">
+                          <Label>{field.name}</Label>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  className="cursor-pointer"
+                                  onClick={() => handleDeleteCustomField(index)}
+                                >
+                                  <RiDeleteBin6Line />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent side="left">
+                                {t('project:editDialog.deleteField')}
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
 
                         {field.type === "text" && (
                         <Input

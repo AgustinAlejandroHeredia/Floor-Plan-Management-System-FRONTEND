@@ -24,7 +24,7 @@ export interface CreateOrganizationPayload {
   contactEmail: string
   contactPhone: string
   record: string
-  maxBlueprints: string,
+  maxBlueprints: number,
   adminId: string
   createPermission: ActionPermission
   invitePermission: ActionPermission
@@ -36,7 +36,7 @@ export interface UpdateOrganizationPayload {
   contactEmail: string
   contactPhone: string
   record: string
-  maxBlueprints: string
+  maxBlueprints: number
   createPermission: ActionPermission
   invitePermission: ActionPermission
 }

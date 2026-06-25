@@ -41,9 +41,22 @@
 
     "organizationCreationDialog": {
         "title": "Creando nueva organización",
+
         "name": "Nombre de la organización",
+        "namePlaceholder": "Ej: Constructora Alfa S.A.",
+
+        "addressPlaceholder": "Ej: Av. Corrientes 1234, CABA",
+
+        "emailPlaceholder": "ejemplo@organizacion.com",
+
+        "phonePlaceholder": "Ej: +541112345678",
+
         "record": "Registro",
+        "recordPlaceholder": "Ej: REG-2026-001",
+
         "maxBlueprints": "Cantidad máxima de planos",
+        "maxBlueprintsPlaceholder": "Ej: 20",
+
         "selectAdmin": "Seleccionar administrador",
         "canCreateProjects": "¿Quién puede crear proyectos?",
         "canInviteMembers": "¿Quién puede invitar miembros?",
@@ -54,9 +67,22 @@
     "organizationEditDialog": {
         "title": "Editando organización",
         "description": "Modifica los valores existentes de esta organización.\nTodos los campos son obligatorios y deben ser únicos.",
+        
         "name": "Nombre de la organización",
+        "namePlaceholder": "Ej: Constructora Alfa S.A.",
+
+        "addressPlaceholder": "Ej: Av. Corrientes 1234, CABA",
+
+        "emailPlaceholder": "ejemplo@organizacion.com",
+
+        "phonePlaceholder": "Ej: +541112345678",
+
         "record": "Registro",
+        "recordPlaceholder": "Ej: REG-2026-001",
+
         "maxBlueprints": "Cantidad máxima de planos",
+        "maxBlueprintsPlaceholder": "Ej: 20",
+
         "selectAdmin": "Seleccionar administrador",
         "canCreateProjects": "¿Quién puede crear proyectos?",
         "canInviteMembers": "¿Quién puede invitar miembros?",

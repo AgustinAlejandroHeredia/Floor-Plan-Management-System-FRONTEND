@@ -72,6 +72,9 @@ const DevOptions = () => {
     const [isCreatingOrganization, setIsCreatingOrganization] = useState<boolean>(false)
     const [creationPermission, setCreationPermission] = useState<ActionPermission>("admins")
     const [invitationPermission, setInvitationPermission] = useState<ActionPermission>("admins")
+        // VALIDATION VARIABLES
+        const [notAnEmail, setNotAnEmail] = useState<boolean>(false)
+
 
     // DELETE VARIABLES
     const [selectedOrganizationForDelete, setSelectedOrganizationForDelete] = useState<OrganizationType>()
@@ -171,13 +174,15 @@ const DevOptions = () => {
 
         try {
 
+            const blueprintsNumber = (formData.get("maxBlueprints") as string) || "0"
+
             const payload: CreateOrganizationPayload = {
                 name: formData.get("name") as string,
                 address: formData.get("address") as string,
                 contactEmail: formData.get("contactEmail") as string,
                 contactPhone: formData.get("contactPhone") as string,
                 record: formData.get("record") as string,
-                maxBlueprints: formData.get("maxBlueprints") as string,
+                maxBlueprints: Number(blueprintsNumber),
                 adminId: selectedAdminId,
                 createPermission: creationPermission,
                 invitePermission: invitationPermission,
@@ -194,6 +199,8 @@ const DevOptions = () => {
         } catch (error) {
             setErrorMessage(t('developeroptions:errorMessages.errorCreatingOrganization'))
             setOpenError(true)
+        }finally{
+            setIsCreatingOrganization(false)
         }
     }
 
@@ -284,13 +291,15 @@ const DevOptions = () => {
 
         try {
 
+            const blueprintsNumber = (formData.get("maxBlueprints") as string) || "0"
+
             const payload: UpdateOrganizationPayload = {
                 name: formData.get("name") as string,
                 address: formData.get("address") as string,
                 contactEmail: formData.get("contactEmail") as string,
                 contactPhone: formData.get("contactPhone") as string,
                 record: formData.get("record") as string,
-                maxBlueprints: formData.get("maxBlueprints") as string,
+                maxBlueprints: Number(blueprintsNumber),
                 createPermission: creationPermission,
                 invitePermission: invitationPermission,
             }
@@ -914,6 +923,7 @@ const DevOptions = () => {
                                         required
                                         minLength={3}
                                         maxLength={100}
+                                        placeholder={t('developeroptions:organizationCreationDialog.namePlaceholder')}
                                     />
                                 </Field>
 
@@ -923,8 +933,9 @@ const DevOptions = () => {
                                         id="address"
                                         name="address"
                                         required
-                                        minLength={3}
+                                        minLength={5}
                                         maxLength={200}
+                                        placeholder={t('developeroptions:organizationCreationDialog.addressPlaceholder')}
                                     />
                                 </Field>
 
@@ -933,9 +944,11 @@ const DevOptions = () => {
                                     <Input
                                         id="contactEmail"
                                         name="contactEmail"
+                                        type="email"
                                         required
-                                        minLength={3}
+                                        minLength={5}
                                         maxLength={100}
+                                        placeholder={t('developeroptions:organizationCreationDialog.emailPlaceholder')}
                                     />
                                 </Field>
 
@@ -945,8 +958,9 @@ const DevOptions = () => {
                                         id="contactPhone"
                                         name="contactPhone"
                                         required
-                                        minLength={3}
+                                        minLength={6}
                                         maxLength={20}
+                                        placeholder={t('developeroptions:organizationCreationDialog.phonePlaceholder')}
                                     />
                                 </Field>
 
@@ -958,6 +972,7 @@ const DevOptions = () => {
                                         required
                                         minLength={3}
                                         maxLength={50}
+                                        placeholder={t('developeroptions:organizationCreationDialog.recordPlaceholder')}
                                     />
                                 </Field>
 
@@ -970,6 +985,7 @@ const DevOptions = () => {
                                         type="number"
                                         min={1}
                                         max={200}
+                                        placeholder={t('developeroptions:organizationCreationDialog.maxBlueprintsPlaceholder')}
                                     />
                                 </Field>
 
@@ -1038,7 +1054,7 @@ const DevOptions = () => {
                                 <DialogClose asChild>
                                     <Button className="cursor-pointer" variant="outline">{t('common:cancel')}</Button>
                                 </DialogClose>
-                                <Button className="cursor-pointer" type="submit">{t('common:cancel')}</Button>
+                                <Button className="cursor-pointer" type="submit">{t('common:create')}</Button>
                             </DialogFooter>
 
                         </form>
@@ -1066,9 +1082,10 @@ const DevOptions = () => {
                                         id="name"
                                         name="name"
                                         required
-                                        minLength={3}
+                                        minLength={2}
                                         maxLength={100}
                                         defaultValue={selectedOrganizationForEdit?.name}
+                                        placeholder={t('developeroptions:organizationCreationDialog.namePlaceholder')}
                                     />
                                 </Field>
 
@@ -1078,9 +1095,10 @@ const DevOptions = () => {
                                         id="address"
                                         name="address"
                                         required
-                                        minLength={3}
+                                        minLength={5}
                                         maxLength={200}
                                         defaultValue={selectedOrganizationForEdit?.address}
+                                        placeholder={t('developeroptions:organizationCreationDialog.addressPlaceholder')}
                                     />
                                 </Field>
 
@@ -1089,10 +1107,12 @@ const DevOptions = () => {
                                     <Input
                                         id="contactEmail"
                                         name="contactEmail"
+                                        type="email"
                                         required
-                                        minLength={3}
+                                        minLength={5}
                                         maxLength={100}
                                         defaultValue={selectedOrganizationForEdit?.contactEmail}
+                                        placeholder={t('developeroptions:organizationCreationDialog.emailPlaceholder')}
                                     />
                                 </Field>
 
@@ -1102,9 +1122,10 @@ const DevOptions = () => {
                                         id="contactPhone"
                                         name="contactPhone"
                                         required
-                                        minLength={3}
+                                        minLength={6}
                                         maxLength={20}
                                         defaultValue={selectedOrganizationForEdit?.contactPhone}
+                                        placeholder={t('developeroptions:organizationCreationDialog.phonePlaceholder')}
                                     />
                                 </Field>
 
@@ -1117,6 +1138,7 @@ const DevOptions = () => {
                                         minLength={3}
                                         maxLength={50}
                                         defaultValue={selectedOrganizationForEdit?.record}
+                                        placeholder={t('developeroptions:organizationCreationDialog.recordPlaceholder')}
                                     />
                                 </Field>
 
@@ -1130,6 +1152,7 @@ const DevOptions = () => {
                                         min={1}
                                         max={200}
                                         defaultValue={selectedOrganizationForEdit?.maxBlueprints}
+                                        placeholder={t('developeroptions:organizationCreationDialog.maxBlueprintsPlaceholder')}
                                     />
                                 </Field>
 

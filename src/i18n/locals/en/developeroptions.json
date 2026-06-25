@@ -41,9 +41,22 @@
 
     "organizationCreationDialog": {
         "title": "Creating new organization",
+
         "name": "Organization name",
+        "namePlaceholder": "e.g., Acme Corporation",
+
+        "addressPlaceholder": "e.g., 123 Main St, New York, NY",
+
+        "emailPlaceholder": "name@organization.com",
+
+        "phonePlaceholder": "e.g., +15551234567",
+
         "record": "Record",
+        "recordPlaceholder": "e.g., REC-2026-00A",
+
         "maxBlueprints": "Max. amount of blueprints",
+        "maxBlueprintsPlaceholder": "e.g., 20",
+
         "selectAdmin": "Select admin",
         "canCreateProjects": "Who can create projects?",
         "canInviteMembers": "Who can invite members?",
@@ -54,9 +67,22 @@
     "organizationEditDialog":{
         "title": "Editing organization",
         "description": "Change the existing values for this organization.\nAll the fields are required and have to be unique.",
+        
         "name": "Organization name",
+        "namePlaceholder": "e.g., Acme Corporation",
+
+        "addressPlaceholder": "e.g., 123 Main St, New York, NY",
+        
+        "emailPlaceholder": "name@organization.com",
+
+        "phonePlaceholder": "e.g., +15551234567",
+
         "record": "Record",
+        "recordPlaceholder": "e.g., REC-2026-00A",
+
         "maxBlueprints": "Max. amount of blueprints",
+        "maxBlueprintsPlaceholder": "e.g., 20",
+
         "selectAdmin": "Select admin",
         "canCreateProjects": "Who can create projects?",
         "canInviteMembers": "Who can invite members?",

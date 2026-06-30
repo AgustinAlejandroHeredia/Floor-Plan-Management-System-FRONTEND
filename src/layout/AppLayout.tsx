@@ -4,9 +4,17 @@ import { useInferenceNotification } from "../context/InferenceNotificationContex
 import { IoIosClose } from "react-icons/io";
 import { Button } from "@/components/ui/button";
 
+// TRANSLATION
+import { useTranslation } from "react-i18next";
+
 const AppLayout = () => {
   const { notification, clearNotification } = useInferenceNotification()
+
   const navigate = useNavigate()
+
+  const { t } = useTranslation([
+      "notification"
+  ])
 
   const handleView = () => {
     navigate(notification!.blueprintPath)
@@ -26,7 +34,7 @@ const AppLayout = () => {
         <div className="fixed bottom-4 right-4 z-50 w-80 rounded-lg border border-[var(--border)] bg-[var(--bg)] shadow-lg p-4">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-[var(--text-h)]">Blueprint processed</p>
+              <p className="text-sm font-semibold text-[var(--text-h)]">{t('notification:blueprintProcessed.title')}</p>
               <p className="text-sm text-muted-foreground truncate mt-0.5">{notification.blueprintName}</p>
             </div>
             <button
@@ -42,7 +50,7 @@ const AppLayout = () => {
             className="mt-3 w-full"
             onClick={handleView}
           >
-            View blueprint
+            {t('notification:blueprintProcessed.action')}
           </Button>
         </div>
       )}

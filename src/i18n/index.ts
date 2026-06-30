@@ -16,6 +16,7 @@ import myprojectsEn from "./locals/es/myprojects.json"
 import myuploadsEn from "./locals/en/myuploads.json"
 import recentactivityEn from "./locals/en/recentactivity.json"
 import userprofileEn from "./locals/en/userprofile.json"
+import notificationEn from "./locals/en/notification.json"
 
 import commonEs from "./locals/es/common.json";
 import userEs from "./locals/es/user.json"
@@ -31,6 +32,7 @@ import myprojectsEs from "./locals/es/myprojects.json"
 import myuploadsEs from "./locals/es/myuploads.json"
 import recentactivityEs from "./locals/es/recentactivity.json"
 import userprofileEs from "./locals/es/userprofile.json"
+import notificationEs from "./locals/en/notification.json"
 
 i18n
   .use(LanguageDetector)
@@ -57,6 +59,7 @@ i18n
       "myuploads",
       "recentactivity",
       "userprofile",
+      "notification",
     ],
 
     defaultNS: "common",
@@ -77,6 +80,7 @@ i18n
         myuploads: myuploadsEn,
         recentactivity: recentactivityEn,
         userprofile: userprofileEn,
+        notification: notificationEn,
       },
       es: {
         common: commonEs,
@@ -93,6 +97,7 @@ i18n
         myuploads: myuploadsEs,
         recentactivity: recentactivityEs,
         userprofile: userprofileEs,
+        notification: notificationEs,
       },
     },
   });

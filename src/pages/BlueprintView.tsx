@@ -70,6 +70,7 @@ import { Item, ItemActions, ItemContent } from "@/components/ui/item";
 
 // TRANSLATION
 import { useTranslation } from "react-i18next";
+
 import { FiPlus } from "react-icons/fi";
 
 type ImageResolution = {

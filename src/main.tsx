@@ -11,8 +11,7 @@ import { useAuth0Bridge } from "./auth/auth0-bridge";
 import { UserProvider } from "./context/UserContext";
 import { InferenceNotificationProvider } from "./context/InferenceNotificationContext";
 
-// TRANSLATION
-import i18n from "./i18n";
+import "./i18n"
 
 function Bootstrap({ children }: { children: React.ReactNode }) {
   const authBridge = useAuth0Bridge();

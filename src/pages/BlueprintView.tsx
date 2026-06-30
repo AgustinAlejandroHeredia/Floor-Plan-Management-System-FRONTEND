@@ -2229,6 +2229,7 @@ const BlueprintView = () => {
                                     </TooltipContent>
                                 </Tooltip>
 
+                                {/*
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Button
@@ -2245,6 +2246,7 @@ const BlueprintView = () => {
                                         <p>{t('blueprint:sidebar.magicCrop')}</p>
                                     </TooltipContent>
                                 </Tooltip>
+                                */}
 
                                 <Tooltip>
                                     <TooltipTrigger asChild>

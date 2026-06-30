@@ -33,6 +33,7 @@
         "magicCrop": "Recorte mágico",
         "ai": "IA",
         "processBlueprintWithAi": "Procesar plano con IA",
+        "addNewArea": "Añadir nueva área",
         "saveGeneratedAreas": "Guardar áreas generadas",
         "deleteBlueprint": "Eliminar plano"
     },
@@ -106,6 +107,14 @@
         "polylineVertices": "Vértices de la multilínea",
 
         "saveEditedArea": "Save edited area"
+    },
+
+    "newAreaDialog": {
+        "title": "Creando neva área",
+        "description": "Selecciona el tipo de área que deseas agregar.\n\nUna vez creada, podrás seleccionarla y editarla para moverla, redimensionarla o modificar sus vértices.",
+        "label": "Nombre de área",
+        "placeholder": "Puerta simple",
+        "emptyFieldWarning": "Esta etiqueta debe tener al menos 3 (tres) letras."
     },
 
     "savingChanges": {
@@ -187,7 +196,8 @@
         "noAreasToSave": "No hay áreas para guardar",
         "errorSavingAreas": "Ha ocurrido un error al guardar las áreas. Por favor, inténtalo de nuevo más tarde.",
         "errorSelectingAreaForEdit": "Error al seleccionar el área para editar",
-        "noSpaceLeft": "No queda espacio disponible para subir más planos. Puedes eliminar un plano existente para liberar espacio y subir uno nuevo."
+        "noSpaceLeft": "No queda espacio disponible para subir más planos. Puedes eliminar un plano existente para liberar espacio y subir uno nuevo.",
+        "errorSelectingAreaType": "Error seleccionando tipo de área."
     },
 
     "blueprintLevelsDialogComponent": {

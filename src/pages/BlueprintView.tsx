@@ -59,7 +59,7 @@ import "react-image-crop/dist/ReactCrop.css";
 import { getCroppedImg } from "@/utils/cropImage";
 
 // TYPES
-import type { AreaColor, BlueprintViewType, CreateCropPayload, DragAreaState, EditAreaState, InferenceJobResult, InferenceJobStatus, InferenceJobType, Point, SectionView, SpecialtyTag, YoloPrediction } from "@/types/types";
+import type { AreaColor, BlueprintViewType, CreateCropPayload, DragAreaState, EditAreaState, InferenceJobResult, InferenceJobStatus, InferenceJobType, Point, SectionType, SectionView, SpecialtyTag, YoloPrediction } from "@/types/types";
 
 // CONTEXT
 import { useInferenceNotification } from "@/context/InferenceNotificationContext";
@@ -70,6 +70,7 @@ import { Item, ItemActions, ItemContent } from "@/components/ui/item";
 
 // TRANSLATION
 import { useTranslation } from "react-i18next";
+import { FiPlus } from "react-icons/fi";
 
 type ImageResolution = {
     width: number;
@@ -213,20 +214,30 @@ const BlueprintView = () => {
         area: null,
         orinigalAreaCoordsList: null,
     })
+    const [originalArea, setOriginalArea] = useState<EditAreaState>({
+        index: null,
+        area: null,
+        orinigalAreaCoordsList: null,
+    })
     const [dragState, setDragState] = useState<DragAreaState>(null)
         // edit properties
         const [selectedAreaForEditOriginalRadius, setSelectedAreaForEditOriginalRadius] = useState<number>(1)
+
+    // ADD NEW AREA
+    const [openNewAreaDialog, setOpenNewAreaDialog] = useState<boolean>(false)
+    const [newAreaLabel, setNewAreaLabel] = useState<string>("")
+    const [newAreaEmptyFieldWarning, setNewAreaEmptyFieldWarning] = useState<boolean>(false)
 
     // EDIT AREA USE EFFECT
     useEffect(() => {
         if (!dragState) return
 
         const handleMouseMove = (event: MouseEvent) => {
-            // el valor -1 es para arrastrar el area completa
             if (
                 dragState.vertexIndex === undefined ||
                 dragState.vertexIndex === null ||
-                !selectedAreaForEdit.area
+                !selectedAreaForEdit.area ||
+                !selectedAreaForEdit.orinigalAreaCoordsList
             ) {
                 return
             }
@@ -238,26 +249,31 @@ const BlueprintView = () => {
 
             if (!coords) return
 
-            // 1. Calculamos la distancia que se movió el cursor desde la última posición guardada
+            // 🟢 Calculamos la distancia TOTAL desde el click inicial del drag original
             const dx = coords.x - dragState.startMouse.x
             const dy = coords.y - dragState.startMouse.y
 
             if (dragState.vertexIndex === -1) {
-                // caso para mover la figura entera
+                // ==========================================
+                // 🟢 CASO A: MOVER TODA LA FIGURA EN BLOQUE
+                // ==========================================
                 
-                // Actualizamos el estado del plano principal
+                // 1. Mapeamos los puntos basados SIEMPRE en la lista original inmutable
+                const movedCoords = selectedAreaForEdit.orinigalAreaCoordsList.map(point => ({
+                    x: point.x + dx,
+                    y: point.y + dy
+                }))
+
+                // Actualizamos el plano principal
                 setBlueprint((prev) => {
                     if (!prev || selectedAreaForEdit.index === null) return prev
                     const updatedSectionViews = [...prev.sectionViews]
                     const targetArea = updatedSectionViews[selectedAreaForEdit.index]
 
-                    if (targetArea && targetArea.coordsList) {
+                    if (targetArea) {
                         updatedSectionViews[selectedAreaForEdit.index] = {
                             ...targetArea,
-                            coordsList: targetArea.coordsList.map(point => ({
-                                x: point.x + dx,
-                                y: point.y + dy
-                            }))
+                            coordsList: movedCoords
                         }
                     }
                     return { ...prev, sectionViews: updatedSectionViews }
@@ -270,20 +286,18 @@ const BlueprintView = () => {
                         ...prev,
                         area: {
                             ...prev.area,
-                            coordsList: prev.area.coordsList.map(point => ({
-                                x: point.x + dx,
-                                y: point.y + dy
-                            }))
+                            coordsList: movedCoords
                         }
                     }
                 })
 
-                setDragState(prev => prev ? { ...prev, startMouse: coords } : null)
+                // 🔴 ELIMINAMOS: setDragState(prev => ...) ya no hace falta pisar startMouse recurrentemente
 
             } else {
-                // caso para solo mover el vertice deseado
+                // ==========================================
+                // 🔵 CASO B: MOVER UN SOLO VÉRTICE
+                // ==========================================
                 
-                // Actualizamos el estado del plano principal
                 setBlueprint((prev) => {
                     if (!prev || selectedAreaForEdit.index === null) return prev
                     const updatedSectionViews = [...prev.sectionViews]
@@ -301,7 +315,6 @@ const BlueprintView = () => {
                     return { ...prev, sectionViews: updatedSectionViews }
                 })
 
-                // Actualizamos el estado de edición lateral
                 setSelectedAreaForEdit(prev => {
                     if (!prev.area) return prev
                     const newCoordsList = [...prev.area.coordsList]
@@ -329,7 +342,8 @@ const BlueprintView = () => {
             window.removeEventListener("mousemove", handleMouseMove)
             window.removeEventListener("mouseup", handleMouseUp)
         }
-    }, [dragState, selectedAreaForEdit.area, selectedAreaForEdit.index])
+        // 💡 Añadimos orinigalAreaCoordsList a las dependencias
+    }, [dragState, selectedAreaForEdit.area, selectedAreaForEdit.index, selectedAreaForEdit.orinigalAreaCoordsList])
 
     // SHOW CONTROLS IF THERE ARE AREAS
     useEffect(() => {
@@ -699,10 +713,13 @@ const BlueprintView = () => {
 
     const selectAreaForDelete = (section: SectionView) => {
         setAreaForDelete(section)
+        console.log("SECTION TO DELETE : ", section)
         setOpenDeleteAreaDialog(true)
     }
 
     const handleDeleteArea = () => {
+
+        console.log("AREA FOR DELETE : ", areaForDelete)
 
         if (!areaForDelete) {
             setErrorAlertMessage(t('blueprint:errorMessages.noSelectedArea'))
@@ -885,6 +902,11 @@ const BlueprintView = () => {
     }
     
     const selectAreaForEdit = (area: SectionView, index: number) => {
+        setOriginalArea({
+            index, 
+            area: structuredClone(area),
+            orinigalAreaCoordsList: area.coordsList
+        })
         setSelectedAreaForEdit({
             index, 
             area: structuredClone(area),
@@ -915,6 +937,10 @@ const BlueprintView = () => {
     }
 
     const cancelEditedArea = () => {
+        if(!originalArea || originalArea.index === null || originalArea.area === null){
+           console.log("NO ORIGINAL AREA")
+           return
+        }
         setEditAreaMode(false)
         setSelectedAreaForEdit({
             index: null,
@@ -922,6 +948,13 @@ const BlueprintView = () => {
             orinigalAreaCoordsList: null,
         })
         setDragState(null)
+
+        const newBlueprintEdited = structuredClone(blueprint)
+
+        newBlueprintEdited!.sectionViews[originalArea.index] =
+            originalArea.area
+
+        setBlueprint(newBlueprintEdited)
     }
 
     const changeSelectedAreaRadius = (radius: number) => {
@@ -1046,6 +1079,111 @@ const BlueprintView = () => {
                 },
             }
         })
+    }
+
+    const addNewArea = (type: SectionType) => {
+
+        if(newAreaLabel.length < 3){
+            setNewAreaEmptyFieldWarning(true)
+            return
+        }
+
+        setOpenNewAreaDialog(false)
+        setNewAreaEmptyFieldWarning(false)
+        setNewAreaLabel("")
+
+        const baseGap = 60
+        let newArea: SectionView | null = null
+        const defaultSize = { width: 100, height: 100 }
+
+        switch (type) {
+
+            case 'rectangle': {
+                const p1 = { x: baseGap, y: baseGap }
+                const p2 = { x: baseGap + 100, y: baseGap + 100 }
+                newArea = {
+                    type: 'rectangle',
+                    label: newAreaLabel,
+                    confidence: 1,
+                    size: { width: 100, height: 100 },
+                    coordsList: [p1, p2]
+                }
+                break
+            }
+
+            case 'polyline': {
+                const p1 = { x: baseGap, y: baseGap }
+                const p2 = { x: baseGap, y: baseGap + 100 }
+                const p3 = { x: baseGap + 100, y: baseGap + 100 }
+
+                newArea = {
+                    type: 'polyline',
+                    label: newAreaLabel,
+                    confidence: 1,
+                    size: defaultSize,
+                    coordsList: [p1, p2, p3]
+                };
+                break;
+            }
+
+            case 'polygon': {
+                const p1 = { x: baseGap + 50, y: baseGap }
+                const p2 = { x: baseGap, y: baseGap + 100 }
+                const p3 = { x: baseGap + 100, y: baseGap + 100 }
+
+                newArea = {
+                    type: 'polygon',
+                    label: newAreaLabel,
+                    confidence: 1,
+                    size: defaultSize,
+                    coordsList: [p1, p2, p3]
+                }
+                break
+            }
+
+            case 'circle': {
+                const radius = 30
+                const center = { x: baseGap + radius, y: baseGap + radius }
+
+                newArea = {
+                    type: 'circle',
+                    label: newAreaLabel,
+                    confidence: 1,
+                    radius: radius,
+                    size: { width: radius * 2, height: radius * 2 },
+                    coordsList: [center]
+                }
+                break
+            }
+
+            default:
+                setErrorAlertMessage(t('blueprint:errorMessages.errorSelectingAreaType'))
+                setOpenErrorAlert(true)
+        }
+
+        if (newArea) {
+            console.log("Nueva área creada exitosamente:", newArea)
+
+            setBlueprint((prev) => {
+                if (!prev) return prev; 
+
+                return {
+                    ...prev,
+                    sectionViews: [
+                        ...prev.sectionViews,
+                        newArea
+                    ]
+                }
+            })
+        } else {
+            console.error("No se pudo crear el área porque el tipo no es válido.")
+        }
+    }
+
+    const closeAddNewAreaDialog = () => {
+        setOpenNewAreaDialog(false)
+        setNewAreaEmptyFieldWarning(false)
+        setNewAreaLabel("")
     }
 
     const addTestingAreas = async () => {
@@ -1362,7 +1500,7 @@ const BlueprintView = () => {
                 )}
 
                 {/* ================= WORKSPACE ================= */}
-                <div className="flex gap-4 mt-4 items-start">
+                <div className="flex gap-4 mt-4 items-start select-none">
 
                     {/* BLUEPRINT AREA */}
                     <div className="flex-1">
@@ -1576,7 +1714,7 @@ const BlueprintView = () => {
 
                                                                     <ContextMenuItem
                                                                         onClick={() => {
-                                                                            console.log("Delete area", section)
+                                                                            selectAreaForDelete(section)
                                                                         }}
                                                                     >
                                                                         {t('blueprint:areaOptions.delete')}
@@ -1663,7 +1801,7 @@ const BlueprintView = () => {
 
                                                                     <ContextMenuItem
                                                                         onClick={() => {
-                                                                            console.log("Delete area", section)
+                                                                            selectAreaForDelete(section)
                                                                         }}
                                                                     >
                                                                         {t('blueprint:areaOptions.delete')}
@@ -1754,7 +1892,7 @@ const BlueprintView = () => {
                                                                     </ContextMenuItem>
                                                                     <ContextMenuItem
                                                                         onClick={() => {
-                                                                            console.log("Delete area", section)
+                                                                            selectAreaForDelete(section)
                                                                         }}
                                                                     >
                                                                         {t('blueprint:areaOptions.delete')}
@@ -2124,6 +2262,25 @@ const BlueprintView = () => {
                                         <p>{t('blueprint:sidebar.processBlueprintWithAi')}</p>
                                     </TooltipContent>
                                 </Tooltip>
+
+                                {thereAreAreasToShow && (
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Button
+                                                className="cursor-pointer"
+                                                size="icon"
+                                                variant="secondary"
+                                                onClick={() => setOpenNewAreaDialog(true)}
+                                            >
+                                                <FiPlus className="text-black text-xl"/>
+                                            </Button>
+                                        </TooltipTrigger>
+
+                                        <TooltipContent side="left">
+                                            <p>{t('blueprint:sidebar.addNewArea')}</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                )}
 
                                 {thereAreAreasToShow && (
                                     <Tooltip>
@@ -2785,6 +2942,88 @@ const BlueprintView = () => {
                                 {t('blueprint:selectAiModels.confirm')}
                             </Button>
 
+                        </DialogFooter>
+
+                    </DialogContent>
+                </Dialog>
+
+                {/* ADD NEW AREA DIALOG */}
+                <Dialog
+                    open={openNewAreaDialog}
+                    onOpenChange={(open) => {
+                        if (!open) {
+                            closeAddNewAreaDialog()
+                        }
+                    }}
+                >
+                    <DialogContent className="sm:max-w-sm">
+
+                        <DialogHeader>
+                            <DialogTitle>{t('blueprint:newAreaDialog.title')}</DialogTitle>
+                            <DialogDescription>{t('blueprint:newAreaDialog.description')}</DialogDescription>
+                        </DialogHeader>
+
+                        <Field>
+                            <Label>{t('blueprint:newAreaDialog.label')}</Label>
+                            <Input
+                                id="blueprintName"
+                                name="blueprintName"
+                                required
+                                minLength={3}
+                                maxLength={100}
+                                placeholder={t('blueprint:newAreaDialog.placeholder')}
+                                onChange={(e) => setNewAreaLabel(e.target.value)}
+                            />
+                        </Field>
+
+                        {newAreaEmptyFieldWarning && (
+                            <p>{t('blueprint:newAreaDialog.emptyFieldWarning')}</p>
+                        )}
+
+                        {newAreaLabel.length >= 3 && (
+                            <>
+                                <Button
+                                    className="cursor-pointer" 
+                                    variant="outline"
+                                    onClick={() => addNewArea('rectangle')}
+                                >
+                                    {t('blueprint:shapeTypes.rectangle')}
+                                </Button>
+
+                                <Button
+                                    className="cursor-pointer" 
+                                    variant="outline"
+                                    onClick={() => addNewArea('polygon')}
+                                >
+                                    {t('blueprint:shapeTypes.polygon')}
+                                </Button>
+
+                                <Button
+                                    className="cursor-pointer" 
+                                    variant="outline"
+                                    onClick={() => addNewArea('circle')}
+                                >
+                                    {t('blueprint:shapeTypes.circle')}
+                                </Button>
+
+                                <Button
+                                    className="cursor-pointer" 
+                                    variant="outline"
+                                    onClick={() => addNewArea('polyline')}
+                                >
+                                    {t('blueprint:shapeTypes.polyline')}
+                                </Button>
+                            </>
+                        )}
+
+                        <DialogFooter>
+                            <Button
+                                className="cursor-pointer" 
+                                variant="outline"
+                                onClick={closeAddNewAreaDialog}
+                            >
+                                {t('common:cancel')}
+                            </Button>
                         </DialogFooter>
 
                     </DialogContent>

@@ -33,6 +33,7 @@
         "magicCrop": "Magic crop",
         "ai": "AI",
         "processBlueprintWithAi": "Process blueprint with AI",
+        "addNewArea": "Add new area",
         "saveGeneratedAreas": "Save generated areas",
         "deleteBlueprint": "Delete blueprint"
     },
@@ -106,6 +107,14 @@
         "polylineVertices": "Polyline vertices",
 
         "saveEditedArea": "Save edited area"
+    },
+
+    "newAreaDialog": {
+        "title": "Creating new area",
+        "description": "Select the type of area you want to add.\n\nOnce it has been created, you can select and edit it to move it, resize it, or modify its vertices.",
+        "label": "Area name",
+        "placeholder": "Single door",
+        "emptyFieldWarning": "This label must have at least 3 (three) letters."
     },
 
     "savingChanges": {
@@ -187,7 +196,8 @@
         "noAreasToSave": "No areas to save",
         "errorSavingAreas": "An error occurred while saving areas. Please try again later.",
         "errorSelectingAreaForEdit": "Error selecting area for editing",
-        "noSpaceLeft": "There is no space left to upload more blueprints. You can delete an existing blueprint to free up space for the new one."
+        "noSpaceLeft": "There is no space left to upload more blueprints. You can delete an existing blueprint to free up space for the new one.",
+        "errorSelectingAreaType": "Error selecting area type."
     },
 
     "blueprintLevelsDialogComponent": {

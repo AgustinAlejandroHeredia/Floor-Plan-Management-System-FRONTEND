@@ -216,17 +216,16 @@ const BlueprintView = () => {
     const [dragState, setDragState] = useState<DragAreaState>(null)
         // edit properties
         const [selectedAreaForEditOriginalRadius, setSelectedAreaForEditOriginalRadius] = useState<number>(1)
-        const [selectedAreaForEditPolygonOriginalVertices, setSelectedAreaForEditPolygonOriginalVertices] = useState<number>(3)
-        const [selectedAreaForEditPolylineOriginalVertices, setSelectedAreaForEditPolylineOriginalVertices] = useState<number>(2)
 
     // EDIT AREA USE EFFECT
     useEffect(() => {
         if (!dragState) return
 
         const handleMouseMove = (event: MouseEvent) => {
-
+            // el valor -1 es para arrastrar el area completa
             if (
                 dragState.vertexIndex === undefined ||
+                dragState.vertexIndex === null ||
                 !selectedAreaForEdit.area
             ) {
                 return
@@ -239,25 +238,84 @@ const BlueprintView = () => {
 
             if (!coords) return
 
-            setSelectedAreaForEdit(prev => {
+            // 1. Calculamos la distancia que se movió el cursor desde la última posición guardada
+            const dx = coords.x - dragState.startMouse.x
+            const dy = coords.y - dragState.startMouse.y
 
-                if (!prev.area) return prev
+            if (dragState.vertexIndex === -1) {
+                // caso para mover la figura entera
+                
+                // Actualizamos el estado del plano principal
+                setBlueprint((prev) => {
+                    if (!prev || selectedAreaForEdit.index === null) return prev
+                    const updatedSectionViews = [...prev.sectionViews]
+                    const targetArea = updatedSectionViews[selectedAreaForEdit.index]
 
-                const newCoordsList = [...prev.area.coordsList]
-
-                newCoordsList[dragState.vertexIndex!] = {
-                    x: coords.x,
-                    y: coords.y
-                }
-
-                return {
-                    ...prev,
-                    area: {
-                        ...prev.area,
-                        coordsList: newCoordsList
+                    if (targetArea && targetArea.coordsList) {
+                        updatedSectionViews[selectedAreaForEdit.index] = {
+                            ...targetArea,
+                            coordsList: targetArea.coordsList.map(point => ({
+                                x: point.x + dx,
+                                y: point.y + dy
+                            }))
+                        }
                     }
-                }
-            })
+                    return { ...prev, sectionViews: updatedSectionViews }
+                })
+
+                // Actualizamos el estado de edición lateral
+                setSelectedAreaForEdit(prev => {
+                    if (!prev.area) return prev
+                    return {
+                        ...prev,
+                        area: {
+                            ...prev.area,
+                            coordsList: prev.area.coordsList.map(point => ({
+                                x: point.x + dx,
+                                y: point.y + dy
+                            }))
+                        }
+                    }
+                })
+
+                setDragState(prev => prev ? { ...prev, startMouse: coords } : null)
+
+            } else {
+                // caso para solo mover el vertice deseado
+                
+                // Actualizamos el estado del plano principal
+                setBlueprint((prev) => {
+                    if (!prev || selectedAreaForEdit.index === null) return prev
+                    const updatedSectionViews = [...prev.sectionViews]
+                    const targetArea = updatedSectionViews[selectedAreaForEdit.index]
+
+                    if (targetArea && targetArea.coordsList) {
+                        const newCoordsList = [...targetArea.coordsList]
+                        newCoordsList[dragState.vertexIndex!] = { x: coords.x, y: coords.y }
+                        
+                        updatedSectionViews[selectedAreaForEdit.index] = {
+                            ...targetArea,
+                            coordsList: newCoordsList
+                        }
+                    }
+                    return { ...prev, sectionViews: updatedSectionViews }
+                })
+
+                // Actualizamos el estado de edición lateral
+                setSelectedAreaForEdit(prev => {
+                    if (!prev.area) return prev
+                    const newCoordsList = [...prev.area.coordsList]
+                    newCoordsList[dragState.vertexIndex!] = { x: coords.x, y: coords.y }
+
+                    return {
+                        ...prev,
+                        area: {
+                            ...prev.area,
+                            coordsList: newCoordsList
+                        }
+                    }
+                })
+            }
         }
 
         const handleMouseUp = () => {
@@ -271,7 +329,7 @@ const BlueprintView = () => {
             window.removeEventListener("mousemove", handleMouseMove)
             window.removeEventListener("mouseup", handleMouseUp)
         }
-    }, [dragState, selectedAreaForEdit.area])
+    }, [dragState, selectedAreaForEdit.area, selectedAreaForEdit.index])
 
     // SHOW CONTROLS IF THERE ARE AREAS
     useEffect(() => {
@@ -282,71 +340,11 @@ const BlueprintView = () => {
         }
     }, [blueprint])
 
-    const formatKey = (key: string) =>
-        key
-        .replace(/([A-Z])/g, " $1")
-        .replace(/^./, (str) => str.toUpperCase());
-
     const formatLevelLabel = (value: string) => {
         if (value === "basement") return "Basement"
         if (value === "roof") return "Roof"
         return `${t('blueprint:editOptions.singularLevel')} ${value}`
     }
-
-    const filteredBlueprintEntries = blueprint
-        ? Object.entries(blueprint)
-            .filter(
-                ([key]) =>
-                key !== "creatorUserId" &&
-                key !== "organizationId" &&
-                key !== "projectId" &&
-                key !== "_id" &&
-                key !== "__v" &&
-                key !== "encoding" &&
-                key !== "storageId" &&
-                key !== "size" &&
-                key !== "downloadUrl" &&
-                key !== "mimetype" &&
-                key !== "uploadedBy" &&
-                key !== "storageThumbnailId" &&
-                key !== "originalBlueprintId" &&
-                key !== "width" &&
-                key !== "height" &&
-                key != "sectionViews"
-            )
-            .sort(([keyA], [keyB]) => {
-                const order = [
-                "blueprintName",
-                "creationDate",
-                "filename",
-                "croppedFrom",
-                "view",
-                "specialties",
-                "labels",
-                "levels",
-                "cropsMade",
-                "sectionViews"
-                ];
-
-                const indexA = order.indexOf(keyA);
-                const indexB = order.indexOf(keyB);
-
-                if (indexA === -1 && indexB === -1) return 0;
-                if (indexA === -1) return 1;
-                if (indexB === -1) return -1;
-
-                return indexA - indexB;
-            })
-        : [];
-
-    const getDisplayFileName = (filename: string) => {
-        const parts = filename.split("_");
-
-        // elimina el UUID (primer segmento)
-        parts.shift();
-
-        return parts.join("_");
-    };
 
     const handleDownloadFile = async () => {
         setIsDownloading(true)
@@ -1782,12 +1780,9 @@ const BlueprintView = () => {
                                         {/* EDIT AREA SECTION */}
                                         {editAreaMode && selectedAreaForEdit.area && (
                                             <>
-
                                                 {/* RECTANGLE */}
                                                 {selectedAreaForEdit.area.type === "rectangle" && (() => {
-
                                                     const [p1, p2] = selectedAreaForEdit.area.coordsList
-
                                                     if (!p1 || !p2) return null
 
                                                     const x = Math.min(p1.x, p2.x)
@@ -1804,22 +1799,26 @@ const BlueprintView = () => {
                                                             fill="rgba(0, 123, 255, 0.2)"
                                                             stroke="blue"
                                                             strokeWidth={3}
-                                                            style={{
-                                                                pointerEvents: "auto",
-                                                                cursor: "move",
+                                                            style={{ pointerEvents: "auto", cursor: "move" }}
+                                                            
+                                                            onMouseDown={(e) => {
+                                                                const coords = getImageCoordinates(e.clientX, e.clientY)
+                                                                if (!coords) return
+                                                                setDragState({
+                                                                    areaIndex: selectedAreaForEdit.index!,
+                                                                    vertexIndex: -1,
+                                                                    startMouse: coords
+                                                                })
                                                             }}
                                                         />
                                                     )
-
                                                 })()}
 
                                                 {/* POLYGON */}
                                                 {selectedAreaForEdit.area.type === "polygon" && (() => {
-
-                                                    const points =
-                                                        selectedAreaForEdit.area.coordsList
-                                                            .map(c => `${c.x},${c.y}`)
-                                                            .join(" ")
+                                                    const points = selectedAreaForEdit.area.coordsList
+                                                        .map(c => `${c.x},${c.y}`)
+                                                        .join(" ")
 
                                                     return (
                                                         <polygon
@@ -1827,27 +1826,25 @@ const BlueprintView = () => {
                                                             fill="rgba(0, 123, 255, 0.2)"
                                                             stroke="blue"
                                                             strokeWidth={3}
-                                                            style={{
-                                                                pointerEvents: "auto",
-                                                                cursor: "move",
+                                                            style={{ pointerEvents: "auto", cursor: "move" }}
+                                                            
+                                                            onMouseDown={(e) => {
+                                                                const coords = getImageCoordinates(e.clientX, e.clientY)
+                                                                if (!coords) return
+                                                                setDragState({
+                                                                    areaIndex: selectedAreaForEdit.index!,
+                                                                    vertexIndex: -1, 
+                                                                    startMouse: coords
+                                                                })
                                                             }}
                                                         />
                                                     )
-
                                                 })()}
 
                                                 {/* CIRCLE */}
                                                 {selectedAreaForEdit.area.type === "circle" && (() => {
-
-                                                    const center =
-                                                        selectedAreaForEdit.area.coordsList[0]
-
-                                                    if (
-                                                        !center ||
-                                                        typeof selectedAreaForEdit.area.radius !== "number"
-                                                    ) {
-                                                        return null
-                                                    }
+                                                    const center = selectedAreaForEdit.area.coordsList[0]
+                                                    if (!center || typeof selectedAreaForEdit.area.radius !== "number") return null
 
                                                     return (
                                                         <circle
@@ -1857,9 +1854,16 @@ const BlueprintView = () => {
                                                             fill="rgba(0, 123, 255, 0.2)"
                                                             stroke="blue"
                                                             strokeWidth={3}
-                                                            style={{
-                                                                pointerEvents: "auto",
-                                                                cursor: "move",
+                                                            style={{ pointerEvents: "auto", cursor: "move" }}
+                                                            
+                                                            onMouseDown={(e) => {
+                                                                const coords = getImageCoordinates(e.clientX, e.clientY)
+                                                                if (!coords) return
+                                                                setDragState({
+                                                                    areaIndex: selectedAreaForEdit.index!,
+                                                                    vertexIndex: -1, 
+                                                                    startMouse: coords
+                                                                })
                                                             }}
                                                         />
                                                     )
@@ -1867,25 +1871,38 @@ const BlueprintView = () => {
 
                                                 {/* POLYLINE */}
                                                 {selectedAreaForEdit.area.type === "polyline" && (() => {
-
-                                                    const points =
-                                                        selectedAreaForEdit.area.coordsList
-                                                            .map(c => `${c.x},${c.y}`)
-                                                            .join(" ")
+                                                    const points = selectedAreaForEdit.area.coordsList
+                                                        .map(c => `${c.x},${c.y}`)
+                                                        .join(" ")
 
                                                     return (
-                                                        <polyline
-                                                            points={points}
-                                                            fill="none"
-                                                            stroke="blue"
-                                                            strokeWidth={4}
-                                                            style={{
-                                                                pointerEvents: "none",
-                                                                cursor: "move",
-                                                            }}
-                                                        />
+                                                        <g style={{ cursor: "move" }}>
+                                                            
+                                                            <polyline
+                                                                points={points}
+                                                                fill="none"
+                                                                stroke="transparent"
+                                                                strokeWidth={24}
+                                                                style={{ pointerEvents: "stroke" }}
+                                                                onMouseDown={(e) => {
+                                                                    const coords = getImageCoordinates(e.clientX, e.clientY)
+                                                                    if (!coords) return
+                                                                    setDragState({
+                                                                        areaIndex: selectedAreaForEdit.index!,
+                                                                        vertexIndex: -1, 
+                                                                        startMouse: coords
+                                                                    })
+                                                                }}
+                                                            />
+                                                            <polyline
+                                                                points={points}
+                                                                fill="none"
+                                                                stroke="blue"
+                                                                strokeWidth={4}
+                                                                style={{ pointerEvents: "none" }}
+                                                            />
+                                                        </g>
                                                     )
-
                                                 })()}
 
                                                 {/* VERTICES */}
@@ -1898,19 +1915,11 @@ const BlueprintView = () => {
                                                         fill="white"
                                                         stroke="blue"
                                                         strokeWidth={2}
-                                                        style={{
-                                                            cursor: "grab",
-                                                            pointerEvents: "auto",
-                                                        }}
+                                                        style={{ cursor: "grab", pointerEvents: "auto" }}
                                                         onMouseDown={(e) => {
-
-                                                            const coords = getImageCoordinates(
-                                                                e.clientX,
-                                                                e.clientY
-                                                            )
-
+                                                            e.stopPropagation(); // que el click en el vertice no dispare el arrastre
+                                                            const coords = getImageCoordinates(e.clientX, e.clientY)
                                                             if (!coords) return
-
                                                             setDragState({
                                                                 areaIndex: selectedAreaForEdit.index!,
                                                                 vertexIndex,
@@ -1919,7 +1928,6 @@ const BlueprintView = () => {
                                                         }}
                                                     />
                                                 ))}
-
                                             </>
                                         )}
 

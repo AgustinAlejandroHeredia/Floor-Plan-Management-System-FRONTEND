@@ -21,8 +21,8 @@
     },
 
     "areaOptions": {
-        "edit": "Editar",
-        "delete": "Eliminar",
+        "edit": "Editar área",
+        "delete": "Eliminar área",
         "hideTypeOfArea": "Ocultar tipo de área"
     },
 

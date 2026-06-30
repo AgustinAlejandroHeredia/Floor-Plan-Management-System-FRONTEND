@@ -46,11 +46,12 @@ const HomePage = () => {
 
   // TOKEN / CODE VARIABLES
   const [token, setToken] = useState("");
-  const [openFirstTokenDialog, setOpenFirstTokenDialog] = useState(false);
   const [noToken, setNoToken] = useState<boolean>(false)
   const [invalidToken, setInvalidToken] = useState<boolean>(false)
   const [validToken, setValidToken] = useState<boolean>(false)
   const [isValidating, setIsValidating] = useState<boolean>(false)
+
+  const [openJoinDialog, setOpenJoinDialog] = useState<boolean>(false)
 
   useEffect(() => {
     if (error) {
@@ -59,7 +60,7 @@ const HomePage = () => {
   }, [error, navigate]);
 
   const handleJoinFirstOrganization = () => {
-    setOpenFirstTokenDialog(true);
+    setOpenJoinDialog(true);
   }
 
   const handleValidateToken = async (token: string) => {
@@ -76,7 +77,7 @@ const HomePage = () => {
       setValidToken(true)
       refreshOrganizationList()
       setIsValidating(false)
-      setOpenFirstTokenDialog(false)
+      setOpenJoinDialog(false)
     } catch (error) {
       setIsValidating(false)
       setInvalidToken(true)
@@ -101,6 +102,7 @@ const HomePage = () => {
           <>
 
             {/* JOIN */}
+            {/*
             <div className="main-content-item">
               <h1 className="sub-heading">{t('home:joinOrganization')}: </h1>
               <p className="comment-text">
@@ -143,35 +145,54 @@ const HomePage = () => {
               )}
 
             </div>
+            */}
 
             {/* ORGANIZATIONS */}
             <div className="main-content-item">
-              <h1 className="sub-heading">{t('home:yourOrganizations')}: </h1>
 
-              <p className="comment-text">{t('home:totalOrganizations')} {organizations.length}</p>
+              <div className="flex flex-row justify-between items-center gap-4">
+                <div>
+                  <h1 className="sub-heading">{t('home:yourOrganizations')}</h1>
+
+                  <p className="comment-text">{t('home:totalOrganizations')} {organizations.length}</p>
+                </div>
+                {organizations.length !== 0 && (
+                  <Button
+                    variant="ghost"
+                    className="text-[var(--text)] cursor-pointer"
+                    onClick={() => setOpenJoinDialog(true)}
+                  >
+                    {t('home:joinOrganization')}
+                  </Button>
+                )}
+              </div>
 
               <div
-                className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl"
               >
                 {organizations.map((org, index) => (
                   <Card
                     key={index}
-                    className="cursor-pointer transition-colors duration-200 hover:bg-[var(--accent-bg2)] bg-[var(--accent-bg)] w-full"
+                    className="cursor-pointer transition-colors duration-200 hover:bg-[var(--accent-bg2)] bg-[var(--accent-bg)] w-full max-w-md"
                     onClick={() => handleSelectOrganization(org.name, org._id)}
                   >
-                    <CardContent className="flex flex-col items-center text-center">
+                    <CardContent className="flex flex-col items-center text-center p-6">
                       <CardTitle className="text-2xl font-bold text-[var(--text-h)] mb-6">
                         {org.name}
                       </CardTitle>
-                      <CardDescription className="text-[var(--text)]">
-                        {t('common:generalCharacteristics.address')}: {org.address}
-                      </CardDescription>
-                      <CardDescription className="text-[var(--text)]">
-                        {t('common:generalCharacteristics.email')}: {org.contactEmail}
-                      </CardDescription>
-                      <CardDescription className="text-[var(--text)]">
-                        {t('common:generalCharacteristics.phone')}: {org.contactPhone}
-                      </CardDescription>
+                      
+                      <div className="flex flex-col items-start text-left space-y-2 w-full sm:w-auto min-w-[240px]">
+                        <CardDescription className="text-[var(--text)]">
+                          <span className="font-semibold">{t('common:generalCharacteristics.address')}:</span> {org.address}
+                        </CardDescription>
+                        <CardDescription className="text-[var(--text)]">
+                          <span className="font-semibold">{t('common:generalCharacteristics.email')}:</span> {org.contactEmail}
+                        </CardDescription>
+                        <CardDescription className="text-[var(--text)]">
+                          <span className="font-semibold">{t('common:generalCharacteristics.phone')}:</span> {org.contactPhone}
+                        </CardDescription>
+                      </div>
+
                     </CardContent>
                   </Card>
                 ))}
@@ -186,7 +207,7 @@ const HomePage = () => {
       <div>
 
         {/* FIRST TOKEN DIALOG */}
-        <Dialog open={openFirstTokenDialog} onOpenChange={setOpenFirstTokenDialog}>
+        <Dialog open={openJoinDialog} onOpenChange={setOpenJoinDialog}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{t('home:joinOrganization')}</DialogTitle>
@@ -204,15 +225,24 @@ const HomePage = () => {
                 onChange={(e) => setToken(e.target.value)}
               />
               <Button
+                className="cursor-pointer"
+                type="button"
+                variant="outline"
                 onClick={() => handleValidateToken(token)}
               >
                 {t('home:joinOrganizationJoinButton')}
               </Button>
             </Field>
 
-            <DialogFooter className="sm:justify-start">
+            <DialogFooter>
               <DialogClose asChild>
-                <Button type="button">{t('common:cancel')}</Button>
+                <Button 
+                  className="cursor-pointer"
+                  type="button"
+                  variant="outline"
+                >
+                  {t('common:cancel')}
+                </Button>
               </DialogClose>
             </DialogFooter>
           </DialogContent>

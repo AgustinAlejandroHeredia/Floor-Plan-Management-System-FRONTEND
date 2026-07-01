@@ -60,7 +60,7 @@ export function FileDropZone({ onFileSelect }: FileDropZoneProps) {
 
   return (
     <Empty
-      className={`border p-6 max-w-md mx-auto mt-10 transition
+      className={`border p-6 max-w-md transition
         ${isDragging ? "bg-[var(--accent-bg2)]" : ""}
       `}
       onDrop={handleDrop}

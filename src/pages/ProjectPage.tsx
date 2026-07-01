@@ -455,16 +455,17 @@ const ProjectPage = () => {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(350px, 400px))",
               gap: "16px",
               alignItems: "center",
+              justifyContent: "space-between",
             }}
           >
             {/* INFO */}
             <div>
               <Card className="border border-[var(--border)] bg-transparent">
                 <CardHeader>
-                  <CardTitle className="text-[var(--text-h)]">
+                  <CardTitle className="text-[var(--text-h)] text-2xl">
                     {t('project:information')}
                   </CardTitle>
                 </CardHeader>
@@ -487,19 +488,19 @@ const ProjectPage = () => {
 
                   {project &&
                     project.customFields &&
-                      Object.keys(project.customFields).length > 0 && (
-                        <CardDescription className="mt-2 flex flex-col gap-2">
-                          <div>
-                            <span>- {t('project:projectCharacteristics.aditionalFields')} -</span>
-                          </div>
+                    Object.keys(project.customFields).length > 0 && (
+                      <CardDescription className="mt-2 flex flex-col gap-2">
+                        <div>
+                          <span>- {t('project:projectCharacteristics.aditionalFields')} -</span>
+                        </div>
 
-                          {Object.entries(project.customFields).map(([index, field]: any) => (
-                            <div className="text-[var(--text-h)] font-semibold capitalize" key={index}>
-                              <span>{formatKey(field.name)}:</span>{" "}
-                              {formatCustomFieldValue(field)}
-                            </div>
-                          ))}
-                        </CardDescription>
+                        {Object.entries(project.customFields).map(([index, field]: any) => (
+                          <div className="text-[var(--text-h)] font-semibold capitalize" key={index}>
+                            <span>{formatKey(field.name)}:</span>{" "}
+                            {formatCustomFieldValue(field)}
+                          </div>
+                        ))}
+                      </CardDescription>
                   )}
                 </CardContent>
               </Card>
@@ -513,8 +514,13 @@ const ProjectPage = () => {
             </div>
 
             {/* UPLOAD */}
-            <div>
-              <h1 className="sub-heading-center">{t('project:upload')}</h1>
+            <div className="border border-[var(--border)] rounded-xl px-6 py-4 w-full">
+              <h1 
+                className="sub-heading-center" 
+                style={{ marginBottom: "8px" }}
+              >
+                {t('project:upload')}
+              </h1>
               <FileDropZone onFileSelect={handleUploadFile} />
             </div>
           </div>

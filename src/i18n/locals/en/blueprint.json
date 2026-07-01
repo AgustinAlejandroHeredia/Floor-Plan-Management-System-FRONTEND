@@ -20,6 +20,8 @@
         "hideDrawnAreas": "Hide drawn areas"
     },
 
+    "changesWarning": "Changes have been done and havent been saved",
+
     "areaOptions": {
         "edit": "Edit area",
         "delete": "Delete area",

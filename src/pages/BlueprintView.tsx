@@ -1,11 +1,11 @@
 // REACT
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 
 // HOOK
 import { useBlueprintView } from "@/hooks/useBlueprintView";
 
 // ROUTER
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { UNSAFE_NavigationContext, useBlocker, useLocation, useNavigate, useParams } from "react-router-dom";
 
 // SERVICES
 import { BlueprintViewService } from "@/services/BlueprintViewService";
@@ -229,6 +229,51 @@ const BlueprintView = () => {
     const [newAreaLabel, setNewAreaLabel] = useState<string>("")
     const [newAreaEmptyFieldWarning, setNewAreaEmptyFieldWarning] = useState<boolean>(false)
 
+    // CHANGES WARNING
+    const [warningState, setWarningState] = useState<boolean>(false)
+
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (warningState) {
+                e.preventDefault()
+                e.returnValue = ""
+            }
+        }
+
+        window.addEventListener("beforeunload", handleBeforeUnload)
+        return () => window.removeEventListener("beforeunload", handleBeforeUnload)
+    }, [warningState])
+
+    const { navigator } = useContext(UNSAFE_NavigationContext)
+
+    useEffect(() => {
+        if (!warningState) return
+
+        const originalPushState = window.history.pushState
+
+        window.history.pushState = function (...args) {
+            const seguro = window.confirm("Tienes cambios sin guardar. ¿Estás seguro de que quieres salir?");
+            if (seguro) {
+                return originalPushState.apply(this, args)
+            }
+            return
+        }
+
+        const handlePopState = (e: PopStateEvent) => {
+            const seguro = window.confirm("Tienes cambios sin guardar. ¿Estás seguro de que quieres salir?")
+            if (!seguro) {
+                window.history.pushState(null, "", window.location.href)
+            }
+        }
+
+        window.addEventListener("popstate", handlePopState);
+
+        return () => {
+            window.history.pushState = originalPushState;
+            window.removeEventListener("popstate", handlePopState);
+        };
+    }, [warningState, navigator])
+
     // EDIT AREA USE EFFECT
     useEffect(() => {
         if (!dragState) return
@@ -250,22 +295,18 @@ const BlueprintView = () => {
 
             if (!coords) return
 
-            // 🟢 Calculamos la distancia TOTAL desde el click inicial del drag original
             const dx = coords.x - dragState.startMouse.x
             const dy = coords.y - dragState.startMouse.y
 
             if (dragState.vertexIndex === -1) {
-                // ==========================================
-                // 🟢 CASO A: MOVER TODA LA FIGURA EN BLOQUE
-                // ==========================================
+
+                // mover la figura 
                 
-                // 1. Mapeamos los puntos basados SIEMPRE en la lista original inmutable
                 const movedCoords = selectedAreaForEdit.orinigalAreaCoordsList.map(point => ({
                     x: point.x + dx,
                     y: point.y + dy
                 }))
 
-                // Actualizamos el plano principal
                 setBlueprint((prev) => {
                     if (!prev || selectedAreaForEdit.index === null) return prev
                     const updatedSectionViews = [...prev.sectionViews]
@@ -280,7 +321,6 @@ const BlueprintView = () => {
                     return { ...prev, sectionViews: updatedSectionViews }
                 })
 
-                // Actualizamos el estado de edición lateral
                 setSelectedAreaForEdit(prev => {
                     if (!prev.area) return prev
                     return {
@@ -292,12 +332,9 @@ const BlueprintView = () => {
                     }
                 })
 
-                // 🔴 ELIMINAMOS: setDragState(prev => ...) ya no hace falta pisar startMouse recurrentemente
-
             } else {
-                // ==========================================
-                // 🔵 CASO B: MOVER UN SOLO VÉRTICE
-                // ==========================================
+
+                // mover el vertice
                 
                 setBlueprint((prev) => {
                     if (!prev || selectedAreaForEdit.index === null) return prev
@@ -343,7 +380,7 @@ const BlueprintView = () => {
             window.removeEventListener("mousemove", handleMouseMove)
             window.removeEventListener("mouseup", handleMouseUp)
         }
-        // 💡 Añadimos orinigalAreaCoordsList a las dependencias
+
     }, [dragState, selectedAreaForEdit.area, selectedAreaForEdit.index, selectedAreaForEdit.orinigalAreaCoordsList])
 
     // SHOW CONTROLS IF THERE ARE AREAS
@@ -703,6 +740,7 @@ const BlueprintView = () => {
                 setErrorAlertMessage(t('blueprint:errorMessages.inferenceJobCancelled'))
                 setOpenErrorAlert(true)
             }
+            setWarningState(true)
         } catch (error) {
             setErrorAlertMessage(t('blueprint:errorMessages.errorProcessingBlueprint'))
             setOpenErrorAlert(true)
@@ -748,6 +786,7 @@ const BlueprintView = () => {
         })
 
         setAreaForDelete(null)
+        setWarningState(true)
     }
 
     const undoDeletedArea = (
@@ -935,6 +974,7 @@ const BlueprintView = () => {
         setBlueprint(newBlueprintEdited)
 
         setEditAreaMode(false)
+        setWarningState(true)
     }
 
     const cancelEditedArea = () => {
@@ -1176,6 +1216,9 @@ const BlueprintView = () => {
                     ]
                 }
             })
+
+            setWarningState(true)
+
         } else {
             console.error("No se pudo crear el área porque el tipo no es válido.")
         }
@@ -1361,143 +1404,256 @@ const BlueprintView = () => {
                     </CardContent>
                 </Card>
 
+                {/* CHANGES WARNING */}
+                {warningState && (
+                    <div className="text-center text-[var(--status-critical)] mt-6">
+                        {t('blueprint:changesWarning')}
+                    </div>
+                )}
+
                 {/* CONTROLS */}
                 {!cropMode && !editAreaMode && (
-                <div className="flex flex-wrap items-start justify-center gap-8 mt-2">
+                    <div className="flex flex-wrap items-start justify-center gap-8 mt-6">
 
-                    {/* ZOOM SELECTOR */}
-                    <div className="flex flex-col items-center">
-                        <p className="info-text">
-                            {t('blueprint:controls.zoom')}: {Math.round(imageZoom * 100)}%
-                        </p>
-
-                        <input
-                            className="cursor-pointer"
-                            type="range"
-                            min={0.5}
-                            max={3}
-                            step={0.1}
-                            value={imageZoom}
-                            onChange={(e) => setImageZoom(Number(e.target.value))}
-                            style={{
-                                accentColor: "var(--text-h)",
-                                width: "250px",
-                            }}
-                        />
-                    </div>
-
-                    {/* CONFIDENCE SELECTION */}
-                    {thereAreAreasToShow && (
+                        {/* ZOOM SELECTOR */}
                         <div className="flex flex-col items-center">
                             <p className="info-text">
-                                {t('blueprint:controls.confidenceLevel')}: {Math.round(confidenceSelection * 100)}%
+                                {t('blueprint:controls.zoom')}: {Math.round(imageZoom * 100)}%
                             </p>
+
                             <input
                                 className="cursor-pointer"
                                 type="range"
-                                min={0.1}
-                                max={1}
+                                min={0.5}
+                                max={3}
                                 step={0.1}
-                                value={confidenceSelection}
-                                onChange={(e) => {
-                                    setConfidenceSelection(Number(e.target.value))
-                                }}
+                                value={imageZoom}
+                                onChange={(e) => setImageZoom(Number(e.target.value))}
                                 style={{
                                     accentColor: "var(--text-h)",
                                     width: "250px",
                                 }}
                             />
                         </div>
-                    )}
 
-                    {/* LABEL FILETER AND COUNT */}
-                    {thereAreAreasToShow && (
-                        <div className="flex flex-col items-center">
-
-                            <Label className="info-text">
-                                {t('blueprint:controls.labelFilter')}
-                            </Label>
-
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button 
-                                        className="cursor-pointer"
-                                        variant="outline"
-                                    >
-                                        {t('blueprint:controls.select')}
-                                    </Button>
-                                </DropdownMenuTrigger>
-
-                                <DropdownMenuContent className="w-64">
-                                    <DropdownMenuLabel>
-                                        {t('blueprint:labelFilterOptions.title')}
-                                    </DropdownMenuLabel>
-
-                                    <DropdownMenuSeparator />
-
-                                    <Button
-                                        className="cursor-pointer"
-                                        onClick={(e) => {
-                                            e.preventDefault()
-                                            setSelectedLabels([])
-                                        }}
-                                    >
-                                        {t('blueprint:labelFilterOptions.showAllAreas')}
-                                    </Button>
-
-                                    {labelOptions.map((item) => (
-                                        <div
-                                            key={item.label}
-                                            className="flex items-center gap-2 px-2 py-1"
-                                        >
-                                            <Checkbox
-                                                className="cursor-pointer"
-                                                checked={!selectedLabels.includes(item.label)}
-                                                onCheckedChange={() => toggleLabel(item.label)}
-                                            />
-
-                                            <span className="text-sm">
-                                                {item.label} ({item.count})
-                                            </span>
-                                        </div>
-                                    ))}
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-
-                        </div>
-                    )}
-
-                    {/* HIDE / SHOW DRAWN AREAS */}
-                    {thereAreAreasToShow && (
-                        <div className="flex flex-col items-center">
-
-                            <Label className="info-text">
-                                {t('blueprint:controls.hideDrawnAreas')}
-                            </Label>
-
-                            <div className="flex items-center space-x-2">
-
-                                <Switch
+                        {/* CONFIDENCE SELECTION */}
+                        {thereAreAreasToShow && (
+                            <div className="flex flex-col items-center">
+                                <p className="info-text">
+                                    {t('blueprint:controls.confidenceLevel')}: {Math.round(confidenceSelection * 100)}%
+                                </p>
+                                <input
                                     className="cursor-pointer"
-                                    id="hidedrawnareas"
-                                    checked={hideDrawnAreas}
-                                    onCheckedChange={(value) => setHideDrawnAreas(value)}
+                                    type="range"
+                                    min={0.1}
+                                    max={1}
+                                    step={0.1}
+                                    value={confidenceSelection}
+                                    onChange={(e) => {
+                                        setConfidenceSelection(Number(e.target.value))
+                                    }}
+                                    style={{
+                                        accentColor: "var(--text-h)",
+                                        width: "250px",
+                                    }}
                                 />
+                            </div>
+                        )}
 
-                                <Label htmlFor="hidedrawnareas">
-                                    {hideDrawnAreas ? 
-                                        <GrFormViewHide className="text-white text-xl"/> 
-                                        : 
-                                        <GrFormView className="text-white text-xl"/>
-                                    }
+                        {/* LABEL FILETER AND COUNT */}
+                        {thereAreAreasToShow && (
+                            <div className="flex flex-col items-center">
+
+                                <Label className="info-text">
+                                    {t('blueprint:controls.labelFilter')}
                                 </Label>
 
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button 
+                                            className="cursor-pointer"
+                                            variant="outline"
+                                        >
+                                            {t('blueprint:controls.select')}
+                                        </Button>
+                                    </DropdownMenuTrigger>
+
+                                    <DropdownMenuContent className="w-64">
+                                        <DropdownMenuLabel>
+                                            {t('blueprint:labelFilterOptions.title')}
+                                        </DropdownMenuLabel>
+
+                                        <DropdownMenuSeparator />
+
+                                        <Button
+                                            className="cursor-pointer"
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                setSelectedLabels([])
+                                            }}
+                                        >
+                                            {t('blueprint:labelFilterOptions.showAllAreas')}
+                                        </Button>
+
+                                        {labelOptions.map((item) => (
+                                            <div
+                                                key={item.label}
+                                                className="flex items-center gap-2 px-2 py-1"
+                                            >
+                                                <Checkbox
+                                                    className="cursor-pointer"
+                                                    checked={!selectedLabels.includes(item.label)}
+                                                    onCheckedChange={() => toggleLabel(item.label)}
+                                                />
+
+                                                <span className="text-sm">
+                                                    {item.label} ({item.count})
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+
                             </div>
+                        )}
 
+                        {/* HIDE / SHOW DRAWN AREAS */}
+                        {thereAreAreasToShow && (
+                            <div className="flex flex-col items-center">
+
+                                <Label className="info-text">
+                                    {t('blueprint:controls.hideDrawnAreas')}
+                                </Label>
+
+                                <div className="flex items-center space-x-2">
+
+                                    <Switch
+                                        className="cursor-pointer"
+                                        id="hidedrawnareas"
+                                        checked={hideDrawnAreas}
+                                        onCheckedChange={(value) => setHideDrawnAreas(value)}
+                                    />
+
+                                    <Label htmlFor="hidedrawnareas">
+                                        {hideDrawnAreas ? 
+                                            <GrFormViewHide className="text-white text-xl"/> 
+                                            : 
+                                            <GrFormView className="text-white text-xl"/>
+                                        }
+                                    </Label>
+
+                                </div>
+
+                            </div>
+                        )}
+
+                    </div>
+                )}
+
+                {/* EDIT AREA */}
+                {editAreaMode && (
+                    <div className="flex flex-col items-center">
+
+                        <div className="mt-6">
+                            {editAreaMode && selectedAreaForEdit && selectedAreaForEdit.area?.type === "circle" && (
+                                <div className="flex flex-col gap-2">
+                                    <Label
+                                        htmlFor="cicleRadius"
+                                        style={{ color: 'var(--text-h)' }}
+                                    >
+                                        {t('blueprint:editAreaOptions.circleRadius')}
+                                    </Label>
+                                    <Input
+                                        id="radiusSelection"
+                                        name="radius"
+                                        type="number"
+                                        min={1}
+                                        max={2000}
+                                        step={10}
+                                        className="bg-white dark:bg-zinc-950"
+                                        defaultValue={selectedAreaForEdit.area.radius}
+                                        onChange={(e) => {
+                                            const targetRadius = e.target.valueAsNumber;
+                                            if (isNaN(targetRadius)) return;
+                                            changeSelectedAreaRadius(targetRadius); 
+                                        }}
+                                    />
+                                </div>
+                            )}
+
+                            {editAreaMode && selectedAreaForEdit && selectedAreaForEdit.area?.type === "polygon" && (
+                                <div className="flex flex-col gap-2">
+                                    <Label
+                                        htmlFor="polygonVertices"
+                                        style={{ color: 'var(--text-h)' }}
+                                    >
+                                        {t('blueprint:editAreaOptions.polygonVertices')}
+                                    </Label>
+                                    <Input
+                                        id="polygonVerticesId"
+                                        name="polygonVerticesInput"
+                                        type="number"
+                                        min={1}
+                                        max={10}
+                                        className="bg-white dark:bg-zinc-950"
+                                        defaultValue={selectedAreaForEdit.area.coordsList.length}
+                                        onChange={(e) => {
+                                            const targetPolygonVertices = e.target.valueAsNumber;
+                                            if (isNaN(targetPolygonVertices)) return;
+                                            addVertexToPolygon(targetPolygonVertices); 
+                                        }}
+                                    />
+                                </div>
+                            )}
+
+                            {editAreaMode && selectedAreaForEdit && selectedAreaForEdit.area?.type === "polyline" && (
+                                <div className="flex flex-col gap-2">
+                                    <Label
+                                        htmlFor="polylineVertices"
+                                        style={{ color: 'var(--text-h)' }}
+                                    >
+                                        {t('blueprint:editAreaOptions.polylineVertices')}
+                                    </Label>
+                                    <Input
+                                        id="polylineVerticesId"
+                                        name="polylineVerticesInput"
+                                        type="number"
+                                        min={1}
+                                        max={25}
+                                        className="bg-white dark:bg-zinc-950"
+                                        defaultValue={selectedAreaForEdit.area.coordsList.length}
+                                        onChange={(e) => {
+                                            const targetPolylineVertices = e.target.valueAsNumber;
+                                            if (isNaN(targetPolylineVertices)) return;
+                                            changeSelectedAreaPolylineVertices(targetPolylineVertices); 
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </div>
-                    )}
 
-                </div>
+                        {editAreaMode && (
+                            <div className="flex flex-wrap items-start justify-center gap-8 mt-2">
+
+                                <Button
+                                    className="cursor-pointer"
+                                    variant="secondary"
+                                    onClick={saveEditedArea}
+                                >
+                                    {t('blueprint:editAreaOptions.saveEditedArea')}
+                                </Button>
+
+                                <Button
+                                    className="cursor-pointer"
+                                    variant="destructive"
+                                    onClick={cancelEditedArea}
+                                >
+                                    {t('common:cancel')}
+                                </Button>
+
+                            </div>
+                        )}
+                    </div>
                 )}
 
                 {/* ================= WORKSPACE ================= */}
@@ -2105,6 +2261,23 @@ const BlueprintView = () => {
                                     />
                                 </div>
 
+                                {/* BOTONES DE CROP */}
+                                <div className="flex gap-2 mb-4">
+                                    <Button
+                                        variant="secondary"
+                                        className="cursor-pointer"
+                                        onClick={() => setOpenCropForm(true)}
+                                    >
+                                        {t('blueprint:cropOptions.confirmCrop')}
+                                    </Button>
+                                    <Button 
+                                        className="cursor-pointer"
+                                        variant="destructive" onClick={handleCancelCrop}
+                                    >
+                                        {t('common:cancel')}
+                                    </Button>
+                                </div>
+
                                 {/* CONTENEDOR CON SCROLL */}
                                 <div
                                     style={{
@@ -2151,23 +2324,6 @@ const BlueprintView = () => {
                                             />
                                         </ReactCrop>
                                     </div>
-                                    </div>
-
-                                    {/* BOTONES */}
-                                    <div className="flex gap-2 mt-4">
-                                        <Button
-                                            variant="secondary"
-                                            className="cursor-pointer"
-                                            onClick={() => setOpenCropForm(true)}
-                                        >
-                                            {t('blueprint:cropOptions.confirmCrop')}
-                                        </Button>
-                                        <Button 
-                                            className="cursor-pointer"
-                                            variant="destructive" onClick={handleCancelCrop}
-                                        >
-                                            {t('common:cancel')}
-                                        </Button>
                                     </div>
                             </div>
                         )}
@@ -2327,110 +2483,6 @@ const BlueprintView = () => {
 
                 </div>
 
-                {/* EDIT AREA */}
-                <div className="flex flex-col items-center">
-
-                    <div className="mt-2">
-                        {editAreaMode && selectedAreaForEdit && selectedAreaForEdit.area?.type === "circle" && (
-                            <div className="flex flex-col gap-2">
-                                <Label
-                                    htmlFor="cicleRadius"
-                                    style={{ color: 'var(--text-h)' }}
-                                >
-                                    {t('blueprint:editAreaOptions.circleRadius')}
-                                </Label>
-                                <Input
-                                    id="radiusSelection"
-                                    name="radius"
-                                    type="number"
-                                    min={1}
-                                    max={2000}
-                                    step={10}
-                                    className="bg-white dark:bg-zinc-950"
-                                    defaultValue={selectedAreaForEdit.area.radius}
-                                    onChange={(e) => {
-                                        const targetRadius = e.target.valueAsNumber;
-                                        if (isNaN(targetRadius)) return;
-                                        changeSelectedAreaRadius(targetRadius); 
-                                    }}
-                                />
-                            </div>
-                        )}
-
-                        {editAreaMode && selectedAreaForEdit && selectedAreaForEdit.area?.type === "polygon" && (
-                            <div className="flex flex-col gap-2">
-                                <Label
-                                    htmlFor="polygonVertices"
-                                    style={{ color: 'var(--text-h)' }}
-                                >
-                                    {t('blueprint:editAreaOptions.polygonVertices')}
-                                </Label>
-                                <Input
-                                    id="polygonVerticesId"
-                                    name="polygonVerticesInput"
-                                    type="number"
-                                    min={1}
-                                    max={10}
-                                    className="bg-white dark:bg-zinc-950"
-                                    defaultValue={selectedAreaForEdit.area.coordsList.length}
-                                    onChange={(e) => {
-                                        const targetPolygonVertices = e.target.valueAsNumber;
-                                        if (isNaN(targetPolygonVertices)) return;
-                                        addVertexToPolygon(targetPolygonVertices); 
-                                    }}
-                                />
-                            </div>
-                        )}
-
-                        {editAreaMode && selectedAreaForEdit && selectedAreaForEdit.area?.type === "polyline" && (
-                            <div className="flex flex-col gap-2">
-                                <Label
-                                    htmlFor="polylineVertices"
-                                    style={{ color: 'var(--text-h)' }}
-                                >
-                                    {t('blueprint:editAreaOptions.polylineVertices')}
-                                </Label>
-                                <Input
-                                    id="polylineVerticesId"
-                                    name="polylineVerticesInput"
-                                    type="number"
-                                    min={1}
-                                    max={25}
-                                    className="bg-white dark:bg-zinc-950"
-                                    defaultValue={selectedAreaForEdit.area.coordsList.length}
-                                    onChange={(e) => {
-                                        const targetPolylineVertices = e.target.valueAsNumber;
-                                        if (isNaN(targetPolylineVertices)) return;
-                                        changeSelectedAreaPolylineVertices(targetPolylineVertices); 
-                                    }}
-                                />
-                            </div>
-                        )}
-                    </div>
-
-                    {editAreaMode && (
-                        <div className="flex flex-wrap items-start justify-center gap-8 mt-2">
-
-                            <Button
-                                className="cursor-pointer"
-                                variant="secondary"
-                                onClick={saveEditedArea}
-                            >
-                                {t('blueprint:editAreaOptions.saveEditedArea')}
-                            </Button>
-
-                            <Button
-                                className="cursor-pointer"
-                                variant="destructive"
-                                onClick={cancelEditedArea}
-                            >
-                                {t('common:cancel')}
-                            </Button>
-
-                        </div>
-                    )}
-                </div>
-
                 </div>
 
                 {/* DELETED AREAS */}
@@ -2489,6 +2541,7 @@ const BlueprintView = () => {
                 )}
 
                 {/* SAVE AREAS */}
+                {/*
                 {thereAreAreasToShow && (
                     <div className="main-content-item">
 
@@ -2503,6 +2556,7 @@ const BlueprintView = () => {
 
                     </div>
                 )}
+                */}
 
                 {/* ADD TEST AREAS */} 
                 {/*

@@ -20,6 +20,8 @@
         "hideDrawnAreas": "Ocultar áreas"
     },
 
+    "changesWarning": "Se han realizado cambios y no han sido guardados",
+
     "areaOptions": {
         "edit": "Editar área",
         "delete": "Eliminar área",

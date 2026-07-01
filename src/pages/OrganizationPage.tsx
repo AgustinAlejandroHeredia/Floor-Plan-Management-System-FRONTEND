@@ -671,6 +671,8 @@ const OrganizationPage = () => {
 
             </div>
 
+            <Separator />
+
             <div ref={projectsSectionRef}>
             {projects.length === 0 ? (
                 
@@ -683,94 +685,58 @@ const OrganizationPage = () => {
 
                 <div className="main-content-item">
 
-                    <h2 className="sub-heading-2">{t('organization:availableProjects')}: </h2>
+                    <h2 className="sub-heading-2">{t('organization:availableProjects')}</h2>
 
-                    <div
-                    style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-                        gap: "16px",
-                        justifyContent: "center",
-                        padding: "16px",
-                        maxWidth: "1700px",
-                        margin: "0 auto",
-                    }}
-                    >
-                    {projects.map((project, index) => (
-                        <div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 max-w-5xl mt-4">
+                        {projects.map((project, index) => (
                         <Card
                             key={index}
-                            className="cursor-pointer transition-colors duration-200 bg-[var(--accent-bg)] hover:bg-[var(--accent-bg2)] max-w-md"
+                            className="cursor-pointer transition-colors duration-200 bg-[var(--accent-bg)] hover:bg-[var(--accent-bg2)] w-full"
                             onClick={() => handleSelectProject(project.projectName, project._id)}
                         >
-                        <CardContent>
-
-                            <CardTitle className="text-[var(--text-h)]">
-                            {project.projectName}
+                            <CardContent className="p-5">
+                            <CardTitle className="text-[var(--text-h)] text-lg font-bold truncate">
+                                {project.projectName}
                             </CardTitle>
 
                             <div className="mt-2 text-[var(--text)] text-sm space-y-1">
                                 <div>
-                                    <span className="font-medium">{t('project:projectCharacteristics.status')}:</span> 
-                                    <span 
-                                        style={{
-                                            color: getProjectStatusColor(project.status)
-                                        }}
-                                    > {t(`project:projectCharacteristics.statusType.${project.status}`)}</span>
+                                <span className="font-medium">{t('project:projectCharacteristics.status')}:</span> 
+                                <span style={{ color: getProjectStatusColor(project.status) }}>
+                                    {" "}{t(`project:projectCharacteristics.statusType.${project.status}`)}
+                                </span>
                                 </div>
 
                                 {project.levels && (
-                                    <div>
-                                        <span className="font-medium">{t('project:projectCharacteristics.levels')}:</span> {project.levels}
-                                    </div>
+                                <div>
+                                    <span className="font-medium">{t('project:projectCharacteristics.levels')}:</span> {project.levels}
+                                </div>
                                 )}
 
                                 <div>
-                                    <span className="font-medium">{t('project:projectCharacteristics.basement')}:</span>{" "}
-                                    {project.basement ? t('common:yes') : t('common:no')}
+                                <span className="font-medium">{t('project:projectCharacteristics.basement')}:</span>{" "}
+                                {project.basement ? t('common:yes') : t('common:no')}
                                 </div>
                             </div>
 
-                            <div
-                                style={{
-                                    width: "100%",
-                                    height: "260px",
-                                    overflow: "hidden",
-                                    borderRadius: "6px",
-                                    marginTop: "10px",
-                                    marginBottom: "10px",
-                                    background: "#eee",
-                                }}
-                                >
+                            {/* Contenedor del Thumbnail */}
+                            <div className="w-full h-[200px] overflow-hidden rounded-md mt-4 bg-[var(--code-bg)] flex items-center justify-center">
                                 {project.oldestBlueprintThumbnailUrl ? (
-                                    <img
+                                <img
                                     src={project.oldestBlueprintThumbnailUrl}
                                     alt="project thumbnail"
-                                    style={{
-                                        width: "100%",
-                                        height: "100%",
-                                        objectFit: "cover",
-                                    }}
-                                    />
+                                    className="w-full h-full object-cover"
+                                />
                                 ) : (
-                                    <div
-                                    style={{
-                                        textAlign: "center",
-                                        paddingTop: "60px",
-                                        fontSize: "12px",
-                                        color: "#999",
-                                    }}
-                                    >
+                                <div className="text-center text-xs text-[var(--text-l)]">
                                     {t('organization:noProjectsYet')}
-                                    </div>
+                                </div>
                                 )}
                             </div>
-                        </CardContent>
+                            </CardContent>
                         </Card>
-                        </div>
-                    ))}
+                        ))}
                     </div>
-
                 </div>
             )}
             </div>
@@ -787,9 +753,9 @@ const OrganizationPage = () => {
 
         </div>
 
-        <Separator />
-
         <div className="main-content">
+
+            <Separator />
 
             {/* MEMBERS */}
             <div
@@ -797,28 +763,25 @@ const OrganizationPage = () => {
                 className="main-content-item"
             >
 
-            <h3 className="sub-heading-2">
-                {t('organization:organizationMembers')}
-            </h3>
+            <div className="flex items-center justify-between">
 
-            {(userOrganizationRole === "admin" || organizationPermissions.invitePermission === "members") && (
-                <div className="flex items-center justify-between">
-                    <p className="comment-text">
-                        {t('organization:organizationMembersCount')} {usersCount}
-                    </p>
+                <h3 className="sub-heading-2">
+                    {t('organization:organizationMembers')}
+                </h3>
 
-                    <IoMdAddCircle
-                        className="
-                            text-[var(--text-h)] 
-                            text-3xl 
-                            cursor-pointer
-                            hover:opacity-80
-                            transition-opacity
-                        "
-                        onClick={() => setOpenInvitationDialog(true)}
-                    />
-                </div>
-            )}
+                {(userOrganizationRole === "admin" || organizationPermissions.invitePermission === "members") && (
+                        <IoMdAddCircle
+                            className="
+                                text-[var(--text-h)] 
+                                text-3xl 
+                                cursor-pointer
+                                hover:opacity-80
+                                transition-opacity
+                            "
+                            onClick={() => setOpenInvitationDialog(true)}
+                        />
+                )}
+            </div>
 
             <div className="w-full space-y-1">
                 {organizationMembersList.map((member) => (
@@ -857,20 +820,19 @@ const OrganizationPage = () => {
 
         {userOrganizationRole === "admin" && (
         <>
-            <Separator />
 
             <div ref={invitationsSectionRef} className="main-content">
+
+                <Separator />
+
                 <div
                     ref={invitationsSectionRef}
                     className="main-content-item"
                 >
 
-                    <h3 className="sub-heading-2">{t('organization:organizationSentInvitations')}: </h3>
-
                     <div className="flex items-center justify-between">
-                        <p className="comment-text">
-                            {t('organization:organizationSentInvitationsCount')} {invitationsCount}
-                        </p>
+
+                        <h3 className="sub-heading-2">{t('organization:organizationSentInvitations')}</h3>
 
                         <IoMdAddCircle
                             className="

@@ -17,6 +17,7 @@
         "confidenceLevel": "Nivel de fiabilidad",
         "labelFilter": "Filtros",
         "select": "Selección",
+        "filters": "Filtros",
         "hideDrawnAreas": "Ocultar áreas"
     },
 
@@ -29,6 +30,7 @@
     },
 
     "areaOptions": {
+        "area": "Area",
         "edit": "Editar área",
         "delete": "Eliminar área",
         "hideTypeOfArea": "Ocultar tipo de área"
@@ -114,7 +116,7 @@
         "polygonVertices": "Vértices del polígono",
         "polylineVertices": "Vértices de la multilínea",
 
-        "saveEditedArea": "Save edited area"
+        "saveEditedArea": "Guardar área editada"
     },
 
     "newAreaDialog": {

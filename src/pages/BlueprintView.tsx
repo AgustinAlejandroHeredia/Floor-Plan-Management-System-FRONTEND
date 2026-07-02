@@ -14,7 +14,7 @@ import { BlueprintViewService } from "@/services/BlueprintViewService";
 import { MdEdit } from "react-icons/md";
 import { LuCirclePlus } from "react-icons/lu";
 import { IoIosClose } from "react-icons/io";
-import { FaFileDownload, FaMagic } from "react-icons/fa";
+import { FaChevronDown, FaChevronUp, FaFileDownload, FaMagic, FaRegCheckSquare, FaRegSquare } from "react-icons/fa";
 import { BsScissors } from "react-icons/bs";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { GrFormView, GrFormViewHide } from "react-icons/gr";
@@ -64,12 +64,13 @@ import type { AreaColor, BlueprintViewType, CreateCropPayload, DragAreaState, Ed
 // CONTEXT
 import { useInferenceNotification } from "@/context/InferenceNotificationContext";
 import React from "react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Item, ItemActions, ItemContent } from "@/components/ui/item";
 
 // TRANSLATION
 import { useTranslation } from "react-i18next";
+
+// ANIMATIONS
+import { motion, AnimatePresence } from "framer-motion"
 
 import { FiPlus } from "react-icons/fi";
 
@@ -156,6 +157,7 @@ const BlueprintView = () => {
     const [isSavingAreas, setIsSavingAreas] = useState<boolean>(false)
 
     // CURRENT LABEL FILTER
+    const [showFilterList, setShowFilterList] = useState<boolean>(false)
     const [selectedLabels, setSelectedLabels] = useState<string[]>([])
 
     useEffect(() => {
@@ -1445,139 +1447,148 @@ const BlueprintView = () => {
 
                 {/* CONTROLS */}
                 {!cropMode && !editAreaMode && (
-                    <div className="flex flex-wrap items-start justify-center gap-8 mt-6">
+                    <div>
+                        {/* CONTROLS */}
+                        <div className="flex flex-wrap items-end justify-center gap-8 mt-6">
 
-                        {/* ZOOM SELECTOR */}
-                        <div className="flex flex-col items-center">
-                            <p className="info-text">
-                                {t('blueprint:controls.zoom')}: {Math.round(imageZoom * 100)}%
-                            </p>
-
-                            <input
-                                className="cursor-pointer"
-                                type="range"
-                                min={0.5}
-                                max={3}
-                                step={0.1}
-                                value={imageZoom}
-                                onChange={(e) => setImageZoom(Number(e.target.value))}
-                                style={{
-                                    accentColor: "var(--text-h)",
-                                    width: "250px",
-                                }}
-                            />
-                        </div>
-
-                        {/* CONFIDENCE SELECTION */}
-                        {thereAreAreasToShow && (
-                            <div className="flex flex-col items-center">
-                                <p className="info-text">
-                                    {t('blueprint:controls.confidenceLevel')}: {Math.round(confidenceSelection * 100)}%
+                            {/* ZOOM SELECTOR */}
+                            <motion.div layout className="flex flex-col items-center">
+                                <p className="info-text mb-1">
+                                    {t('blueprint:controls.zoom')}: {Math.round(imageZoom * 100)}%
                                 </p>
                                 <input
                                     className="cursor-pointer"
                                     type="range"
-                                    min={0.1}
-                                    max={1}
+                                    min={0.5}
+                                    max={3}
                                     step={0.1}
-                                    value={confidenceSelection}
-                                    onChange={(e) => {
-                                        setConfidenceSelection(Number(e.target.value))
-                                    }}
+                                    value={imageZoom}
+                                    onChange={(e) => setImageZoom(Number(e.target.value))}
                                     style={{
                                         accentColor: "var(--text-h)",
                                         width: "250px",
                                     }}
                                 />
-                            </div>
-                        )}
+                            </motion.div>
 
-                        {/* LABEL FILETER AND COUNT */}
-                        {thereAreAreasToShow && (
-                            <div className="flex flex-col items-center">
-
-                                <Label className="info-text">
-                                    {t('blueprint:controls.labelFilter')}
-                                </Label>
-
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button 
+                            {/* CONFIDENCE SELECTION */}
+                            <AnimatePresence mode="popLayout">
+                                {thereAreAreasToShow && (
+                                    <motion.div 
+                                        layout
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.9 }}
+                                        className="flex flex-col items-center"
+                                    >
+                                        <p className="info-text mb-1">
+                                            {t('blueprint:controls.confidenceLevel')}: {Math.round(confidenceSelection * 100)}%
+                                        </p>
+                                        <input
                                             className="cursor-pointer"
-                                            variant="outline"
-                                        >
-                                            {t('blueprint:controls.select')}
-                                        </Button>
-                                    </DropdownMenuTrigger>
+                                            type="range"
+                                            min={0.1}
+                                            max={1}
+                                            step={0.1}
+                                            value={confidenceSelection}
+                                            onChange={(e) => setConfidenceSelection(Number(e.target.value))}
+                                            style={{
+                                                accentColor: "var(--text-h)",
+                                                width: "250px",
+                                            }}
+                                        />
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
 
-                                    <DropdownMenuContent className="w-64">
-                                        <DropdownMenuLabel>
-                                            {t('blueprint:labelFilterOptions.title')}
-                                        </DropdownMenuLabel>
-
-                                        <DropdownMenuSeparator />
-
+                            {/* SHOW FILTERS */}
+                            <AnimatePresence mode="popLayout">
+                                {thereAreAreasToShow && !showFilterList && (
+                                    <motion.div
+                                        layout // hace que el botón avise cuando va a dejar su espacio libre
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        transition={{ duration: 0.2 }}
+                                    >
                                         <Button
                                             className="cursor-pointer"
-                                            onClick={(e) => {
-                                                e.preventDefault()
-                                                setSelectedLabels([])
-                                            }}
+                                            variant="outline"
+                                            onClick={() => setShowFilterList(true)}
                                         >
-                                            {t('blueprint:labelFilterOptions.showAllAreas')}
+                                            {t('blueprint:controls.filters')} <FaChevronDown className="ml-2" />
                                         </Button>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
 
-                                        {labelOptions.map((item) => (
-                                            <div
-                                                key={item.label}
-                                                className="flex items-center gap-2 px-2 py-1"
-                                            >
-                                                <Checkbox
-                                                    className="cursor-pointer"
-                                                    checked={!selectedLabels.includes(item.label)}
-                                                    onCheckedChange={() => toggleLabel(item.label)}
-                                                />
-
-                                                <span className="text-sm">
-                                                    {item.label} ({item.count})
-                                                </span>
-                                            </div>
-                                        ))}
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-
-                            </div>
-                        )}
-
-                        {/* HIDE / SHOW DRAWN AREAS */}
-                        {thereAreAreasToShow && (
-                            <div className="flex flex-col items-center">
-
-                                <Label className="info-text">
-                                    {t('blueprint:controls.hideDrawnAreas')}
-                                </Label>
-
-                                <div className="flex items-center space-x-2">
-
-                                    <Switch
-                                        className="cursor-pointer"
-                                        id="hidedrawnareas"
-                                        checked={hideDrawnAreas}
-                                        onCheckedChange={(value) => setHideDrawnAreas(value)}
-                                    />
-
-                                    <Label htmlFor="hidedrawnareas">
-                                        {hideDrawnAreas ? 
-                                            <GrFormViewHide className="text-white text-xl"/> 
-                                            : 
-                                            <GrFormView className="text-white text-xl"/>
-                                        }
+                            {/* HIDE / SHOW DRAWN AREAS */}
+                            {thereAreAreasToShow && (
+                                <motion.div layout className="flex flex-col items-center">
+                                    <Label className="info-text mb-2">
+                                        {t('blueprint:controls.hideDrawnAreas')}
                                     </Label>
+                                    <div className="flex items-center space-x-2">
+                                        <Switch
+                                            className="cursor-pointer"
+                                            id="hidedrawnareas"
+                                            checked={hideDrawnAreas}
+                                            onCheckedChange={(value) => setHideDrawnAreas(value)}
+                                        />
+                                        <Label htmlFor="hidedrawnareas">
+                                            {hideDrawnAreas ? 
+                                                <GrFormViewHide className="text-white text-xl"/> 
+                                                : 
+                                                <GrFormView className="text-white text-xl"/>
+                                            }
+                                        </Label>
+                                    </div>
+                                </motion.div>
+                            )}
 
-                                </div>
+                        </div>
 
-                            </div>
-                        )}
+                        {/* SHOWING FILTERS */}
+                        <AnimatePresence>
+                            {showFilterList && (
+                                <motion.div
+                                    // Reemplaza tus Keyframes de CSS:
+                                    initial={{ opacity: 0, y: -20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                                    
+                                    className="flex flex-row flex-wrap items-center justify-center gap-2 mt-4 px-4 w-full"
+                                >
+                                    <Button
+                                        className="cursor-pointer"
+                                        variant="outline"
+                                        onClick={() => setShowFilterList(false)}
+                                    >
+                                        {t('blueprint:controls.labelFilter')} <FaChevronUp className="ml-2" />
+                                    </Button>
+
+                                    <Button
+                                        className="cursor-pointer"
+                                        variant="outline"
+                                        onClick={() => setSelectedLabels([])}
+                                    >
+                                        {t('blueprint:labelFilterOptions.showAllAreas')}
+                                    </Button>
+                                    
+                                    {labelOptions.map((item) => (
+                                        <Button
+                                            key={item.label}
+                                            className="cursor-pointer"
+                                            variant="outline"
+                                            onClick={() => toggleLabel(item.label)}
+                                        >   
+                                            {selectedLabels.includes(item.label) ? <FaRegSquare className="mr-2" /> : <FaRegCheckSquare className="mr-2" /> } {item.label} ({item.count})
+                                        </Button>
+                                    ))}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
 
                     </div>
                 )}
@@ -1806,7 +1817,7 @@ const BlueprintView = () => {
 
                                                                 <ContextMenuGroup>
 
-                                                                    <ContextMenuLabel>Area: {section.label}</ContextMenuLabel>
+                                                                    <ContextMenuLabel>{t('blueprint:areaOptions.area')}: {section.label}</ContextMenuLabel>
 
                                                                     <ContextMenuItem
                                                                         onClick={() => {
@@ -2518,59 +2529,73 @@ const BlueprintView = () => {
                 </div>
 
                 {/* DELETED AREAS */}
-                {deletedAreasList.length > 0 && (
-                    <div className="main-content-item flex flex-col items-center">
-                        <div className="w-full max-w-4xl">
-                            <p className="comment-text mb-4">
-                                {t('blueprint:deletedAreasOptions.title')}
-                            </p>
-                            {deletedAreasList.map((deletedArea, index) => (
-                                <div key={index} className="mb-2">
-                                    
-                                    <Item
-                                        variant="outline"
-                                        className="gap-6 w-full"
-                                    >
-                                        <ItemContent className="flex flex-row items-center gap-6">
-                                            
-                                            <span className="min-w-[120px] text-[var(--text-h)]">
-                                                {t('blueprint:deletedAreasOptions.label')}: {deletedArea.label}
-                                            </span>
-
-                                            <span className="min-w-[120px] text-[var(--text-h)]">
-                                                {t('blueprint:deletedAreasOptions.confidence')}: {Math.round(deletedArea.confidence! * 100)}%
-                                            </span>
-
-                                            <span className="min-w-[120px] text-[var(--text-h)]">
-                                                {t('blueprint:deletedAreasOptions.type')}: {t(`blueprint:shapeTypes.${deletedArea.type.toLowerCase()}`)}
-                                            </span>
-
-                                        </ItemContent>
-
-                                        <ItemActions className="flex gap-2 shrink-0">
-                                            <Button
-                                                className="cursor-pointer"
-                                                variant="secondary"
-                                                onClick={() =>
-                                                    undoDeletedArea(
-                                                        deletedArea,
-                                                        index,
-                                                    )
-                                                }
+                <AnimatePresence>
+                    {deletedAreasList.length > 0 && (
+                        
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="main-content-item flex flex-col items-center w-full"
+                        >
+                            <div className="w-full max-w-4xl">
+                                <p className="comment-text mb-4">
+                                    {t('blueprint:deletedAreasOptions.title')}
+                                </p>
+                                
+                                <AnimatePresence mode="popLayout">
+                                    {deletedAreasList.map((deletedArea, index) => (
+                                        <motion.div 
+                                            key={index}
+                                            layout
+                                            initial={{ opacity: 0, x: -30 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: 30 }}
+                                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                            className="mb-2"
+                                        >
+                                            <Item
+                                                variant="outline"
+                                                className="gap-6 w-full"
                                             >
-                                                <CgUndo className="w-4 h-4 text-black group-hover/button:text-black transition-colors" />
-                                                {t('blueprint:deletedAreasOptions.undo')}
-                                            </Button>
-                                        </ItemActions>
+                                                <ItemContent className="flex flex-row items-center gap-6">
+                                                    <span className="min-w-[120px] text-[var(--text-h)]">
+                                                        {t('blueprint:deletedAreasOptions.label')}: {deletedArea.label}
+                                                    </span>
 
-                                    </Item>
+                                                    <span className="min-w-[120px] text-[var(--text-h)]">
+                                                        {t('blueprint:deletedAreasOptions.confidence')}: {Math.round(deletedArea.confidence! * 100)}%
+                                                    </span>
 
-                                </div>
-                            ))}
-                        </div>
+                                                    <span className="min-w-[120px] text-[var(--text-h)]">
+                                                        {t('blueprint:deletedAreasOptions.type')}: {t(`blueprint:shapeTypes.${deletedArea.type.toLowerCase()}`)}
+                                                    </span>
+                                                </ItemContent>
 
-                    </div>
-                )}
+                                                <ItemActions className="flex gap-2 shrink-0">
+                                                    <Button
+                                                        className="cursor-pointer"
+                                                        variant="secondary"
+                                                        onClick={() =>
+                                                            undoDeletedArea(
+                                                                deletedArea,
+                                                                index,
+                                                            )
+                                                        }
+                                                    >
+                                                        <CgUndo className="w-4 h-4 text-black group-hover/button:text-black transition-colors" />
+                                                        {t('blueprint:deletedAreasOptions.undo')}
+                                                    </Button>
+                                                </ItemActions>
+                                            </Item>
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {/* SAVE AREAS */}
                 {/*

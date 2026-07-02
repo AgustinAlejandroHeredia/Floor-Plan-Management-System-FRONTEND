@@ -17,6 +17,7 @@
         "confidenceLevel": "Confidence level",
         "labelFilter": "Label filter",
         "select": "Select",
+        "filters": "Filters",
         "hideDrawnAreas": "Hide drawn areas"
     },
 
@@ -29,6 +30,7 @@
     },
 
     "areaOptions": {
+        "area": "Area",
         "edit": "Edit area",
         "delete": "Delete area",
         "hideTypeOfArea": "Hide area type"

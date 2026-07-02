@@ -154,7 +154,7 @@ const BlueprintView = () => {
     // SAVE AREAS
     const [openSaveAreasDialog, setOpenSaveAreasDialog] = useState<boolean>(false)
     const [isSavingAreas, setIsSavingAreas] = useState<boolean>(false)
-    
+
     // CURRENT LABEL FILTER
     const [selectedLabels, setSelectedLabels] = useState<string[]>([])
 
@@ -173,7 +173,6 @@ const BlueprintView = () => {
     const [highlightedAreaIndex, setHighlightedAreaIndex] = useState<number | null>(null)
     const [hideDrawnAreas, setHideDrawnAreas] = useState<boolean>(false)
 
-
     // CREATE CROP FORM VARIABLES
     const [openCropForm, setOpenCropForm] = useState<boolean>(false)
     const [isUploadingCrop, setIsUploadingCrop] = useState<boolean>(false)
@@ -187,7 +186,7 @@ const BlueprintView = () => {
         y: 0,
         width: 100,
         height: 100,
-    });
+    })
 
     const [completedCrop, setCompletedCrop] = useState<Crop | null>(null);
     const [imageRef, setImageRef] = useState<HTMLImageElement | null>(null);
@@ -230,46 +229,65 @@ const BlueprintView = () => {
     const [newAreaEmptyFieldWarning, setNewAreaEmptyFieldWarning] = useState<boolean>(false)
 
     // CHANGES WARNING
-    const [warningState, setWarningState] = useState<boolean>(false)
+    const [warningState, setWarningState] = useState<number>(0)
+    const [txBlocker, setTxBlocker] = useState<any>(null)
+    const [showLeaveDialog, setShowLeaveDialog] = useState<boolean>(false)
 
     useEffect(() => {
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-            if (warningState) {
+            if (warningState !== 0) {
                 e.preventDefault()
                 e.returnValue = ""
             }
-        }
-
+        };
         window.addEventListener("beforeunload", handleBeforeUnload)
         return () => window.removeEventListener("beforeunload", handleBeforeUnload)
     }, [warningState])
 
-    const { navigator } = useContext(UNSAFE_NavigationContext)
+    const { navigator } = useContext(UNSAFE_NavigationContext);
 
     useEffect(() => {
-        if (!warningState) return
+        if (!navigator) return;
 
-        const originalPushState = window.history.pushState
+        const originalPush = navigator.push;
+        const originalReplace = navigator.replace;
 
-        window.history.pushState = function (...args) {
-            const seguro = window.confirm("Tienes cambios sin guardar. ¿Estás seguro de que quieres salir?");
-            if (seguro) {
-                return originalPushState.apply(this, args)
-            }
-            return
-        }
+        const interceptNavigation = (originalFn: any) => {
+            return (...args: any[]) => {
+                if (warningState !== 0) {
+                    setTxBlocker({
+                        retry: () => originalFn.apply(navigator, args)
+                    });
+                    setShowLeaveDialog(true);
+                } else {
+                    originalFn.apply(navigator, args);
+                }
+            };
+        };
+
+        navigator.push = interceptNavigation(originalPush);
+        navigator.replace = interceptNavigation(originalReplace);
 
         const handlePopState = (e: PopStateEvent) => {
-            const seguro = window.confirm("Tienes cambios sin guardar. ¿Estás seguro de que quieres salir?")
-            if (!seguro) {
-                window.history.pushState(null, "", window.location.href)
+            if (warningState !== 0) {
+                window.history.pushState(null, "", window.location.href);
+                
+                setTxBlocker({
+                    retry: () => {
+                        navigator.push = originalPush;
+                        navigator.replace = originalReplace;
+                        window.history.go(-1);
+                    }
+                });
+                setShowLeaveDialog(true);
             }
-        }
+        };
 
         window.addEventListener("popstate", handlePopState);
 
         return () => {
-            window.history.pushState = originalPushState;
+            navigator.push = originalPush;
+            navigator.replace = originalReplace;
             window.removeEventListener("popstate", handlePopState);
         };
     }, [warningState, navigator])
@@ -740,7 +758,8 @@ const BlueprintView = () => {
                 setErrorAlertMessage(t('blueprint:errorMessages.inferenceJobCancelled'))
                 setOpenErrorAlert(true)
             }
-            setWarningState(true)
+            setWarningState((prev) => prev + 1)
+            console.log("WARNING STATE + 1")
         } catch (error) {
             setErrorAlertMessage(t('blueprint:errorMessages.errorProcessingBlueprint'))
             setOpenErrorAlert(true)
@@ -786,7 +805,8 @@ const BlueprintView = () => {
         })
 
         setAreaForDelete(null)
-        setWarningState(true)
+        setWarningState((prev) => prev + 1)
+        console.log("WARNING STATE + 1")
     }
 
     const undoDeletedArea = (
@@ -813,6 +833,8 @@ const BlueprintView = () => {
         setDeletedAreasList(prev =>
             prev.filter((_, i) => i !== index)
         )
+        setWarningState((prev) => prev - 1)
+        console.log("WARNING STATE - 1")
     }
 
     const handleSaveAreas = async () => {
@@ -974,7 +996,8 @@ const BlueprintView = () => {
         setBlueprint(newBlueprintEdited)
 
         setEditAreaMode(false)
-        setWarningState(true)
+        setWarningState((prev) => prev + 1)
+        console.log("WARNING STATE + 1")
     }
 
     const cancelEditedArea = () => {
@@ -1217,7 +1240,8 @@ const BlueprintView = () => {
                 }
             })
 
-            setWarningState(true)
+            setWarningState((prev) => prev + 1)
+            console.log("WARNING STATE + 1")
 
         } else {
             console.error("No se pudo crear el área porque el tipo no es válido.")
@@ -1233,6 +1257,21 @@ const BlueprintView = () => {
     const addTestingAreas = async () => {
         await BlueprintViewService.addTestingAreas(blueprintId!)
         refreshBlueprint()
+    }
+
+    // WARNING FUNCIONS
+
+    const handleConfirmLeave = () => {
+        if (txBlocker) {
+            txBlocker.retry()
+        }
+        setShowLeaveDialog(false)
+    };
+
+    const handleCancelLeave = () => {
+        setTxBlocker(null)
+        setShowLeaveDialog(false)
+        window.history.pushState(null, "", window.location.href)
     }
 
     if (loadingBlueprint || !blueprint) return <Loading/>
@@ -1403,13 +1442,6 @@ const BlueprintView = () => {
 
                     </CardContent>
                 </Card>
-
-                {/* CHANGES WARNING */}
-                {warningState && (
-                    <div className="text-center text-[var(--status-critical)] mt-6">
-                        {t('blueprint:changesWarning')}
-                    </div>
-                )}
 
                 {/* CONTROLS */}
                 {!cropMode && !editAreaMode && (
@@ -2853,6 +2885,8 @@ const BlueprintView = () => {
                     title={t("blueprint:deleteAreaDialog.title", {label: areaForDelete?.label})}
                     description={t("blueprint:deleteAreaDialog.description")}
                     onConfirm={handleDeleteArea}
+                    confirmText={t('common:delete')}
+                    cancelText={t('common:cancel')}
                 />
 
                 {/* CONFIRM SAVE AREAS */}
@@ -3080,6 +3114,30 @@ const BlueprintView = () => {
                                 onClick={closeAddNewAreaDialog}
                             >
                                 {t('common:cancel')}
+                            </Button>
+                        </DialogFooter>
+
+                    </DialogContent>
+                </Dialog>
+
+                {/* WARNING DIALOG */}
+                <Dialog
+                    open={showLeaveDialog} 
+                    onOpenChange={setShowLeaveDialog}
+                >
+                    <DialogContent className="sm:max-w-sm">
+
+                        <DialogHeader>
+                            <DialogTitle>{t('blueprint:changesWarning.title')}</DialogTitle>
+                            <DialogDescription>{t('blueprint:changesWarning.description')}</DialogDescription>
+                        </DialogHeader>
+
+                        <DialogFooter>
+                            <Button variant="outline" onClick={handleCancelLeave}>
+                                {t('blueprint:changesWarning.stay')}
+                            </Button>
+                            <Button variant="destructive" onClick={handleConfirmLeave}>
+                                {t('blueprint:changesWarning.leave')}
                             </Button>
                         </DialogFooter>
 

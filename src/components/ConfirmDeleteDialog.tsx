@@ -12,6 +12,9 @@ import {
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { AlertDialogMedia } from "@/components/ui/alert-dialog"; // si ya lo usás
 
+// TRANSLATION
+import { useTranslation } from "react-i18next";
+
 type ConfirmDeleteDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;

@@ -20,7 +20,13 @@
         "hideDrawnAreas": "Hide drawn areas"
     },
 
-    "changesWarning": "Changes have been done and havent been saved",
+    "changesWarning": {
+        "title": "Unsaved Changes",
+        "description": "You have unsaved changes that will be lost if you leave this window.",
+        "question": "Are you sure you want to leave?",
+        "stay": "Stay",
+        "leave": "Leave"
+    },
 
     "areaOptions": {
         "edit": "Edit area",
@@ -92,6 +98,7 @@
         "type": "Type",
         "undo": "Undo"
     },
+
 
     "shapeTypes": {
         "rectangle": "Rectangle",

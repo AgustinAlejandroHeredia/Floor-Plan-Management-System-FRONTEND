@@ -1,81 +1,93 @@
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --text-l: #bbb9c0;
-  --bg: #fff;
-  --border: oklch(0.922 0 0);
-  --code-bg: #f4f3ec;
-  --accent: oklch(0.97 0 0);
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-bg2: rgba(170, 59, 255, 0.322);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
+  /* --- PALETA BLUEPRINT MINIMAL (MODO OSCURO FIJO) --- */
+  --bg: #0b0f19;              /* Un gris azulado ultra oscuro muy formal */
+  --text: #94a3b8;            /* Slate 400 (Texto fluido de lectura) */
+  --text-h: #f8fafc;          /* Slate 50 (Contraste máximo para títulos) */
+  --text-l: #64748b;          /* Slate 500 (Subtítulos y estados secundarios) */
+  --border: #1e293b;          /* Slate 800 (Líneas de grillas bien marcadas) */
+  --code-bg: #111827;         /* Slate 950 */
+  
+  /* El Acento: Azul Blueprint / Técnico (Optimizado para modo oscuro) */
+  --accent: #38bdf8;          /* Sky 400 (Azul luminoso para el contraste oscuro) */
+  --accent-bg: rgba(56, 189, 248, 0.12);   /* Fondo sutil para botones seleccionados */
+  --accent-bg2: rgba(56, 189, 248, 0.25);  /* Hover del botón activo */
+  --accent-border: rgba(56, 189, 248, 0.4);/* Borde destacado */
+  
+  --social-bg: rgba(30, 41, 59, 0.5);
   --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px,
-    rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+    rgba(0, 0, 0, 0.6) 0 10px 15px -3px,
+    rgba(0, 0, 0, 0.4) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: 'Geist Variable', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'Geist Variable', system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 16px/1.5 var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: light dark;
+  color-scheme: dark;         /* Le indica al navegador que renderice barras de scroll oscuras */
   color: var(--text);
   background: var(--bg);
 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  
+  /* --- Variables unificadas para Shadcn & Tailwind CSS --- */
+  --background: #0b0f19;
+  --foreground: #f8fafc;
+  --card: #111827;
+  --card-foreground: #f8fafc;
+  --popover: #111827;
+  --popover-foreground: #f8fafc;
+  
+  /* Color estructural base */
+  --primary: #f8fafc;
+  --primary-foreground: #0b0f19;
+  
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  
+  --accent-foreground: #38bdf8; 
+  --destructive: #f87171;       /* Rojo suavizado para fondo oscuro */
+  --input: #1e293b;
+  --ring: #38bdf8;              /* Foco azul */
+  
+  --chart-1: #38bdf8;           /* Sky 400 */
+  --chart-2: #f8fafc;           
+  --chart-3: #f59e0b;           /* Alertas en ámbar */
+  --chart-4: #10b981;           /* Éxito en esmeralda */
+  --chart-5: #6366f1;
+  
+  --radius: 0.375rem;           /* Bordes más rectos, geométricos e institucionales */
+  
+  /* Componente Sidebar */
+  --sidebar: #111827;
+  --sidebar-foreground: #94a3b8;
+  --sidebar-primary: #38bdf8;
+  --sidebar-primary-foreground: #0b0f19;
+  --sidebar-accent: #1e293b;
+  --sidebar-accent-foreground: #f8fafc;
+  --sidebar-border: #1e293b;
+  --sidebar-ring: #38bdf8;
 
-  --success: #16a34a;
-  --error: #dc2626;
+  /* Estados */
+  --success: #10b981;
+  --error: #ef4444;
 
-  --status-critical: #DC2626;
-  --status-low: #EA580C;
-  --status-medium: #EAB308;
-  --status-high: #84CC16;
-  --status-excellent: #16A34A;
+  --status-critical: #ef4444;
+  --status-low: #f97316;
+  --status-medium: #eab308;
+  --status-high: #84cc16;
+  --status-excellent: #10b981;
 }
 
 @import "tailwindcss";
-
 @import "tw-animate-css";
-
 @import "shadcn/tailwind.css";
-
 @import "@fontsource-variable/geist";
 
-@custom-variant dark (&:is(.dark *));
+/* Eliminado @custom-variant dark para evitar que selectores externos fuercen el light mode */
 
 @layer base {
   * {
@@ -89,22 +101,22 @@
   }
 }
 
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px,
-      rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+/* Duplicamos los tokens esenciales en la clase .dark por si algún componente interno */
+/* de Radix/Shadcn la inyecta por defecto, asegurando que nada se vuelva blanco */
+.dark {
+  --background: #0b0f19;
+  --foreground: #f8fafc;
+  --card: #111827;
+  --card-foreground: #f8fafc;
+  --popover: #111827;
+  --popover-foreground: #f8fafc;
+  --primary: #f8fafc;
+  --primary-foreground: #0b0f19;
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
+  --border: #1e293b;
+  --input: #1e293b;
+  --ring: #38bdf8;
 }
 
 @theme inline {
@@ -148,40 +160,6 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
 }
 
 /* Reset básico */

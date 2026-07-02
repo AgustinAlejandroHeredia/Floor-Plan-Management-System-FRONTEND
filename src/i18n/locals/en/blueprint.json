@@ -64,7 +64,14 @@
         "levels": "Levels",
         "singularLevel": "Level",
         "noLevelsSelected": "No levels selected",
-        "editLevels": "Edit levels"
+        "editLevels": "Edit levels",
+
+        "errors": {
+            "noName": "No name given",
+            "shortName": "Name too short",
+            "noPov": "No point of view selected",
+            "noSpecialty": "No specialty selected"
+        }
     },
 
     "pointOfViewOptions": {

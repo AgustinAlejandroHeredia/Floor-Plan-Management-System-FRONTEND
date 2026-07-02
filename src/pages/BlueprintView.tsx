@@ -14,7 +14,7 @@ import { BlueprintViewService } from "@/services/BlueprintViewService";
 import { MdEdit } from "react-icons/md";
 import { LuCirclePlus } from "react-icons/lu";
 import { IoIosClose } from "react-icons/io";
-import { FaChevronDown, FaChevronUp, FaFileDownload, FaMagic, FaRegCheckSquare, FaRegSquare } from "react-icons/fa";
+import { FaCheck, FaChevronDown, FaChevronUp, FaFileDownload, FaMagic, FaRegCheckSquare, FaRegSquare } from "react-icons/fa";
 import { BsScissors } from "react-icons/bs";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { GrFormView, GrFormViewHide } from "react-icons/gr";
@@ -59,7 +59,7 @@ import "react-image-crop/dist/ReactCrop.css";
 import { getCroppedImg } from "@/utils/cropImage";
 
 // TYPES
-import type { AreaColor, BlueprintViewType, CreateCropPayload, DragAreaState, EditAreaState, InferenceJobResult, InferenceJobStatus, InferenceJobType, Point, SectionType, SectionView, SpecialtyTag, YoloPrediction } from "@/types/types";
+import { specialtyTagOptions, type AreaColor, type BlueprintViewType, type CreateCropPayload, type DragAreaState, type EditAreaState, type InferenceJobResult, type InferenceJobStatus, type InferenceJobType, type Point, type SectionType, type SectionView, type SpecialtyTag, type YoloPrediction } from "@/types/types";
 
 // CONTEXT
 import { useInferenceNotification } from "@/context/InferenceNotificationContext";
@@ -120,6 +120,12 @@ const BlueprintView = () => {
 
         const [openEditLevels, setOpenEditLevels] = useState<boolean>(false)
         const [levels, setLevels] = useState<string[]>([])
+
+        // ERRORS
+        const [noName, setNoName] = useState<boolean>(false)
+        const [shortName, setShortName] = useState<boolean>(false)
+        const [noPov, setNoPov] = useState<boolean>(false)
+        const [noSpecialty, setNoSpecialty] = useState<boolean>(false)
 
     // BLUEPRINT DELETE VARIABLES
     const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false)
@@ -443,11 +449,13 @@ const BlueprintView = () => {
         setOpenEditDialog(true)
     }
 
-    const handleAddSpecialty = (
+    const handleAddOrDeleteSpecialty = (
         specialty: SpecialtyTag,
     ) => {
         setSpecialtiesList((prev) => 
-            prev.includes(specialty) ? prev : [...prev, specialty]
+            prev.includes(specialty) 
+                ? prev.filter((item) => item !== specialty)
+                : [...prev, specialty]
         )
     }
 
@@ -467,13 +475,34 @@ const BlueprintView = () => {
     ) => {
         e.preventDefault()
 
-        setOpenEditDialog(false)
-        setIsPatching(true)
-
         const form = e.currentTarget
         const formData = new FormData(form)
 
         const blueprintName = formData.get("blueprintName") as string;
+
+        setNoName(false)
+        setShortName(false)
+        setNoPov(false)
+        setNoSpecialty(false)
+
+        let hasToReturn = false
+    
+        console.log("VIEWSELECTED : ", viewSelected)
+
+        if(!viewSelected){
+            setNoPov(true)
+            hasToReturn=true
+        }
+
+        if(specialtiesList.length === 0){
+            setNoSpecialty(true)
+            hasToReturn=true
+        }
+
+        if(hasToReturn) return
+
+        setOpenEditDialog(false)
+        setIsPatching(true)
 
         const response = await BlueprintViewService.updateBluperint(blueprint!._id, blueprintName, viewSelected, specialtiesList, levels)
 
@@ -2643,6 +2672,12 @@ const BlueprintView = () => {
 
                                 <Field>
                                     <Label htmlFor="blueprintName-1">{t('blueprint:editOptions.blueprintName')} *</Label>
+                                    {noName && (
+                                        <p className="text-[var(--error)]">{t('blueprint:editOptions.errors.noName')}</p>
+                                    )}
+                                    {shortName && (
+                                        <p className="text-[var(--error)]">{t('blueprint:editOptions.errors.shortName')}</p>
+                                    )}
                                     <Input
                                         id="blueprintName-1"
                                         name="blueprintName"
@@ -2655,7 +2690,11 @@ const BlueprintView = () => {
 
                                 <Field>
                                 <Label htmlFor="view">{t('blueprint:editOptions.pointOfView')} *</Label>
+                                {noPov && (
+                                    <p className="text-[var(--error)]">{t('blueprint:editOptions.errors.noPov')}</p>
+                                )}
                                 <Select
+                                    defaultValue={blueprint.view?.toLowerCase()}
                                     onValueChange={(value) => setViewSelected(value as BlueprintViewType)}
                                 >
                                     <SelectTrigger className="w-full max-w-48 cursor-pointer">
@@ -2674,62 +2713,31 @@ const BlueprintView = () => {
                                 </Field>
 
                                 <Field>
-                                <Label htmlFor="view">{t('blueprint:editOptions.specialties')} *</Label>
-
-                                <div>
-                                    {specialtiesList.length > 0 ? (
-                                    specialtiesList.map((specialty) => (
-                                        <div
-                                        key={specialty}
-                                        style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: "6px",
-                                            marginBottom: "4px",
-                                        }}
-                                        >
-                                        <span>
-                                            -{" "}{t(`blueprint:specialtiesOptions.${specialty.toLocaleLowerCase()}`)}
-                                        </span>
-
-                                        <button
-                                            type="button"
-                                            onClick={() => handleRemoveSpecialty(specialty)}
-                                            style={{
-                                            background: "transparent",
-                                            border: "none",
-                                            padding: "0",
-                                            cursor: "pointer",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            }}
-                                        >
-                                            <IoIosClose size={18} />
-                                        </button>
-                                        </div>
-                                    ))
-                                    ) : (
-                                    <div className="text-muted-foreground">
-                                        - {t('blueprint:editOptions.noSpecialtiesSelected')}
-                                    </div>
+                                    <Label htmlFor="specialties">{t('blueprint:editOptions.specialties')} *</Label>
+                                    {noSpecialty && (
+                                        <p className="text-[var(--error)]">{t('blueprint:editOptions.errors.noSpecialty')}</p>
                                     )}
-                                </div>
+                                    <div className="grid grid-cols-2 gap-2 py-2">
+                                        {specialtyTagOptions.map((option) => {
+                                            const isSelected = specialtiesList.includes(option)
 
-                                <Button
-                                    className="cursor-pointer"
-                                    type="button"
-                                    onClick={() => setOpenEditSpecialtiesPicker(true)}
-                                    style={{
-                                        width: "fit-content",
-                                        alignSelf: "flex-start",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "8px",
-                                    }}
-                                >
-                                    <LuCirclePlus className="mr-2" />
-                                    {t('blueprint:editOptions.addSpecialty')}
-                                </Button>
+                                            return (
+                                                <Button
+                                                    key={option}
+                                                    type="button"
+                                                    variant="outline"
+                                                    onClick={() => handleAddOrDeleteSpecialty(option)}
+                                                    className={`cursor-pointer transition-colors ${
+                                                        isSelected
+                                                            ? "bg-[var(--accent)] text-[var(--text-h)]"
+                                                            : ""
+                                                    }`}
+                                                >
+                                                    {isSelected ? <FaCheck /> : ""} {t(`blueprint:specialtiesOptions.${option.toLocaleLowerCase()}`)}
+                                                </Button>
+                                            )
+                                        })}
+                                    </div>
                                 </Field>
 
                                 <Field>
@@ -2785,7 +2793,7 @@ const BlueprintView = () => {
                 <BlueprintSpecialtyPickerDialog
                     open={openEditSpecialtiesPicker}
                     onOpenChange={setOpenEditSpecialtiesPicker}
-                    onSelect={handleAddSpecialty}
+                    onSelect={handleAddOrDeleteSpecialty}
                 />
 
                 {/* EDIT LEVELS SELECTORS */}

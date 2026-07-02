@@ -64,7 +64,14 @@
         "levels": "Niveles",
         "singularLevel": "Nivel",
         "noLevelsSelected": "No se seleccionaron niveles",
-        "editLevels": "Editar niveles"
+        "editLevels": "Editar niveles",
+
+        "errors": {
+            "noName": "No se ha dado nombre",
+            "shortName": "Nombre demasiado corto",
+            "noPov": "No se ha seleccionado punto de vista",
+            "noSpecialty": "No se ha seleccionado especialidad"
+        }
     },
 
     "pointOfViewOptions": {

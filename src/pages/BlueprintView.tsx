@@ -459,12 +459,6 @@ const BlueprintView = () => {
         )
     }
 
-    const handleRemoveSpecialty = (specialty: SpecialtyTag) => {
-        setSpecialtiesList((prev) =>
-            prev.filter((item) => item !== specialty)
-        )
-    }
-
     const handleSaveLevelsList = (selectedLevels: string[]) => {
         console.log("LEVELS SELECTED : ", selectedLevels)
         setLevels(selectedLevels)
@@ -870,6 +864,7 @@ const BlueprintView = () => {
 
     const handleSaveAreas = async () => {
         setOpenSaveAreasDialog(false)
+        setWarningState(0)
 
         const areasToSave =
             blueprint?.sectionViews ?? []
@@ -3166,11 +3161,17 @@ const BlueprintView = () => {
                         </DialogHeader>
 
                         <DialogFooter>
-                            <Button variant="outline" onClick={handleCancelLeave}>
-                                {t('blueprint:changesWarning.stay')}
-                            </Button>
                             <Button variant="destructive" onClick={handleConfirmLeave}>
                                 {t('blueprint:changesWarning.leave')}
+                            </Button>
+                            <Button variant="outline" onClick={() => {
+                                setShowLeaveDialog(false)
+                                setOpenSaveAreasDialog(true)
+                                }}>
+                                {t('common:save')}
+                            </Button>
+                            <Button variant="outline" onClick={handleCancelLeave}>
+                                {t('blueprint:changesWarning.stay')}
                             </Button>
                         </DialogFooter>
 

@@ -300,6 +300,8 @@ const BlueprintView = () => {
         };
     }, [warningState, navigator])
 
+
+    
     // EDIT AREA USE EFFECT
     useEffect(() => {
         if (!dragState) return
@@ -314,20 +316,14 @@ const BlueprintView = () => {
                 return
             }
 
-            const coords = getImageCoordinates(
-                event.clientX,
-                event.clientY
-            )
-
+            const coords = getImageCoordinates(event.clientX, event.clientY)
             if (!coords) return
 
             const dx = coords.x - dragState.startMouse.x
             const dy = coords.y - dragState.startMouse.y
 
             if (dragState.vertexIndex === -1) {
-
-                // mover la figura 
-                
+                // MOVER LA FIGURA COMPLETE
                 const movedCoords = selectedAreaForEdit.orinigalAreaCoordsList.map(point => ({
                     x: point.x + dx,
                     y: point.y + dy
@@ -359,9 +355,7 @@ const BlueprintView = () => {
                 })
 
             } else {
-
-                // mover el vertice
-                
+                // MOVER UN VERTICE INDIVIDUAL
                 setBlueprint((prev) => {
                     if (!prev || selectedAreaForEdit.index === null) return prev
                     const updatedSectionViews = [...prev.sectionViews]
@@ -396,6 +390,15 @@ const BlueprintView = () => {
         }
 
         const handleMouseUp = () => {
+            
+            setSelectedAreaForEdit(prev => {
+                if (!prev.area) return prev
+                return {
+                    ...prev,
+                    orinigalAreaCoordsList: prev.area.coordsList // actualiza los puntos de referencia
+                }
+            })
+
             setDragState(null)
         }
 
@@ -407,7 +410,8 @@ const BlueprintView = () => {
             window.removeEventListener("mouseup", handleMouseUp)
         }
 
-    }, [dragState, selectedAreaForEdit.area, selectedAreaForEdit.index, selectedAreaForEdit.orinigalAreaCoordsList])
+        // agrego setSelectedAreaForEdit a las dependencias para poder usarlo de forma segura dentro de handleMouseUp
+    }, [dragState, selectedAreaForEdit.area, selectedAreaForEdit.index, selectedAreaForEdit.orinigalAreaCoordsList, setSelectedAreaForEdit])
 
     // SHOW CONTROLS IF THERE ARE AREAS
     useEffect(() => {

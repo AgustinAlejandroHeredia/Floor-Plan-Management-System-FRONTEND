@@ -30,7 +30,7 @@ const InvitationItem = ({
 }: Props) => {
 
   const { t } = useTranslation([
-      "items",
+      "components",
       "user"
   ])
 
@@ -85,27 +85,27 @@ const InvitationItem = ({
       <ItemContent className="flex flex-col gap-2">
 
         <span className="font-medium text-[var(--text-h)]">
-          {t("items:invitationItem.to")}: {invitation.userEmail}
+          {t("components:invitationItem.to")}: {invitation.userEmail}
         </span>
 
         <span className="text-[var(--text)]">
-          {t("items:invitationItem.sentBy")}: {invitation.sentByUserName}
+          {t("components:invitationItem.sentBy")}: {invitation.sentByUserName}
         </span>
 
         <span className="text-[var(--text)]">
-          {t("items:invitationItem.organization")}: {invitation.organizationName}
+          {t("components:invitationItem.organization")}: {invitation.organizationName}
         </span>
 
         <span className="text-[var(--text)]">
-          {t("items:invitationItem.role")}: {t(`user:roles.${invitation.userOrganizationRole.toLocaleLowerCase()}`)}
+          {t("components:invitationItem.role")}: {t(`user:roles.${invitation.userOrganizationRole.toLocaleLowerCase()}`)}
         </span>
 
         <span className="text-[var(--text)]">
-          {t("items:invitationItem.created")}: {creationDate}
+          {t("components:invitationItem.created")}: {creationDate}
         </span>
 
         <span className="text-[var(--text)]">
-          {t("items:invitationItem.timeLeft")}:{" "}
+          {t("components:invitationItem.timeLeft")}:{" "}
           <span style={{ color: getStatusStateColor() }}>
             {timeLeft}
           </span>

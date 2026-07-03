@@ -19,7 +19,7 @@ interface EmptyOrganizationsProps {
 export function EmptyOrganizations({ onJoinClick }: EmptyOrganizationsProps) {
 
   const { t } = useTranslation([
-      "home"
+      "components"
   ])
 
   return (
@@ -28,9 +28,9 @@ export function EmptyOrganizations({ onJoinClick }: EmptyOrganizationsProps) {
         <EmptyMedia variant="icon">
           <TbHomeOff  size={24} color="black" />
         </EmptyMedia>
-        <EmptyTitle className="text-[var(--text-h)]">{t('organization:emptyOrganizationsComponent.title')}</EmptyTitle>
+        <EmptyTitle className="text-[var(--text-h)]">{t('components:emptyOrganizations.title')}</EmptyTitle>
         <EmptyDescription>
-          {t('organization:emptyOrganizationsComponent.description')}
+          {t('components:emptyOrganizations.description')}
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
@@ -40,7 +40,7 @@ export function EmptyOrganizations({ onJoinClick }: EmptyOrganizationsProps) {
           size="sm"
           onClick={onJoinClick}
         >
-          {t('organization:emptyOrganizationsComponent.action')}
+          {t('components:emptyOrganizations.action')}
         </Button>
       </EmptyContent>
     </Empty>

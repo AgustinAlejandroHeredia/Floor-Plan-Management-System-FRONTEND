@@ -53,7 +53,7 @@ const MyUploadsPage = () => {
             
             <div className="main-content-item">
 
-                <h3 className="sub-heading">{t('myuploads:title')}: </h3>
+                <h3 className="sub-heading">{t('myuploads:title')}</h3>
 
                 <p className="comment-text">{t('myuploads:totalUploads')} {userUploadsList.length}</p>
 

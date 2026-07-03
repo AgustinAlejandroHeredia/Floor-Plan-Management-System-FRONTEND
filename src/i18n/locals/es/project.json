@@ -33,12 +33,6 @@
 
     "upload": "Subir plano",
 
-    "uploadDescription": {
-        "primaryOffDrag": "Arrastre y suelte un archivo aquí",
-        "primaryOnDrag": "Suelte su archivo aquí",
-        "secondary": "o use el botón de abajo para seleccionar un archivo"
-    },
-
     "uploadAlert": "Solo se permiten archivos PNG, JPG, JPEG o PDF",
 
     "uploadedBlueprints": "Planos subidos",

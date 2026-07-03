@@ -22,11 +22,11 @@ const AppLayout = () => {
   }
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
 
       <Sidebar />
 
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <div style={{ flex: 1, minWidth: 0, height: "100%", overflowY: "auto" }}>
         <Outlet />
       </div>
 

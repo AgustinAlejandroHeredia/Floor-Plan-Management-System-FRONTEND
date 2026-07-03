@@ -251,7 +251,7 @@ body {
 
 /* Sidebar vh */
 .sidebar {
-  /*width: 260px;*/
+  /* width: 260px; */
   background: var(--bg);
   border-right: 1px solid var(--border);
   
@@ -259,7 +259,9 @@ body {
   flex-direction: column;
   justify-content: space-between;
 
-  align-self: stretch;
+  /* Modificaciones de control de altura estricta */
+  height: 100%;
+  flex-shrink: 0; 
 
   /* transition for minimization */
   transition: width 0.3s ease-in-out;

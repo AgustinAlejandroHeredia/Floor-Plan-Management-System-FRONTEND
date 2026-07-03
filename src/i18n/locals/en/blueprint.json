@@ -216,12 +216,5 @@
         "errorSelectingAreaForEdit": "Error selecting area for editing",
         "noSpaceLeft": "There is no space left to upload more blueprints. You can delete an existing blueprint to free up space for the new one.",
         "errorSelectingAreaType": "Error selecting area type."
-    },
-
-    "blueprintLevelsDialogComponent": {
-        "title": "Select Blueprint Levels",
-        "basementLabel": "Basement",
-        "levelsLabel": "Levels",
-        "roofLabel": "Roof"
     }
 }

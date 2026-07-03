@@ -39,7 +39,7 @@ export function BlueprintLevelsDialog({
 }: Props) {
 
   const { t } = useTranslation([
-      "blueprint",
+      "components",
       "common"
   ])
 
@@ -91,7 +91,7 @@ export function BlueprintLevelsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t('blueprint:blueprintLevelsDialogComponent.title')}</DialogTitle>
+          <DialogTitle>{t('components:blueprintLevelsDialogComponent.title')}</DialogTitle>
         </DialogHeader>
 
         <FieldGroup className="space-y-3">
@@ -107,7 +107,7 @@ export function BlueprintLevelsDialog({
               />
 
               <FieldLabel>
-                {t('blueprint:blueprintLevelsDialogComponent.basementLabel')}
+                {t('components:blueprintLevelsDialogComponent.basementLabel')}
               </FieldLabel>
             </Field>
           )}
@@ -126,7 +126,7 @@ export function BlueprintLevelsDialog({
                 />
 
                 <FieldLabel>
-                  {t('blueprint:blueprintLevelsDialogComponent.levelsLabel')} {key}
+                  {t('components:blueprintLevelsDialogComponent.levelsLabel')} {key}
                 </FieldLabel>
               </Field>
             );
@@ -142,7 +142,7 @@ export function BlueprintLevelsDialog({
             />
 
             <FieldLabel>
-              {t('blueprint:blueprintLevelsDialogComponent.roofLabel')}
+              {t('components:blueprintLevelsDialogComponent.roofLabel')}
             </FieldLabel>
           </Field>
 

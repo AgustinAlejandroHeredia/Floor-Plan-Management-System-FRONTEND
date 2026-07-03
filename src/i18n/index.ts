@@ -18,6 +18,7 @@ import myuploadsEn from "./locals/en/myuploads.json";
 import recentactivityEn from "./locals/en/recentactivity.json";
 import userprofileEn from "./locals/en/userprofile.json";
 import notificationEn from "./locals/en/notification.json";
+import componentsEn from "./locals/en/components.json"
 
 // --- IMPORTS ESPAÑOL ---
 import commonEs from "./locals/es/common.json";
@@ -35,6 +36,7 @@ import myuploadsEs from "./locals/es/myuploads.json";
 import recentactivityEs from "./locals/es/recentactivity.json";
 import userprofileEs from "./locals/es/userprofile.json";
 import notificationEs from "./locals/es/notification.json";
+import componentsEs from "./locals/es/components.json"
 
 i18n
   .use(LanguageDetector)
@@ -62,6 +64,7 @@ i18n
       "recentactivity",
       "userprofile",
       "notification",
+      "components",
     ],
 
     defaultNS: "common",
@@ -83,6 +86,7 @@ i18n
         recentactivity: recentactivityEn,
         userprofile: userprofileEn,
         notification: notificationEn,
+        components: componentsEn,
       },
       es: {
         common: commonEs,
@@ -100,6 +104,7 @@ i18n
         recentactivity: recentactivityEs,
         userprofile: userprofileEs,
         notification: notificationEs,
+        components: componentsEs,
       },
     },
   });

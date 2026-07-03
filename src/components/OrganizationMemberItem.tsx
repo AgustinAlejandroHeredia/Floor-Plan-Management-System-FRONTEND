@@ -47,7 +47,8 @@ const OrganizationMemberItem = ({
 }: Props) => {
 
   const { t } = useTranslation([
-      "user"
+      "user",
+      "common"
   ])
 
   const role = member.organizationRole ?? member.globalRole ?? "unknown";
@@ -86,7 +87,7 @@ const OrganizationMemberItem = ({
         <span className="text-sm font-medium text-[var(--text-h)]">
           {role && role !== "unknown" ? (t(`user:roles.${role.toLowerCase()}`)
           ) : (
-            "unknown"
+            t('common:unknown')
           )}
         </span>
       </ItemContent>

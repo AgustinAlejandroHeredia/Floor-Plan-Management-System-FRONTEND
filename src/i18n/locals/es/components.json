@@ -1,0 +1,62 @@
+{
+    "blueprintLevelsDialogComponent": {
+        "title": "Seleccionar Niveles para el Plano",
+        "basementLabel": "Sótano",
+        "levelsLabel": "Niveles",
+        "roofLabel": "Techo"
+    },
+
+    "datePicker": {
+        "pickDate": "Elige una fecha"
+    },
+
+    "drawnAreaItem": {
+        "view": "Ver",
+        "approve": "Aprobar"
+    },
+
+    "emptyOrganizations": {
+        "title": "Aún no perteneces a ninguna organización",
+        "description": "Todavía no perteneces a ninguna organización. Puedes unirte a una ingresando el token enviado a tu correo electrónico.",
+        "action": "Unirse a una organización"
+    },
+
+    "emptyProjectsComponent": {
+        "admin": {
+            "title": "No hay proyectos para mostrar",
+            "description": "Actualmente no hay proyectos para esta organización.\nSi ves este mensaje significa que tienes los permisos necesarios para crear el primer proyecto.",
+            "action": "Crear proyecto"
+        },
+        "member": {
+            "title": "No hay proyectos para mostrar",
+            "description": "Actualmente no hay proyectos para esta organización.\nDebes esperar a que alguien con permisos cree un proyecto."
+        }
+    },
+
+    "errorDisplay": {
+        
+    },
+
+    "fileDropZone": {
+        "primaryOffDrag": "Arrastre y suelte un archivo aquí",
+        "primaryOnDrag": "Suelte su archivo aquí",
+        "secondary": "o use el botón de abajo para seleccionar un archivo"
+    },
+
+    "invitationItem": {
+        "to": "Para",
+        "sentBy": "Enviado por",
+        "organization": "Organización",
+        "role": "Rol",
+        "created": "Creado",
+        "timeLeft": "Tiempo restante",
+        "status": {
+            "valid": "Válida",
+            "expired": "Expirada"
+        }
+    },
+
+    "loading": {
+        "title": "Cargando"
+    }
+}

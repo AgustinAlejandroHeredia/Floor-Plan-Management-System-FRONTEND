@@ -7,6 +7,9 @@ import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
 import { format } from "date-fns";
 
+// TRANSLATION
+import { useTranslation } from "react-i18next";
+
 const DatePickerField = ({
   value,
   onChange,
@@ -14,11 +17,16 @@ const DatePickerField = ({
   value: Date | undefined;
   onChange: (date: Date | undefined) => void;
 }) => {
+
+  const { t } = useTranslation([
+      "components"
+  ])
+
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline">
-          {value ? format(value, "PPP") : "Pick a date"}
+          {value ? format(value, "PPP") : t('components:datePicker')}
         </Button>
       </PopoverTrigger>
 

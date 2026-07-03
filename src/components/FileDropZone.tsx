@@ -24,7 +24,7 @@ interface FileDropZoneProps {
 
 export function FileDropZone({ onFileSelect }: FileDropZoneProps) {
 
-  const { t } = useTranslation("project")
+  const { t } = useTranslation("components")
 
   const [isDragging, setIsDragging] = useState(false);
 
@@ -69,11 +69,11 @@ export function FileDropZone({ onFileSelect }: FileDropZoneProps) {
     >
       <EmptyHeader>
         <EmptyTitle className="text-[var(--text-h)] text-base">
-          {isDragging ? t('uploadDescription.primaryOnDrag') : t('uploadDescription.primaryOffDrag')}
+          {isDragging ? t('fileDropZone.primaryOnDrag') : t('fileDropZone.primaryOffDrag')}
         </EmptyTitle>
 
         <EmptyDescription>
-          {t('uploadDescription.secondary')}
+          {t('fileDropZone.secondary')}
         </EmptyDescription>
       </EmptyHeader>
 

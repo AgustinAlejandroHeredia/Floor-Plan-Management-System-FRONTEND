@@ -300,6 +300,8 @@ const BlueprintView = () => {
         };
     }, [warningState, navigator])
 
+
+    
     // EDIT AREA USE EFFECT
     useEffect(() => {
         if (!dragState) return
@@ -314,20 +316,14 @@ const BlueprintView = () => {
                 return
             }
 
-            const coords = getImageCoordinates(
-                event.clientX,
-                event.clientY
-            )
-
+            const coords = getImageCoordinates(event.clientX, event.clientY)
             if (!coords) return
 
             const dx = coords.x - dragState.startMouse.x
             const dy = coords.y - dragState.startMouse.y
 
             if (dragState.vertexIndex === -1) {
-
-                // mover la figura 
-                
+                // MOVER LA FIGURA COMPLETE
                 const movedCoords = selectedAreaForEdit.orinigalAreaCoordsList.map(point => ({
                     x: point.x + dx,
                     y: point.y + dy
@@ -359,9 +355,7 @@ const BlueprintView = () => {
                 })
 
             } else {
-
-                // mover el vertice
-                
+                // MOVER UN VERTICE INDIVIDUAL
                 setBlueprint((prev) => {
                     if (!prev || selectedAreaForEdit.index === null) return prev
                     const updatedSectionViews = [...prev.sectionViews]
@@ -396,6 +390,15 @@ const BlueprintView = () => {
         }
 
         const handleMouseUp = () => {
+            
+            setSelectedAreaForEdit(prev => {
+                if (!prev.area) return prev
+                return {
+                    ...prev,
+                    orinigalAreaCoordsList: prev.area.coordsList // actualiza los puntos de referencia
+                }
+            })
+
             setDragState(null)
         }
 
@@ -407,7 +410,8 @@ const BlueprintView = () => {
             window.removeEventListener("mouseup", handleMouseUp)
         }
 
-    }, [dragState, selectedAreaForEdit.area, selectedAreaForEdit.index, selectedAreaForEdit.orinigalAreaCoordsList])
+        // agrego setSelectedAreaForEdit a las dependencias para poder usarlo de forma segura dentro de handleMouseUp
+    }, [dragState, selectedAreaForEdit.area, selectedAreaForEdit.index, selectedAreaForEdit.orinigalAreaCoordsList, setSelectedAreaForEdit])
 
     // SHOW CONTROLS IF THERE ARE AREAS
     useEffect(() => {
@@ -2410,7 +2414,7 @@ const BlueprintView = () => {
                                             variant="secondary"
                                             onClick={handleDownloadFile}
                                         >
-                                            <FaFileDownload className="text-black text-xl"/>
+                                            <FaFileDownload className="text-[var(--text-h)] text-xl"/>
                                         </Button>
                                     </TooltipTrigger>
 
@@ -2427,7 +2431,7 @@ const BlueprintView = () => {
                                             variant="secondary"
                                             onClick={handleLoadLabels}
                                         >
-                                            <MdEdit className="text-black text-xl"/>
+                                            <MdEdit className="text-[var(--text-h)] text-xl"/>
                                         </Button>
                                     </TooltipTrigger>
 
@@ -2444,7 +2448,7 @@ const BlueprintView = () => {
                                             variant="secondary"
                                             onClick={handleCropMode}
                                         >
-                                            <BsScissors className="text-black text-xl"/>
+                                            <BsScissors className="text-[var(--text-h)] text-xl"/>
                                         </Button>
                                     </TooltipTrigger>
 
@@ -2462,7 +2466,7 @@ const BlueprintView = () => {
                                             variant="secondary"
                                             onClick={handleMagicCrop}
                                         >
-                                            <FaMagic className="text-black text-xl"/>
+                                            <FaMagic className="text-[var(--text-h)] text-xl"/>
                                         </Button>
                                     </TooltipTrigger>
 
@@ -2480,7 +2484,9 @@ const BlueprintView = () => {
                                             variant="secondary"
                                             onClick={() => handleAiCall()}
                                         >
-                                            {t('blueprint:sidebar.ai')}
+                                            <span className="text-[var(--text-h)] font-medium text-sm">
+                                                {t('blueprint:sidebar.ai')}
+                                            </span>
                                         </Button>
                                     </TooltipTrigger>
 
@@ -2498,7 +2504,7 @@ const BlueprintView = () => {
                                                 variant="secondary"
                                                 onClick={() => setOpenNewAreaDialog(true)}
                                             >
-                                                <FiPlus className="text-black text-xl"/>
+                                                <FiPlus className="text-[var(--text-h)] text-xl"/>
                                             </Button>
                                         </TooltipTrigger>
 
@@ -2517,7 +2523,7 @@ const BlueprintView = () => {
                                                 variant="secondary"
                                                 onClick={() => setOpenSaveAreasDialog(true)}
                                             >
-                                                <TfiSave className="text-black text-xl"/>
+                                                <TfiSave className="text-[var(--text-h)] text-xl"/>
                                             </Button>
                                         </TooltipTrigger>
 
@@ -2913,8 +2919,6 @@ const BlueprintView = () => {
                     title={t("blueprint:deleteAreaDialog.title", {label: areaForDelete?.label})}
                     description={t("blueprint:deleteAreaDialog.description")}
                     onConfirm={handleDeleteArea}
-                    confirmText={t('common:delete')}
-                    cancelText={t('common:cancel')}
                 />
 
                 {/* CONFIRM SAVE AREAS */}

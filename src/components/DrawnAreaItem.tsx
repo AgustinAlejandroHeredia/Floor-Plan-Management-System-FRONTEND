@@ -9,6 +9,9 @@ import { Button } from "@/components/ui/button";
 // Types
 import type { SectionView } from "@/types/types";
 
+// TRANSLATION
+import { useTranslation } from "react-i18next";
+
 type Props = {
   id: string; // key externa
   section: SectionView;
@@ -25,6 +28,11 @@ const DrawnAreaItem = ({
   onApprove,
   onDelete,
 }: Props) => {
+
+  const { t } = useTranslation([
+      "components",
+      "common"
+  ])
 
   const type = section.type;
 
@@ -60,7 +68,7 @@ const DrawnAreaItem = ({
             onView(section, id);
           }}
         >
-          View
+          {t('components:drawnAreaItem.view')}
         </Button>
 
         {/* APPROVE */}
@@ -73,7 +81,7 @@ const DrawnAreaItem = ({
               onApprove(section, id);
             }}
           >
-            Approve
+            {t('components:drawnAreaItem.approve')}
           </Button>
         )}
 
@@ -86,7 +94,7 @@ const DrawnAreaItem = ({
               onDelete(section, id);
             }}
           >
-            Delete
+            {t('common:delete')}
           </Button>
         )}
 

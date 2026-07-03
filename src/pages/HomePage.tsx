@@ -159,7 +159,7 @@ const HomePage = () => {
                 {organizations.length !== 0 && (
                   <Button
                     variant="ghost"
-                    className="text-[var(--text)] cursor-pointer"
+                    className="text-[var(--text-h)] cursor-pointer"
                     onClick={() => setOpenJoinDialog(true)}
                   >
                     {t('home:joinOrganization')}

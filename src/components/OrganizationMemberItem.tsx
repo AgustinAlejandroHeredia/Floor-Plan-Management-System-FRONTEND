@@ -34,7 +34,7 @@ type Props = {
   member: Member;
   currentUserOrganizationRole: string; // NUEVO
   onViewUser: (userId: string) => void;
-  onRemoveUser?: (userId: string) => void;
+  onRemoveUser?: (user: OrganizationMembersList) => void;
   onChangeRole?: (user: OrganizationMembersList) => void;
 };
 
@@ -139,7 +139,14 @@ const OrganizationMemberItem = ({
               className="rounded-full hover:bg-red-500 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
-                onRemoveUser(member._id);
+                const mappedMember: OrganizationMembersList = {
+                  _id: member._id,
+                  name: member.name,
+                  email: member.email,
+                  picture: member.picture ?? "", // por si viene undefined
+                  organizationRole: member.organizationRole as OrganizationRole,
+                }
+                onRemoveUser(mappedMember);
               }}
             >
               <GiExitDoor className="w-4 h-4 text-red-500 group-hover/button:text-white transition-colors" />

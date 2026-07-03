@@ -141,6 +141,7 @@
     "kickUserDialog": {
         "title": "Kick user",
         "description": "Are you sure you want to kick this user? This action cannot be undone.",
+        "user": "User",
         "confirm": "Kick user"
     },
 

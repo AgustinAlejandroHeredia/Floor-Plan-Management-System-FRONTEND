@@ -127,7 +127,7 @@ const OrganizationPage = () => {
     const [isLeaving, setIsLeaving] = useState<boolean>(false)
 
     // KICK USER VARIABLES
-    const [userIdForKick, setUserIdForKick] = useState<string>("")
+    const [userForKick, setUserForKick] = useState<OrganizationMembersList | null>(null)
     const [openKickUserDialog, setOpenKickUserDialog] = useState<boolean>(false)
     const [isKickingUser, setIsKickingUser] = useState<boolean>(false)
 
@@ -412,22 +412,23 @@ const OrganizationPage = () => {
         navigate(`/UserProfile/${userId}`)
     }
 
-    const selectUserForKick = (userId: string) => {
-        setUserIdForKick(userId)
+    const selectUserForKick = (user: OrganizationMembersList) => {
+        setUserForKick(user)
         setOpenKickUserDialog(true)
     }
 
     const handleKickUser = async () => {
         setOpenKickUserDialog(false)
         try {
-            if(!userIdForKick){
+            if(!userForKick){
                 setErrorMessage(t('organization:noUserToKickSelected'))
                 setErrorOpen(true)
+                return
             }
             setIsKickingUser(true)
-            await OrganizationService.kickUser(id!, userIdForKick)
+            await OrganizationService.kickUser(id!, userForKick._id)
             setIsKickingUser(false)
-            setUserIdForKick("")
+            setUserForKick(null)
             setCurrentUserPage(1)
             refreshUsers(1)
         } catch (error) {
@@ -1291,15 +1292,21 @@ const OrganizationPage = () => {
                         )}
                         <AlertDialogDescription>
                             <span>
-                                {t('organization:changeUserRole.alertCurrentRole')}: {userForRolechange?.organizationRole.toLocaleLowerCase() === "member"
-                                    ? t('user:roles.member')
-                                    : t('user:roles.admin')}
+                                {t('organization:changeUserRole.alertCurrentRole')}:{" "}
+                                <span className="text-[var(--text-h)] font-medium">
+                                    {userForRolechange?.organizationRole.toLocaleLowerCase() === "member"
+                                        ? t('user:roles.member')
+                                        : t('user:roles.admin')}
+                                </span>
                             </span>
                             <br />
                             <span>
-                                {t('organization:changeUserRole.alertChangeTo')}: {userForRolechange?.organizationRole.toLocaleLowerCase() === "member"
-                                    ? t('user:roles.admin')
-                                    : t('user:roles.member')}
+                                {t('organization:changeUserRole.alertChangeTo')}:{" "}
+                                <span className="text-[var(--text-h)] font-medium">
+                                    {userForRolechange?.organizationRole.toLocaleLowerCase() === "member"
+                                        ? t('user:roles.admin')
+                                        : t('user:roles.member')}
+                                </span>
                             </span>
                         </AlertDialogDescription>
                     </AlertDialogHeader>
@@ -1338,8 +1345,16 @@ const OrganizationPage = () => {
                             <AlertDialogTitle>
                                 {t('organization:kickUserDialog.title')}
                             </AlertDialogTitle>
-                            <AlertDialogDescription>
-                                {t('organization:kickUserDialog.description')}
+                            <AlertDialogDescription className="flex flex-col gap-2">
+                                <div>
+                                    {t('organization:kickUserDialog.description')}
+                                </div>
+                                <div>
+                                    {t('organization:kickUserDialog.user')}:{" "}
+                                    <span className="text-[var(--text-h)] font-medium">
+                                        {userForKick?.name}, {userForKick?.email}
+                                    </span>
+                                </div>
                             </AlertDialogDescription>
                         </AlertDialogHeader>
 

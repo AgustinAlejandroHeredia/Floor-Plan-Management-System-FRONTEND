@@ -141,6 +141,7 @@
     "kickUserDialog": {
         "title": "Expulsar usuario",
         "description": "¿Estás seguro de que deseas expulsar a este usuario? Esta acción no puede deshacerse.",
+        "user": "Usuario",
         "confirm": "Expulsar"
     },
 

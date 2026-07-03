@@ -20,7 +20,7 @@ import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label";
 import { useDevOptions } from "@/hooks/useDevOptions";
-import type { CreateOrganizationPayload, UpdateOrganizationPayload, OrganizationType, ActionPermission, InvitationPayload, OrganizationRole, UserType, InvitationItemData } from "@/types/types";
+import type { CreateOrganizationPayload, UpdateOrganizationPayload, OrganizationType, ActionPermission, InvitationPayload, OrganizationRole, UserType, InvitationItemData, OrganizationMembersList } from "@/types/types";
 import { useEffect, useRef, useState } from "react"
 import { DevOptionsService } from "@/services/DevOptionsService";
 
@@ -109,7 +109,7 @@ const DevOptions = () => {
     const [isAddingUser, setIsAddingUser] = useState<boolean>(false)
 
     // KICK USER VARIABLES
-    const [userIdForKick, setUserIdForKick] = useState<string>("")
+    const [userForKick, setUserForKick] = useState<OrganizationMembersList | null>(null)
     const [userOrganizationIdForKick, setUserOrganizationIdForKick] = useState<string>("")
     const [openKickUserDialog, setOpenKickUserDialog] = useState<boolean>(false)
     const [isKickingUser, setIsKickingUser] = useState<boolean>(false)
@@ -403,8 +403,8 @@ const DevOptions = () => {
 
     // KICK USER
 
-    const selectUserForKick = (userId: string, organizationId: string) => {
-        setUserIdForKick(userId)
+    const selectUserForKick = (user: OrganizationMembersList, organizationId: string) => {
+        setUserForKick(user)
         setUserOrganizationIdForKick(organizationId)
         setOpenKickUserDialog(true)
     }
@@ -412,18 +412,20 @@ const DevOptions = () => {
     const handleKickUser = async () => {
         setOpenKickUserDialog(false)
         try {
-            if(!userIdForKick){
+            if(!userForKick){
                 setErrorMessage(t('developeroptions:errorMessages.userToKickNotSelected'))
                 setOpenError(true)
+                return
             }
             if(!userOrganizationIdForKick){
                 setErrorMessage(t('developeroptions:errorMessages.organizationToKickNotSelected'))
                 setOpenError(true)
+                return
             }
             setIsKickingUser(true)
-            await DevOptionsService.kickUser(userOrganizationIdForKick, userIdForKick)
+            await DevOptionsService.kickUser(userOrganizationIdForKick, userForKick._id)
             setIsKickingUser(false)
-            setUserIdForKick("")
+            setUserForKick(null)
             setUserOrganizationIdForKick("")
             refreshUsers(currentUserPage)
             refreshOrganizations(1)
@@ -719,7 +721,7 @@ const DevOptions = () => {
                                             key={member._id}
                                             member={member}
                                             onViewUser={() => handleViewUserProfile(member._id)}
-                                            onRemoveUser={() => selectUserForKick(member._id, org._id)}
+                                            onRemoveUser={() => selectUserForKick(member, org._id)}
                                             currentUserOrganizationRole={"super_admin"}
                                         />
                                     ))}
@@ -735,7 +737,7 @@ const DevOptions = () => {
                                                     key={member._id}
                                                     member={member}
                                                     onViewUser={() => handleViewUserProfile(member._id)}
-                                                    onRemoveUser={() => selectUserForKick(member._id, org._id)}
+                                                    onRemoveUser={() => selectUserForKick(member, org._id)}
                                                     currentUserOrganizationRole={"super_admin"}
                                                 />
                                             ))}
@@ -1467,9 +1469,17 @@ const DevOptions = () => {
                                 <AlertDialogTitle>
                                     {t('developeroptions:kickUserDialog.title')}
                                 </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    {t('developeroptions:kickUserDialog.description')}
-                                </AlertDialogDescription>
+                                <AlertDialogDescription className="flex flex-col gap-2">
+                                <div>
+                                    {t('organization:kickUserDialog.description')}
+                                </div>
+                                <div>
+                                    {t('organization:kickUserDialog.user')}:{" "}
+                                    <span className="text-[var(--text-h)] font-medium">
+                                        {userForKick?.name}, {userForKick?.email}
+                                    </span>
+                                </div>
+                            </AlertDialogDescription>
                             </AlertDialogHeader>
 
                             <AlertDialogFooter>

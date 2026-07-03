@@ -2919,8 +2919,6 @@ const BlueprintView = () => {
                     title={t("blueprint:deleteAreaDialog.title", {label: areaForDelete?.label})}
                     description={t("blueprint:deleteAreaDialog.description")}
                     onConfirm={handleDeleteArea}
-                    confirmText={t('common:delete')}
-                    cancelText={t('common:cancel')}
                 />
 
                 {/* CONFIRM SAVE AREAS */}

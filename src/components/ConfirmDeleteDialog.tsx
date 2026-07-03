@@ -19,8 +19,8 @@ type ConfirmDeleteDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 
-  title?: string;
-  description?: string;
+  title: string;
+  description: string;
 
   onConfirm: () => void;
 
@@ -34,9 +34,14 @@ const ConfirmDeleteDialog = ({
   title = "Delete item",
   description = "This action cannot be undone.",
   onConfirm,
-  confirmText = "Delete",
-  cancelText = "Cancel",
+  confirmText = "",
+  cancelText = "",
 }: ConfirmDeleteDialogProps) => {
+
+  const { t } = useTranslation([
+      "common"
+  ])
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent size="sm">
@@ -53,13 +58,13 @@ const ConfirmDeleteDialog = ({
         </AlertDialogHeader>
 
         <AlertDialogFooter>
-          <AlertDialogCancel>{cancelText}</AlertDialogCancel>
+          <AlertDialogCancel>{cancelText || t('common:cancel')}</AlertDialogCancel>
 
           <AlertDialogAction
             variant="destructive"
             onClick={onConfirm}
           >
-            {confirmText}
+            {confirmText || t('common:delete')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

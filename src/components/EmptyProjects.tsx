@@ -21,7 +21,7 @@ interface EmptyProjectsProps {
 export function EmptyProjects({ userRole, onCreateClick }: EmptyProjectsProps) {
 
   const { t } = useTranslation([
-      "organization"
+      "components"
   ])
 
   return (
@@ -34,11 +34,11 @@ export function EmptyProjects({ userRole, onCreateClick }: EmptyProjectsProps) {
             </EmptyMedia>
 
             <EmptyTitle className="text-[var(--text-h)]">
-              {t('organization:emptyProjectsComponent.admin.title')}
+              {t('components:emptyProjectsComponent.admin.title')}
             </EmptyTitle>
 
             <EmptyDescription>
-              {t('organization:emptyProjectsComponent.admin.description')}
+              {t('components:emptyProjectsComponent.admin.description')}
             </EmptyDescription>
           </EmptyHeader>
 
@@ -48,7 +48,7 @@ export function EmptyProjects({ userRole, onCreateClick }: EmptyProjectsProps) {
               size="sm"
               onClick={onCreateClick}
             >
-              {t('organization:emptyProjectsComponent.admin.action')}!
+              {t('components:emptyProjectsComponent.admin.action')}!
             </Button>
           </EmptyContent>
         </Empty>
@@ -60,11 +60,11 @@ export function EmptyProjects({ userRole, onCreateClick }: EmptyProjectsProps) {
             </EmptyMedia>
 
             <EmptyTitle className="text-[var(--text-h)]">
-              {t('organization:emptyProjectsComponent.member.title')}
+              {t('components:emptyProjectsComponent.member.title')}
             </EmptyTitle>
 
             <EmptyDescription>
-              {t('organization:emptyProjectsComponent.member.description')}
+              {t('components:emptyProjectsComponent.member.description')}
             </EmptyDescription>
           </EmptyHeader>
         </Empty>

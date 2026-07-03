@@ -182,17 +182,5 @@
         "errorChangingUserRole": "Something went wrong while changing the user's role. Please try again later.",
         "errorLeavingOrganization": "An error occurred while leaving the organization. Please try again later.",
         "errorSavingChanges": "Something went wrong while saving the changes. Please try again later."
-    },
-
-    "emptyProjectsComponent": {
-        "admin": {
-            "title": "No projects to show",
-            "description": "Currently there are no projects for this organization.\nIf you see this message it means that you have the permissions to create the first project.",
-            "action": "Create project"
-        },
-        "member": {
-            "title": "No projects to show",
-            "description": "Currently there are no projects for this organization.\nYou have to wait for someone with the permissions to create a project."
-        }
     }
 }

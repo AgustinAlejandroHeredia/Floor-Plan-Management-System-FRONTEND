@@ -3,9 +3,7 @@ import { useTranslation } from "react-i18next";
 
 const Loading = () => {
 
-  const { t } = useTranslation([
-      "common"
-  ])
+  const { t } = useTranslation("components")
 
   return (
     <div
@@ -29,7 +27,7 @@ const Loading = () => {
         }}
       />
 
-      <p style={{ marginTop: "16px", color: "var(--text-h)" }}>{t('common:loading')}...</p>
+      <p style={{ marginTop: "16px", color: "var(--text-h)" }}>{t('loading.title')}...</p>
 
       <style>
         {`

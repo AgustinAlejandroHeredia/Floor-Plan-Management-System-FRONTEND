@@ -1,17 +1,5 @@
 {
-    "invitationItem": {
-        "to": "Para",
-        "sentBy": "Enviado por",
-        "organization": "Organización",
-        "role": "Rol",
-        "created": "Creado",
-        "timeLeft": "Tiempo restante",
-        "status": {
-            "valid": "Válida",
-            "expired": "Expirada"
-        }
-    },
-
+    
     "activityLog": {
         "description": "Descripción",
         "target": "Objetivo",

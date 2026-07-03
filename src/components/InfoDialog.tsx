@@ -8,6 +8,9 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 
+// TRANSLATION
+import { useTranslation } from "react-i18next";
+
 type InfoDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -25,6 +28,9 @@ const InfoDialog = ({
   description,
   buttonText = "Ok",
 }: InfoDialogProps) => {
+
+  const { t } = useTranslation("common")
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent size="sm">
@@ -42,7 +48,7 @@ const InfoDialog = ({
           <div></div>
 
           <AlertDialogAction onClick={() => onOpenChange(false)}>
-            {buttonText}
+            {buttonText || t('ok')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -182,17 +182,5 @@
         "errorChangingUserRole": "Algo salió mal al cambiar el rol del usuario. Por favor, inténtelo de nuevo más tarde.",
         "errorLeavingOrganization": "Ocurrió un error al abandonar la organización. Por favor, inténtelo de nuevo más tarde.",
         "errorSavingChanges": "Algo salió mal al guardar los cambios. Por favor, inténtelo de nuevo más tarde."
-    },
-
-    "emptyProjectsComponent": {
-        "admin": {
-            "title": "No hay proyectos para mostrar",
-            "description": "Actualmente no hay proyectos para esta organización.\nSi ves este mensaje significa que tienes los permisos necesarios para crear el primer proyecto.",
-            "action": "Crear proyecto"
-        },
-        "member": {
-            "title": "No hay proyectos para mostrar",
-            "description": "Actualmente no hay proyectos para esta organización.\nDebes esperar a que alguien con permisos cree un proyecto."
-        }
     }
 }

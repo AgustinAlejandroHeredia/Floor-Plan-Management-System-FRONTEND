@@ -215,12 +215,5 @@
         "errorSelectingAreaForEdit": "Error al seleccionar el área para editar",
         "noSpaceLeft": "No queda espacio disponible para subir más planos. Puedes eliminar un plano existente para liberar espacio y subir uno nuevo.",
         "errorSelectingAreaType": "Error seleccionando tipo de área."
-    },
-
-    "blueprintLevelsDialogComponent": {
-        "title": "Seleccionar Niveles para el Plano",
-        "basementLabel": "Sótano",
-        "levelsLabel": "Niveles",
-        "roofLabel": "Techo"
     }
 }

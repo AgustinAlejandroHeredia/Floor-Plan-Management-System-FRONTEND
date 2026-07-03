@@ -2410,7 +2410,7 @@ const BlueprintView = () => {
                                             variant="secondary"
                                             onClick={handleDownloadFile}
                                         >
-                                            <FaFileDownload className="text-black text-xl"/>
+                                            <FaFileDownload className="text-[var(--text-h)] text-xl"/>
                                         </Button>
                                     </TooltipTrigger>
 
@@ -2427,7 +2427,7 @@ const BlueprintView = () => {
                                             variant="secondary"
                                             onClick={handleLoadLabels}
                                         >
-                                            <MdEdit className="text-black text-xl"/>
+                                            <MdEdit className="text-[var(--text-h)] text-xl"/>
                                         </Button>
                                     </TooltipTrigger>
 
@@ -2444,7 +2444,7 @@ const BlueprintView = () => {
                                             variant="secondary"
                                             onClick={handleCropMode}
                                         >
-                                            <BsScissors className="text-black text-xl"/>
+                                            <BsScissors className="text-[var(--text-h)] text-xl"/>
                                         </Button>
                                     </TooltipTrigger>
 
@@ -2462,7 +2462,7 @@ const BlueprintView = () => {
                                             variant="secondary"
                                             onClick={handleMagicCrop}
                                         >
-                                            <FaMagic className="text-black text-xl"/>
+                                            <FaMagic className="text-[var(--text-h)] text-xl"/>
                                         </Button>
                                     </TooltipTrigger>
 
@@ -2480,7 +2480,9 @@ const BlueprintView = () => {
                                             variant="secondary"
                                             onClick={() => handleAiCall()}
                                         >
-                                            {t('blueprint:sidebar.ai')}
+                                            <span className="text-[var(--text-h)] font-medium text-sm">
+                                                {t('blueprint:sidebar.ai')}
+                                            </span>
                                         </Button>
                                     </TooltipTrigger>
 
@@ -2498,7 +2500,7 @@ const BlueprintView = () => {
                                                 variant="secondary"
                                                 onClick={() => setOpenNewAreaDialog(true)}
                                             >
-                                                <FiPlus className="text-black text-xl"/>
+                                                <FiPlus className="text-[var(--text-h)] text-xl"/>
                                             </Button>
                                         </TooltipTrigger>
 
@@ -2517,7 +2519,7 @@ const BlueprintView = () => {
                                                 variant="secondary"
                                                 onClick={() => setOpenSaveAreasDialog(true)}
                                             >
-                                                <TfiSave className="text-black text-xl"/>
+                                                <TfiSave className="text-[var(--text-h)] text-xl"/>
                                             </Button>
                                         </TooltipTrigger>
 

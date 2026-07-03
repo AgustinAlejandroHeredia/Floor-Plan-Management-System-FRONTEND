@@ -80,7 +80,6 @@ const UserProfilePage = () => {
                     {user?.joinedAt
                         ? new Intl.DateTimeFormat(i18n.language, {
                             dateStyle: "medium",
-                            timeStyle: "short",
                         }).format(new Date(user.joinedAt))
                         : ""}
                 </p>

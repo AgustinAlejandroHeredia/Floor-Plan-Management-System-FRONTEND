@@ -16,7 +16,7 @@ const MyUploadsPage = () => {
 
     const navigate = useNavigate()
 
-    const { t } = useTranslation([
+    const { t, i18n } = useTranslation([
         "myuploads",
         "breadcrumb",
         "common",
@@ -89,7 +89,13 @@ const MyUploadsPage = () => {
                                 </p>
 
                                 <p className="text-[var(--text)]">
-                                    {t('myuploads:uploadItem.created')}: {new Date(upload.creationDate).toLocaleDateString()}
+                                    {t('myuploads:uploadItem.created')}:{" "}
+                                    {upload?.creationDate
+                                        ? new Intl.DateTimeFormat(i18n.language, {
+                                            dateStyle: "medium",
+                                            timeStyle: "short",
+                                        }).format(new Date(upload.creationDate))
+                                        : ""}
                                 </p>
 
                                 {upload.thumbnailUrl && (

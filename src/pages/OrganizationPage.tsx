@@ -70,7 +70,7 @@ const OrganizationPage = () => {
 
     const navigate = useNavigate()
 
-    const { t } = useTranslation([
+    const { t, i18n } = useTranslation([
         "breadcrumb",
         "user",
         "organization",
@@ -1503,8 +1503,11 @@ const OrganizationPage = () => {
                             <br />
                             - {t('organization:refreshInvitationDialog.description.creationDate')}:{" "}
                                 {selectedInvitation?.creationDate
-                                ? new Date(selectedInvitation.creationDate).toLocaleDateString()
-                                : ""}
+                                    ? new Intl.DateTimeFormat(i18n.language, {
+                                        dateStyle: "medium",
+                                        timeStyle: "short",
+                                    }).format(new Date(selectedInvitation.creationDate))
+                                    : ""}
                             <br />
                             - {t('organization:refreshInvitationDialog.description.currentStatus')}: {
                                 selectedInvitation
@@ -1561,8 +1564,11 @@ const OrganizationPage = () => {
                             <br />
                             - {t('organization:deleteInvitationDialog.description.creationDate')}:{" "}
                                 {selectedInvitation?.creationDate
-                                ? new Date(selectedInvitation.creationDate).toLocaleDateString()
-                                : ""}
+                                    ? new Intl.DateTimeFormat(i18n.language, {
+                                        dateStyle: "medium",
+                                        timeStyle: "short",
+                                    }).format(new Date(selectedInvitation.creationDate))
+                                    : ""}
                             <br />
                             - {t('organization:deleteInvitationDialog.description.currentStatus')}: {
                                 selectedInvitation

@@ -43,6 +43,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import DatePickerField from "@/components/DatePickerField";
 import { RiDeleteBin6Line, RiSortAsc } from "react-icons/ri";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { IoFilter } from "react-icons/io5";
 
 const ProjectPage = () => {
   const { organizationName, organizationId, projectName, projectId } =
@@ -55,7 +56,7 @@ const ProjectPage = () => {
 
   const navigate = useNavigate();
 
-  const { t } = useTranslation([
+  const { t, i18n } = useTranslation([
       "breadcrumb",
       "project",
       "blueprint",
@@ -561,7 +562,7 @@ const ProjectPage = () => {
                   defaultValue="newest_first"
                   onValueChange={(value) => setSortOrder(value as 'newest_first' | 'oldest_first')}
                 >
-                  <SelectTrigger className="w-full min-w-44 max-w-48 bg-white text-black border border-input cursor-pointer">
+                  <SelectTrigger className="w-full min-w-44 max-w-48 bg-white text-[var(--text-h)] border border-input cursor-pointer">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent position="popper">
@@ -579,13 +580,14 @@ const ProjectPage = () => {
                   style={{ color: 'var(--text-h)' }}
                   className="text-sm font-medium"
                 >
+                  <IoFilter />
                   {t('project:filter')}
                 </Label>
                 <Select
                   defaultValue="all"
                   onValueChange={(value) => setSpecialtyFilter(value as SpecialtyTag | 'all')}
                 >
-                  <SelectTrigger className="w-full min-w-44 max-w-48 bg-white text-black border border-input cursor-pointer">
+                  <SelectTrigger className="w-full min-w-44 max-w-48 bg-white text-[var(--text-h)] border border-input cursor-pointer">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent position="popper">
@@ -667,7 +669,12 @@ const ProjectPage = () => {
                     >
                       <p style={{ fontWeight: "600" }}>{bp.blueprintName}</p>
                       <p style={{ fontSize: "12px" }}>
-                        {new Date(bp.creationDate).toLocaleDateString()}
+                        {bp?.creationDate
+                          ? new Intl.DateTimeFormat(i18n.language, {
+                                dateStyle: "medium",
+                                timeStyle: "short",
+                            }).format(new Date(bp.creationDate))
+                          : ""}
                       </p>
                       {bp.specialties && bp.specialties.length > 0 && (
                         <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "6px" }}>

@@ -50,6 +50,7 @@
         "role": "Rol",
         "created": "Creado",
         "timeLeft": "Tiempo restante",
+        "timeLeftData": "{{hours}}h {{minutes}}m",
         "status": {
             "valid": "Válida",
             "expired": "Expirada"

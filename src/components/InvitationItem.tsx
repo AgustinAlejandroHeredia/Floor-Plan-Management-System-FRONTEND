@@ -29,43 +29,47 @@ const InvitationItem = ({
   onDelete,
 }: Props) => {
 
-  const { t } = useTranslation([
+  const { t, i18n } = useTranslation([
       "components",
       "user"
   ])
 
-  const role = invitation.userOrganizationRole
-    .toLowerCase()
-    .split("_")
-    .map(
-      word => word.charAt(0).toUpperCase() + word.slice(1),
-    )
-    .join(" ");
+  const locale = i18n.resolvedLanguage ?? i18n.language;
 
-  const creationDate = new Date(
-    invitation.creationDate,
-  ).toLocaleString();
+  // DATE
+
+  const creationDate = new Intl.DateTimeFormat(locale, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(invitation.creationDate));
+
+  // EXPIRATION
 
   const expirationDate = new Date(
     new Date(invitation.creationDate).getTime() +
-      Number(invitation.duration) *
-        60 *
-        60 *
-        1000,
+      Number(invitation.duration) * 60 * 60 * 1000
   );
 
-  const msLeft =
-    expirationDate.getTime() - Date.now();
+  const msLeft = expirationDate.getTime() - Date.now();
+
+  // NUMBERS
+
+  const formatter = new Intl.NumberFormat(locale);
+
+  const hours = Math.floor(msLeft / (1000 * 60 * 60));
+  const minutes = Math.floor(
+    (msLeft % (1000 * 60 * 60)) / (1000 * 60)
+  );
+
+  // TIME LEFT
 
   const timeLeft =
     msLeft <= 0
-      ? t('items:invitationItem.status.expired')
-      : `${Math.floor(
-          msLeft / (1000 * 60 * 60),
-        )}h ${Math.floor(
-          (msLeft % (1000 * 60 * 60)) /
-            (1000 * 60),
-        )}m`;
+      ? t("components:invitationItem.status.expired")
+      : t("components:invitationItem.timeLeftData", {
+          hours: formatter.format(hours),
+          minutes: formatter.format(minutes),
+        });
 
   // COLORS
 

@@ -1363,7 +1363,10 @@ const BlueprintView = () => {
                                 </p>
 
                                 <p className="font-semibold text-[var(--text-h)]">
-                                    {new Date(blueprint!.creationDate).toLocaleDateString("es-AR")}
+                                    {new Intl.DateTimeFormat(i18n.language, {
+                                        dateStyle: "medium",
+                                        timeStyle: "short",
+                                    }).format(new Date(blueprint!.creationDate))}
                                 </p>
                             </div>
 

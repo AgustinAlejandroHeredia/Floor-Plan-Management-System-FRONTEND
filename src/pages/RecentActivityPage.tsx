@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 
 const RecentActivityPage = () => {
 
-    const { t } = useTranslation([
+    const { t, i18n } = useTranslation([
         "breadcrumb",
         "items",
         "recentactivity",
@@ -69,7 +69,12 @@ const RecentActivityPage = () => {
                             </p>
 
                             <p className="text-[var(--text)]">
-                                {new Date(action.timestamp).toLocaleString()}
+                                {action?.timestamp
+                                    ? new Intl.DateTimeFormat(i18n.language, {
+                                        dateStyle: "medium",
+                                        timeStyle: "short",
+                                    }).format(new Date(action.timestamp))
+                                    : ""}
                             </p>
 
                         </CardContent>

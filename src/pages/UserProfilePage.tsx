@@ -15,7 +15,7 @@ const UserProfilePage = () => {
 
     const navigate = useNavigate()
 
-    const { t } = useTranslation([
+    const { t, i18n } = useTranslation([
         "breadcrumb",
         "userprofile",
         "project",
@@ -78,7 +78,10 @@ const UserProfilePage = () => {
                 <p className="text-sm text-[var(--text)]">
                     {t('userprofile:joinedAt')}{" "}
                     {user?.joinedAt
-                        ? new Date(user.joinedAt).toLocaleDateString()
+                        ? new Intl.DateTimeFormat(i18n.language, {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                        }).format(new Date(user.joinedAt))
                         : ""}
                 </p>
 

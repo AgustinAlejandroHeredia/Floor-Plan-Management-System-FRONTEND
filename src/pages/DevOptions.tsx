@@ -47,7 +47,7 @@ const DevOptions = () => {
 
     const navigate = useNavigate()
 
-    const { t } = useTranslation([
+    const { t, i18n } = useTranslation([
         "developeroptions",
         "breadcrumb",
         "common",
@@ -1518,8 +1518,11 @@ const DevOptions = () => {
                                 <br />
                                 - {t('items:invitationItem.created')}:{" "}
                                     {selectedInvitation?.creationDate
-                                    ? new Date(selectedInvitation.creationDate).toLocaleDateString()
-                                    : ""}
+                                        ? new Intl.DateTimeFormat(i18n.language, {
+                                            dateStyle: "medium",
+                                            timeStyle: "short",
+                                        }).format(new Date(selectedInvitation.creationDate))
+                                        : ""}
                                 <br />
                                 - {t('developeroptions:refreshInvitationDialog.description.currentStatus')}: {
                                     selectedInvitation
@@ -1573,8 +1576,11 @@ const DevOptions = () => {
                                 <br />
                                 - {t('items:invitationItem.created')}:{" "}
                                     {selectedInvitation?.creationDate
-                                    ? new Date(selectedInvitation.creationDate).toLocaleDateString()
-                                    : ""}
+                                        ? new Intl.DateTimeFormat(i18n.language, {
+                                            dateStyle: "medium",
+                                            timeStyle: "short",
+                                        }).format(new Date(selectedInvitation.creationDate))
+                                        : ""}
                                 <br />
                                 - {t('developeroptions:refreshInvitationDialog.description.currentStatus')}: {
                                     selectedInvitation

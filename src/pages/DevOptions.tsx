@@ -667,7 +667,7 @@ const DevOptions = () => {
                         className="bg-[var(--accent-bg)] w-full"
                     >
                         <CardContent>
-                        <CardTitle className="text-[var(--text-h)]">
+                        <CardTitle className="text-2xl text-[var(--text-h)]">
                         {org.name}
                         </CardTitle>
 

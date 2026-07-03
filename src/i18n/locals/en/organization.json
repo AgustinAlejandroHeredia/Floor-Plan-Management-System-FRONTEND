@@ -28,6 +28,7 @@
         "title": "Creating new project",
         "description": "Complete the next fields and press \"Create\".",
         "projectName": "Project name",
+        "projectNamePlaceholder": "e.g., New Acme Project",
         "levels": "Levels / floors",
         "hasBasement": "Has basement",
         "addNewField": "Add new field",
@@ -47,9 +48,10 @@
     "invitationDialog": {
         "title": "Send invitation",
         "description": "Here you can send an invitation to the email you enter.",
+        "emailPlaceholder": "e.g. useremail@gmail.com",
         "organizationRole": "Role within the organization",
         "moreInfo": "More info",
-        "invitationHelp": "Once you enter the email address of the user you wish to invite and select the role they will have (Member by default), an email will be sent containing a code/token. The invited user can then enter this code/token in the \"Home\" section under \"Join Organization\". Upon entering the code/token, access to your organization will be granted.",
+        "invitationHelp": "Enter the email address of the user you want to invite and choose their role (Member by default). An invitation email containing a token will be sent. The invited user can join your organization by entering the token in the \"Home\" section under \"Join Organization\". Invitations expire after 24 hours.",
         "closeInformation": "Close information",
         "confirm": "Send"
     },

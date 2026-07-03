@@ -42,6 +42,7 @@ import PageSelector from "@/components/PageSelector"
 
 // TRANSLATION
 import { useTranslation } from "react-i18next";
+import { AnimatePresence, motion } from "framer-motion"
 
 const DevOptions = () => {
 
@@ -1238,6 +1239,7 @@ const DevOptions = () => {
                                     required
                                     minLength={6}
                                     maxLength={100}
+                                    placeholder={t('organization:invitationDialog.emailPlaceholder')}
                                 ></Input>
                             </Field>
 
@@ -1263,29 +1265,49 @@ const DevOptions = () => {
 
                         </FieldGroup>
                         
-                        {!showInvitationHelp && (
-                            <Button
-                                variant="link"
-                                className="mb-4 cursor-pointer"
-                                onClick={showOrHideSendInvitationHelp}
-                            >
-                                {t('developeroptions:memberInvitationDialog.moreInfo')}
-                            </Button>
-                        )}
-
-                        {showInvitationHelp && (
-                            <div className="mb-4">
-                                <p className="comment-text">
-                                    {t('developeroptions:memberInvitationDialog.info')} 
-                                </p>
-                                <Button
-                                    className="cursor-pointer"
-                                    onClick={showOrHideSendInvitationHelp}
+                        <AnimatePresence mode="wait">
+                            {!showInvitationHelp ? (
+                                
+                                <motion.div
+                                    key="more-info-btn"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.2 }}
                                 >
-                                    {t('developeroptions:memberInvitationDialog.closeInfo')} 
-                                </Button>
-                            </div>
-                        )}
+                                    <Button
+                                        variant="link"
+                                        className="mb-4 cursor-pointer"
+                                        onClick={showOrHideSendInvitationHelp}
+                                    >
+                                        {t('organization:invitationDialog.moreInfo')}
+                                    </Button>
+                                </motion.div>
+
+                            ) : (
+                                
+                                <motion.div
+                                    key="help-content"
+                                    initial={{ opacity: 0, y: -15 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10, transition: { duration: 0.15, ease: "easeIn" } }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                    className="mb-4"
+                                >
+                                    <p className="comment-text px-4">
+                                        {t('organization:invitationDialog.invitationHelp')} 
+                                    </p>
+                                    <Button
+                                        onClick={showOrHideSendInvitationHelp}
+                                        variant="link"
+                                        className="mt-1"
+                                    >
+                                        {t('organization:invitationDialog.closeInformation')}
+                                    </Button>
+                                </motion.div>
+
+                            )}
+                        </AnimatePresence>
 
                         <DialogFooter>
                             <Button

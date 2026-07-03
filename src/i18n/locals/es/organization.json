@@ -28,6 +28,7 @@
         "title": "Creando nuevo proyecto",
         "description": "Completa los campos restantes y presiona \"Crear\".",
         "projectName": "Nombre del proyecto",
+        "projectNamePlaceholder": "Ej: Nuevo Proyecto",
         "levels": "Niveles / pisos",
         "hasBasement": "Tiene sótano",
         "addNewField": "Añadir nuevo campo",
@@ -47,9 +48,10 @@
     "invitationDialog": {
         "title": "Enviar invitación",
         "description": "Aquí puedes enviar una invitación al email ingresado.",
+        "emailPlaceholder": "Ej: nuevousuario@gmail.com",
         "organizationRole": "Rol en la organización",
         "moreInfo": "Más información",
-        "invitationHelp": "Una vez que ingreses la dirección de email del usuario que deseas invitar y selecciones el rol que tendrá (miembro por defecto), se enviará un email que contendrá un código/token. El usuario invitado podrá ingresar este código/token en la sección \"Inicio\" debajo de \"Unirse a una organización\". Una vez ingresado el código/token, se le otorgará acceso a tu organización.",
+        "invitationHelp": "Introduce la dirección de correo electrónico del usuario que deseas invitar y elige el rol que tendrá (Miembro por defecto). Se enviará un correo electrónico con un token de invitación. El usuario invitado podrá unirse a tu organización ingresando el token en la sección \"Inicio\", dentro de \"Unirse a una organización\". Las invitaciones expiran después de 24 horas.",
         "closeInformation": "Cerrar información",
         "confirm": "Enviar"
     },

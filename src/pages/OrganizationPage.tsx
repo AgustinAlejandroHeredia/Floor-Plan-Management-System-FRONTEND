@@ -63,6 +63,7 @@ import SectionNavigation from "@/components/SectionNavigation";
 import { useTranslation } from "react-i18next";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { RiDeleteBin6Line } from "react-icons/ri";
+import { AnimatePresence, motion } from "framer-motion";
 
 const OrganizationPage = () => {
 
@@ -908,6 +909,7 @@ const OrganizationPage = () => {
                             required
                             minLength={3}
                             maxLength={100}
+                            placeholder={t('organization:projectCreationDialog.projectNamePlaceholder')}
                         />
                         </Field>
 
@@ -1129,6 +1131,7 @@ const OrganizationPage = () => {
                                     required
                                     minLength={6}
                                     maxLength={100}
+                                    placeholder={t('organization:invitationDialog.emailPlaceholder')}
                                 ></Input>
                             </Field>
 
@@ -1156,28 +1159,49 @@ const OrganizationPage = () => {
 
                         </FieldGroup>
                         
-                        {!showInvitationHelp && (
-                            <Button
-                                variant="link"
-                                className="mb-4 cursor-pointer"
-                                onClick={showOrHideSendInvitation}
-                            >
-                                {t('organization:invitationDialog.moreInfo')}
-                            </Button>
-                        )}
-
-                        {showInvitationHelp && (
-                            <div className="mb-4">
-                                <p className="comment-text">
-                                    {t('organization:invitationDialog.invitationHelp')} 
-                                </p>
-                                <Button
-                                    onClick={showOrHideSendInvitation}
+                        <AnimatePresence mode="wait">
+                            {!showInvitationHelp ? (
+                                
+                                <motion.div
+                                    key="more-info-btn"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.2 }}
                                 >
-                                    {t('organization:invitationDialog.closeInformation')}
-                                </Button>
-                            </div>
-                        )}
+                                    <Button
+                                        variant="link"
+                                        className="mb-4 cursor-pointer"
+                                        onClick={showOrHideSendInvitation}
+                                    >
+                                        {t('organization:invitationDialog.moreInfo')}
+                                    </Button>
+                                </motion.div>
+
+                            ) : (
+                                
+                                <motion.div
+                                    key="help-content"
+                                    initial={{ opacity: 0, y: -15 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10, transition: { duration: 0.15, ease: "easeIn" } }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                    className="mb-4"
+                                >
+                                    <p className="comment-text px-4">
+                                        {t('organization:invitationDialog.invitationHelp')} 
+                                    </p>
+                                    <Button
+                                        onClick={showOrHideSendInvitation}
+                                        variant="link"
+                                        className="mt-1"
+                                    >
+                                        {t('organization:invitationDialog.closeInformation')}
+                                    </Button>
+                                </motion.div>
+
+                            )}
+                        </AnimatePresence>
 
                         <DialogFooter>
                             <Button

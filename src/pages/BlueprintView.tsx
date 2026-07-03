@@ -5,16 +5,14 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useBlueprintView } from "@/hooks/useBlueprintView";
 
 // ROUTER
-import { UNSAFE_NavigationContext, useBlocker, useLocation, useNavigate, useParams } from "react-router-dom";
+import { UNSAFE_NavigationContext, useLocation, useNavigate, useParams } from "react-router-dom";
 
 // SERVICES
 import { BlueprintViewService } from "@/services/BlueprintViewService";
 
 // ICONS
 import { MdEdit } from "react-icons/md";
-import { LuCirclePlus } from "react-icons/lu";
-import { IoIosClose } from "react-icons/io";
-import { FaCheck, FaChevronDown, FaChevronUp, FaFileDownload, FaMagic, FaRegCheckSquare, FaRegSquare } from "react-icons/fa";
+import { FaCheck, FaChevronDown, FaChevronUp, FaFileDownload, FaRegCheckSquare, FaRegSquare } from "react-icons/fa";
 import { BsScissors } from "react-icons/bs";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { GrFormView, GrFormViewHide } from "react-icons/gr";
@@ -97,7 +95,7 @@ const BlueprintView = () => {
 
     const navigate = useNavigate()
 
-    const { t } = useTranslation([
+    const { t, i18n } = useTranslation([
         "breadcrumb",
         "blueprint",
         "common",

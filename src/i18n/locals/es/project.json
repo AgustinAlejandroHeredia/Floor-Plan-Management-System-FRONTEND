@@ -47,7 +47,9 @@
     "noBlueprints": "Todavía no hay planos para mostrar",
 
     "orderBy": "Ordenado por",
+    "filter": "Filtrar",
     "filterOptions": {
+        "all": "Todos",
         "structure": "Estructura",
         "architecture": "Arquitectura",
         "cold_water": "Agua fria",

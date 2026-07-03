@@ -47,7 +47,9 @@
     "noBlueprints": "No blueprints to show yet",
 
     "orderBy": "Order by",
+    "filter": "Filter",
     "filterOptions": {
+        "all": "All",
         "structure": "Structure",
         "architecture": "Architecture",
         "cold_water": "Cold water",

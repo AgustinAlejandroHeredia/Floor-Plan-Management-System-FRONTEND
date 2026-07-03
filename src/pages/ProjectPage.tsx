@@ -33,7 +33,7 @@ import { convertPdfToImages } from "@/utils/pdfToImage";
 import Toast from "@/components/Toast";
 import InfoDialog from "@/components/InfoDialog";
 import { Separator } from "@/components/ui/separator";
-import { projectBlueprintsFilterOptions, type CustomField, type CustomFieldType, type EditProjectPayload, type ProjectBlueprintsFilterTypes, type ProjectOrganizationType, type ProjectStatus } from "@/types/types";
+import { specialtyTagOptions, type CustomField, type CustomFieldType, type EditProjectPayload, type ProjectOrganizationType, type ProjectStatus, type SpecialtyTag } from "@/types/types";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 
 // TRANSLATION
@@ -41,7 +41,7 @@ import { useTranslation } from "react-i18next";
 
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import DatePickerField from "@/components/DatePickerField";
-import { RiDeleteBin6Line } from "react-icons/ri";
+import { RiDeleteBin6Line, RiSortAsc } from "react-icons/ri";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const ProjectPage = () => {
@@ -87,8 +87,9 @@ const ProjectPage = () => {
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [isUploading, setIsUploading] = useState(false);
 
-  // FILTER
-  const [filterValue, setFilterValue] = useState<ProjectBlueprintsFilterTypes>("newest_first")
+  // SORT & FILTER
+  const [sortOrder, setSortOrder] = useState<'newest_first' | 'oldest_first'>('newest_first')
+  const [specialtyFilter, setSpecialtyFilter] = useState<SpecialtyTag | 'all'>('all')
 
   // EDIT VARIABLES
   const [openEditProjectDialog, setOpenEditProjectDialog] = useState<boolean>(false)
@@ -261,11 +262,11 @@ const ProjectPage = () => {
   // FILTERED LIST
 
   const filteredList = useMemo(() => {
-    if (filterValue === 'newest_first' || filterValue === 'oldest_first') {
-      return filterValue === 'oldest_first' ? blueprints.toReversed() : blueprints;
-    }
-    return blueprints.filter((bp) => bp.specialties.includes(filterValue));
-  }, [blueprints, filterValue])
+    const filtered = specialtyFilter === 'all'
+      ? blueprints
+      : blueprints.filter((bp) => bp.specialties.includes(specialtyFilter));
+    return sortOrder === 'oldest_first' ? filtered.toReversed() : filtered;
+  }, [blueprints, sortOrder, specialtyFilter])
 
   // EDIT PROJECT
 
@@ -411,7 +412,20 @@ const ProjectPage = () => {
   }
 
   // COLORS
-  
+
+  const specialtyColors: Record<SpecialtyTag, string> = {
+    structure:    "rgba(120, 120, 140, 0.55)",
+    architecture: "rgba(59,  130, 246, 0.55)",
+    cold_water:   "rgba(6,   182, 212, 0.55)",
+    hot_water:    "rgba(249, 115,  22, 0.55)",
+    electrical:   "rgba(234, 179,   8, 0.55)",
+    gas:          "rgba(34,  197,  94, 0.55)",
+    sewerage:     "rgba(161, 100,  55, 0.55)",
+    rainwater:    "rgba(20,  184, 166, 0.55)",
+    notes:        "rgba(168,  85, 247, 0.55)",
+    tables:       "rgba(236,  72, 153, 0.55)",
+  }
+
   const getProjectStatusColor = (status: ProjectStatus): string => {
       switch (status.toLocaleLowerCase()) {
           case "pending":
@@ -532,37 +546,67 @@ const ProjectPage = () => {
 
           <div className="flex flex-col items-start gap-4 w-full">
 
-            <div className="flex flex-col gap-1.5">
-              <Label 
-                htmlFor="filterLabel"
-                style={{ color: 'var(--text-h)' }}
-                className="text-sm font-medium"
-              >
-                {t('project:orderBy')}
-              </Label>
-              <Select
-                defaultValue="newest_first"
-                onValueChange={(value) => setFilterValue(value as ProjectBlueprintsFilterTypes)}
-              >
-                <SelectTrigger className="w-full min-w-44 max-w-48 bg-white text-black border border-input cursor-pointer">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent position="popper">
-                  <SelectGroup>
-                    {projectBlueprintsFilterOptions.map((filter) => (
-                      <SelectItem key={filter} value={filter}>
-                        {t(`project:filterOptions.${filter}`)}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+            <div className="flex flex-row items-end gap-4 flex-wrap">
+
+              {/* ORDER BY */}
+              <div className="flex flex-col gap-1.5">
+                <Label
+                  style={{ color: 'var(--text-h)' }}
+                  className="text-sm font-medium flex items-center gap-1"
+                >
+                  <RiSortAsc />
+                  {t('project:orderBy')}
+                </Label>
+                <Select
+                  defaultValue="newest_first"
+                  onValueChange={(value) => setSortOrder(value as 'newest_first' | 'oldest_first')}
+                >
+                  <SelectTrigger className="w-full min-w-44 max-w-48 bg-white text-black border border-input cursor-pointer">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    <SelectGroup>
+                      <SelectItem value="newest_first">{t('project:filterOptions.newest_first')}</SelectItem>
+                      <SelectItem value="oldest_first">{t('project:filterOptions.oldest_first')}</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* FILTER BY SPECIALTY */}
+              <div className="flex flex-col gap-1.5">
+                <Label
+                  style={{ color: 'var(--text-h)' }}
+                  className="text-sm font-medium"
+                >
+                  {t('project:filter')}
+                </Label>
+                <Select
+                  defaultValue="all"
+                  onValueChange={(value) => setSpecialtyFilter(value as SpecialtyTag | 'all')}
+                >
+                  <SelectTrigger className="w-full min-w-44 max-w-48 bg-white text-black border border-input cursor-pointer">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    <SelectGroup>
+                      <SelectItem value="all">{t('project:filterOptions.all')}</SelectItem>
+                      {specialtyTagOptions.map((tag) => (
+                        <SelectItem key={tag} value={tag}>
+                          {t(`project:filterOptions.${tag}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+
             </div>
 
             <p className="comment-text">
               {t('project:uploadedBlueprintsCount')} {filteredList.length}
             </p>
-            
+
           </div>
 
           <div
@@ -625,6 +669,27 @@ const ProjectPage = () => {
                       <p style={{ fontSize: "12px" }}>
                         {new Date(bp.creationDate).toLocaleDateString()}
                       </p>
+                      {bp.specialties && bp.specialties.length > 0 && (
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "6px" }}>
+                          {bp.specialties.map((specialty: SpecialtyTag) => (
+                            <span
+                              key={specialty}
+                              style={{
+                                fontSize: "10px",
+                                padding: "2px 7px",
+                                borderRadius: "9999px",
+                                background: specialtyColors[specialty],
+                                border: "1px solid rgba(255,255,255,0.35)",
+                                color: "white",
+                                fontWeight: "500",
+                                backdropFilter: "blur(4px)",
+                              }}
+                            >
+                              {t(`project:filterOptions.${specialty}`)}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                       {bp.tags && bp.tags.length > 0 && (
                         <p
                           style={{

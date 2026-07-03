@@ -731,7 +731,7 @@ const OrganizationPage = () => {
                                 />
                                 ) : (
                                 <div className="text-center text-xs text-[var(--text-l)]">
-                                    {t('organization:noProjectsYet')}
+                                    {t('organization:noThumbnail')}
                                 </div>
                                 )}
                             </div>

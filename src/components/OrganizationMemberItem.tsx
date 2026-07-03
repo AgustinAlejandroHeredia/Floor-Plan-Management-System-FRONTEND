@@ -75,17 +75,19 @@ const OrganizationMemberItem = ({
         </Avatar>
       </ItemMedia>
 
-      <ItemContent className="flex flex-row items-center gap-6">
-        <span className="min-w-[120px] text-[var(--text-h)]">
+      <ItemContent className="grid grid-cols-[200px_220px_1fr] items-center gap-6 w-full">
+
+        <span className="truncate text-[var(--text-h)]">
           {member.name}
         </span>
 
-        <span className="w-[180px] truncate text-[var(--text-h)]">
+        <span className="truncate text-[var(--text-h)]">
           {member.email}
         </span>
 
-        <span className="text-sm font-medium text-[var(--text-h)]">
-          {role && role !== "unknown" ? (t(`user:roles.${role.toLowerCase()}`)
+        <span className="text-sm font-medium text-[var(--text-h)] truncate">
+          {role && role !== "unknown" ? (
+            t(`user:roles.${role.toLowerCase()}`)
           ) : (
             t('common:unknown')
           )}

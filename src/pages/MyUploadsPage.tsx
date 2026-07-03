@@ -55,7 +55,7 @@ const MyUploadsPage = () => {
 
                 <h3 className="sub-heading">{t('myuploads:title')}</h3>
 
-                <p className="comment-text">{t('myuploads:totalUploads')} {userUploadsList.length}</p>
+                <p className="comment-text">{t('myuploads:totalUploads')} {new Intl.NumberFormat(i18n.language).format(userUploadsList.length)}</p>
 
                 <div className="flex flex-wrap gap-4 justify-start">
                     {userUploadsList.map((upload) => (

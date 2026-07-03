@@ -658,7 +658,7 @@ const DevOptions = () => {
 
                 <h3 className="sub-heading">{t('developeroptions:organizations')}: </h3>
 
-                <p className="comment-text">{t('developeroptions:totalOrganizations')} {organizationsCount}</p>
+                <p className="comment-text">{t('developeroptions:totalOrganizations')} {new Intl.NumberFormat(i18n.language).format(organizationsCount)}</p>
 
                 <div className="space-y-4">
                 {organizationsWithMembers.map((org) => (
@@ -698,16 +698,18 @@ const DevOptions = () => {
                             }}
                         >
                             {t('developeroptions:organizationsFields.uploadedBlueprints')}:{" "}
-                            {organizationBlueprintCounts.find(
-                                (item) => item.organizationId === org._id
-                            )?.count ?? 0}
-                            /{org.maxBlueprints}
+                            {new Intl.NumberFormat(i18n.language).format(
+                                organizationBlueprintCounts.find(
+                                    (item) => item.organizationId === org._id
+                                )?.count ?? 0
+                            )}
+                            /{new Intl.NumberFormat(i18n.language).format(Number(org.maxBlueprints))}
                         </CardTitle>
 
                         <div className="mt-4">
 
                             <h3 className="sub-heading-2">
-                                {t('developeroptions:organizationsFields.organizationMembers')} ({org.members.length}): 
+                                {t('developeroptions:organizationsFields.organizationMembers')} ({new Intl.NumberFormat(i18n.language).format(org.members.length)}): 
                             </h3>
 
                             {org.members.length <= 10 && (
@@ -814,7 +816,7 @@ const DevOptions = () => {
 
                 <h3 className="sub-heading">{t('developeroptions:platformUsers')}: </h3>
 
-                <p className="comment-text">{t('developeroptions:platformUsersCount')} {usersCount}</p>
+                <p className="comment-text">{t('developeroptions:platformUsersCount')} {new Intl.NumberFormat(i18n.language).format(usersCount)}</p>
 
                 <Card
                     className="bg-[var(--accent-bg)] w-full"
@@ -869,7 +871,7 @@ const DevOptions = () => {
 
                 <h3 className="sub-heading">{t('developeroptions:availableInvitations')}: </h3>
 
-                <p className="comment-text">{t('developeroptions:availableInvitationsCount')} {invitationsCount}</p>
+                <p className="comment-text">{t('developeroptions:availableInvitationsCount')} {new Intl.NumberFormat(i18n.language).format(invitationsCount)}</p>
 
                 <div className="flex flex-col gap-4">
                     {invitationsList.map((invitation) => (

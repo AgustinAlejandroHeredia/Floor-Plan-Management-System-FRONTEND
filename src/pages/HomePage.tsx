@@ -36,7 +36,7 @@ const HomePage = () => {
 
   const navigate = useNavigate()
 
-  const { t } = useTranslation([
+  const { t, i18n } = useTranslation([
     "home",
     "breadcrumb",
     "common"
@@ -154,7 +154,7 @@ const HomePage = () => {
                 <div>
                   <h1 className="sub-heading">{t('home:yourOrganizations')}</h1>
 
-                  <p className="comment-text">{t('home:totalOrganizations')} {organizations.length}</p>
+                  <p className="comment-text">{t('home:totalOrganizations')} {new Intl.NumberFormat(i18n.language).format(organizations.length)}</p>
                 </div>
                 {organizations.length !== 0 && (
                   <Button

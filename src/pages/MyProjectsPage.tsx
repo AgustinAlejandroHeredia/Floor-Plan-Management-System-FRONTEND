@@ -11,7 +11,7 @@ const MyProjectsPage = () => {
 
     const navigate = useNavigate()
 
-    const { t } = useTranslation([
+    const { t, i18n } = useTranslation([
         "myprojects",
         "breadcrumb",
         "common",
@@ -41,7 +41,7 @@ const MyProjectsPage = () => {
 
                     <p className="comment-text">{t('myprojects:description')}</p>
                     <p></p>
-                    <p className="comment-text">{t('myprojects:totalProjects')} {userProjectsList.length}</p>
+                    <p className="comment-text">{t('myprojects:totalProjects')} {new Intl.NumberFormat(i18n.language).format(userProjectsList.length)}</p>
 
                     {userProjectsList.length > 0 && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

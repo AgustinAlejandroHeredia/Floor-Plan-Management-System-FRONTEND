@@ -709,7 +709,7 @@ const OrganizationPage = () => {
 
                                 {project.levels && (
                                 <div>
-                                    <span className="font-medium">{t('project:projectCharacteristics.levels')}:</span> {project.levels}
+                                    <span className="font-medium">{t('project:projectCharacteristics.levels')}:</span> {new Intl.NumberFormat(i18n.language).format(Number(project.levels))}
                                 </div>
                                 )}
 

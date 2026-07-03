@@ -102,7 +102,7 @@ const UserProfilePage = () => {
                     <h3 className="sub-heading">{t('userprofile:organizationsInCommon')}</h3>
                 )}
 
-                <p className="comment-text">{t('userprofile:totalOrganizations')} {userOrganizationsAndRoles.length}</p>
+                <p className="comment-text">{t('userprofile:totalOrganizations')} {new Intl.NumberFormat(i18n.language).format(userOrganizationsAndRoles.length)}</p>
 
                 {userOrganizationsAndRoles.length === 0 ? (
 
@@ -197,7 +197,7 @@ const UserProfilePage = () => {
 
                 <h3 className="sub-heading">{t('userprofile:projects')}</h3>
 
-                <p className="comment-text">{t('userprofile:totalProjects')} {userProjectsList.length}</p>
+                <p className="comment-text">{t('userprofile:totalProjects')} {new Intl.NumberFormat(i18n.language).format(userProjectsList.length)}</p>
 
                 {userProjectsList.length === 0 ? (
 

@@ -34,7 +34,7 @@ const RecentActivityPage = () => {
                 
                 <h3 className="sub-heading">{t('recentactivity:title')} </h3>
 
-                <p className="comment-text">{t('recentactivity:logs')} {recentActivityList.length}</p>
+                <p className="comment-text">{t('recentactivity:logs')} {new Intl.NumberFormat(i18n.language).format(recentActivityList.length)}</p>
 
                 <div className="flex flex-col items-center gap-6">
                     {recentActivityList.map((action) => {

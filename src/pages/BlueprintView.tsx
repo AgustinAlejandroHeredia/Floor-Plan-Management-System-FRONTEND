@@ -454,11 +454,18 @@ const BlueprintView = () => {
     const handleAddOrDeleteSpecialty = (
         specialty: SpecialtyTag,
     ) => {
+
+        // para añadir o eliminar especialidad (multiples)
+        /*
         setSpecialtiesList((prev) => 
             prev.includes(specialty) 
                 ? prev.filter((item) => item !== specialty)
                 : [...prev, specialty]
         )
+        */
+       
+       // para seleccionar SOLO UNA
+       setSpecialtiesList([specialty])
     }
 
     const handleSaveLevelsList = (selectedLevels: string[]) => {
@@ -1475,35 +1482,45 @@ const BlueprintView = () => {
                 </Card>
 
                 {/* CONTROLS */}
-                {!cropMode && !editAreaMode && (
-                    <div>
-                        {/* CONTROLS */}
-                        <div className="flex flex-wrap items-end justify-center gap-8 mt-6">
+                {!cropMode && (
+                    <div className="flex flex-col items-center w-full mt-6">
+                        
+                        <div className="flex flex-wrap items-end justify-center gap-8 w-full">
 
                             {/* ZOOM SELECTOR */}
-                            <motion.div layout className="flex flex-col items-center">
-                                <p className="info-text mb-1">
-                                    {t('blueprint:controls.zoom')}: {Math.round(imageZoom * 100)}%
-                                </p>
-                                <input
-                                    className="cursor-pointer"
-                                    type="range"
-                                    min={0.5}
-                                    max={3}
-                                    step={0.1}
-                                    value={imageZoom}
-                                    onChange={(e) => setImageZoom(Number(e.target.value))}
-                                    style={{
-                                        accentColor: "var(--text-h)",
-                                        width: "250px",
-                                    }}
-                                />
-                            </motion.div>
-
-                            {/* CONFIDENCE SELECTION */}
                             <AnimatePresence mode="popLayout">
-                                {thereAreAreasToShow && (
+                                <motion.div 
+                                    key="zoom-selector"
+                                    layout 
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.9 }}
+                                    className="flex flex-col items-center"
+                                >
+                                    <p className="info-text mb-1">
+                                        {t('blueprint:controls.zoom')}: {Math.round(imageZoom * 100)}%
+                                    </p>
+                                    <input
+                                        className="cursor-pointer"
+                                        type="range"
+                                        min={0.5}
+                                        max={3}
+                                        step={0.1}
+                                        value={imageZoom}
+                                        onChange={(e) => setImageZoom(Number(e.target.value))}
+                                        style={{
+                                            accentColor: "var(--text-h)",
+                                            width: "250px",
+                                        }}
+                                    />
+                                </motion.div>
+                            </AnimatePresence>
+
+                            {/* CONFIDENCE SELECTION: Oculto si editAreaMode es true */}
+                            <AnimatePresence mode="popLayout">
+                                {!editAreaMode && thereAreAreasToShow && (
                                     <motion.div 
+                                        key="confidence-selector"
                                         layout
                                         initial={{ opacity: 0, scale: 0.9 }}
                                         animate={{ opacity: 1, scale: 1 }}
@@ -1530,11 +1547,12 @@ const BlueprintView = () => {
                                 )}
                             </AnimatePresence>
 
-                            {/* SHOW FILTERS */}
+                            {/* SHOW FILTERS: Oculto si editAreaMode es true */}
                             <AnimatePresence mode="popLayout">
-                                {thereAreAreasToShow && !showFilterList && (
+                                {!editAreaMode && thereAreAreasToShow && !showFilterList && (
                                     <motion.div
-                                        layout // hace que el botón avise cuando va a dejar su espacio libre
+                                        key="show-filters-btn"
+                                        layout 
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
@@ -1551,43 +1569,48 @@ const BlueprintView = () => {
                                 )}
                             </AnimatePresence>
 
-                            {/* HIDE / SHOW DRAWN AREAS */}
-                            {thereAreAreasToShow && (
-                                <motion.div layout className="flex flex-col items-center">
-                                    <Label className="info-text mb-2">
-                                        {t('blueprint:controls.hideDrawnAreas')}
-                                    </Label>
-                                    <div className="flex items-center space-x-2">
-                                        <Switch
-                                            className="cursor-pointer"
-                                            id="hidedrawnareas"
-                                            checked={hideDrawnAreas}
-                                            onCheckedChange={(value) => setHideDrawnAreas(value)}
-                                        />
-                                        <Label htmlFor="hidedrawnareas">
-                                            {hideDrawnAreas ? 
-                                                <GrFormViewHide className="text-white text-xl"/> 
-                                                : 
-                                                <GrFormView className="text-white text-xl"/>
-                                            }
+                            {/* HIDE / SHOW DRAWN AREAS: Oculto si editAreaMode es true */}
+                            <AnimatePresence mode="popLayout">
+                                {!editAreaMode && thereAreAreasToShow && (
+                                    <motion.div 
+                                        key="hide-areas-switch"
+                                        layout 
+                                        className="flex flex-col items-center"
+                                    >
+                                        <Label className="info-text mb-2">
+                                            {t('blueprint:controls.hideDrawnAreas')}
                                         </Label>
-                                    </div>
-                                </motion.div>
-                            )}
+                                        <div className="flex items-center space-x-2">
+                                            <Switch
+                                                className="cursor-pointer"
+                                                id="hidedrawnareas"
+                                                checked={hideDrawnAreas}
+                                                onCheckedChange={(value) => setHideDrawnAreas(value)}
+                                            />
+                                            <Label htmlFor="hidedrawnareas">
+                                                {hideDrawnAreas ? 
+                                                    <GrFormViewHide className="text-white text-xl"/> 
+                                                    : 
+                                                    <GrFormView className="text-white text-xl"/>
+                                                }
+                                            </Label>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
 
                         </div>
 
-                        {/* SHOWING FILTERS */}
+                        {/* CONTENEDOR DE FILTROS DESPLEGADOS: Oculto si editAreaMode es true */}
                         <AnimatePresence>
-                            {showFilterList && (
+                            {!editAreaMode && showFilterList && (
                                 <motion.div
-                                    // Reemplaza tus Keyframes de CSS:
+                                    key="filter-list"
                                     initial={{ opacity: 0, y: -20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -20 }}
                                     transition={{ duration: 0.3, ease: "easeInOut" }}
-                                    
-                                    className="flex flex-row flex-wrap items-center justify-center gap-2 mt-4 px-4 w-full"
+                                    className="flex flex-row flex-wrap items-center justify-center gap-2 mt-6 px-4 w-full"
                                 >
                                     <Button
                                         className="cursor-pointer"
@@ -2278,7 +2301,7 @@ const BlueprintView = () => {
                                                         key={vertexIndex}
                                                         cx={point.x}
                                                         cy={point.y}
-                                                        r={10}
+                                                        r={5}
                                                         fill="white"
                                                         stroke="blue"
                                                         strokeWidth={2}

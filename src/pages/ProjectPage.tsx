@@ -529,7 +529,7 @@ const ProjectPage = () => {
             </div>
 
             {/* UPLOAD */}
-            <div className="border border-[var(--border)] rounded-xl px-6 py-4 w-full">
+            <div className="border border-[var(--border)] rounded-xl px-6 py-4 w-full max-w-2xl">
               <h1 
                 className="sub-heading-center" 
                 style={{ marginBottom: "8px" }}

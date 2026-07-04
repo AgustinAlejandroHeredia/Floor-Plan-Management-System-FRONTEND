@@ -1170,6 +1170,7 @@ const OrganizationPage = () => {
                                     transition={{ duration: 0.2 }}
                                 >
                                     <Button
+                                        type="button"
                                         variant="link"
                                         className="mb-4 cursor-pointer"
                                         onClick={showOrHideSendInvitation}
@@ -1192,6 +1193,7 @@ const OrganizationPage = () => {
                                         {t('organization:invitationDialog.invitationHelp')} 
                                     </p>
                                     <Button
+                                        type="button"
                                         onClick={showOrHideSendInvitation}
                                         variant="link"
                                         className="mt-1"

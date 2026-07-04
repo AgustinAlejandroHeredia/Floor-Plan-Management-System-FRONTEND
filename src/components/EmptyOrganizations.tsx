@@ -26,7 +26,7 @@ export function EmptyOrganizations({ onJoinClick }: EmptyOrganizationsProps) {
     <Empty className="border border-dashed p-6 max-w-md mx-auto mt-30">
       <EmptyHeader>
         <EmptyMedia variant="icon">
-          <TbHomeOff  size={24} color="black" />
+          <TbHomeOff  size={24} color="var(--text-h)" />
         </EmptyMedia>
         <EmptyTitle className="text-[var(--text-h)]">{t('components:emptyOrganizations.title')}</EmptyTitle>
         <EmptyDescription>

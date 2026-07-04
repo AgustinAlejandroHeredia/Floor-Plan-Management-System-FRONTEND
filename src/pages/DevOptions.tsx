@@ -1276,6 +1276,7 @@ const DevOptions = () => {
                                     transition={{ duration: 0.2 }}
                                 >
                                     <Button
+                                        type="button"
                                         variant="link"
                                         className="mb-4 cursor-pointer"
                                         onClick={showOrHideSendInvitationHelp}
@@ -1298,6 +1299,7 @@ const DevOptions = () => {
                                         {t('organization:invitationDialog.invitationHelp')} 
                                     </p>
                                     <Button
+                                        type="button"
                                         onClick={showOrHideSendInvitationHelp}
                                         variant="link"
                                         className="mt-1"

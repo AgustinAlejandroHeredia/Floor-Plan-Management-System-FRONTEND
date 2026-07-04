@@ -1786,10 +1786,12 @@ const BlueprintView = () => {
                                         src={blueprtinImageUrl!}
                                         alt={blueprint!.filename}
                                         onLoad={handleNormalImageLoad}
+                                        draggable={false}
                                         style={{
                                             width: "100%",
                                             height: "auto",
                                             display: "block",
+                                            ...({ transform: "translate3d(0,0,0)", WebkitUserDrag: "none" }as React.CSSProperties)
                                         }}
                                     />
 

@@ -1,6 +1,6 @@
-import BreadcrumbBar from "@/components/BreadcrumbBar";
+import BreadcrumbBar from "@/components/MyBreadcrumb";
 import { useProject } from "@/hooks/useProject";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { FileDropZone } from "@/components/FileDropZone";
 
 import {
@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/dialog";
 
 import Loading from "@/components/Loading";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ProjectService } from "@/services/ProjectService";
 import { Button } from "@/components/ui/button";
 import { FieldGroup, Field } from "@/components/ui/field";
@@ -44,6 +44,7 @@ import DatePickerField from "@/components/DatePickerField";
 import { RiDeleteBin6Line, RiSortAsc } from "react-icons/ri";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { IoFilter } from "react-icons/io5";
+import type { LayoutContextType } from "@/layout/AppLayout";
 
 const ProjectPage = () => {
   const { organizationName, organizationId, projectName, projectId } =
@@ -63,6 +64,20 @@ const ProjectPage = () => {
       "common",
       "organization",
   ])
+
+  const { setBreadcrumbs } = useOutletContext<LayoutContextType>()
+
+  // BREADCUMB
+  useEffect(() => {
+      setBreadcrumbs([
+          { label: t('breadcrumb:home'), href: "/" },
+          {
+            label: organizationName!,
+            href: `/OrganizationPage/${organizationName}/${organizationId}`,
+          },
+          { label: projectName! },
+        ])
+  }, [organizationName, organizationId, projectName, projectId, setBreadcrumbs])
 
   // ERROR VARIABLES
   const [errorOpen, setErrorOpen] = useState<boolean>(false);
@@ -101,6 +116,7 @@ const ProjectPage = () => {
     const [openNewFieldDialog, setOpenNewFieldDialog] = useState(false);
     const [newFieldName, setNewFieldName] = useState("");
     const [newFieldType, setNewFieldType] = useState<string>("text");
+
 
   const {
     project,
@@ -452,16 +468,6 @@ const ProjectPage = () => {
 
   return (
     <div>
-      <BreadcrumbBar
-        items={[
-          { label: t('breadcrumb:home'), href: "/" },
-          {
-            label: organizationName!,
-            href: `/OrganizationPage/${organizationName}/${organizationId}`,
-          },
-          { label: projectName! },
-        ]}
-      />
 
       <div className="main-content">
 

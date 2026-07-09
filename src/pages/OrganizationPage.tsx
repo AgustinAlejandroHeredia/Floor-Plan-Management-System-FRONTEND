@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
 import { OrganizationService } from "@/services/OrganizationService";
 import { InvitationService } from "@/services/InvitationService";
-import BreadcrumbBar from "@/components/BreadcrumbBar";
+import BreadcrumbBar from "@/components/MyBreadcrumb";
 import { useOrganization } from "@/hooks/useOrganization";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 
 // ICONS
 import { IoMdAddCircle } from "react-icons/io";
@@ -64,6 +64,7 @@ import { useTranslation } from "react-i18next";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { AnimatePresence, motion } from "framer-motion";
+import type { LayoutContextType } from "@/layout/AppLayout";
 
 const OrganizationPage = () => {
 
@@ -79,6 +80,16 @@ const OrganizationPage = () => {
         "common",
         "items",
     ])
+
+    const { setBreadcrumbs } = useOutletContext<LayoutContextType>()
+
+    // BREADCUMB
+    useEffect(() => {
+        setBreadcrumbs([ 
+            { label: t('breadcrumb:home'), href: "/" }, 
+            { label: name! }
+        ])
+    }, [name, id, setBreadcrumbs])
 
     // INDEX
     const projectsSectionRef = useRef<HTMLDivElement | null>(null)
@@ -139,6 +150,7 @@ const OrganizationPage = () => {
 
     // HOOK
     const { organizationPermissions, projects, userOrganizationRole, organizationMembersList, organizationInvitationsList, hasMoreThanOneAdmin, projectsCount, usersCount, invitationsCount, projectPages, userPages, invitationPages, currentProjectPage, currentUserPage, currentInvitationPage, setCurrentProjectPage, setCurrentUserPage, setCurrentInvitationPage, refreshPermissions, refreshProjects, refreshUsers, refreshInvitations, loadingGeneral, loadingUserRoleAndPermissisons, loadingProjects, loadingUsers, loadingInvitations, error } = useOrganization(id!)
+
 
     // FLOATIN INDEX USE EFFECT
     useEffect(() => {
@@ -567,11 +579,6 @@ const OrganizationPage = () => {
 
     return (
         <div ref={topSectionRef}>
-
-        <BreadcrumbBar items={[ 
-            { label: t('breadcrumb:home'), href: "/" }, 
-            { label: name! }
-        ]} />
 
         <div
             className={`

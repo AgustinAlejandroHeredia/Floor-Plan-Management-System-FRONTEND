@@ -1,14 +1,16 @@
-import BreadcrumbBar from "@/components/BreadcrumbBar"
+import BreadcrumbBar from "@/components/MyBreadcrumb"
 import Loading from "@/components/Loading"
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import { useRecentActivity } from "@/hooks/useRecentActivityPage"
-import { useParams } from "react-router-dom"
+import { useOutletContext, useParams } from "react-router-dom"
 
 // HELPER
 import { parseActivityLogFields } from "@/utils/activityLogParamConverter"
 
 // TRANSLATION
 import { useTranslation } from "react-i18next";
+import type { LayoutContextType } from "@/layout/AppLayout"
+import { useEffect } from "react"
 
 const RecentActivityPage = () => {
 
@@ -18,15 +20,24 @@ const RecentActivityPage = () => {
         "recentactivity",
     ])
 
+    const { setBreadcrumbs } = useOutletContext<LayoutContextType>()
+
+    // BREADCUMB
+    useEffect(() => {
+        setBreadcrumbs([
+            { label: t('breadcrumb:myRecentActivity') }
+        ])
+    }, [setBreadcrumbs])
+
     const { userId } = useParams()
 
     const {recentActivityList, loading, error} = useRecentActivity(userId)
+
 
     if (loading) return <Loading/>
 
     return (
         <div>
-        <BreadcrumbBar items={[{ label: t('breadcrumb:myRecentActivity') }]} />
 
         <div className="main-content">
 

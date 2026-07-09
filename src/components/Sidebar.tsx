@@ -95,7 +95,7 @@ const Sidebar = () => {
       <div>
         {/* Organización */}
         <div
-          className={`m-0 p-3 flex items-center w-full transition-all duration-200 ${
+          className={`m-0 px-3 flex items-center w-full h-[52px] border-b border-[var(--border)] overflow-hidden transition-all duration-200 ${
             isMinimized ? "justify-center" : "justify-between"
           }`}
           style={{
@@ -104,7 +104,7 @@ const Sidebar = () => {
           }}
         >
           {!isMinimized && (
-            <span className="truncate pr-2">
+            <span className="truncate pr-2 text-sm">
               Floor Plan Management
             </span>
           )}
@@ -129,8 +129,6 @@ const Sidebar = () => {
             )}
           </Tooltip>
         </div>
-
-        <Separator />
 
         {/* Navegación */}
         <div className="pt-3 pb-6 px-2 flex flex-col gap-2">

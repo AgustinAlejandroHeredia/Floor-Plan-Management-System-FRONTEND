@@ -32,10 +32,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ItemGroup } from "@/components/ui/item";
 import OrganizationMemberItem from "@/components/OrganizationMemberItem";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useOutletContext } from "react-router-dom"
 import { InvitationService } from "@/services/InvitationService"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
-import BreadcrumbBar from "@/components/BreadcrumbBar"
+import BreadcrumbBar from "@/components/MyBreadcrumb"
 import InvitationItem from "@/components/InvitationItem"
 import SectionNavigation from "@/components/SectionNavigation"
 import PageSelector from "@/components/PageSelector"
@@ -43,6 +43,7 @@ import PageSelector from "@/components/PageSelector"
 // TRANSLATION
 import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion } from "framer-motion"
+import type { LayoutContextType } from "@/layout/AppLayout"
 
 const DevOptions = () => {
 
@@ -56,6 +57,8 @@ const DevOptions = () => {
         "error",
         "items",
     ])
+
+    const { setBreadcrumbs } = useOutletContext<LayoutContextType>()
 
     // INDEX
     const organizationsSectionRef = useRef<HTMLDivElement | null>(null)
@@ -121,6 +124,11 @@ const DevOptions = () => {
 
     // HOOK
     const { organizationsWithMembers, organizationBlueprintCounts, users, invitationsList, organizationPages, userPages, invitationPages, organizationsCount, usersCount, invitationsCount, currentOrganizationPage, currentUserPage, currentInvitationPage, setCurrentOrganizationPage, setCurrentUserPage, setCurrentInvitationPage, refreshOrganizations, refreshUsers, refreshInvitations, loadingGeneral, loadingOrganizations, loadingUsers, loadingInvitations, error } = useDevOptions()
+
+    // BREADCUMB
+    useEffect(() => {
+        setBreadcrumbs([{ label: t('breadcrumb:developerOptions') }])
+    }, [setBreadcrumbs])
 
     // FLOATIN INDEX USE EFFECT
     useEffect(() => {
@@ -565,8 +573,6 @@ const DevOptions = () => {
 
     return (
         <div ref={topSectionRef}>
-
-        <BreadcrumbBar items={[{ label: t('breadcrumb:developerOptions') }]} />
         
         <div
             className={`

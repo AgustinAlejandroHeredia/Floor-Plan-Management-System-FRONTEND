@@ -3,13 +3,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import { useUserProfilePage } from "@/hooks/useUserProfilePage"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate, useOutletContext, useParams } from "react-router-dom"
 import { ItemGroup } from "@/components/ui/item"
 import { Button } from "@/components/ui/button"
-import BreadcrumbBar from "@/components/BreadcrumbBar"
+import BreadcrumbBar from "@/components/MyBreadcrumb"
 
 // TRANSLATION
 import { useTranslation } from "react-i18next";
+import { useEffect } from "react"
+import type { LayoutContextType } from "@/layout/AppLayout"
 
 const UserProfilePage = () => {
 
@@ -22,6 +24,15 @@ const UserProfilePage = () => {
         "common",
         "user",
     ])
+
+    const { setBreadcrumbs } = useOutletContext<LayoutContextType>()
+
+    // BREADCUMB
+    useEffect(() => {
+        setBreadcrumbs([ 
+            {label: t('breadcrumb:myProfile')},
+        ])
+    }, [setBreadcrumbs])
 
     const { userId } = useParams()
 
@@ -47,9 +58,6 @@ const UserProfilePage = () => {
 
     return (
         <div>
-        <BreadcrumbBar items={[ 
-            {label: t('breadcrumb:myProfile')},
-        ]} />
 
         <div className="main-content">
 

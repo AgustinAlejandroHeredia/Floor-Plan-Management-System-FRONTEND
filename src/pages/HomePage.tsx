@@ -1,6 +1,6 @@
 import Loading from "../components/Loading";
-import BreadcrumbBar from "@/components/BreadcrumbBar";
-import { useNavigate } from "react-router-dom";
+import BreadcrumbBar from "@/components/MyBreadcrumb";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useHome } from "@/hooks/useHome";
 import { EmptyOrganizations } from "@/components/EmptyOrganizations";
@@ -31,6 +31,7 @@ import Toast from "@/components/Toast";
 
 // TRANSLATION
 import { useTranslation } from "react-i18next";
+import type { LayoutContextType } from "@/layout/AppLayout";
 
 const HomePage = () => {
 
@@ -41,6 +42,13 @@ const HomePage = () => {
     "breadcrumb",
     "common"
   ])
+
+  const { setBreadcrumbs } = useOutletContext<LayoutContextType>()
+
+  // BREADCUMB
+  useEffect(() => {
+      setBreadcrumbs([{ label: t('breadcrumb:home') }])
+  }, [setBreadcrumbs])
 
   const { organizations, loadingHomeOrganizations, error, refreshOrganizationList } = useHome();
 
@@ -92,7 +100,6 @@ const HomePage = () => {
 
   return (
     <div style={{ textAlign: "center" }}>
-      <BreadcrumbBar items={[{ label: t('breadcrumb:home') }]} />
 
       <div className="main-content">
 

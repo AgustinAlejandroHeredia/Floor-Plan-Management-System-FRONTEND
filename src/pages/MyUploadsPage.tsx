@@ -1,16 +1,17 @@
-import BreadcrumbBar from "@/components/BreadcrumbBar"
+import BreadcrumbBar from "@/components/MyBreadcrumb"
 import Loading from "@/components/Loading"
 import Toast from "@/components/Toast"
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import { useMyUploads } from "@/hooks/useMyUploadsPage"
 import { MyUploadsService } from "@/services/MyUploadsService"
 import type { MyUploadsBlurpintType } from "@/types/types"
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { useNavigate, useOutletContext } from "react-router-dom"
 
 // TRANSLATION
 import { useTranslation } from "react-i18next";
 import InfoDialog from "@/components/InfoDialog"
+import type { LayoutContextType } from "@/layout/AppLayout"
 
 const MyUploadsPage = () => {
 
@@ -21,6 +22,13 @@ const MyUploadsPage = () => {
         "breadcrumb",
         "common",
     ])
+
+    const { setBreadcrumbs } = useOutletContext<LayoutContextType>()
+
+    // BREADCUMB
+    useEffect(() => {
+        setBreadcrumbs([{ label: t('breadcrumb:myUploads') }])
+    }, [setBreadcrumbs])
 
     const {userUploadsList, loading, error} = useMyUploads()
 
@@ -43,11 +51,11 @@ const MyUploadsPage = () => {
         }
     }
 
+
     if (loading) return <Loading/>
 
     return (
         <div>
-        <BreadcrumbBar items={[{ label: t('breadcrumb:myUploads') }]} />
 
         <div className="main-content">
             

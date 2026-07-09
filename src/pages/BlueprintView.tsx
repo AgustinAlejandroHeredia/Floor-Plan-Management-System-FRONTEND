@@ -5,7 +5,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useBlueprintView } from "@/hooks/useBlueprintView";
 
 // ROUTER
-import { UNSAFE_NavigationContext, useLocation, useNavigate, useParams } from "react-router-dom";
+import { UNSAFE_NavigationContext, useLocation, useNavigate, useOutletContext, useParams } from "react-router-dom";
 
 // SERVICES
 import { BlueprintViewService } from "@/services/BlueprintViewService";
@@ -20,7 +20,7 @@ import { TfiSave } from "react-icons/tfi";
 import { CgUndo } from "react-icons/cg";
 
 // UI COMPONENTS
-import BreadcrumbBar from "@/components/BreadcrumbBar";
+import BreadcrumbBar from "@/components/MyBreadcrumb";
 import Loading from "@/components/Loading";
 import {
   Card,
@@ -71,6 +71,7 @@ import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion"
 
 import { FiPlus } from "react-icons/fi";
+import type { LayoutContextType } from "@/layout/AppLayout";
 
 type ImageResolution = {
     width: number;
@@ -91,7 +92,26 @@ const BlueprintView = () => {
             blueprintId: string;
         }>();
 
-    const { blueprint, setBlueprint,  projectInfo, blueprtinImageUrl, availableModels, loadingBlueprint, error, refreshBlueprint } = useBlueprintView(blueprintId!)
+    const { setBreadcrumbs } = useOutletContext<LayoutContextType>()
+
+    // BREADCUMB
+    useEffect(() => {
+        setBreadcrumbs([
+            { label: t('breadcrumb:home'), href: "/" },
+            {
+                label: organizationName!,
+                href: `/OrganizationPage/${organizationName}/${organizationId}`
+            },
+            {
+                label: projectName!,
+                href: `/Project/${organizationName}/${organizationId}/${projectName}/${projectId}`
+            },
+            {
+                label: blueprintName!
+            }
+        ])
+    }, [organizationName, organizationId, projectName, projectId, blueprintName, setBreadcrumbs])
+
 
     const navigate = useNavigate()
 
@@ -238,6 +258,9 @@ const BlueprintView = () => {
     const [warningState, setWarningState] = useState<number>(0)
     const [txBlocker, setTxBlocker] = useState<any>(null)
     const [showLeaveDialog, setShowLeaveDialog] = useState<boolean>(false)
+
+    // HOOK
+    const { blueprint, setBlueprint,  projectInfo, blueprtinImageUrl, availableModels, loadingBlueprint, error, refreshBlueprint } = useBlueprintView(blueprintId!)
 
     useEffect(() => {
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -1321,23 +1344,6 @@ const BlueprintView = () => {
 
     return (
         <div>
-
-            <BreadcrumbBar
-                items={[
-                    { label: t('breadcrumb:home'), href: "/" },
-                    {
-                        label: organizationName!,
-                        href: `/OrganizationPage/${organizationName}/${organizationId}`
-                    },
-                    {
-                        label: projectName!,
-                        href: `/Project/${organizationName}/${organizationId}/${projectName}/${projectId}`
-                    },
-                    {
-                      label: blueprintName!
-                    }
-                ]}
-            />
 
             <div className="main-content">
 

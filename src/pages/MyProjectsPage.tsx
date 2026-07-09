@@ -1,11 +1,13 @@
-import BreadcrumbBar from "@/components/BreadcrumbBar"
+import BreadcrumbBar from "@/components/MyBreadcrumb"
 import Loading from "@/components/Loading"
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import { useMyProjectPage } from "@/hooks/useMyProjectsPage"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useOutletContext } from "react-router-dom"
 
 // TRANSLATION
 import { useTranslation } from "react-i18next";
+import type { LayoutContextType } from "@/layout/AppLayout"
+import { useEffect } from "react"
 
 const MyProjectsPage = () => {
 
@@ -18,20 +20,26 @@ const MyProjectsPage = () => {
         "project"
     ])
 
+    const { setBreadcrumbs } = useOutletContext<LayoutContextType>()
+
+    // BREADCUMB
+    useEffect(() => {
+        setBreadcrumbs([ 
+                {label: t('breadcrumb:myProjects')},
+            ])
+    }, [setBreadcrumbs])
+
     const {userProjectsList, loading, error} = useMyProjectPage()
 
     const handleSelectProject = (orgName: string, orgId: string, projectName: string, projectId: string) => {
         navigate(`/Project/${orgName}/${orgId}/${projectName}/${projectId}`)
     }
 
+
     if (loading) return <Loading/>
 
     return (
         <div>
-        
-            <BreadcrumbBar items={[ 
-                {label: t('breadcrumb:myProjects')},
-            ]} />
 
             <div className="main-content">
 

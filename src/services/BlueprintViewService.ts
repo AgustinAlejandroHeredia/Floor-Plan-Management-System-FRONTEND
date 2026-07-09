@@ -1,5 +1,5 @@
 import { api } from "../api/api";
-import type { BlueprintResponseType, BlueprintType, BlueprintViewType, SectionCoords, CreateCropPayload, SectionSize, SectionView, SpecialtyTag, InferenceJobType, AvailableModel } from "@/types/types";
+import type { BlueprintResponseType, BlueprintType, BlueprintViewType, SectionCoords, CreateCropPayload, SectionSize, SectionView, SpecialtyTag, InferenceJobType, AvailableModel, BlueprintLevelsRangeType } from "@/types/types";
 
 
 
@@ -25,8 +25,9 @@ export const BlueprintViewService = {
         return response.data
     },
 
-    updateBluperint: async (blueprintId: string, blueprintName: string, viewSelected: BlueprintViewType, specialties: SpecialtyTag[], levels: string[]): Promise<BlueprintType | null> => {
+    updateBluperint: async (blueprintId: string, blueprintName: string, viewSelected: BlueprintViewType, specialties: SpecialtyTag[], levels: BlueprintLevelsRangeType[]): Promise<BlueprintType | null> => {
         try {
+            console.log("RESULTADO PARA LEVELS: ", levels)
             const response = await api.patch(`/blueprints/${blueprintId}`, {
                 blueprintName,
                 view: viewSelected,

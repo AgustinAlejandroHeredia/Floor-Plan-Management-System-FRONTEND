@@ -254,6 +254,13 @@ export const blueprintViewOptions: BlueprintViewType[] = [
   'right_side',
 ]
 
+export interface BlueprintLevelsRangeType {
+  basement: boolean,
+  roof: boolean,
+  bottom?: number,
+  top?: number
+}
+
 export interface BlueprintResponseType {
   _id: string;
   blueprintName: string;
@@ -268,7 +275,7 @@ export interface BlueprintResponseType {
   uploadedBy: string;
   creationDate: string;
   specialties: SpecialtyTag[];
-  levels: string[];
+  levels: BlueprintLevelsRangeType[];
   view?: BlueprintViewType;
   sectionViews: SectionView[];
   titleBlock?: string[];
@@ -297,7 +304,7 @@ export interface BlueprintType {
   uploadedBy: string;
   creationDate: string;
   specialties: SpecialtyTag[];
-  levels: string[];
+  levels: BlueprintLevelsRangeType[];
   view?: BlueprintViewType;
   sectionViews: SectionView[];
   titleBlock?: string[];
@@ -315,7 +322,7 @@ export interface CreateBlueprintPayload {
   projectId: string;
   organizationId: string;
   specialties?: SpecialtyTag[];
-  levels?: string;
+  levels?: BlueprintLevelsRangeType[];
   view?: BlueprintViewType;
 }
 
@@ -334,7 +341,7 @@ export interface UpdateBlueprintPayload {
   cropsMade?: CropMadeType[];
   //tags
   specialties?: SpecialtyTag[];
-  levels?: string;
+  levels?: BlueprintLevelsRangeType[];
   view?: BlueprintViewType;
   titleBlock?: string[];
   //areas

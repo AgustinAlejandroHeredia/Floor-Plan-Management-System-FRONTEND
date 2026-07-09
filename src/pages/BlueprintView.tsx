@@ -57,7 +57,7 @@ import "react-image-crop/dist/ReactCrop.css";
 import { getCroppedImg } from "@/utils/cropImage";
 
 // TYPES
-import { specialtyTagOptions, type AreaColor, type BlueprintViewType, type CreateCropPayload, type DragAreaState, type EditAreaState, type InferenceJobResult, type InferenceJobStatus, type InferenceJobType, type Point, type SectionType, type SectionView, type SpecialtyTag, type YoloPrediction } from "@/types/types";
+import { specialtyTagOptions, type AreaColor, type BlueprintLevelsRangeType, type BlueprintViewType, type CreateCropPayload, type DragAreaState, type EditAreaState, type InferenceJobResult, type InferenceJobStatus, type InferenceJobType, type Point, type SectionType, type SectionView, type SpecialtyTag, type YoloPrediction } from "@/types/types";
 
 // CONTEXT
 import { useInferenceNotification } from "@/context/InferenceNotificationContext";
@@ -72,6 +72,7 @@ import { motion, AnimatePresence } from "framer-motion"
 
 import { FiPlus } from "react-icons/fi";
 import type { LayoutContextType } from "@/layout/AppLayout";
+import { Separator } from "@/components/ui/separator";
 
 type ImageResolution = {
     width: number;
@@ -137,13 +138,20 @@ const BlueprintView = () => {
         const [specialtiesList, setSpecialtiesList] = useState<SpecialtyTag[]>([])
 
         const [openEditLevels, setOpenEditLevels] = useState<boolean>(false)
-        const [levels, setLevels] = useState<string[]>([])
+        const [levels, setLevels] = useState<BlueprintLevelsRangeType[]>([])
+
+        const [isBasement, setIsBasement]= useState<boolean>(false)
+        const [isRoof, setIsRoof]= useState<boolean>(false)
+        const [isLevel, setIsLevel]= useState<boolean>(false)
+
+        const [extraRanges, setExtraRanges] = useState<number>(0)
 
         // ERRORS
         const [noName, setNoName] = useState<boolean>(false)
         const [shortName, setShortName] = useState<boolean>(false)
         const [noPov, setNoPov] = useState<boolean>(false)
         const [noSpecialty, setNoSpecialty] = useState<boolean>(false)
+        const [noRangeGiven, setNoRangeGiven] = useState<boolean>(false)
 
     // BLUEPRINT DELETE VARIABLES
     const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false)
@@ -443,10 +451,20 @@ const BlueprintView = () => {
         }
     }, [blueprint])
 
-    const formatLevelLabel = (value: string) => {
-        if (value === "basement") return "Basement"
-        if (value === "roof") return "Roof"
-        return `${t('blueprint:editOptions.singularLevel')} ${value}`
+    const formatLevelLabel = (range: any) => {
+        if (range.basement) {
+            return t('blueprint:blueprintCharacteristics.basement')
+        }
+        if (range.roof) {
+            return t('blueprint:blueprintCharacteristics.roof')
+        }
+        
+        // Si no es sótano ni techo, asumimos que es un rango numérico
+        if (range.bottom !== undefined && range.top !== undefined) {
+            return `${range.bottom} ${t('blueprint:blueprintCharacteristics.levelsConnector')} ${range.top}`
+        }
+        
+        return t('blueprint:unspecified')
     }
 
     const handleDownloadFile = async () => {
@@ -470,7 +488,36 @@ const BlueprintView = () => {
     const handleLoadLabels = () => {
         setViewSelected(blueprint?.view || "undefined")
         setSpecialtiesList(blueprint?.specialties || [])
-        setLevels(blueprint?.levels || [])
+        
+        // 1. Obtener los niveles iniciales o un array vacío
+        const initialLevels = blueprint?.levels || []
+        const firstLevel = initialLevels[0] || ({} as BlueprintLevelsRangeType)
+
+        const hasBasement = !!firstLevel.basement
+        const hasRoof = !!firstLevel.roof
+
+        setIsBasement(hasBasement)
+        setIsRoof(hasRoof)
+        
+        const isRegularLevel = !hasBasement && !hasRoof
+        setIsLevel(isRegularLevel)
+
+        // 2. Si es un piso regular pero el array está vacío, inicializamos el primer par de inputs
+        if (isRegularLevel && initialLevels.length === 0) {
+            setLevels([
+                {
+                    basement: false,
+                    roof: false
+                }
+            ])
+        } else {
+            setLevels(initialLevels)
+        }
+
+        setNoPov(false)
+        setNoSpecialty(false)
+        setNoRangeGiven(false)
+
         setOpenEditDialog(true)
     }
 
@@ -491,9 +538,24 @@ const BlueprintView = () => {
        setSpecialtiesList([specialty])
     }
 
-    const handleSaveLevelsList = (selectedLevels: string[]) => {
+    const handleSaveLevelsList = (selectedLevels: BlueprintLevelsRangeType[]) => {
         console.log("LEVELS SELECTED : ", selectedLevels)
         setLevels(selectedLevels)
+    }
+
+    const handleAddRange = () => {
+        setLevels((prev) => [...prev, { basement: false, roof: false }])
+    }
+
+    const handleRemoveRange = (indexToRemove: number) => {
+        if(levels.length > 1)
+            setLevels((prev) => prev.filter((_, index) => index !== indexToRemove))
+    }
+
+    const handleRangeValueChange = (index: number, field: 'bottom' | 'top', value: number) => {
+        setLevels((prev) =>
+            prev.map((range, i) => (i === index ? { ...range, [field]: value } : range))
+        )
     }
 
     const handleEditBlueprint = async (
@@ -515,7 +577,7 @@ const BlueprintView = () => {
     
         console.log("VIEWSELECTED : ", viewSelected)
 
-        if(!viewSelected){
+        if(!viewSelected || viewSelected === "undefined"){
             setNoPov(true)
             hasToReturn=true
         }
@@ -523,6 +585,21 @@ const BlueprintView = () => {
         if(specialtiesList.length === 0){
             setNoSpecialty(true)
             hasToReturn=true
+        }
+
+        const firstLevel = levels[0]
+
+        console.log("FIRST LEVEL: ", firstLevel)
+
+        if (
+            isLevel && (
+                !firstLevel ||
+                firstLevel.bottom === undefined || firstLevel.bottom === null ||
+                firstLevel.top === undefined || firstLevel.top === null
+            )
+        ) {
+            setNoRangeGiven(true)
+            hasToReturn = true
         }
 
         if(hasToReturn) return
@@ -1420,7 +1497,10 @@ const BlueprintView = () => {
                                 </p>
 
                                 <p className="font-semibold text-[var(--text-h)]">
-                                    {blueprint?.levels?.join(", ") || t('blueprint:unspecified')}
+                                    {blueprint?.levels && blueprint.levels.length > 0
+                                        ? blueprint.levels.map(range => formatLevelLabel(range)).join(", ")
+                                        : t('blueprint:unspecified')
+                                    }
                                 </p>
                             </div>
 
@@ -2721,32 +2801,42 @@ const BlueprintView = () => {
                                     />
                                 </Field>
 
+                                <Separator/>
+
                                 <Field>
-                                <Label htmlFor="view">{t('blueprint:editOptions.pointOfView')} *</Label>
-                                {noPov && (
-                                    <p className="text-[var(--error)]">{t('blueprint:editOptions.errors.noPov')}</p>
-                                )}
-                                <Select
-                                    defaultValue={blueprint.view?.toLowerCase()}
-                                    onValueChange={(value) => setViewSelected(value as BlueprintViewType)}
-                                >
-                                    <SelectTrigger className="w-full max-w-48 cursor-pointer">
-                                        <SelectValue placeholder={viewSelected === "undefined" ? "Select view" : t(`blueprint:pointOfViewOptions.${viewSelected.toLowerCase()}`)} />
-                                    </SelectTrigger>
-                                    <SelectContent position="popper">
-                                        <SelectGroup>
-                                            <SelectItem value="top">{t('blueprint:pointOfViewOptions.top')}</SelectItem>
-                                            <SelectItem value="front">{t('blueprint:pointOfViewOptions.front')}</SelectItem>
-                                            <SelectItem value="back">{t('blueprint:pointOfViewOptions.back')}</SelectItem>
-                                            <SelectItem value="left_side">{t('blueprint:pointOfViewOptions.leftSide')}</SelectItem>
-                                            <SelectItem value="right_side">{t('blueprint:pointOfViewOptions.rightSide')}</SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
+                                    <Label htmlFor="view">{t('blueprint:editOptions.pointOfView')} *</Label>
+                                    {noPov && (
+                                        <p className="text-[var(--error)]">{t('blueprint:editOptions.errors.noPov')}</p>
+                                    )}
+                                    <Select
+                                        value={viewSelected === "undefined" ? undefined : viewSelected?.toLowerCase()}
+                                        onValueChange={(value) => {
+                                            setNoPov(false)
+                                            setViewSelected(value as BlueprintViewType)
+                                        }}
+                                    >
+                                        <SelectTrigger className="w-full max-w-48 cursor-pointer">
+                                            <SelectValue placeholder={t('blueprint:unspecified')} />
+                                        </SelectTrigger>
+                                        <SelectContent position="popper">
+                                            <SelectGroup>
+                                                <SelectItem value="top">{t('blueprint:pointOfViewOptions.top')}</SelectItem>
+                                                <SelectItem value="front">{t('blueprint:pointOfViewOptions.front')}</SelectItem>
+                                                <SelectItem value="back">{t('blueprint:pointOfViewOptions.back')}</SelectItem>
+                                                <SelectItem value="left_side">{t('blueprint:pointOfViewOptions.leftSide')}</SelectItem>
+                                                <SelectItem value="right_side">{t('blueprint:pointOfViewOptions.rightSide')}</SelectItem>
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
                                 </Field>
+
+                                <Separator/>
 
                                 <Field>
                                     <Label htmlFor="specialties">{t('blueprint:editOptions.specialties')} *</Label>
+                                    {specialtiesList.length === 0 && (
+                                        <p className="text-[var(--text)]">{t('blueprint:unspecified')}</p>
+                                    )}
                                     {noSpecialty && (
                                         <p className="text-[var(--error)]">{t('blueprint:editOptions.errors.noSpecialty')}</p>
                                     )}
@@ -2759,7 +2849,10 @@ const BlueprintView = () => {
                                                     key={option}
                                                     type="button"
                                                     variant="outline"
-                                                    onClick={() => handleAddOrDeleteSpecialty(option)}
+                                                    onClick={() => {
+                                                        setNoSpecialty(false)
+                                                        handleAddOrDeleteSpecialty(option)
+                                                    }}
                                                     className={`cursor-pointer transition-colors ${
                                                         isSelected
                                                             ? "bg-[var(--accent)] text-[var(--text-h)]"
@@ -2773,30 +2866,168 @@ const BlueprintView = () => {
                                     </div>
                                 </Field>
 
+                                <Separator/>
+
                                 <Field>
-                                    <Label htmlFor="view">{t('blueprint:editOptions.levels')} *</Label>
-                                    <div>
-                                        {levels.length ? (
-                                            levels.map((level) => (
-                                                <div key={level}>- {formatLevelLabel(level)}</div>
-                                            ))
-                                        ) : (
-                                            <div className="text-muted-foreground">
-                                                - {t('blueprint:editOptions.noLevelsSelected')}
+                                    <Label htmlFor="levels">{t('blueprint:editOptions.levels')} *</Label>
+                                    <div className="flex flex-col gap-3">
+
+                                        {/* empty state */}
+                                        {levels && levels.length === 0 && (
+                                            <div className="text-[var(--text)]">
+                                                {t('blueprint:unspecified')}
                                             </div>
                                         )}
+
+                                        {/* no range given error */}
+                                        {noRangeGiven && (
+                                            <p className="text-[var(--error)]">{t('blueprint:editOptions.errors.noRangeGiven')}</p>
+                                        )}
+
+                                        {/* buttons for selection */}
+                                        <div className="flex items-center gap-2 py-2 w-full">
+                                            <Button 
+                                                type="button" 
+                                                variant="outline" 
+                                                className="flex-1 cursor-pointer"
+                                                onClick={() => {
+                                                    setIsLevel(true)
+                                                    setLevels(blueprint?.levels || [])
+                                                    setIsBasement(false)
+                                                    setIsRoof(false)
+                                                    if(blueprint?.levels && blueprint?.levels.length === 0){
+                                                        setLevels([
+                                                            {
+                                                                basement: false,
+                                                                roof: false
+                                                            }
+                                                        ])
+                                                    }
+                                                }}
+                                            >
+                                                {isLevel ? <FaCheck /> : ""} {t('blueprint:editOptions.buttonLevel')}
+                                            </Button>
+                                            
+                                            <Button 
+                                                type="button" 
+                                                variant="outline" 
+                                                className="flex-1 cursor-pointer"
+                                                onClick={() => {
+                                                    setIsBasement(true)
+                                                    setIsLevel(false)
+                                                    setIsRoof(false)
+                                                    setLevels([
+                                                        {
+                                                            basement: true,
+                                                            roof: false
+                                                        }
+                                                    ])
+                                                    setNoRangeGiven(false)
+                                                }}
+                                            >
+                                                {isBasement ? <FaCheck /> : ""} {t('blueprint:editOptions.buttonBasement')}
+                                            </Button>
+                                            
+                                            <Button 
+                                                type="button" 
+                                                variant="outline" 
+                                                className="flex-1 cursor-pointer"
+                                                onClick={() => {
+                                                    setIsRoof(true)
+                                                    setIsLevel(false)
+                                                    setIsBasement(false)
+                                                    setLevels([
+                                                        {
+                                                            basement: false,
+                                                            roof: true
+                                                        }
+                                                    ])
+                                                    setNoRangeGiven(false)
+                                                }}
+                                            >
+                                                {isRoof ? <FaCheck /> : ""} {t('blueprint:editOptions.buttonRoof')}
+                                            </Button>
+                                        </div>
+
+                                        {/* information */}
+                                        {isLevel && (
+                                            <div className="flex items-center gap-1.5 py-1">
+                                                <p className="text-[var(--text)] text-sm">
+                                                    {t('blueprint:editOptions.maxLevel')}:
+                                                </p>
+                                                <p className="text-[var(--text-h)] text-sm font-semibold">
+                                                    {projectInfo.levels}
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {/* dynamic list */}
+                                        {isLevel && levels && levels.length > 0 && (
+                                            <div className="flex flex-col gap-3 py-1">
+                                                {levels.map((range, index) => (
+                                                <div key={index} className="flex items-center gap-2 w-full animate-in fade-in-50 duration-200">
+                                                    
+                                                    {/* Input Bottom */}
+                                                    <Input
+                                                        type="number"
+                                                        id={`blueprintLevelRange-bottom-${index}`}
+                                                        placeholder={t('blueprint:editOptions.bottomPlaceholder')}
+                                                        required
+                                                        min={-15}
+                                                        max={range.top ?? Number(projectInfo?.levels || 100)}
+                                                        value={range.bottom ?? ""}
+                                                        onChange={(e) => handleRangeValueChange(index, 'bottom', Number(e.target.value))}
+                                                        className="w-full text-center"
+                                                    />
+
+                                                    {/* Conector */}
+                                                    <span className="text-xs text-muted-foreground shrink-0 font-medium px-1">
+                                                        {t('blueprint:editOptions.rangeConnector')}
+                                                    </span>
+
+                                                    {/* Input Top */}
+                                                    <Input
+                                                        type="number"
+                                                        id={`blueprintLevelRange-top-${index}`}
+                                                        placeholder={t('blueprint:editOptions.topPlaceholder')}
+                                                        required
+                                                        min={range.bottom ?? -15}
+                                                        max={Number(projectInfo?.levels || 100)}
+                                                        value={range.top ?? ""}
+                                                        onChange={(e) => handleRangeValueChange(index, 'top', Number(e.target.value))}
+                                                        className="w-full text-center"
+                                                    />
+
+                                                    {/* Botón "X" para eliminar el rango (Solo se muestra si hay más de un rango) */}
+                                                    {levels.length > 1 && (
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => handleRemoveRange(index)}
+                                                        className="h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0 cursor-pointer"
+                                                        title={t('blueprint:editOptions.removeRange', 'Eliminar rango')}
+                                                    >
+                                                        ✕
+                                                    </Button>
+                                                    )}
+                                                </div>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {/* add new range button */}
+                                        {isLevel && (
+                                            <Button
+                                                type="button" 
+                                                variant="outline" 
+                                                onClick={handleAddRange}
+                                                className="w-full mt-1 border-dashed hover:border-solid cursor-pointer h-8"
+                                            >
+                                                + {t('blueprint:editOptions.addRange')}
+                                            </Button>
+                                        )}
                                     </div>
-                                    <Button
-                                        className="cursor-pointer"
-                                        style={{
-                                            width: "fit-content",
-                                            alignSelf: "flex-start",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: "8px",
-                                        }}
-                                        type="button" 
-                                        onClick={() => setOpenEditLevels(true)}>{t('blueprint:editOptions.editLevels')}</Button>
                                 </Field>
 
                             </FieldGroup>
@@ -2830,6 +3061,7 @@ const BlueprintView = () => {
                 />
 
                 {/* EDIT LEVELS SELECTORS */}
+                {/*
                 <BlueprintLevelsDialog
                     open={openEditLevels}
                     onOpenChange={setOpenEditLevels}
@@ -2837,6 +3069,7 @@ const BlueprintView = () => {
                     onSave={handleSaveLevelsList}
                     initialSelection={levels}
                 />
+                */}
 
                 {/* SAVING CHANGES */}
                 <Toast

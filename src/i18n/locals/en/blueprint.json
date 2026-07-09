@@ -9,7 +9,10 @@
         "areas": "Areas",
         "cropFrom": "Cropped from",
         "cropsMade": "Crops made",
-        "noCropsMade": "No crops made"
+        "noCropsMade": "No crops made",
+        "basement": "Basement",
+        "roof": "Roof",
+        "levelsConnector": "to"
     },
 
     "controls": {
@@ -61,16 +64,28 @@
         "specialties": "Specialties",
         "noSpecialtiesSelected": "No specialties selected",
         "addSpecialty": "Add specialty",
+
         "levels": "Levels",
         "singularLevel": "Level",
         "noLevelsSelected": "No levels selected",
         "editLevels": "Edit levels",
+        "rangeConnector": "to",
+
+        "buttonLevel": "Levels",
+        "buttonBasement": "Basement",
+        "buttonRoof": "Roof",
+
+        "maxLevel": "Highest level",
+        "bottomPlaceholder": "e.g., 0",
+        "topPlaceholder": "e.g., 0 or more",
+        "addRange": "Add new range",
 
         "errors": {
             "noName": "No name given",
             "shortName": "Name too short",
             "noPov": "No point of view selected",
-            "noSpecialty": "No specialty selected"
+            "noSpecialty": "No specialty selected",
+            "noRangeGiven": "No levels selected"
         }
     },
 

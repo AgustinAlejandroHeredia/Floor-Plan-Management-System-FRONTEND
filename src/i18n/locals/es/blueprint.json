@@ -5,11 +5,14 @@
         "creationDate": "Fecha de creación",
         "view": "Vista",
         "specialties": "Especialidades",
-        "levels": "Niveles",
+        "levels": "Pisos",
         "areas": "Áreas",
         "cropFrom": "Recortado de",
         "cropsMade": "Recortes realizados",
-        "noCropsMade": "No se han realizado recortes"
+        "noCropsMade": "No se han realizado recortes",
+        "basement": "Sótano",
+        "roof": "Techo",
+        "levelsConnector": "a"
     },
 
     "controls": {
@@ -61,16 +64,28 @@
         "specialties": "Especialidades",
         "noSpecialtiesSelected": "No se seleccionaron especialidades",
         "addSpecialty": "Añadir especialidad",
+
         "levels": "Niveles",
         "singularLevel": "Nivel",
         "noLevelsSelected": "No se seleccionaron niveles",
-        "editLevels": "Editar niveles",
+        "editLevels": "Editar pisos",
+        "rangeConnector": "a",
+
+        "buttonLevel": "Pisos",
+        "buttonBasement": "Sótano",
+        "buttonRoof": "Techo",
+
+        "maxLevel": "Piso más alto",
+        "bottomPlaceholder": "Ej: 0",
+        "topPlaceholder": "Ej: 0 o más",
+        "addRange": "Añadir nuevo rango",
 
         "errors": {
             "noName": "No se ha dado nombre",
             "shortName": "Nombre demasiado corto",
             "noPov": "No se ha seleccionado punto de vista",
-            "noSpecialty": "No se ha seleccionado especialidad"
+            "noSpecialty": "No se ha seleccionado especialidad",
+            "noRangeGiven": "No se seleccionaron pisos"
         }
     },
 

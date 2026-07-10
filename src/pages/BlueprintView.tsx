@@ -459,8 +459,11 @@ const BlueprintView = () => {
             return t('blueprint:blueprintCharacteristics.roof')
         }
         
-        // Si no es sótano ni techo, asumimos que es un rango numérico
         if (range.bottom !== undefined && range.top !== undefined) {
+            if (range.bottom === range.top) {
+                return `${range.bottom}`
+            }
+            
             return `${range.bottom} ${t('blueprint:blueprintCharacteristics.levelsConnector')} ${range.top}`
         }
         
@@ -2773,15 +2776,15 @@ const BlueprintView = () => {
 
                 {/* EDIT BLUEPTINT */}
                 <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
-                    <DialogContent className="sm:max-w-sm">
-                        <form onSubmit={handleEditBlueprint}>
+                    <DialogContent className="sm:max-w-sm max-h-[90vh] flex flex-col">
+                        <form onSubmit={handleEditBlueprint} className="flex flex-col min-h-0 w-full">
 
                             <DialogHeader>
                                 <DialogTitle>{t('blueprint:editOptions.title')}</DialogTitle>
                                 <DialogDescription>{t('blueprint:editOptions.description')}</DialogDescription>
                             </DialogHeader>
 
-                            <FieldGroup className="space-y-4 my-6">
+                            <FieldGroup className="space-y-4 my-6 max-h-[50vh] overflow-y-auto pr-2 scrollbar-thin">
 
                                 <Field>
                                     <Label htmlFor="blueprintName-1">{t('blueprint:editOptions.blueprintName')} *</Label>
@@ -2870,6 +2873,12 @@ const BlueprintView = () => {
 
                                 <Field>
                                     <Label htmlFor="levels">{t('blueprint:editOptions.levels')} *</Label>
+
+                                    {/* information */}
+                                    <p className="text-[var(--text)] text-sm">
+                                        {t('blueprint:editOptions.information')}:
+                                    </p>
+
                                     <div className="flex flex-col gap-3">
 
                                         {/* empty state */}
@@ -2886,6 +2895,7 @@ const BlueprintView = () => {
 
                                         {/* buttons for selection */}
                                         <div className="flex items-center gap-2 py-2 w-full">
+                                            {/* LEVELS */}
                                             <Button 
                                                 type="button" 
                                                 variant="outline" 
@@ -2895,19 +2905,34 @@ const BlueprintView = () => {
                                                     setLevels(blueprint?.levels || [])
                                                     setIsBasement(false)
                                                     setIsRoof(false)
-                                                    if(blueprint?.levels && blueprint?.levels.length === 0){
+                                                    if(blueprint?.levels.length === 0){
                                                         setLevels([
                                                             {
                                                                 basement: false,
-                                                                roof: false
+                                                                roof: false,
+                                                                top: undefined,
+                                                                bottom: undefined
                                                             }
                                                         ])
+                                                    } else {
+                                                        {/* makes the change from basement or roof to levels */}
+                                                        if(blueprint?.levels[0].basement || blueprint?.levels[0].roof){
+                                                            setLevels([
+                                                                {
+                                                                    basement: false,
+                                                                    roof: false,
+                                                                    top: undefined,
+                                                                    bottom: undefined
+                                                                }
+                                                            ])
+                                                        }
                                                     }
                                                 }}
                                             >
                                                 {isLevel ? <FaCheck /> : ""} {t('blueprint:editOptions.buttonLevel')}
                                             </Button>
                                             
+                                            {/* BASEMENT */}
                                             <Button 
                                                 type="button" 
                                                 variant="outline" 
@@ -2919,7 +2944,9 @@ const BlueprintView = () => {
                                                     setLevels([
                                                         {
                                                             basement: true,
-                                                            roof: false
+                                                            roof: false,
+                                                            top: undefined,
+                                                            bottom: undefined
                                                         }
                                                     ])
                                                     setNoRangeGiven(false)
@@ -2928,6 +2955,7 @@ const BlueprintView = () => {
                                                 {isBasement ? <FaCheck /> : ""} {t('blueprint:editOptions.buttonBasement')}
                                             </Button>
                                             
+                                            {/* ROOF */}
                                             <Button 
                                                 type="button" 
                                                 variant="outline" 
@@ -2939,7 +2967,9 @@ const BlueprintView = () => {
                                                     setLevels([
                                                         {
                                                             basement: false,
-                                                            roof: true
+                                                            roof: true,
+                                                            top: undefined,
+                                                            bottom: undefined
                                                         }
                                                     ])
                                                     setNoRangeGiven(false)
@@ -2951,14 +2981,19 @@ const BlueprintView = () => {
 
                                         {/* information */}
                                         {isLevel && (
-                                            <div className="flex items-center gap-1.5 py-1">
+                                            <>
+                                                <div className="flex items-center gap-1.5 py-1">
+                                                    <p className="text-[var(--text)] text-sm">
+                                                        {t('blueprint:editOptions.maxLevel')}:
+                                                    </p>
+                                                    <p className="text-[var(--text-h)] text-sm font-semibold">
+                                                        {projectInfo.levels}
+                                                    </p>
+                                                </div>
                                                 <p className="text-[var(--text)] text-sm">
-                                                    {t('blueprint:editOptions.maxLevel')}:
+                                                    {t('blueprint:editOptions.rangesInfo')}
                                                 </p>
-                                                <p className="text-[var(--text-h)] text-sm font-semibold">
-                                                    {projectInfo.levels}
-                                                </p>
-                                            </div>
+                                            </>
                                         )}
 
                                         {/* dynamic list */}
@@ -3032,7 +3067,7 @@ const BlueprintView = () => {
 
                             </FieldGroup>
 
-                            <DialogFooter>
+                            <DialogFooter className="mt-auto pt-2">
                                 <DialogClose asChild>
                                     <Button 
                                         className="cursor-pointer"

@@ -75,9 +75,11 @@
         "buttonBasement": "Basement",
         "buttonRoof": "Roof",
 
+        "information": "Which levels does this blueprint apply to?",
         "maxLevel": "Highest level",
-        "bottomPlaceholder": "e.g., 0",
-        "topPlaceholder": "e.g., 0 or more",
+        "rangesInfo": "To apply this blueprint to a single floor, set the range, for example, as \"2 to 2\".",
+        "bottomPlaceholder": "Bottom, e.g., 0",
+        "topPlaceholder": "Top, e.g., 3",
         "addRange": "Add new range",
 
         "errors": {

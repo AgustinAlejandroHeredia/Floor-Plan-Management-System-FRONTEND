@@ -75,9 +75,11 @@
         "buttonBasement": "Sótano",
         "buttonRoof": "Techo",
 
+        "information": "¿A qué pisos aplica este plano?",
         "maxLevel": "Piso más alto",
-        "bottomPlaceholder": "Ej: 0",
-        "topPlaceholder": "Ej: 0 o más",
+        "rangesInfo": "Para aplicar este plano a un solo piso, define el rango, por ejemplo, como \"2 a 2\".",
+        "bottomPlaceholder": "Inferior, ej: 0",
+        "topPlaceholder": "Superior, ej: 3",
         "addRange": "Añadir nuevo rango",
 
         "errors": {

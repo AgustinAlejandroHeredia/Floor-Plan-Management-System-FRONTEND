@@ -1294,7 +1294,7 @@ const BlueprintView = () => {
         setNewAreaEmptyFieldWarning(false)
         setNewAreaLabel("")
 
-        const baseGap = 60
+        const baseGap = 600
         let newArea: SectionView | null = null
         const defaultSize = { width: 100, height: 100 }
 
@@ -2729,7 +2729,7 @@ const BlueprintView = () => {
                                                             )
                                                         }
                                                     >
-                                                        <CgUndo className="w-4 h-4 text-black group-hover/button:text-black transition-colors" />
+                                                        <CgUndo className="w-4 h-4 text-[var(--text-h)]" />
                                                         {t('blueprint:deletedAreasOptions.undo')}
                                                     </Button>
                                                 </ItemActions>

@@ -77,7 +77,7 @@
 
         "information": "Which levels does this blueprint apply to?",
         "maxLevel": "Highest level",
-        "rangesInfo": "To apply this blueprint to a single floor, set the range, for example, as \"2 to 2\".",
+        "rangesInfo": "If the blueprint applies to a single floor, enter the same number for both bottom and top (e.g., From 2 To 2).",
         "bottomPlaceholder": "Bottom, e.g., 0",
         "topPlaceholder": "Top, e.g., 3",
         "addRange": "Add new range",

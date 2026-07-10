@@ -77,7 +77,7 @@
 
         "information": "¿A qué pisos aplica este plano?",
         "maxLevel": "Piso más alto",
-        "rangesInfo": "Para aplicar este plano a un solo piso, define el rango, por ejemplo, como \"2 a 2\".",
+        "rangesInfo": "Si el plano corresponde a un solo piso, escribe el mismo número tanto en el campo inferior como en el superior (por ejemplo: Desde 2 Hasta 2).",
         "bottomPlaceholder": "Inferior, ej: 0",
         "topPlaceholder": "Superior, ej: 3",
         "addRange": "Añadir nuevo rango",

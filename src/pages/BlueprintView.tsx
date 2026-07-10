@@ -2784,7 +2784,7 @@ const BlueprintView = () => {
                                 <DialogDescription>{t('blueprint:editOptions.description')}</DialogDescription>
                             </DialogHeader>
 
-                            <FieldGroup className="space-y-4 my-6 max-h-[50vh] overflow-y-auto pr-2 scrollbar-thin">
+                            <FieldGroup className="space-y-4 my-6 max-h-[65vh] overflow-y-auto pr-2 scrollbar-thin">
 
                                 <Field>
                                     <Label htmlFor="blueprintName-1">{t('blueprint:editOptions.blueprintName')} *</Label>

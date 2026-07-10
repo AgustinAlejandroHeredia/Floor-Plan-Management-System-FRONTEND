@@ -1423,7 +1423,7 @@ const BlueprintView = () => {
     }
 
     return (
-        <div>
+        <div onDragStart={(e) => e.preventDefault()}>
 
             <div className="main-content">
 
@@ -1851,23 +1851,26 @@ const BlueprintView = () => {
                             <div
                                 style={{
                                     marginTop: "25px",
-                                    overflow: "auto",      // Permite barras de scroll
-                                    display: "flex",
-                                    justifyContent: "center", // Mantiene centrado si es pequeño
-                                    alignItems: "flex-start", // Alinea arriba para que el scroll funcione bien
-                                    maxHeight: "80vh",     // Ajusta esto según el alto de tu pantalla
-                                    position: "relative"
+                                    overflow: "auto",
+                                    //display: "flex",
+                                    //justifyContent: "center",
+                                    //alignItems: "flex-start",
+                                    maxHeight: "80vh",
+                                    position: "relative",
+                                    display: "block",
+                                    textAlign: "center",
                                 }}
                                 >
                                 <div
                                     style={{
                                         position: "relative",
-                                        // Aquí ocurre la magia: el ancho depende del zoom
-                                        // Si el zoom es 1, ocupa el 70%. Si es 2, ocupa el 140%.
                                         width: `${70 * imageZoom}%`, 
                                         minWidth: "unset", 
-                                        transition: "width 0.2s ease", // Transición suave de tamaño
-                                        flexShrink: 0, // Evita que Flexbox colapse el contenedor
+                                        transition: "width 0.2s ease",
+                                        //flexShrink: 0, // Evita que Flexbox colapse el contenedor
+                                        display: "inline-block",
+                                        verticalAlign: "top",
+                                        margin: "0 auto",
                                     }}
                                     ref={blueprintImageRef}
                                 >

@@ -34,17 +34,22 @@
         "levels": "Niveles / pisos",
         "hasBasement": "Tiene sótano",
         "addNewField": "Añadir nuevo campo",
-        "deleteField": "Eliminar este campo"
+        "deleteField": "Eliminar este campo",
+        "textFieldPlaceholder": "Ej: Los requisitos son...",
+        "numberPlaceHolder": "Ej: 27"
     },
 
     "createFieldDialog": {
         "title": "Añadir nuevo campo",
         "fieldname": "Nombre del campo",
+        "fieldnameplaceholder": "Ej: Fecha limite",
         "fieldtype": "Tipo de campo",
         "fieldtypeplaceholder": "Seleccionar tipo",
         "text": "Texto",
         "number": "Número",
-        "date": "Fecha"
+        "date": "Fecha",
+        "nofieldname": "Nombre requerido",
+        "nofieldtype": "Tipo de campo requerido"
     },
     
     "invitationDialog": {

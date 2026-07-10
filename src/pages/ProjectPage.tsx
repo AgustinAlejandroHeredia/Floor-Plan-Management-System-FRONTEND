@@ -116,6 +116,8 @@ const ProjectPage = () => {
     const [openNewFieldDialog, setOpenNewFieldDialog] = useState(false);
     const [newFieldName, setNewFieldName] = useState("");
     const [newFieldType, setNewFieldType] = useState<string>("text");
+    const [noFieldName, setNoFieldName] = useState<boolean>(false)
+    const [noFieldType, setNoFieldType] = useState<boolean>(false)
 
 
   const {
@@ -310,6 +312,14 @@ const ProjectPage = () => {
       default:
         return "";
     }
+  }
+
+  const handleOpenNewFieldDialog = () => {
+    setNoFieldName(false)
+    setNoFieldType(false)
+    setNewFieldName("")
+    setNewFieldType("text")
+    setOpenNewFieldDialog(true)
   }
 
   const capitalizeFirstLetter = (str: string) =>
@@ -863,7 +873,7 @@ const ProjectPage = () => {
                 <DialogDescription>{t('project:editDialog.description')}</DialogDescription>
               </DialogHeader>
 
-              <FieldGroup className="space-y-4 my-6">
+              <FieldGroup className="space-y-2 my-6">
 
                   {/* Project name */}
                   <Field>
@@ -875,6 +885,7 @@ const ProjectPage = () => {
                       minLength={3}
                       maxLength={100}
                       defaultValue={project?.projectName}
+                      placeholder={t('organization:projectCreationDialog.projectNamePlaceholder')}
                     />
                   </Field>
                   
@@ -965,6 +976,7 @@ const ProjectPage = () => {
 
                         {field.type === "text" && (
                         <Input
+                            placeholder={t('organization:projectCreationDialog.textFieldPlaceholder')}
                             minLength={1}
                             maxLength={300}
                             value={getInputValue(field)}
@@ -976,6 +988,7 @@ const ProjectPage = () => {
 
                         {field.type === "number" && (
                         <Input
+                            placeholder={t('organization:projectCreationDialog.numberPlaceHolder')}
                             min={-1000000}
                             max={1000000}
                             type="number"
@@ -1008,9 +1021,9 @@ const ProjectPage = () => {
                       className="cursor-pointer"
                       type="button"
                       variant="outline"
-                      onClick={() => setOpenNewFieldDialog(true)}
+                      onClick={handleOpenNewFieldDialog}
                   >
-                      {t('organization:projectCreationDialog.addNewField')}
+                      + {t('organization:projectCreationDialog.addNewField')}
                   </Button>
 
               </FieldGroup>
@@ -1029,53 +1042,71 @@ const ProjectPage = () => {
         {/* CREATE FIELD DIALOG */}
         <Dialog open={openNewFieldDialog} onOpenChange={setOpenNewFieldDialog}>
             <DialogContent className="sm:max-w-sm">
+                
+                <form onSubmit={(e) => {
+                    e.preventDefault()
+                    handleAddField()
+                }}>
 
-                <DialogHeader>
-                <DialogTitle>{t('organization:createFieldDialog.title')}</DialogTitle>
-                </DialogHeader>
+                    <DialogHeader>
+                        <DialogTitle>{t('organization:createFieldDialog.title')}</DialogTitle>
+                    </DialogHeader>
 
-                <FieldGroup className="space-y-2 my-2">
+                    <FieldGroup className="space-y-2 my-2">
 
-                  <Field>
-                      <Label>{t('organization:createFieldDialog.fieldname')}</Label>
-                      <Input
-                      value={newFieldName}
-                      onChange={(e) => setNewFieldName(e.target.value)}
-                      />
-                  </Field>
+                        <Field>
+                            <Label>{t('organization:createFieldDialog.fieldname')} *</Label>
+                            {noFieldName && (
+                                <p className="text-[var(--error)]">{t('organization:createFieldDialog.nofieldname')}</p>
+                            )}
+                            <Input
+                                type="text"
+                                placeholder={t('organization:createFieldDialog.fieldnameplaceholder')}
+                                value={newFieldName}
+                                required
+                                onChange={(e) => setNewFieldName(e.target.value)}
+                            />
+                        </Field>
 
-                  <Field>
-                      <Label>{t('organization:createFieldDialog.fieldtype')}</Label>
-                      <Select onValueChange={setNewFieldType}>
-                      <SelectTrigger>
-                          <SelectValue placeholder={t('organization:createFieldDialog.fieldtypeplaceholder')} />
-                      </SelectTrigger>
+                        <Field>
+                            <Label>{t('organization:createFieldDialog.fieldtype')}</Label>
+                            {noFieldType && (
+                                <p className="text-[var(--error)]">{t('organization:createFieldDialog.nofieldtype')}</p>
+                            )}
+                            <Select 
+                                onValueChange={setNewFieldType}
+                                defaultValue="text"    
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder={t('organization:createFieldDialog.fieldtypeplaceholder')} />
+                                </SelectTrigger>
 
-                      <SelectContent>
-                          <SelectGroup>
-                          <SelectItem value="text">{t('organization:createFieldDialog.text')}</SelectItem>
-                          <SelectItem value="number">{t('organization:createFieldDialog.number')}</SelectItem>
-                          <SelectItem value="date">{t('organization:createFieldDialog.date')}</SelectItem>
-                          </SelectGroup>
-                      </SelectContent>
-                      </Select>
-                  </Field>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectItem value="text">{t('organization:createFieldDialog.text')}</SelectItem>
+                                        <SelectItem value="number">{t('organization:createFieldDialog.number')}</SelectItem>
+                                        <SelectItem value="date">{t('organization:createFieldDialog.date')}</SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                        </Field>
 
-                </FieldGroup>
+                    </FieldGroup>
 
-                <DialogFooter>
-                <DialogClose asChild>
-                    <Button variant="outline">{t('common:cancel')}</Button>
-                </DialogClose>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button type="button" variant="outline">{t('common:cancel')}</Button>
+                        </DialogClose>
 
-                <Button
-                    className="cursor-pointer" 
-                    onClick={handleAddField}
-                >
-                    {t('common:create')}
-                </Button>
-                </DialogFooter>
+                        <Button
+                            className="cursor-pointer" 
+                            type="submit"
+                        >
+                            {t('common:create')}
+                        </Button>
+                    </DialogFooter>
 
+                </form>
             </DialogContent>
         </Dialog>
 

@@ -34,17 +34,22 @@
         "levels": "Levels / floors",
         "hasBasement": "Has basement",
         "addNewField": "Add new field",
-        "deleteField": "Delete this field"
+        "deleteField": "Delete this field",
+        "textFieldPlaceholder": "e.g., The requiremets are...",
+        "numberPlaceHolder": "e.g., 27"
     },
 
     "createFieldDialog": {
         "title": "Add new field",
         "fieldname": "Field name",
+        "fieldnameplaceholder": "e.g., Deadline",
         "fieldtype": "Field type",
         "fieldtypeplaceholder": "Select type",
         "text": "Text",
         "number": "Number",
-        "date": "Date"
+        "date": "Date",
+        "nofieldname": "No field name given",
+        "nofieldtype": "No field type selected"
     },
     
     "invitationDialog": {

@@ -112,8 +112,10 @@ const OrganizationPage = () => {
     // CREATION VARIABLES / CUSTOM FIELDS
     const [customFields, setCustomFields] = useState<CustomField[]>([])
     const [openNewFieldDialog, setOpenNewFieldDialog] = useState(false);
-    const [newFieldName, setNewFieldName] = useState("");
+    const [newFieldName, setNewFieldName] = useState<string>("");
     const [newFieldType, setNewFieldType] = useState<string>("text");
+    const [noFieldName, setNoFieldName] = useState<boolean>(false)
+    const [noFieldType, setNoFieldType] = useState<boolean>(false)
 
     // INVITATION VARIABLES
     const [openInvitationDialog, setOpenInvitationDialog] = useState<boolean>(false)
@@ -184,25 +186,53 @@ const OrganizationPage = () => {
         }
     }
 
+    const handleOpenNewFieldDialog = () => {
+        setNoFieldName(false)
+        setNoFieldType(false)
+        setNewFieldName("")
+        setNewFieldType("text")
+        setOpenNewFieldDialog(true)
+    }
+
     const capitalizeFirstLetter = (str: string) =>
         str.charAt(0).toUpperCase() + str.slice(1)
 
     const handleAddField = () => {
-        if (!newFieldName.trim()) return;
+        
+        setNoFieldName(false)
+        setNoFieldType(false)
+
+        let hasToReturn = false
+
+        if (!newFieldName || newFieldName.trim() === "") {
+            console.log("NO FIELD NAME")
+            setNoFieldName(true)
+            hasToReturn = true
+        }
+
+        if (!newFieldType || newFieldType.trim() === "") {
+            console.log("NO FIELD TYPE")
+            setNoFieldType(true)
+            hasToReturn = true
+        }
+
+        if(hasToReturn){
+            return
+        }
 
         setCustomFields((prev) => [
             ...prev,
             {
-            name: capitalizeFirstLetter(newFieldName),
-            type: newFieldType as CustomFieldType,
-            value: createEmptyValue(newFieldType as CustomFieldType)
+                name: capitalizeFirstLetter(newFieldName),
+                type: newFieldType as CustomFieldType,
+                value: createEmptyValue(newFieldType as CustomFieldType)
             },
-        ]);
+        ])
 
-        setNewFieldName("");
-        setNewFieldType("text");
-        setOpenNewFieldDialog(false);
-    };
+        setNewFieldName("")
+        setNewFieldType("text")
+        setOpenNewFieldDialog(false)
+    }
 
     const handleDeleteCustomField = (index: number) => {
         setCustomFields((prev) => prev.filter((_, i) => i !== index))
@@ -598,6 +628,7 @@ const OrganizationPage = () => {
                 }
             `}
         >
+
             {organizationPermissions.invitePermission === "members" ? (
                 <SectionNavigation
                     sections={[
@@ -898,145 +929,145 @@ const OrganizationPage = () => {
 
                     <form onSubmit={handleCreateProject}>
 
-                    <DialogHeader>
-                        <DialogTitle>{t('organization:projectCreationDialog.title')}</DialogTitle>
-                        <DialogDescription>
-                            {t('organization:projectCreationDialog.description')}
-                        </DialogDescription>
-                    </DialogHeader>
+                        <DialogHeader>
+                            <DialogTitle>{t('organization:projectCreationDialog.title')}</DialogTitle>
+                            <DialogDescription>
+                                {t('organization:projectCreationDialog.description')}
+                            </DialogDescription>
+                        </DialogHeader>
 
-                    <FieldGroup className="space-y-2 my-6">
+                        <FieldGroup className="space-y-2 my-6">
 
-                        {/* Project name */}
-                        <Field>
-                        <Label htmlFor="projectName">{t('organization:projectCreationDialog.projectName')} *</Label>
-                        <Input
-                            id="projectName"
-                            name="projectName"
-                            required
-                            minLength={3}
-                            maxLength={100}
-                            placeholder={t('organization:projectCreationDialog.projectNamePlaceholder')}
-                        />
-                        </Field>
+                            {/* Project name */}
+                            <Field>
+                                <Label htmlFor="projectName">{t('organization:projectCreationDialog.projectName')} *</Label>
+                                <Input
+                                    id="projectName"
+                                    name="projectName"
+                                    required
+                                    minLength={3}
+                                    maxLength={100}
+                                    placeholder={t('organization:projectCreationDialog.projectNamePlaceholder')}
+                                />
+                            </Field>
 
-                        {/* Project levels / floors */}
-                        <Field>
-                        <Label htmlFor="levels">{t('organization:projectCreationDialog.levels')} *</Label>
-                        <Input
-                            id="levels"
-                            name="levels"
-                            required
-                            type="number"
-                            min={1}
-                            max={163}
-                            defaultValue={1}
-                        />
-                        </Field>
+                            {/* Project levels / floors */}
+                            <Field>
+                                <Label htmlFor="levels">{t('organization:projectCreationDialog.levels')} *</Label>
+                                <Input
+                                    id="levels"
+                                    name="levels"
+                                    required
+                                    type="number"
+                                    min={1}
+                                    max={163}
+                                    defaultValue={1}
+                                />
+                            </Field>
 
-                        {/* Poject has basement */}
-                        <Field>
-                        <Label htmlFor="basement">{t('organization:projectCreationDialog.hasBasement')}</Label>
-                        <Select 
-                            defaultValue="no" 
-                            onValueChange={setHasBasement}
-                        >
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent
-                                position="popper"
+                            {/* Project has basement */}
+                            <Field>
+                                <Label htmlFor="basement">{t('organization:projectCreationDialog.hasBasement')}</Label>
+                                <Select 
+                                    defaultValue="no" 
+                                    onValueChange={setHasBasement}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent position="popper">
+                                        <SelectGroup>
+                                            <SelectItem value="yes">{t('common:yes')}</SelectItem>
+                                            <SelectItem value="no">{t('common:no')}</SelectItem>
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                            </Field>
+
+                            {/* Dynamic fields */}
+                            {customFields.map((field, index) => (
+                                <Field key={index}>
+                                    <div className="flex items-center justify-between">
+                                        <Label>{field.name}</Label>
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        className="cursor-pointer"
+                                                        onClick={() => handleDeleteCustomField(index)}
+                                                    >
+                                                        <RiDeleteBin6Line />
+                                                    </Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent side="left">
+                                                    {t('project:editDialog.deleteField')}
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    </div>
+
+                                    {field.type === "text" && (
+                                        <Input
+                                            placeholder={t('organization:projectCreationDialog.textFieldPlaceholder')}
+                                            min={1}
+                                            max={300}
+                                            value={getInputValue(field)}
+                                            onChange={(e) =>
+                                                handleCustomFieldChange(index, e.target.value)
+                                            }
+                                        />
+                                    )}
+
+                                    {field.type === "number" && (
+                                        <Input
+                                            placeholder={t('organization:projectCreationDialog.numberPlaceHolder')}
+                                            min={-1000000}
+                                            max={1000000}
+                                            type="number"
+                                            value={getInputValue(field)}
+                                            onChange={(e) =>
+                                                handleCustomFieldChange(index, Number(e.target.value))
+                                            }
+                                        />
+                                    )}
+
+                                    {field.type === "date" && (
+                                        <DatePickerField
+                                            value={
+                                                field.value instanceof Date
+                                                    ? field.value
+                                                    : field.value
+                                                    ? new Date(field.value)
+                                                    : undefined
+                                            }
+                                            onChange={(date) =>
+                                                handleCustomFieldChange(index, date)
+                                            }
+                                        />
+                                    )}
+                                </Field>
+                            ))}
+
+                            {/* Add field button */}
+                            <Button
+                                className="cursor-pointer"
+                                type="button"
+                                variant="outline"
+                                onClick={handleOpenNewFieldDialog}
                             >
-                                <SelectGroup>
-                                    <SelectItem value="yes">{t('common:yes')}</SelectItem>
-                                    <SelectItem value="no">{t('common:no')}</SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
-                        </Field>
+                                + {t('organization:projectCreationDialog.addNewField')}
+                            </Button>
 
-                        {/* Dynamic fields */}
-                        {customFields.map((field, index) => (
-                        <Field key={index}>
-                            <div className="flex items-center justify-between">
-                                <Label>{field.name}</Label>
-                                <TooltipProvider>
-                                    <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Button
-                                        type="button"
-                                        variant="ghost"
-                                        className="cursor-pointer"
-                                        onClick={() => handleDeleteCustomField(index)}
-                                        >
-                                        <RiDeleteBin6Line />
-                                        </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="left">
-                                        {t('project:editDialog.deleteField')}
-                                    </TooltipContent>
-                                    </Tooltip>
-                                </TooltipProvider>
-                            </div>
+                        </FieldGroup>
 
-                            {field.type === "text" && (
-                            <Input
-                                min={1}
-                                max={300}
-                                value={getInputValue(field)}
-                                onChange={(e) =>
-                                    handleCustomFieldChange(index, e.target.value)
-                                }
-                            />
-                            )}
-
-                            {field.type === "number" && (
-                            <Input
-                                min={-1000000}
-                                max={1000000}
-                                type="number"
-                                value={getInputValue(field)}
-                                onChange={(e) =>
-                                    handleCustomFieldChange(index, Number(e.target.value))
-                                }
-                            />
-                            )}
-
-                            {field.type === "date" && (
-                            <DatePickerField
-                                value={
-                                    field.value instanceof Date
-                                        ? field.value
-                                        : field.value
-                                        ? new Date(field.value)
-                                        : undefined
-                                }
-                                onChange={(date) =>
-                                    handleCustomFieldChange(index, date)
-                                }
-                            />
-                            )}
-                        </Field>
-                        ))}
-
-                        {/* Add field button */}
-                        <Button
-                            className="cursor-pointer"
-                            type="button"
-                            variant="outline"
-                            onClick={() => setOpenNewFieldDialog(true)}
-                        >
-                            {t('organization:projectCreationDialog.addNewField')}
-                        </Button>
-
-                    </FieldGroup>
-
-                    <DialogFooter>
-                        <DialogClose asChild>
-                            <Button variant="outline">{t('common:cancel')}</Button>
-                        </DialogClose>
-                        <Button type="submit">{t('common:create')}</Button>
-                    </DialogFooter>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button variant="outline">{t('common:cancel')}</Button>
+                            </DialogClose>
+                            <Button type="submit">{t('common:create')}</Button>
+                        </DialogFooter>
 
                     </form>
                 </DialogContent>
@@ -1045,53 +1076,71 @@ const OrganizationPage = () => {
             {/* CREATE FIELD DIALOG */}
             <Dialog open={openNewFieldDialog} onOpenChange={setOpenNewFieldDialog}>
                 <DialogContent className="sm:max-w-sm">
+                    
+                    <form onSubmit={(e) => {
+                        e.preventDefault()
+                        handleAddField()
+                    }}>
 
-                    <DialogHeader>
-                    <DialogTitle>{t('organization:createFieldDialog.title')}</DialogTitle>
-                    </DialogHeader>
+                        <DialogHeader>
+                            <DialogTitle>{t('organization:createFieldDialog.title')}</DialogTitle>
+                        </DialogHeader>
 
-                    <FieldGroup className="space-y-2 my-2">
+                        <FieldGroup className="space-y-2 my-2">
 
-                    <Field>
-                        <Label>{t('organization:createFieldDialog.fieldname')}</Label>
-                        <Input
-                        value={newFieldName}
-                        onChange={(e) => setNewFieldName(e.target.value)}
-                        />
-                    </Field>
+                            <Field>
+                                <Label>{t('organization:createFieldDialog.fieldname')} *</Label>
+                                {noFieldName && (
+                                    <p className="text-[var(--error)]">{t('organization:createFieldDialog.nofieldname')}</p>
+                                )}
+                                <Input
+                                    type="text"
+                                    placeholder={t('organization:createFieldDialog.fieldnameplaceholder')}
+                                    value={newFieldName}
+                                    required
+                                    onChange={(e) => setNewFieldName(e.target.value)}
+                                />
+                            </Field>
 
-                    <Field>
-                        <Label>{t('organization:createFieldDialog.fieldtype')}</Label>
-                        <Select onValueChange={setNewFieldType}>
-                        <SelectTrigger>
-                            <SelectValue placeholder={t('organization:createFieldDialog.fieldtypeplaceholder')} />
-                        </SelectTrigger>
+                            <Field>
+                                <Label>{t('organization:createFieldDialog.fieldtype')}</Label>
+                                {noFieldType && (
+                                    <p className="text-[var(--error)]">{t('organization:createFieldDialog.nofieldtype')}</p>
+                                )}
+                                <Select 
+                                    onValueChange={setNewFieldType}
+                                    defaultValue="text"    
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder={t('organization:createFieldDialog.fieldtypeplaceholder')} />
+                                    </SelectTrigger>
 
-                        <SelectContent>
-                            <SelectGroup>
-                            <SelectItem value="text">{t('organization:createFieldDialog.text')}</SelectItem>
-                            <SelectItem value="number">{t('organization:createFieldDialog.number')}</SelectItem>
-                            <SelectItem value="date">{t('organization:createFieldDialog.date')}</SelectItem>
-                            </SelectGroup>
-                        </SelectContent>
-                        </Select>
-                    </Field>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            <SelectItem value="text">{t('organization:createFieldDialog.text')}</SelectItem>
+                                            <SelectItem value="number">{t('organization:createFieldDialog.number')}</SelectItem>
+                                            <SelectItem value="date">{t('organization:createFieldDialog.date')}</SelectItem>
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                            </Field>
 
-                    </FieldGroup>
+                        </FieldGroup>
 
-                    <DialogFooter>
-                    <DialogClose asChild>
-                        <Button variant="outline">{t('common:cancel')}</Button>
-                    </DialogClose>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button type="button" variant="outline">{t('common:cancel')}</Button>
+                            </DialogClose>
 
-                    <Button
-                        className="cursor-pointer" 
-                        onClick={handleAddField}
-                    >
-                        {t('common:create')}
-                    </Button>
-                    </DialogFooter>
+                            <Button
+                                className="cursor-pointer" 
+                                type="submit"
+                            >
+                                {t('common:create')}
+                            </Button>
+                        </DialogFooter>
 
+                    </form>
                 </DialogContent>
             </Dialog>
 

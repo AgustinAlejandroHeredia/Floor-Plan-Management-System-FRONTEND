@@ -57,7 +57,8 @@ import "react-image-crop/dist/ReactCrop.css";
 import { getCroppedImg } from "@/utils/cropImage";
 
 // TYPES
-import { specialtyTagOptions, type AreaColor, type BlueprintLevelsRangeType, type BlueprintViewType, type CreateCropPayload, type DragAreaState, type EditAreaState, type InferenceJobResult, type InferenceJobStatus, type InferenceJobType, type Point, type SectionType, type SectionView, type SpecialtyTag, type YoloPrediction } from "@/types/types";
+import { type AreaColor, type BlueprintLevelsRangeType, type BlueprintViewType, type CreateCropPayload, type DragAreaState, type EditAreaState, type InferenceJobResult, type InferenceJobStatus, type InferenceJobType, type Point, type SectionType, type SectionView, type SpecialtyTag, type YoloPrediction } from "@/types/types";
+import { SPECIALTIES, specialtyByTag } from "@/config/specialties";
 
 // CONTEXT
 import { useInferenceNotification } from "@/context/InferenceNotificationContext";
@@ -1540,7 +1541,7 @@ const BlueprintView = () => {
                                     {
                                         blueprint?.specialties?.length
                                             ? (blueprint.specialties
-                                                .map(specialty => t(`blueprint:specialtiesOptions.${specialty}`))
+                                                .map(specialty => specialtyByTag[specialty]?.label ?? specialty)
                                                 .join(", ")
                                             )
                                             : t('blueprint:unspecified')
@@ -2981,25 +2982,40 @@ const BlueprintView = () => {
                                         <p className="text-[var(--error)]">{t('blueprint:editOptions.errors.noSpecialty')}</p>
                                     )}
                                     <div className="grid grid-cols-2 gap-2 py-2">
-                                        {specialtyTagOptions.map((option) => {
-                                            const isSelected = specialtiesList.includes(option)
+                                        {SPECIALTIES.map((specialty) => {
+                                            const isSelected = specialtiesList.includes(specialty.tag)
 
                                             return (
                                                 <Button
-                                                    key={option}
+                                                    key={specialty.tag}
                                                     type="button"
                                                     variant="outline"
                                                     onClick={() => {
                                                         setNoSpecialty(false)
-                                                        handleAddOrDeleteSpecialty(option)
+                                                        handleAddOrDeleteSpecialty(specialty.tag)
                                                     }}
-                                                    className={`cursor-pointer transition-colors ${
+                                                    className={`relative cursor-pointer justify-start transition-colors ${
                                                         isSelected
                                                             ? "bg-[var(--accent)] text-[var(--text-h)]"
                                                             : ""
                                                     }`}
                                                 >
-                                                    {isSelected ? <FaCheck /> : ""} {t(`blueprint:specialtiesOptions.${option.toLocaleLowerCase()}`)}
+                                                    {isSelected && <FaCheck className="shrink-0" />}
+                                                    {specialty.label}
+                                                    {specialty.hasModel && (
+                                                        <TooltipProvider delayDuration={200}>
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <span className="absolute top-1 right-1.5">
+                                                                        <BsStars className="size-3 text-violet-400" />
+                                                                    </span>
+                                                                </TooltipTrigger>
+                                                                <TooltipContent side="top">
+                                                                    Inference model available
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                        </TooltipProvider>
+                                                    )}
                                                 </Button>
                                             )
                                         })}

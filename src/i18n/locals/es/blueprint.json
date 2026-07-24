@@ -6,6 +6,7 @@
         "view": "Vista",
         "specialties": "Especialidades",
         "levels": "Pisos",
+        "scale": "Escala",
         "areas": "Áreas",
         "cropFrom": "Recortado de",
         "cropsMade": "Recortes realizados",
@@ -46,6 +47,7 @@
         "magicCrop": "Recorte mágico",
         "ai": "IA",
         "processBlueprintWithAi": "Procesar plano con IA",
+        "captureScale": "Capturar escala",
         "addNewArea": "Añadir nueva área",
         "saveGeneratedAreas": "Guardar áreas generadas",
         "deleteBlueprint": "Eliminar plano"
@@ -214,7 +216,20 @@
         "confirm": "Procesar"
     },
 
+    "scaleDialog": {
+        "title": "Definir escala",
+        "description": "Seleccionaste 2 puntos en el plano. Ingresá la distancia real entre ellos.",
+        "label": "Distancia real",
+        "placeholder": "ej. 5.5"
+    },
+
+    "scaleSource": {
+        "ai": "IA",
+        "manual": "Manual"
+    },
+
     "errorMessages": {
+        "errorSavingScale": "Ocurrió un error al guardar la escala. Por favor, inténtalo de nuevo.",
         "imageNotAvailable": "Imagen no disponible",
         "errorSavingChanges": "Ha ocurrido un error al guardar los cambios. Por favor, inténtalo de nuevo más tarde.",
         "errorDeletingBlueprint": "Ha ocurrido un error al eliminar el plano. Por favor, inténtalo de nuevo más tarde.",

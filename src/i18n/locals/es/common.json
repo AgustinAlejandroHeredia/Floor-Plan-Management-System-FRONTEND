@@ -6,6 +6,8 @@
     "create": "Crear",
     "cancel": "Cancelar",
     "save": "Guardar",
+    "saving": "Guardando...",
+    "confirm": "Confirmar",
     "none": "Ninguno",
     "delete": "Eliminar",
 

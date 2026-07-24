@@ -6,6 +6,7 @@
         "view": "View",
         "specialties": "Specialties",
         "levels": "Levels",
+        "scale": "Scale",
         "areas": "Areas",
         "cropFrom": "Cropped from",
         "cropsMade": "Crops made",
@@ -46,6 +47,7 @@
         "magicCrop": "Magic crop",
         "ai": "AI",
         "processBlueprintWithAi": "Process blueprint with AI",
+        "captureScale": "Capture scale",
         "addNewArea": "Add new area",
         "saveGeneratedAreas": "Save generated areas",
         "deleteBlueprint": "Delete blueprint"
@@ -215,7 +217,20 @@
         "confirm": "Process"
     },
 
+    "scaleDialog": {
+        "title": "Set scale",
+        "description": "You picked 2 points on the blueprint. Enter the real-world distance between them.",
+        "label": "Real length",
+        "placeholder": "e.g. 5.5"
+    },
+
+    "scaleSource": {
+        "ai": "AI",
+        "manual": "Manual"
+    },
+
     "errorMessages": {
+        "errorSavingScale": "An error occurred while saving the scale. Please try again.",
         "imageNotAvailable": "Image not available",
         "errorSavingChanges": "An error occurred while saving changes. Please try again later.",
         "errorDeletingBlueprint": "An error occurred while deleting this blueprint. Please try again later.",

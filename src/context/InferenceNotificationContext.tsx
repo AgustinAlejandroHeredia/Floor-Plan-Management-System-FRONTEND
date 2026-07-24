@@ -8,24 +8,36 @@ type Notification = {
   blueprintPath: string
 }
 
+type ScaleOrientationNotification = {
+  blueprintName: string
+  scale: number | null
+  orientation: number | null
+}
+
 type InferenceNotificationContextType = {
   notification: Notification | null
+  scaleOrientationNotification: ScaleOrientationNotification | null
   startTracking: (jobId: string, blueprintName: string, blueprintPath: string) => void
   clearNotification: () => void
+  clearScaleOrientationNotification: () => void
 }
 
 const InferenceNotificationContext = createContext<InferenceNotificationContextType>({
   notification: null,
+  scaleOrientationNotification: null,
   startTracking: () => {},
   clearNotification: () => {},
+  clearScaleOrientationNotification: () => {},
 })
 
 export function InferenceNotificationProvider({ children }: { children: React.ReactNode }) {
   const { getAccessTokenSilently } = useAuth0()
   const [notification, setNotification] = useState<Notification | null>(null)
+  const [scaleOrientationNotification, setScaleOrientationNotification] = useState<ScaleOrientationNotification | null>(null)
   const socketRef = useRef<Socket | null>(null)
 
   const clearNotification = useCallback(() => setNotification(null), [])
+  const clearScaleOrientationNotification = useCallback(() => setScaleOrientationNotification(null), [])
 
   const startTracking = useCallback(async (jobId: string, blueprintName: string, blueprintPath: string) => {
     socketRef.current?.disconnect()
@@ -58,6 +70,12 @@ export function InferenceNotificationProvider({ children }: { children: React.Re
         }
       })
 
+      socket.on('inference:scale_orientation', (data: { scale: number | null; orientation: number | null }) => {
+        if (data.scale !== null || data.orientation !== null) {
+          setScaleOrientationNotification({ blueprintName, scale: data.scale, orientation: data.orientation })
+        }
+      })
+
       socket.on('connect_error', () => {
         clearTimeout(timer)
         socket.disconnect()
@@ -69,7 +87,7 @@ export function InferenceNotificationProvider({ children }: { children: React.Re
   }, [getAccessTokenSilently])
 
   return (
-    <InferenceNotificationContext.Provider value={{ notification, startTracking, clearNotification }}>
+    <InferenceNotificationContext.Provider value={{ notification, scaleOrientationNotification, startTracking, clearNotification, clearScaleOrientationNotification }}>
       {children}
     </InferenceNotificationContext.Provider>
   )

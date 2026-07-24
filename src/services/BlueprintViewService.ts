@@ -132,4 +132,13 @@ export const BlueprintViewService = {
         }
     },
 
+    saveScale: async (blueprintId: string, scale: number, scale_source: 'ai' | 'manual'): Promise<boolean> => {
+        try {
+            await api.patch(`/blueprints/${blueprintId}`, { scale, scale_source })
+            return true
+        } catch {
+            return false
+        }
+    },
+
 }

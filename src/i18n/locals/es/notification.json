@@ -2,5 +2,11 @@
     "blueprintProcessed": {
         "title": "Plano procesado",
         "action": "Ver plano"
+    },
+    "scaleOrientationDetected": {
+        "title": "Escala y orientación detectadas",
+        "scale": "Escala",
+        "orientation": "Orientación",
+        "degrees": "°"
     }
 }

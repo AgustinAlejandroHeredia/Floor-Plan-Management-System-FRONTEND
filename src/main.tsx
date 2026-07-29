@@ -12,6 +12,7 @@ import { UserProvider } from "./context/UserContext";
 import { InferenceNotificationProvider } from "./context/InferenceNotificationContext";
 
 import "./i18n"
+import { ThemeProvider } from "./providers/ThemeProvider";
 
 function Bootstrap({ children }: { children: React.ReactNode }) {
   const authBridge = useAuth0Bridge();
@@ -28,11 +29,13 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AuthProvider>
       <Bootstrap>
-        <UserProvider>
-          <InferenceNotificationProvider>
-            <App />
-          </InferenceNotificationProvider>
-        </UserProvider>
+        <ThemeProvider defaultTheme="dark" storageKey="app-theme">
+          <UserProvider>
+            <InferenceNotificationProvider>
+              <App />
+            </InferenceNotificationProvider>
+          </UserProvider>
+        </ThemeProvider>
       </Bootstrap>
     </AuthProvider>
   </StrictMode>

@@ -1,0 +1,17 @@
+[
+  {
+    "code": "es",
+    "name": "Español",
+    "englishName": "Spanish",
+    "flag": "🇪🇸",
+    "dir": "ltr",
+    "isDefault": true
+  },
+  {
+    "code": "en",
+    "name": "English",
+    "englishName": "English",
+    "flag": "🇺🇸",
+    "dir": "ltr"
+  }
+]

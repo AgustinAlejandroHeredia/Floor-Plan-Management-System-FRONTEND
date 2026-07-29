@@ -19,6 +19,7 @@ import recentactivityEn from "./locals/en/recentactivity.json";
 import userprofileEn from "./locals/en/userprofile.json";
 import notificationEn from "./locals/en/notification.json";
 import componentsEn from "./locals/en/components.json"
+import topbarEn from "./locals/en/topbar.json"
 
 // --- IMPORTS ESPAÑOL ---
 import commonEs from "./locals/es/common.json";
@@ -37,6 +38,7 @@ import recentactivityEs from "./locals/es/recentactivity.json";
 import userprofileEs from "./locals/es/userprofile.json";
 import notificationEs from "./locals/es/notification.json";
 import componentsEs from "./locals/es/components.json"
+import topbarEs from "./locals/es/topbar.json"
 
 i18n
   .use(LanguageDetector)
@@ -45,7 +47,9 @@ i18n
     fallbackLng: "en",
 
     detection: {
-      order: ["navigator"],
+      order: ["localStorage", "navigator"],
+      lookupLocalStorage: "ui-language",
+      caches: ["localStorage"],
     },
 
     ns: [
@@ -65,6 +69,7 @@ i18n
       "userprofile",
       "notification",
       "components",
+      "topbar",
     ],
 
     defaultNS: "common",
@@ -87,6 +92,7 @@ i18n
         userprofile: userprofileEn,
         notification: notificationEn,
         components: componentsEn,
+        topbar: topbarEn,
       },
       es: {
         common: commonEs,
@@ -105,6 +111,7 @@ i18n
         userprofile: userprofileEs,
         notification: notificationEs,
         components: componentsEs,
+        topbar: topbarEs,
       },
     },
   });

@@ -1,74 +1,76 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+/* --- 1. TEMA CLARO (VALORES POR DEFECTO EN :ROOT) --- */
 :root {
-  /* --- PALETA BLUEPRINT MINIMAL (MODO OSCURO FIJO) --- */
-  --bg: #0b0f19;              
-  --text: #94a3b8;            
-  --text-h: #f8fafc;          
-  --text-l: #64748b;          
-  --border: #1e293b;          
-  --code-bg: #111827;         
-  
-  --accent: #38bdf8;
-  --accent-bg: rgba(56, 189, 248, 0.12);   
-  --accent-bg2: rgba(56, 189, 248, 0.25);  
-  --accent-border: rgba(56, 189, 248, 0.4);
-
-  --social-bg: rgba(30, 41, 59, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.6) 0 10px 15px -3px,
-    rgba(0, 0, 0, 0.4) 0 4px 6px -2px;
-
   --sans: 'Geist Variable', system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: 'Geist Variable', system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 16px/1.5 var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: dark;         
-  color: var(--text);
-  background: var(--bg);
+  color-scheme: light dark; /* Permite a los inputs/scrollbars adaptarse */
 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
-  /* --- Variables unificadas para Shadcn & Tailwind CSS --- */
-  --background: #0b0f19;
-  --foreground: #f8fafc;
-  --card: #111827;
-  --card-foreground: #f8fafc;
-  --popover: #111827;
-  --popover-foreground: #f8fafc;
-  
-  --primary: #f8fafc;
-  --primary-foreground: #0b0f19;
-  
-  --secondary: #1e293b;
-  --secondary-foreground: #f8fafc;
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
-  
-  --accent-foreground: #0b0f19; 
-  
-  --destructive: #f87171;       
-  --input: #1e293b;
-  --ring: #38bdf8;              
-  
-  --chart-1: #38bdf8;           
-  --chart-2: #f8fafc;           
-  --chart-3: #f59e0b;           
-  --chart-4: #10b981;           
-  --chart-5: #6366f1;
-  
-  --radius: 0.375rem;           
-  
-  /* Componente Sidebar */
-  --sidebar: #111827;
-  --sidebar-foreground: #94a3b8;
-  --sidebar-primary: #38bdf8;
-  --sidebar-primary-foreground: #0b0f19;
-  --sidebar-accent: #1e293b;
-  --sidebar-accent-foreground: #f8fafc;
-  --sidebar-border: #1e293b;
-  --sidebar-ring: #38bdf8;
+
+  --radius: 0.375rem;
+
+  /* --- Variables Legacy / Personalizadas (Light) --- */
+  --bg: #ffffff;
+  --text: #475569;
+  --text-h: #0f172a;
+  --text-l: #94a3b8;
+  --border: #e2e8f0;
+  --code-bg: #f1f5f9;
+
+  --accent: #0284c7;
+  --accent-bg: rgba(2, 132, 199, 0.08);
+  --accent-bg2: rgba(2, 132, 199, 0.15);
+  --accent-border: rgba(2, 132, 199, 0.3);
+
+  --social-bg: rgba(241, 245, 249, 0.8);
+  --shadow: rgba(0, 0, 0, 0.05) 0px 10px 15px -3px, rgba(0, 0, 0, 0.03) 0px 4px 6px -2px;
+
+  /* --- Variables Shadcn & Tailwind CSS (Light) --- */
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+
+  --primary: #0f172a;
+  --primary-foreground: #ffffff;
+
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+
+  --accent-foreground: #ffffff;
+
+  --destructive: #ef4444;
+  --input: #e2e8f0;
+  --ring: #0284c7;
+
+  --chart-1: #0284c7;
+  --chart-2: #0f172a;
+  --chart-3: #d97706;
+  --chart-4: #059669;
+  --chart-5: #4f46e5;
+
+  /* Componente Sidebar (Light) */
+  --sidebar: #f8fafc;
+  --sidebar-foreground: #475569;
+  --sidebar-primary: #0284c7;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e2e8f0;
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #0284c7;
 
   /* Estados */
   --success: #10b981;
@@ -81,10 +83,64 @@
   --status-excellent: #10b981;
 }
 
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
+/* --- 2. TEMA OSCURO (TU PALETA BLUEPRINT ORIGINAL) --- */
+.dark {
+  color-scheme: dark;
+
+  /* --- Variables Legacy / Personalizadas (Dark Blueprint) --- */
+  --bg: #0b0f19;
+  --text: #94a3b8;
+  --text-h: #f8fafc;
+  --text-l: #64748b;
+  --border: #1e293b;
+  --code-bg: #111827;
+
+  --accent: #38bdf8;
+  --accent-bg: rgba(56, 189, 248, 0.12);
+  --accent-bg2: rgba(56, 189, 248, 0.25);
+  --accent-border: rgba(56, 189, 248, 0.4);
+
+  --social-bg: rgba(30, 41, 59, 0.5);
+  --shadow: rgba(0, 0, 0, 0.6) 0 10px 15px -3px, rgba(0, 0, 0, 0.4) 0 4px 6px -2px;
+
+  /* --- Variables Shadcn & Tailwind CSS (Dark Blueprint) --- */
+  --background: #0b0f19;
+  --foreground: #f8fafc;
+  --card: #111827;
+  --card-foreground: #f8fafc;
+  --popover: #111827;
+  --popover-foreground: #f8fafc;
+
+  --primary: #f8fafc;
+  --primary-foreground: #0b0f19;
+
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+
+  --accent-foreground: #0b0f19;
+
+  --destructive: #f87171;
+  --input: #1e293b;
+  --ring: #38bdf8;
+
+  --chart-1: #38bdf8;
+  --chart-2: #f8fafc;
+  --chart-3: #f59e0b;
+  --chart-4: #10b981;
+  --chart-5: #6366f1;
+
+  /* Componente Sidebar (Dark Blueprint) */
+  --sidebar: #111827;
+  --sidebar-foreground: #94a3b8;
+  --sidebar-primary: #38bdf8;
+  --sidebar-primary-foreground: #0b0f19;
+  --sidebar-accent: #1e293b;
+  --sidebar-accent-foreground: #f8fafc;
+  --sidebar-border: #1e293b;
+  --sidebar-ring: #38bdf8;
+}
 
 @layer base {
   * {
@@ -96,26 +152,6 @@
   html {
     @apply font-sans;
   }
-}
-
-.dark {
-  --background: #0b0f19;
-  --foreground: #f8fafc;
-  --card: #111827;
-  --card-foreground: #f8fafc;
-  --popover: #111827;
-  --popover-foreground: #f8fafc;
-  --primary: #f8fafc;
-  --primary-foreground: #0b0f19;
-  --secondary: #1e293b;
-  --secondary-foreground: #f8fafc;
-  --border: #1e293b;
-  --input: #1e293b;
-  --ring: #38bdf8;
-  
-  /* 🛠️ CORRECCIÓN TAMBIÉN EN EL RESPALDO DARK */
-  --accent: #38bdf8;
-  --accent-foreground: #0b0f19;
 }
 
 @theme inline {

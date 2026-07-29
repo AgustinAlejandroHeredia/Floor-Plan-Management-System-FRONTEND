@@ -1,0 +1,12 @@
+{
+    "options": {
+        "title": "Opciones",
+        "theme": "Tema",
+        "language": "Idioma"
+    },
+
+    "theme": {
+        "light": "Claro",
+        "dark": "Oscuro"
+    }
+}

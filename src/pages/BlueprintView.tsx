@@ -20,7 +20,6 @@ import { TfiSave } from "react-icons/tfi";
 import { CgUndo } from "react-icons/cg";
 
 // UI COMPONENTS
-import BreadcrumbBar from "@/components/MyBreadcrumb";
 import Loading from "@/components/Loading";
 import {
   Card,
@@ -36,7 +35,6 @@ import { Input } from "@/components/ui/input";
 import InfoDialog from "@/components/InfoDialog";
 import BlueprintSpecialtyPickerDialog from "@/components/BlueprintOptionPickerDialog";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BlueprintLevelsDialog } from "@/components/BlueprintLevelsDialog";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ContextMenu, ContextMenuContent, ContextMenuGroup, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger } from "@/components/ui/context-menu";
@@ -137,14 +135,11 @@ const BlueprintView = () => {
         const [openEditSpecialtiesPicker, setOpenEditSpecialtiesPicker] = useState<boolean>(false)
         const [specialtiesList, setSpecialtiesList] = useState<SpecialtyTag[]>([])
 
-        const [openEditLevels, setOpenEditLevels] = useState<boolean>(false)
         const [levels, setLevels] = useState<BlueprintLevelsRangeType[]>([])
 
         const [isBasement, setIsBasement]= useState<boolean>(false)
         const [isRoof, setIsRoof]= useState<boolean>(false)
         const [isLevel, setIsLevel]= useState<boolean>(false)
-
-        const [extraRanges, setExtraRanges] = useState<number>(0)
 
         // ERRORS
         const [noName, setNoName] = useState<boolean>(false)
@@ -468,6 +463,24 @@ const BlueprintView = () => {
         }
         
         return t('blueprint:unspecified')
+    }
+
+    const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+        e.preventDefault();
+
+        const zoomStep = 0.1;
+        const isZoomingIn = e.deltaY < 0;
+
+        setImageZoom((prevZoom) => {
+            let newZoom = isZoomingIn ? prevZoom + zoomStep : prevZoom - zoomStep;
+
+            const minZoom = 0.5;
+            const maxZoom = 3;
+
+            newZoom = Math.min(Math.max(newZoom, minZoom), maxZoom);
+
+            return Number(newZoom.toFixed(2))
+        })
     }
 
     const handleDownloadFile = async () => {
@@ -1849,6 +1862,7 @@ const BlueprintView = () => {
                         {/* BLUEPRINT PICTURE */}
                         {!cropMode && (
                             <div
+                                onWheel={handleWheel}
                                 style={{
                                     marginTop: "25px",
                                     overflow: "auto",

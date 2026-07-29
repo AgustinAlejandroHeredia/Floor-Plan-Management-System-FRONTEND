@@ -25,6 +25,10 @@
         "hideDrawnAreas": "Hide drawn areas"
     },
 
+    "isSelectingScale": {
+        "description": "Selecting scale: waiting for the user to select two (2) points on the blueprint"
+    },
+
     "changesWarning": {
         "title": "Unsaved Changes",
         "description": "You have unsaved changes that will be lost if you leave this window.",

@@ -1819,6 +1819,18 @@ const BlueprintView = () => {
                     </div>
                 )}
 
+                {/* SELECTING SCALE TEXT */}
+                {scaleMode && !editAreaMode && !cropMode && (
+                <div className="flex flex-col items-center justify-center gap-2 text-center my-4 mt-8">
+                    <p className="text-sm text-muted-foreground">
+                        {t('blueprint:isSelectingScale.description')}
+                    </p>
+                    <Button variant="destructive" size="sm" onClick={() => setScaleMode(false)}>
+                        {t('common:cancel')}
+                    </Button>
+                </div>
+                )}
+
                 {/* EDIT AREA */}
                 {editAreaMode && (
                     <div className="flex flex-col items-center">

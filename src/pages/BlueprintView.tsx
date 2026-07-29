@@ -12,8 +12,8 @@ import { BlueprintViewService } from "@/services/BlueprintViewService";
 
 // ICONS
 import { MdEdit } from "react-icons/md";
-import { FaCheck, FaChevronDown, FaChevronUp, FaFileDownload, FaRegCheckSquare, FaRegSquare } from "react-icons/fa";
-import { BsScissors } from "react-icons/bs";
+import { FaCheck, FaChevronDown, FaChevronUp, FaFileDownload, FaRegCheckSquare, FaRegSquare, FaRulerHorizontal, FaUser } from "react-icons/fa";
+import { BsScissors, BsStars } from "react-icons/bs";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { GrFormView, GrFormViewHide } from "react-icons/gr";
 import { TfiSave } from "react-icons/tfi";
@@ -55,7 +55,8 @@ import "react-image-crop/dist/ReactCrop.css";
 import { getCroppedImg } from "@/utils/cropImage";
 
 // TYPES
-import { specialtyTagOptions, type AreaColor, type BlueprintLevelsRangeType, type BlueprintViewType, type CreateCropPayload, type DragAreaState, type EditAreaState, type InferenceJobResult, type InferenceJobStatus, type InferenceJobType, type Point, type SectionType, type SectionView, type SpecialtyTag, type YoloPrediction } from "@/types/types";
+import { type AreaColor, type BlueprintLevelsRangeType, type BlueprintViewType, type CreateCropPayload, type DragAreaState, type EditAreaState, type InferenceJobResult, type InferenceJobStatus, type InferenceJobType, type Point, type SectionType, type SectionView, type SpecialtyTag, type YoloPrediction } from "@/types/types";
+import { SPECIALTIES, specialtyByTag } from "@/config/specialties";
 
 // CONTEXT
 import { useInferenceNotification } from "@/context/InferenceNotificationContext";
@@ -256,6 +257,13 @@ const BlueprintView = () => {
     const [openNewAreaDialog, setOpenNewAreaDialog] = useState<boolean>(false)
     const [newAreaLabel, setNewAreaLabel] = useState<string>("")
     const [newAreaEmptyFieldWarning, setNewAreaEmptyFieldWarning] = useState<boolean>(false)
+
+    // SCALE CAPTURE
+    const [scaleMode, setScaleMode] = useState<boolean>(false)
+    const [scalePoints, setScalePoints] = useState<Point[]>([])
+    const [openScaleInputDialog, setOpenScaleInputDialog] = useState<boolean>(false)
+    const [scaleRealLength, setScaleRealLength] = useState<string>("")
+    const [isSavingScale, setIsSavingScale] = useState<boolean>(false)
 
     // CHANGES WARNING
     const [warningState, setWarningState] = useState<number>(0)
@@ -1086,6 +1094,53 @@ const BlueprintView = () => {
         return color
     }
 
+    // SCALE FUNCTIONS
+
+    const handleToggleScaleMode = () => {
+        setScaleMode(prev => !prev)
+        setScalePoints([])
+        setScaleRealLength("")
+    }
+
+    const handleScaleImageClick = (e: React.MouseEvent<SVGSVGElement>) => {
+        if (!scaleMode || scalePoints.length >= 2) return
+        const coords = getImageCoordinates(e.clientX, e.clientY)
+        if (!coords) return
+        const newPoints = [...scalePoints, coords]
+        setScalePoints(newPoints)
+        if (newPoints.length === 2) {
+            setOpenScaleInputDialog(true)
+        }
+    }
+
+    const handleScaleConfirm = async () => {
+        const realLength = parseFloat(scaleRealLength)
+        if (!realLength || realLength <= 0 || scalePoints.length !== 2 || !blueprint) return
+        const [p1, p2] = scalePoints
+        const pixelDist = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2)
+        const scale = pixelDist / realLength
+        setIsSavingScale(true)
+        const ok = await BlueprintViewService.saveScale(blueprint._id, scale, 'manual')
+        setIsSavingScale(false)
+        if (ok) {
+            setBlueprint(prev => prev ? { ...prev, scale, scale_source: 'manual' } : prev)
+        } else {
+            setErrorAlertMessage(t('blueprint:errorMessages.errorSavingScale'))
+            setOpenErrorAlert(true)
+        }
+        setOpenScaleInputDialog(false)
+        setScaleMode(false)
+        setScalePoints([])
+        setScaleRealLength("")
+    }
+
+    const handleScaleCancel = () => {
+        setOpenScaleInputDialog(false)
+        setScaleMode(false)
+        setScalePoints([])
+        setScaleRealLength("")
+    }
+
     // EDIT AREA FUNCTIONS
 
     const getImageCoordinates = (
@@ -1499,7 +1554,7 @@ const BlueprintView = () => {
                                     {
                                         blueprint?.specialties?.length
                                             ? (blueprint.specialties
-                                                .map(specialty => t(`blueprint:specialtiesOptions.${specialty}`))
+                                                .map(specialty => specialtyByTag[specialty]?.label ?? specialty)
                                                 .join(", ")
                                             )
                                             : t('blueprint:unspecified')
@@ -1519,6 +1574,23 @@ const BlueprintView = () => {
                                     }
                                 </p>
                             </div>
+
+                            {blueprint?.scale !== undefined && (
+                                <div>
+                                    <p className="text-sm text-muted-foreground">
+                                        {t('blueprint:blueprintCharacteristics.scale')}
+                                    </p>
+                                    <p className="font-semibold text-[var(--text-h)] flex items-center gap-1">
+                                        {blueprint.scale.toFixed(2)} px/u
+                                        {blueprint.scale_source === 'ai' && (
+                                            <BsStars className="text-purple-500" title="AI" />
+                                        )}
+                                        {blueprint.scale_source === 'manual' && (
+                                            <FaUser className="text-blue-500" title={t('blueprint:scaleSource.manual')} />
+                                        )}
+                                    </p>
+                                </div>
+                            )}
 
                             {blueprint?.croppedFrom && (
                                 <div>
@@ -2431,6 +2503,52 @@ const BlueprintView = () => {
 
                                     </svg>
                                     )}
+
+                                    {/* SCALE CAPTURE OVERLAY */}
+                                    {scaleMode && (
+                                        <svg
+                                            viewBox={imageRes.width > 0 ? `0 0 ${imageRes.width} ${imageRes.height}` : undefined}
+                                            preserveAspectRatio="none"
+                                            style={{
+                                                position: "absolute",
+                                                top: 0,
+                                                left: 0,
+                                                width: "100%",
+                                                height: "100%",
+                                                pointerEvents: "auto",
+                                                cursor: "crosshair",
+                                                zIndex: 10,
+                                            }}
+                                            onClick={handleScaleImageClick}
+                                        >
+                                            <rect x={0} y={0} width={imageRes.width} height={imageRes.height} fill="transparent" />
+
+                                            {scalePoints.length === 2 && (
+                                                <line
+                                                    x1={scalePoints[0].x}
+                                                    y1={scalePoints[0].y}
+                                                    x2={scalePoints[1].x}
+                                                    y2={scalePoints[1].y}
+                                                    stroke="#f97316"
+                                                    strokeWidth={Math.max(2, imageRes.width * 0.002)}
+                                                    strokeDasharray="8 4"
+                                                />
+                                            )}
+
+                                            {scalePoints.map((pt, i) => {
+                                                const r = Math.max(6, imageRes.width * 0.006)
+                                                const fontSize = Math.max(12, imageRes.width * 0.014)
+                                                return (
+                                                    <g key={i}>
+                                                        <circle cx={pt.x} cy={pt.y} r={r} fill="#f97316" stroke="white" strokeWidth={2} />
+                                                        <text x={pt.x + r + 4} y={pt.y - r} fill="#f97316" fontSize={fontSize} fontWeight="bold">
+                                                            P{i + 1}
+                                                        </text>
+                                                    </g>
+                                                )
+                                            })}
+                                        </svg>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -2624,6 +2742,23 @@ const BlueprintView = () => {
 
                                     <TooltipContent side="left">
                                         <p>{t('blueprint:sidebar.processBlueprintWithAi')}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            className="cursor-pointer"
+                                            size="icon"
+                                            variant={scaleMode ? "default" : "secondary"}
+                                            onClick={handleToggleScaleMode}
+                                        >
+                                            <FaRulerHorizontal className="text-[var(--text-h)] text-xl"/>
+                                        </Button>
+                                    </TooltipTrigger>
+
+                                    <TooltipContent side="left">
+                                        <p>{t('blueprint:sidebar.captureScale')}</p>
                                     </TooltipContent>
                                 </Tooltip>
 
@@ -2861,25 +2996,40 @@ const BlueprintView = () => {
                                         <p className="text-[var(--error)]">{t('blueprint:editOptions.errors.noSpecialty')}</p>
                                     )}
                                     <div className="grid grid-cols-2 gap-2 py-2">
-                                        {specialtyTagOptions.map((option) => {
-                                            const isSelected = specialtiesList.includes(option)
+                                        {SPECIALTIES.map((specialty) => {
+                                            const isSelected = specialtiesList.includes(specialty.tag)
 
                                             return (
                                                 <Button
-                                                    key={option}
+                                                    key={specialty.tag}
                                                     type="button"
                                                     variant="outline"
                                                     onClick={() => {
                                                         setNoSpecialty(false)
-                                                        handleAddOrDeleteSpecialty(option)
+                                                        handleAddOrDeleteSpecialty(specialty.tag)
                                                     }}
-                                                    className={`cursor-pointer transition-colors ${
+                                                    className={`relative cursor-pointer justify-start transition-colors ${
                                                         isSelected
                                                             ? "bg-[var(--accent)] text-[var(--text-h)]"
                                                             : ""
                                                     }`}
                                                 >
-                                                    {isSelected ? <FaCheck /> : ""} {t(`blueprint:specialtiesOptions.${option.toLocaleLowerCase()}`)}
+                                                    {isSelected && <FaCheck className="shrink-0" />}
+                                                    {specialty.label}
+                                                    {specialty.hasModel && (
+                                                        <TooltipProvider delayDuration={200}>
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <span className="absolute top-1 right-1.5">
+                                                                        <BsStars className="size-3 text-violet-400" />
+                                                                    </span>
+                                                                </TooltipTrigger>
+                                                                <TooltipContent side="top">
+                                                                    Inference model available
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                        </TooltipProvider>
+                                                    )}
                                                 </Button>
                                             )
                                         })}
@@ -3469,9 +3619,54 @@ const BlueprintView = () => {
                     </DialogContent>
                 </Dialog>
 
+                {/* SCALE INPUT DIALOG */}
+                <Dialog
+                    open={openScaleInputDialog}
+                    onOpenChange={(open) => { if (!open) handleScaleCancel() }}
+                >
+                    <DialogContent className="sm:max-w-sm">
+
+                        <DialogHeader>
+                            <DialogTitle>{t('blueprint:scaleDialog.title')}</DialogTitle>
+                            <DialogDescription>{t('blueprint:scaleDialog.description')}</DialogDescription>
+                        </DialogHeader>
+
+                        <Field>
+                            <Label>{t('blueprint:scaleDialog.label')}</Label>
+                            <Input
+                                type="number"
+                                min="0.001"
+                                step="any"
+                                placeholder={t('blueprint:scaleDialog.placeholder')}
+                                value={scaleRealLength}
+                                onChange={(e) => setScaleRealLength(e.target.value)}
+                                onKeyDown={(e) => { if (e.key === 'Enter') handleScaleConfirm() }}
+                            />
+                        </Field>
+
+                        <DialogFooter>
+                            <Button
+                                className="cursor-pointer"
+                                variant="outline"
+                                onClick={handleScaleCancel}
+                            >
+                                {t('common:cancel')}
+                            </Button>
+                            <Button
+                                className="cursor-pointer"
+                                onClick={handleScaleConfirm}
+                                disabled={isSavingScale || !scaleRealLength || parseFloat(scaleRealLength) <= 0}
+                            >
+                                {isSavingScale ? t('common:saving') : t('common:confirm')}
+                            </Button>
+                        </DialogFooter>
+
+                    </DialogContent>
+                </Dialog>
+
                 {/* WARNING DIALOG */}
                 <Dialog
-                    open={showLeaveDialog} 
+                    open={showLeaveDialog}
                     onOpenChange={setShowLeaveDialog}
                 >
                     <DialogContent className="sm:max-w-sm">

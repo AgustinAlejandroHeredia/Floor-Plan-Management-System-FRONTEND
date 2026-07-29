@@ -33,7 +33,8 @@ import { convertPdfToImages } from "@/utils/pdfToImage";
 import Toast from "@/components/Toast";
 import InfoDialog from "@/components/InfoDialog";
 import { Separator } from "@/components/ui/separator";
-import { specialtyTagOptions, type CustomField, type CustomFieldType, type EditProjectPayload, type ProjectOrganizationType, type ProjectStatus, type SpecialtyTag } from "@/types/types";
+import { type CustomField, type CustomFieldType, type EditProjectPayload, type ProjectOrganizationType, type ProjectStatus, type SpecialtyTag } from "@/types/types";
+import { SPECIALTIES, specialtyByTag } from "@/config/specialties";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 
 // TRANSLATION
@@ -440,18 +441,6 @@ const ProjectPage = () => {
 
   // COLORS
 
-  const specialtyColors: Record<SpecialtyTag, string> = {
-    structure:    "rgba(120, 120, 140, 0.55)",
-    architecture: "rgba(59,  130, 246, 0.55)",
-    cold_water:   "rgba(6,   182, 212, 0.55)",
-    hot_water:    "rgba(249, 115,  22, 0.55)",
-    electrical:   "rgba(234, 179,   8, 0.55)",
-    gas:          "rgba(34,  197,  94, 0.55)",
-    sewerage:     "rgba(161, 100,  55, 0.55)",
-    rainwater:    "rgba(20,  184, 166, 0.55)",
-    notes:        "rgba(168,  85, 247, 0.55)",
-    tables:       "rgba(236,  72, 153, 0.55)",
-  }
 
   const getProjectStatusColor = (status: ProjectStatus): string => {
       switch (status.toLocaleLowerCase()) {
@@ -609,9 +598,9 @@ const ProjectPage = () => {
                   <SelectContent position="popper">
                     <SelectGroup>
                       <SelectItem value="all">{t('project:filterOptions.all')}</SelectItem>
-                      {specialtyTagOptions.map((tag) => (
+                      {SPECIALTIES.map(({ tag, label }) => (
                         <SelectItem key={tag} value={tag}>
-                          {t(`project:filterOptions.${tag}`)}
+                          {label}
                         </SelectItem>
                       ))}
                     </SelectGroup>
@@ -694,23 +683,26 @@ const ProjectPage = () => {
                       </p>
                       {bp.specialties && bp.specialties.length > 0 && (
                         <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "6px" }}>
-                          {bp.specialties.map((specialty: SpecialtyTag) => (
-                            <span
-                              key={specialty}
-                              style={{
-                                fontSize: "10px",
-                                padding: "2px 7px",
-                                borderRadius: "9999px",
-                                background: specialtyColors[specialty],
-                                border: "1px solid rgba(255,255,255,0.35)",
-                                color: "white",
-                                fontWeight: "500",
-                                backdropFilter: "blur(4px)",
-                              }}
-                            >
-                              {t(`project:filterOptions.${specialty}`)}
-                            </span>
-                          ))}
+                          {bp.specialties.map((specialty: SpecialtyTag) => {
+                            const config = specialtyByTag[specialty]
+                            return (
+                              <span
+                                key={specialty}
+                                style={{
+                                  fontSize: "10px",
+                                  padding: "2px 7px",
+                                  borderRadius: "9999px",
+                                  background: config?.color ?? 'rgba(120,120,140,0.55)',
+                                  border: "1px solid rgba(255,255,255,0.35)",
+                                  color: "white",
+                                  fontWeight: "500",
+                                  backdropFilter: "blur(4px)",
+                                }}
+                              >
+                                {config?.label ?? specialty}
+                              </span>
+                            )
+                          })}
                         </div>
                       )}
                       {bp.tags && bp.tags.length > 0 && (

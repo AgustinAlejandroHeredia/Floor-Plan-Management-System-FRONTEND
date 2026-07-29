@@ -314,6 +314,8 @@ export interface BlueprintType {
   height?: number;
   croppedFrom?: string;
   cropsMade?: CropMadeType[];
+  scale?: number;
+  scale_source?: 'ai' | 'manual';
 }
 
 export interface CreateBlueprintPayload {
@@ -346,6 +348,8 @@ export interface UpdateBlueprintPayload {
   titleBlock?: string[];
   //areas
   sectionViews?: SectionView[];
+  scale?: number;
+  scale_source?: 'ai' | 'manual';
 }
 
 

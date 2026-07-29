@@ -613,7 +613,6 @@ const OrganizationPage = () => {
         <div
             className={`
                 fixed
-                top-4
                 right-5
                 z-50
                 transform
@@ -896,6 +895,12 @@ const OrganizationPage = () => {
                             />
                         ))}
                     </div>
+
+                    {organizationInvitationsList.length === 0 && (
+                        <div className="flex items-center justify-center py-12 text-center text-sm text-muted-foreground">
+                            <p>{t('organization:noInvitations')}</p>
+                        </div>
+                    )}
 
                 </div>
             </div>

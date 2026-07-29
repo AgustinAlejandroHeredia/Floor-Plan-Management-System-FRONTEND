@@ -23,7 +23,7 @@ export default function SectionNavigation({
   }
 
   return (
-    <div className="flex justify-end w-full">
+    <div className="sticky top-10 z-40 flex justify-end w-full">
       <Card className="bg-[var(--accent-bg)] py-1 px-1">
         <CardContent className="flex flex-wrap gap-2 p-1">
           {sections.map((section) => (

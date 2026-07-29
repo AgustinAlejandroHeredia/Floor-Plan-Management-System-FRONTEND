@@ -25,6 +25,7 @@
 
     "organizationSentInvitations": "Invitations sent",
     "organizationSentInvitationsCount": "Total invitations",
+    "noInvitations": "No invitations to show",
 
     "projectCreationDialog": {
         "title": "Creating new project",

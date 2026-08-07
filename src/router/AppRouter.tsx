@@ -7,6 +7,7 @@ import AppLayout from "../layout/AppLayout";
 import LoginPage from "../pages/LoginPage";
 import HomePage from "../pages/HomePage";
 import DevOptions from "../pages/DevOptions";
+import AdminModels from "@/pages/AdminModels";
 import OrganizationPage from "@/pages/OrganizationPage";
 import ErrorPage from "@/pages/ErrorPage";
 import MyProjectsPage from "@/pages/MyProjectsPage";
@@ -22,6 +23,8 @@ export function AppRouter() {
 
       {/* Ruta pública */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/ErrorPage/:message" element={<ErrorPage />} />
+      <Route path="/ErrorPage" element={<ErrorPage />} />
 
       {/* Rutas privadas */}
       <Route element={<ProtectedRoute />}>
@@ -33,6 +36,7 @@ export function AppRouter() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/DevOptions" element={<DevOptions />} />
+          <Route path="/AdminModels" element={<AdminModels />} />
         </Route>
       </Route>
 

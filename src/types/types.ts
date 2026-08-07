@@ -6,6 +6,59 @@ export type ActionPermission =
   | "admins"
   | "members"
 
+export type ModelTaskType =
+  | "keypoints"
+  | "instance segmentation"
+  | "object detection"
+  | "OCR"
+
+export interface ModelConfig {
+  confidence: number
+  slice_height: number
+  slice_width: number
+  rotation?: string
+  resize?: string
+  custom?: Record<string, string>
+  [key: string]: any
+}
+
+export interface ModelTrainingProvenance {
+  trained_released?: string
+  trained_by?: string
+  dataset?: string
+  train_images?: string
+  val_images?: string
+  test_images?: string
+  epochs?: string
+  hours?: string
+  notebook?: string
+  training_benchmark?: string
+  [key: string]: any
+}
+
+export interface ModelMetrics {
+  mAP50?: Record<string, number>
+  'mAP50-95'?: Record<string, number>
+  [key: string]: Record<string, number> | undefined
+}
+
+export interface ModelItem {
+  id: string
+  name: string
+  AEC_speciality?: string
+  task?: ModelTaskType
+  status?: string
+  model_type?: string
+  version?: string
+  model?: string
+  provenance?: ModelTrainingProvenance
+  metrics?: ModelMetrics
+  drive_id?: string
+  config?: ModelConfig
+  defaultModel?: boolean
+  [key: string]: any
+}
+
 export interface OrganizationType {
   _id: string
   name: string

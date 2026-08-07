@@ -6,9 +6,6 @@ import { useAuth0 } from "@auth0/auth0-react";
 
 import { Button } from "@/components/ui/button";
 
-// UI
-import { Separator } from "./ui/separator";
-
 // TRANSLATION
 import { useTranslation } from "react-i18next";
 
@@ -33,7 +30,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { IoMdCode, IoMdHome } from "react-icons/io";
 import { FaFileUpload, FaFolder, FaHistory } from "react-icons/fa";
-import { FiSidebar } from "react-icons/fi";
+import { FiSidebar, FiDatabase } from "react-icons/fi";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "./ui/tooltip";
 
 
@@ -57,7 +54,9 @@ const Sidebar = () => {
 
   useEffect(() => {
     if(error){
-      navigate(`/ErrorDisplay/${error.message}`);
+      navigate(`/ErrorPage/${encodeURIComponent(error.message)}`, {
+        state: { message: error.message },
+      });
     }
   }, [error, navigate])
 
@@ -251,7 +250,7 @@ const Sidebar = () => {
             {!isMinimized ? (
               <Button
                 variant="sidebar_nav_button"
-                onClick={() => handleRedirect("/devOptions")}
+                onClick={() => handleRedirect("/DevOptions")}
                 className="w-full flex justify-start items-center cursor-pointer"
               >
                 <span className="truncate w-full text-left">
@@ -264,7 +263,7 @@ const Sidebar = () => {
                   <Button
                     variant="sidebar_nav_button"
                     className="w-full flex items-center justify-center p-2 cursor-pointer"
-                    onClick={() => handleRedirect("/devOptions")}
+                    onClick={() => handleRedirect("/DevOptions")}
                   >
                     <IoMdCode className="w-6 h-6 shrink-0"/>
                   </Button>
@@ -275,6 +274,34 @@ const Sidebar = () => {
               </Tooltip>
             )}
             </>
+          )}
+
+          {/* MODEL REGISTRY AVAILABLE DURING DEV */}
+          {!isMinimized ? (
+            <Button
+              variant="sidebar_nav_button"
+              onClick={() => handleRedirect("/AdminModels")}
+              className="w-full flex justify-start items-center cursor-pointer"
+            >
+              <span className="truncate w-full text-left">
+                Model Registry
+              </span>
+            </Button>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="sidebar_nav_button"
+                  className="w-full flex items-center justify-center p-2 cursor-pointer"
+                  onClick={() => handleRedirect("/AdminModels")}
+                >
+                  <FiDatabase className="w-6 h-6 shrink-0" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Model Registry</p>
+              </TooltipContent>
+            </Tooltip>
           )}
 
         </div>

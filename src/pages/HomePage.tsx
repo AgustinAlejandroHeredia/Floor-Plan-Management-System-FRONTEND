@@ -63,7 +63,9 @@ const HomePage = () => {
 
   useEffect(() => {
     if (error) {
-      navigate(`/ErrorDisplay/${error.message}`);
+      navigate(`/ErrorPage/${encodeURIComponent(error.message)}`, {
+        state: { message: error.message },
+      });
     }
   }, [error, navigate]);
 

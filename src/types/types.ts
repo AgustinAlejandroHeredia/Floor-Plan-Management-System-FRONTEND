@@ -369,6 +369,8 @@ export interface BlueprintType {
   cropsMade?: CropMadeType[];
   scale?: number;
   scale_source?: 'ai' | 'manual';
+  orientation?: number;
+  orientation_source?: 'ai' | 'manual';
 }
 
 export interface CreateBlueprintPayload {

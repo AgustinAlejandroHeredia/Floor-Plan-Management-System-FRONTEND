@@ -7,6 +7,7 @@
         "specialties": "Especialidades",
         "levels": "Pisos",
         "scale": "Escala",
+        "orientation": "Orientación",
         "areas": "Áreas",
         "cropFrom": "Recortado de",
         "cropsMade": "Recortes realizados",
@@ -27,6 +28,10 @@
 
     "isSelectingScale": {
         "description": "Seleccionando escala: esperando a que el usuario seleccione dos (2) puntos en el plano"
+    },
+
+    "isSelectingOrientation": {
+        "description": "Seleccionando orientación: haga clic primero en el punto sur y luego en el punto norte del plano"
     },
 
     "changesWarning": {
@@ -52,6 +57,7 @@
         "ai": "IA",
         "processBlueprintWithAi": "Procesar plano con IA",
         "captureScale": "Capturar escala",
+        "captureOrientation": "Capturar orientación",
         "addNewArea": "Añadir nueva área",
         "saveGeneratedAreas": "Guardar áreas generadas",
         "deleteBlueprint": "Eliminar plano"
@@ -225,6 +231,33 @@
         "description": "Seleccionaste 2 puntos en el plano. Ingresá la distancia real entre ellos.",
         "label": "Distancia real",
         "placeholder": "ej. 5.5"
+    },
+
+    "scaleMethodDialog": {
+        "title": "Escala y orientación",
+        "description": "Elegí cómo querés establecer la escala y orientación del plano.",
+        "ai": "Usar detección con IA",
+        "manual": "Establecer manualmente"
+    },
+
+    "orientationMethodDialog": {
+        "title": "Establecer orientación",
+        "description": "Elegí cómo querés establecer la orientación del plano.",
+        "ai": "Usar detección con IA",
+        "manual": "Establecer manualmente"
+    },
+
+    "orientationGuideDialog": {
+        "title": "Establecer orientación",
+        "description": "Hacé clic primero en el punto sur y luego en el punto norte del plano para continuar.",
+        "dontShowAgain": "No mostrar este mensaje nuevamente"
+    },
+
+    "orientationDialog": {
+        "title": "Establecer orientación",
+        "description": "Ingresá el ángulo de orientación del plano en grados.",
+        "label": "Ángulo de orientación",
+        "placeholder": "ej. 35"
     },
 
     "scaleSource": {

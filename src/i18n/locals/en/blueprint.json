@@ -7,6 +7,7 @@
         "specialties": "Specialties",
         "levels": "Levels",
         "scale": "Scale",
+        "orientation": "Orientation",
         "areas": "Areas",
         "cropFrom": "Cropped from",
         "cropsMade": "Crops made",
@@ -27,6 +28,10 @@
 
     "isSelectingScale": {
         "description": "Selecting scale: waiting for the user to select two (2) points on the blueprint"
+    },
+
+    "isSelectingOrientation": {
+        "description": "Selecting orientation: click first the south point and then the north point on the blueprint"
     },
 
     "changesWarning": {
@@ -52,6 +57,7 @@
         "ai": "AI",
         "processBlueprintWithAi": "Process blueprint with AI",
         "captureScale": "Capture scale",
+        "captureOrientation": "Capture orientation",
         "addNewArea": "Add new area",
         "saveGeneratedAreas": "Save generated areas",
         "deleteBlueprint": "Delete blueprint"
@@ -130,7 +136,6 @@
         "type": "Type",
         "undo": "Undo"
     },
-
 
     "shapeTypes": {
         "rectangle": "Rectangle",
@@ -226,6 +231,33 @@
         "description": "You picked 2 points on the blueprint. Enter the real-world distance between them.",
         "label": "Real length",
         "placeholder": "e.g. 5.5"
+    },
+
+    "scaleMethodDialog": {
+        "title": "Blueprint Scale",
+        "description": "Choose how you want to set the blueprint scale. On manual mode, you will need to select two points on the blueprint and enter the real-world distance between them.",
+        "ai": "Use AI detection",
+        "manual": "Set manually"
+    },
+
+    "orientationMethodDialog": {
+        "title": "Set orientation",
+        "description": "Choose how you want to set the orientation of the plan",
+        "ai": "Use AI detection",
+        "manual": "Set manually"
+    },
+
+    "orientationGuideDialog": {
+        "title": "Set orientation",
+        "description": "First click on the south point and then on the north point of the map to continue.",
+        "dontShowAgain": "Do not show this message again."
+    },
+
+    "orientationDialog": {
+        "title": "Set orientation",
+        "description": "Enter the orientation angle of the plane in degrees.",
+        "label": "Orientation angle",
+        "placeholder": "e.g., 35"
     },
 
     "scaleSource": {

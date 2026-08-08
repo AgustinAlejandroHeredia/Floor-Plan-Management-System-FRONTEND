@@ -3,6 +3,7 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 import { useUser } from "@/context/UserContext";
 import { ModelService } from "@/services/ModelService";
 import type { ModelConfig, ModelItem } from "@/types/types";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogClose, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -35,7 +36,7 @@ const getReleaseDate = (provenance?: Record<string, any>) => {
 const AdminModels = () => {
   const navigate = useNavigate();
   const { user } = useUser();
-  const isAdmin = user?.globalRole === "super_admin";
+  const canManageModels = user?.globalRole === "super_admin" || user?.email?.toLowerCase() === "martinurbieta@gmail.com";
   const { setBreadcrumbs } = useOutletContext<LayoutContextType>();
   const [models, setModels] = useState<ModelItem[]>([]);
   const [search, setSearch] = useState("");
@@ -133,7 +134,7 @@ const AdminModels = () => {
     <div className="p-6 text-foreground">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-foreground">Model Registry</h1>
-        {isAdmin && <Button onClick={openCreate}>Add Model</Button>}
+        {canManageModels && <Button onClick={openCreate} className="gap-2"><Plus className="h-4 w-4" />Add Model</Button>}
       </div>
       <div className="flex gap-3 mb-4">
         <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name, id, speciality" />
@@ -235,9 +236,9 @@ const AdminModels = () => {
                 </td>
                 <td className="p-3">{model.status}</td>
                 <td className="p-3 flex gap-2 flex-wrap">
-                  {isAdmin && <Button variant="outline" size="sm" onClick={() => openEdit(model)}>Edit</Button>}
+                  {canManageModels && <Button variant="outline" size="sm" onClick={() => openEdit(model)}>Edit</Button>}
                   <Button variant="outline" size="sm" onClick={() => navigate(`/DevOptions`)}>View Metrics</Button>
-                  {isAdmin && <Button variant="destructive" size="sm" onClick={() => handleDelete(model.id)}>Delete</Button>}
+                  {canManageModels && <Button variant="destructive" size="sm" onClick={() => handleDelete(model.id)}>Delete</Button>}
                 </td>
               </tr>
             ))}

@@ -141,4 +141,31 @@ export const BlueprintViewService = {
         }
     },
 
+    saveOrientation: async (blueprintId: string, orientation: number): Promise<boolean> => {
+        try {
+            await api.patch(`/blueprints/${blueprintId}`, { orientation, orientation_source: 'manual' })
+            return true
+        } catch {
+            return false
+        }
+    },
+
+    detectScaleAndOrientation: async (blueprintId: string): Promise<{ scale: number | null; orientation: number | null; scale_source: 'ai' | null; orientation_source: 'ai' | null } | null> => {
+        try {
+            const response = await api.patch(`/blueprints/${blueprintId}/scale/ai`)
+            return response.data
+        } catch {
+            return null
+        }
+    },
+
+    detectOrientation: async (blueprintId: string): Promise<{ orientation: number | null; orientation_source: 'ai' | null } | null> => {
+        try {
+            const response = await api.patch(`/blueprints/${blueprintId}/orientation/ai`)
+            return response.data
+        } catch {
+            return null
+        }
+    },
+
 }

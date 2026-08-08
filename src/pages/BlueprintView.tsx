@@ -12,7 +12,7 @@ import { BlueprintViewService } from "@/services/BlueprintViewService";
 
 // ICONS
 import { MdEdit } from "react-icons/md";
-import { FaCheck, FaChevronDown, FaChevronUp, FaFileDownload, FaRegCheckSquare, FaRegSquare, FaRulerHorizontal, FaUser } from "react-icons/fa";
+import { FaCheck, FaChevronDown, FaChevronUp, FaCompass, FaFileDownload, FaRegCheckSquare, FaRegSquare, FaRulerHorizontal, FaUser } from "react-icons/fa";
 import { BsScissors, BsStars } from "react-icons/bs";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { GrFormView, GrFormViewHide } from "react-icons/gr";
@@ -262,8 +262,17 @@ const BlueprintView = () => {
     const [scaleMode, setScaleMode] = useState<boolean>(false)
     const [scalePoints, setScalePoints] = useState<Point[]>([])
     const [openScaleInputDialog, setOpenScaleInputDialog] = useState<boolean>(false)
+    const [openScaleMethodDialog, setOpenScaleMethodDialog] = useState<boolean>(false)
     const [scaleRealLength, setScaleRealLength] = useState<string>("")
     const [isSavingScale, setIsSavingScale] = useState<boolean>(false)
+    const [isDetectingScale, setIsDetectingScale] = useState<boolean>(false)
+
+    // ORIENTATION CAPTURE
+    const [orientationMode, setOrientationMode] = useState<boolean>(false)
+    const [orientationPoints, setOrientationPoints] = useState<Point[]>([])
+    const [openOrientationMethodDialog, setOpenOrientationMethodDialog] = useState<boolean>(false)
+    const [isSavingOrientation, setIsSavingOrientation] = useState<boolean>(false)
+    const [isDetectingOrientation, setIsDetectingOrientation] = useState<boolean>(false)
 
     // CHANGES WARNING
     const [warningState, setWarningState] = useState<number>(0)
@@ -1097,9 +1106,54 @@ const BlueprintView = () => {
     // SCALE FUNCTIONS
 
     const handleToggleScaleMode = () => {
-        setScaleMode(prev => !prev)
-        setScalePoints([])
-        setScaleRealLength("")
+        if (scaleMode) {
+            setScaleMode(false)
+            setScalePoints([])
+            setScaleRealLength("")
+            setOpenScaleInputDialog(false)
+            setOpenScaleMethodDialog(false)
+            return
+        }
+
+        setOpenScaleMethodDialog(true)
+    }
+
+    const handleScaleMethodSelection = async (method: 'ai' | 'manual') => {
+        setOpenScaleMethodDialog(false)
+
+        if (method === 'manual') {
+            setScaleMode(true)
+            setScalePoints([])
+            setScaleRealLength("")
+            return
+        }
+
+        if (!blueprint?._id) {
+            setErrorAlertMessage(t('blueprint:errorMessages.errorSavingScale'))
+            setOpenErrorAlert(true)
+            return
+        }
+
+        setIsDetectingScale(true)
+        const detectionResult = await BlueprintViewService.detectScaleAndOrientation(blueprint._id)
+        setIsDetectingScale(false)
+
+        if (!detectionResult) {
+            setErrorAlertMessage(t('blueprint:errorMessages.errorSavingScale'))
+            setOpenErrorAlert(true)
+            return
+        }
+
+        setBlueprint(prev => {
+            if (!prev) return prev
+            return {
+                ...prev,
+                scale: detectionResult.scale ?? prev.scale,
+                scale_source: detectionResult.scale_source ?? prev.scale_source,
+                orientation: detectionResult.orientation ?? prev.orientation,
+                orientation_source: detectionResult.orientation_source ?? prev.orientation_source,
+            }
+        })
     }
 
     const handleScaleImageClick = (e: React.MouseEvent<SVGSVGElement>) => {
@@ -1139,6 +1193,85 @@ const BlueprintView = () => {
         setScaleMode(false)
         setScalePoints([])
         setScaleRealLength("")
+    }
+
+    const handleToggleOrientationMode = () => {
+        if (openOrientationMethodDialog || orientationMode) {
+            setOpenOrientationMethodDialog(false)
+            setOrientationMode(false)
+            setOrientationPoints([])
+            return
+        }
+
+        setOpenOrientationMethodDialog(true)
+    }
+
+    const handleOrientationMethodSelection = async (method: 'ai' | 'manual') => {
+
+        setOpenOrientationMethodDialog(false)
+
+        if (method === 'manual') {
+            setOrientationMode(true)
+            setOrientationPoints([])
+
+            return
+       }
+
+        if (!blueprint?._id) {
+            setErrorAlertMessage(t('blueprint:errorMessages.errorSavingScale'))
+            setOpenErrorAlert(true)
+            return
+        }
+
+        setIsDetectingOrientation(true)
+        const detectionResult = await BlueprintViewService.detectOrientation(blueprint._id)
+        setIsDetectingOrientation(false)
+
+        if (!detectionResult) {
+            setErrorAlertMessage(t('blueprint:errorMessages.errorSavingScale'))
+            setOpenErrorAlert(true)
+            return
+        }
+
+        setBlueprint(prev => {
+            if (!prev) return prev
+            return {
+                ...prev,
+                orientation: detectionResult.orientation ?? prev.orientation,
+                orientation_source: detectionResult.orientation_source ?? prev.orientation_source,
+            }
+        })
+    }
+
+    const handleOrientationImageClick = async (e: React.MouseEvent<SVGSVGElement>) => {
+        if (!orientationMode || orientationPoints.length >= 2) return
+
+        const coords = getImageCoordinates(e.clientX, e.clientY)
+        if (!coords) return
+
+        const newPoints = [...orientationPoints, coords]
+        setOrientationPoints(newPoints)
+
+        if (newPoints.length === 2 && blueprint) {
+            const [southPoint, northPoint] = newPoints
+            const dx = northPoint.x - southPoint.x
+            const dy = northPoint.y - southPoint.y
+            const angle = (Math.atan2(dx, -dy) * 180 / Math.PI + 360) % 360
+
+            setIsSavingOrientation(true)
+            const ok = await BlueprintViewService.saveOrientation(blueprint._id, angle)
+            setIsSavingOrientation(false)
+
+            if (ok) {
+                setBlueprint(prev => prev ? { ...prev, orientation: angle, orientation_source: 'manual' } : prev)
+            } else {
+                setErrorAlertMessage(t('blueprint:errorMessages.errorSavingScale'))
+                setOpenErrorAlert(true)
+            }
+
+            setOrientationMode(false)
+            setOrientationPoints([])
+        }
     }
 
     // EDIT AREA FUNCTIONS
@@ -1592,6 +1725,23 @@ const BlueprintView = () => {
                                 </div>
                             )}
 
+                            {blueprint?.orientation !== undefined && (
+                                <div>
+                                    <p className="text-sm text-muted-foreground">
+                                        {t('blueprint:blueprintCharacteristics.orientation')}
+                                    </p>
+                                    <p className="font-semibold text-[var(--text-h)] flex items-center gap-1">
+                                        {blueprint.orientation.toFixed(2)}°
+                                        {blueprint.orientation_source === 'ai' && (
+                                            <BsStars className="text-purple-500" title="AI" />
+                                        )}
+                                        {blueprint.orientation_source === 'manual' && (
+                                            <FaUser className="text-blue-500" title={t('blueprint:scaleSource.manual')} />
+                                        )}
+                                    </p>
+                                </div>
+                            )}
+
                             {blueprint?.croppedFrom && (
                                 <div>
                                     <p className="text-sm text-muted-foreground">
@@ -1828,6 +1978,21 @@ const BlueprintView = () => {
                     <Button variant="destructive" size="sm" onClick={() => setScaleMode(false)}>
                         {t('common:cancel')}
                     </Button>
+                </div>
+                )}
+
+                {/* SELECTING ORIENTATION TEXT */}
+                {orientationMode && !editAreaMode && !cropMode && (
+                <div className="flex flex-col items-center justify-center gap-2 text-center my-4 mt-8">
+                    <p className="text-sm text-muted-foreground">
+                        {t('blueprint:isSelectingOrientation.description')}
+                    </p>
+                    <Button variant="destructive" size="sm" onClick={() => {
+                            setOrientationMode(false)
+                            setOrientationPoints([])
+                    }}>
+                                    {t('common:cancel')}
+                                </Button>
                 </div>
                 )}
 
@@ -2516,8 +2681,8 @@ const BlueprintView = () => {
                                     </svg>
                                     )}
 
-                                    {/* SCALE CAPTURE OVERLAY */}
-                                    {scaleMode && (
+                                    {/* SCALE / ORIENTATION CAPTURE OVERLAY */}
+                                    {(scaleMode || orientationMode) && (
                                         <svg
                                             viewBox={imageRes.width > 0 ? `0 0 ${imageRes.width} ${imageRes.height}` : undefined}
                                             preserveAspectRatio="none"
@@ -2531,30 +2696,31 @@ const BlueprintView = () => {
                                                 cursor: "crosshair",
                                                 zIndex: 10,
                                             }}
-                                            onClick={handleScaleImageClick}
+                                            onClick={scaleMode ? handleScaleImageClick : handleOrientationImageClick}
                                         >
                                             <rect x={0} y={0} width={imageRes.width} height={imageRes.height} fill="transparent" />
 
-                                            {scalePoints.length === 2 && (
+                                            {(scaleMode ? scalePoints.length === 2 : orientationPoints.length === 2) && (
                                                 <line
-                                                    x1={scalePoints[0].x}
-                                                    y1={scalePoints[0].y}
-                                                    x2={scalePoints[1].x}
-                                                    y2={scalePoints[1].y}
+                                                    x1={(scaleMode ? scalePoints[0] : orientationPoints[0]).x}
+                                                    y1={(scaleMode ? scalePoints[0] : orientationPoints[0]).y}
+                                                    x2={(scaleMode ? scalePoints[1] : orientationPoints[1]).x}
+                                                    y2={(scaleMode ? scalePoints[1] : orientationPoints[1]).y}
                                                     stroke="#f97316"
                                                     strokeWidth={Math.max(2, imageRes.width * 0.002)}
                                                     strokeDasharray="8 4"
                                                 />
                                             )}
 
-                                            {scalePoints.map((pt, i) => {
+                                            {(scaleMode ? scalePoints : orientationPoints).map((pt, i) => {
                                                 const r = Math.max(6, imageRes.width * 0.006)
                                                 const fontSize = Math.max(12, imageRes.width * 0.014)
+                                                const label = scaleMode ? `P${i + 1}` : i === 0 ? 'S' : 'N'
                                                 return (
                                                     <g key={i}>
                                                         <circle cx={pt.x} cy={pt.y} r={r} fill="#f97316" stroke="white" strokeWidth={2} />
                                                         <text x={pt.x + r + 4} y={pt.y - r} fill="#f97316" fontSize={fontSize} fontWeight="bold">
-                                                            P{i + 1}
+                                                            {label}
                                                         </text>
                                                     </g>
                                                 )
@@ -2771,6 +2937,23 @@ const BlueprintView = () => {
 
                                     <TooltipContent side="left">
                                         <p>{t('blueprint:sidebar.captureScale')}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            className="cursor-pointer"
+                                            size="icon"
+                                            variant={openOrientationMethodDialog || orientationMode ? "default" : "secondary"}
+                                            onClick={handleToggleOrientationMode}
+                                        >
+                                            <FaCompass className="text-[var(--text-h)] text-xl"/>
+                                        </Button>
+                                    </TooltipTrigger>
+
+                                    <TooltipContent side="left">
+                                        <p>{t('blueprint:sidebar.captureOrientation')}</p>
                                     </TooltipContent>
                                 </Tooltip>
 
@@ -3628,6 +3811,70 @@ const BlueprintView = () => {
                             </Button>
                         </DialogFooter>
 
+                    </DialogContent>
+                </Dialog>
+
+                {/* SCALE METHOD DIALOG */}
+                <Dialog
+                    open={openScaleMethodDialog}
+                    onOpenChange={(open) => {
+                        if (!open) {
+                            setOpenScaleMethodDialog(false)
+                        }
+                    }}
+                >
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle>{t('blueprint:scaleMethodDialog.title')}</DialogTitle>
+                            <DialogDescription>{t('blueprint:scaleMethodDialog.description')}</DialogDescription>
+                        </DialogHeader>
+
+                        <div className="grid gap-3 py-2">
+                            <Button className="cursor-pointer" onClick={() => void handleScaleMethodSelection('ai')} disabled={isDetectingScale}>
+                                {isDetectingScale ? t('common:saving') : t('blueprint:scaleMethodDialog.ai')}
+                            </Button>
+                            <Button className="cursor-pointer" variant="outline" onClick={() => void handleScaleMethodSelection('manual')}>
+                                {t('blueprint:scaleMethodDialog.manual')}
+                            </Button>
+                        </div>
+
+                        <DialogFooter>
+                            <Button className="cursor-pointer" variant="outline" onClick={() => setOpenScaleMethodDialog(false)}>
+                                {t('common:cancel')}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                {/* ORIENTATION METHOD DIALOG */}
+                <Dialog
+                    open={openOrientationMethodDialog}
+                    onOpenChange={(open) => {
+                        if (!open) {
+                            setOpenOrientationMethodDialog(false)
+                        }
+                    }}
+                >
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle>{t('blueprint:orientationMethodDialog.title')}</DialogTitle>
+                            <DialogDescription>{t('blueprint:orientationMethodDialog.description')}</DialogDescription>
+                        </DialogHeader>
+
+                        <div className="grid gap-3 py-2">
+                            <Button className="cursor-pointer" onClick={() => void handleOrientationMethodSelection('ai')} disabled={isDetectingOrientation}>
+                                {isDetectingOrientation ? t('common:saving') : t('blueprint:orientationMethodDialog.ai')}
+                            </Button>
+                            <Button className="cursor-pointer" variant="outline" onClick={() => void handleOrientationMethodSelection('manual')}>
+                                {t('blueprint:orientationMethodDialog.manual')}
+                            </Button>
+                        </div>
+
+                        <DialogFooter>
+                            <Button className="cursor-pointer" variant="outline" onClick={() => setOpenOrientationMethodDialog(false)}>
+                                {t('common:cancel')}
+                            </Button>
+                        </DialogFooter>
                     </DialogContent>
                 </Dialog>
 

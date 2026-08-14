@@ -17,6 +17,7 @@ import { BsScissors, BsStars } from "react-icons/bs";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { GrFormView, GrFormViewHide } from "react-icons/gr";
 import { TfiSave } from "react-icons/tfi";
+import { RiSave3Fill } from "react-icons/ri";
 import { CgUndo } from "react-icons/cg";
 
 // UI COMPONENTS
@@ -2985,7 +2986,7 @@ const BlueprintView = () => {
                                                 variant="secondary"
                                                 onClick={() => setOpenSaveAreasDialog(true)}
                                             >
-                                                <TfiSave className="text-[var(--text-h)] text-xl"/>
+                                                <RiSave3Fill className="text-[var(--text-h)] text-xl"/>
                                             </Button>
                                         </TooltipTrigger>
 

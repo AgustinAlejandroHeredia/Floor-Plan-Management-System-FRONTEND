@@ -247,61 +247,62 @@ const Sidebar = () => {
           {/* SOLO SUPER ADMIN */}
           {user?.globalRole === "super_admin" && (
             <>
-            {!isMinimized ? (
-              <Button
-                variant="sidebar_nav_button"
-                onClick={() => handleRedirect("/DevOptions")}
-                className="w-full flex justify-start items-center cursor-pointer"
-              >
-                <span className="truncate w-full text-left">
-                  {t('sidebar:devOptions')}
-                </span>
-              </Button>
-            ) : (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="sidebar_nav_button"
-                    className="w-full flex items-center justify-center p-2 cursor-pointer"
-                    onClick={() => handleRedirect("/DevOptions")}
-                  >
-                    <IoMdCode className="w-6 h-6 shrink-0"/>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p>{t('sidebar:devOptions')}</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
-            </>
-          )}
 
-          {/* MODEL REGISTRY AVAILABLE DURING DEV */}
-          {!isMinimized ? (
-            <Button
-              variant="sidebar_nav_button"
-              onClick={() => handleRedirect("/AdminModels")}
-              className="w-full flex justify-start items-center cursor-pointer"
-            >
-              <span className="truncate w-full text-left">
-                Model Registry
-              </span>
-            </Button>
-          ) : (
-            <Tooltip>
-              <TooltipTrigger asChild>
+              {!isMinimized ? (
                 <Button
                   variant="sidebar_nav_button"
-                  className="w-full flex items-center justify-center p-2 cursor-pointer"
-                  onClick={() => handleRedirect("/AdminModels")}
+                  onClick={() => handleRedirect("/DevOptions")}
+                  className="w-full flex justify-start items-center cursor-pointer"
                 >
-                  <FiDatabase className="w-6 h-6 shrink-0" />
+                  <span className="truncate w-full text-left">
+                    {t('sidebar:devOptions')}
+                  </span>
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>Model Registry</p>
-              </TooltipContent>
-            </Tooltip>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="sidebar_nav_button"
+                      className="w-full flex items-center justify-center p-2 cursor-pointer"
+                      onClick={() => handleRedirect("/DevOptions")}
+                    >
+                      <IoMdCode className="w-6 h-6 shrink-0"/>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    <p>{t('sidebar:devOptions')}</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+
+              {/* MODEL REGISTRY AVAILABLE DURING DEV */}
+              {!isMinimized ? (
+                <Button
+                  variant="sidebar_nav_button"
+                  onClick={() => handleRedirect("/AdminModels")}
+                  className="w-full flex justify-start items-center cursor-pointer"
+                >
+                  <span className="truncate w-full text-left">
+                    Model Registry
+                  </span>
+                </Button>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="sidebar_nav_button"
+                      className="w-full flex items-center justify-center p-2 cursor-pointer"
+                      onClick={() => handleRedirect("/AdminModels")}
+                    >
+                      <FiDatabase className="w-6 h-6 shrink-0" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    <p>Model Registry</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </>
           )}
 
         </div>

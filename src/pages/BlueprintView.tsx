@@ -1173,7 +1173,7 @@ const BlueprintView = () => {
         if (!realLength || realLength <= 0 || scalePoints.length !== 2 || !blueprint) return
         const [p1, p2] = scalePoints
         const pixelDist = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2)
-        const scale = pixelDist / realLength
+        const scale = realLength / pixelDist
         setIsSavingScale(true)
         const ok = await BlueprintViewService.saveScale(blueprint._id, scale, 'manual')
         setIsSavingScale(false)
@@ -1715,7 +1715,7 @@ const BlueprintView = () => {
                                         {t('blueprint:blueprintCharacteristics.scale')}
                                     </p>
                                     <p className="font-semibold text-[var(--text-h)] flex items-center gap-1">
-                                        {blueprint.scale.toFixed(2)} px/u
+                                        {blueprint.scale.toFixed(6)} u/px
                                         {blueprint.scale_source === 'ai' && (
                                             <BsStars className="text-purple-500" title="AI" />
                                         )}

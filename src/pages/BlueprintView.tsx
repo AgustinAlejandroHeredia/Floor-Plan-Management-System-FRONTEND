@@ -820,9 +820,11 @@ const BlueprintView = () => {
         BlueprintViewService.getLatestInferenceJob(blueprintId)
             .then(job => {
                 if (cancelled) return
-                if (job?.status === 'Processed' && job.result?.predictions) {
+                if (job?.status === 'Processed' && Array.isArray(job.result) && job.result.length > 0) {
 
-                    const predictions = job.result.predictions as YoloPrediction[]
+                    const predictions = job.result.flatMap(
+                        (modelResult: any) => modelResult?.predictions ?? []
+                    ) as YoloPrediction[]
 
                     console.log("EN EL USE EFFECT -> PREDICTIONS : ", predictions)
 

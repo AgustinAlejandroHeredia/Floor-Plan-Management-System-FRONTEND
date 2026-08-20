@@ -158,6 +158,10 @@ const BlueprintView = () => {
     const [openErrorAlert, setOpenErrorAlert] = useState<boolean>(false)
     const [errorAlertMessage, setErrorAlertMessage] = useState<string>("")
 
+    // NO DETECTIONS ALERT
+    const [openNoDetectionsAlert, setOpenNoDetectionsAlert] = useState<boolean>(false)
+    const [noDetectionsMessage, setNoDetectionsMessage] = useState<string>("")
+
     // SECTION VIEW VARIABLES
     const [isProcessing, setIsProcessing] = useState<boolean>(false)
     const blueprintImageRef = useRef<HTMLDivElement | null>(null)
@@ -820,9 +824,11 @@ const BlueprintView = () => {
         BlueprintViewService.getLatestInferenceJob(blueprintId)
             .then(job => {
                 if (cancelled) return
-                if (job?.status === 'Processed' && job.result?.predictions) {
+                if (job?.status === 'Processed' && Array.isArray(job.result) && job.result.length > 0) {
 
-                    const predictions = job.result.predictions as YoloPrediction[]
+                    const predictions = job.result.flatMap(
+                        (modelResult: any) => modelResult?.predictions ?? []
+                    ) as YoloPrediction[]
 
                     console.log("EN EL USE EFFECT -> PREDICTIONS : ", predictions)
 
@@ -919,6 +925,19 @@ const BlueprintView = () => {
                             conversionToSectionView,
                     }
                 })
+
+                const modelsWithNoDetections = (completed.result.modelSummaries ?? [])
+                    .filter((summary: { count: number }) => summary.count === 0)
+                    .map((summary: { modelName: string }) => summary.modelName)
+
+                if (modelsWithNoDetections.length > 0) {
+                    setNoDetectionsMessage(
+                        t('blueprint:noDetectionsAlert.description', {
+                            models: modelsWithNoDetections.join(', '),
+                        })
+                    )
+                    setOpenNoDetectionsAlert(true)
+                }
             } else if (completed.status === 'Error') {
                 setErrorAlertMessage(completed.result?.error ?? t('blueprint:errorMessages.processingFailed'))
                 setOpenErrorAlert(true)
@@ -1173,7 +1192,7 @@ const BlueprintView = () => {
         if (!realLength || realLength <= 0 || scalePoints.length !== 2 || !blueprint) return
         const [p1, p2] = scalePoints
         const pixelDist = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2)
-        const scale = pixelDist / realLength
+        const scale = realLength / pixelDist
         setIsSavingScale(true)
         const ok = await BlueprintViewService.saveScale(blueprint._id, scale, 'manual')
         setIsSavingScale(false)
@@ -1715,7 +1734,7 @@ const BlueprintView = () => {
                                         {t('blueprint:blueprintCharacteristics.scale')}
                                     </p>
                                     <p className="font-semibold text-[var(--text-h)] flex items-center gap-1">
-                                        {blueprint.scale.toFixed(2)} px/u
+                                        {blueprint.scale.toFixed(6)} u/px
                                         {blueprint.scale_source === 'ai' && (
                                             <BsStars className="text-purple-500" title="AI" />
                                         )}
@@ -1858,9 +1877,9 @@ const BlueprintView = () => {
                                         <input
                                             className="cursor-pointer"
                                             type="range"
-                                            min={0.1}
+                                            min={0.0}
                                             max={1}
-                                            step={0.1}
+                                            step={0.05}
                                             value={confidenceSelection}
                                             onChange={(e) => setConfidenceSelection(Number(e.target.value))}
                                             style={{
@@ -3520,6 +3539,14 @@ const BlueprintView = () => {
                     onOpenChange={setOpenErrorAlert}
                     title={t('common:error')}
                     description={errorAlertMessage}
+                />
+
+                {/* ALERT NO DETECTIONS */}
+                <InfoDialog
+                    open={openNoDetectionsAlert}
+                    onOpenChange={setOpenNoDetectionsAlert}
+                    title={t('blueprint:noDetectionsAlert.title')}
+                    description={noDetectionsMessage}
                 />
 
                 {/* ================= DIALOG CREATE CROP ================= */}

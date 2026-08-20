@@ -1,0 +1,137 @@
+{
+  "nav": {
+    "brand": "FloorPlan AI",
+    "features": "Características",
+    "showcase": "Demos en Video",
+    "aiEngine": "Motor de IA",
+    "workflow": "Cómo Funciona",
+    "login": "Iniciar Sesión",
+    "dashboard": "Ir a la Plataforma",
+    "getStarted": "Comenzar Ahora"
+  },
+  "hero": {
+    "badge": "Revolución en Gestión Arquitectónica con IA",
+    "titlePrefix": "Gestión y Análisis Inteligente de",
+    "titleHighlight": "Planos Arquitectónicos",
+    "titleSuffix": "en Segundos",
+    "description": "Transforma planos 2D y archivos PDF en modelos interactivos con detección automática de espacios, cálculo milimétrico de áreas por Inteligencia Artificial y gestión colaborativa por niveles y proyectos.",
+    "ctaPrimary": "Explorar Plataforma",
+    "ctaSecondary": "Ver Demostración en Video",
+    "metric1Value": "99.4%",
+    "metric1Label": "Precisión de Detección",
+    "metric2Value": "< 3 seg",
+    "metric2Label": "Tiempo de Análisis IA",
+    "metric3Value": "100%",
+    "metric3Label": "Control Multiusuario"
+  },
+  "showcase": {
+    "badge": "Showcase Multimedia",
+    "title": "Descubre la Potencia de Cada Módulo",
+    "subtitle": "Observa en acción cómo FloorPlan Management System automatiza los flujos de trabajo más complejos para arquitectos, ingenieros y gestores inmobiliarios.",
+    "tabs": {
+      "upload": {
+        "title": "Subida y Calibración",
+        "tag": "Paso 01",
+        "description": "Carga archivos PDF multipágina o imágenes en alta resolución. El sistema detecta automáticamente la orientación del plano, escala gráfica y te permite seleccionar páginas específicas para procesar.",
+        "points": [
+          "Soporte nativo para PDFs de múltiples páginas con previsualización rápida.",
+          "Detección inteligente de orientación y nivelación automática.",
+          "Herramientas de recorte para aislar secciones o departamentos."
+        ]
+      },
+      "editor": {
+        "title": "Editor Interactivo",
+        "tag": "Paso 02",
+        "description": "Un lienzo de trabajo con calibración de escala métrica/imperial con regla, navegación fluida, capas por especialidad y control de visibilidad por habitaciones.",
+        "points": [
+          "Calibración de escala con herramienta de regla interactiva.",
+          "Soporte multicapa para arquitectura, estructura e instalaciones.",
+          "Zoom ultra fluido con soporte para planos de gigapíxeles."
+        ]
+      },
+      "areas": {
+        "title": "Gestión de Áreas",
+        "tag": "Paso 03",
+        "description": "Dibuja, ajusta y asigna polígonos a recintos con precisión subpíxel. Calcula automáticamente metros cuadrados, perímetros y clasifica por tipología de espacio.",
+        "points": [
+          "Trazado dinámico de polígonos con manipulación de vértices.",
+          "Cálculo instantáneo de superficie ($m^2$) y perímetro.",
+          "Codificación de colores según especialidad o destino de uso."
+        ]
+      },
+      "ai": {
+        "title": "Inferencia con IA (YOLO)",
+        "tag": "Paso 04",
+        "description": "Nuestros modelos de Visión Computacional basados en redes neuronales YOLO detectan automáticamente ambientes, muros, puertas y ventanas en cuestión de segundos con retroalimentación en tiempo real.",
+        "points": [
+          "Detección automatizada de habitaciones y espacios con Deep Learning.",
+          "Actualización de progreso en tiempo real mediante WebSockets.",
+          "Generación automática de polígonos listos para editar o exportar."
+        ]
+      }
+    },
+    "videoControls": {
+      "playing": "Reproduciendo Demostración",
+      "paused": "Pausado",
+      "interactivePreview": "Simulación Interactiva del Sistema",
+      "simulating": "Modo Simulación Activo",
+      "switchTab": "Cambiar Demo"
+    }
+  },
+  "features": {
+    "badge": "Capacidades de Vanguardia",
+    "title": "Todo lo que Necesitas para tus Proyectos",
+    "subtitle": "Diseñado para estudios de arquitectura, empresas constructoras y gestores de activos inmobiliarios.",
+    "items": [
+      {
+        "title": "Visión Computacional Avanzada",
+        "desc": "Modelos entrenados para reconocer la tipología de planos arquitectónicos, leyendo símbolos, cotas y perímetros automáticamente."
+      },
+      {
+        "title": "Organizaciones y Permisos",
+        "desc": "Estructura tus proyectos por empresas, organizaciones y equipos. Gestiona accesos con códigos de invitación y roles."
+      },
+      {
+        "title": "Multi-Nivel y Edificaciones",
+        "desc": "Organiza planos por pisos, niveles y rangos de altura para proyectos residenciales y comerciales de cualquier escala."
+      },
+      {
+        "title": "Cálculo Milimétrico de Superficies",
+        "desc": "Obtén cómputos métricos instantáneos sin errores humanos para presupuestación, venta y construcción."
+      },
+      {
+        "title": "Notificaciones en Tiempo Real",
+        "desc": "Recibe avisos inmediatos mediante WebSockets tan pronto como los trabajos de inferencia y calibración finalizan."
+      },
+      {
+        "title": "Exportación y Reportes",
+        "desc": "Genera reportes de áreas, exporta planos con capas poligonales y comparte los resultados con tu equipo o clientes."
+      }
+    ]
+  },
+  "workflow": {
+    "badge": "Flujo de Trabajo",
+    "title": "De Plano 2D a Modelo Inteligente en 3 Pasos",
+    "step1Number": "01",
+    "step1Title": "Carga y Preprocesamiento",
+    "step1Desc": "Arrastra tus archivos PDF o planos escaneados. El sistema procesa las páginas y detecta escalas automáticamente.",
+    "step2Number": "02",
+    "step2Title": "Análisis Neuronal",
+    "step2Desc": "El motor de IA analiza la geometría, identificando recintos, accesos y calculando áreas automáticamente.",
+    "step3Number": "03",
+    "step3Title": "Edición y Colaboración",
+    "step3Desc": "Ajusta detalles en el editor, asigna especialidades y comparte el proyecto con tu equipo u organización."
+  },
+  "cta": {
+    "title": "¿Listo para optimizar la gestión de tus planos arquitectónicos?",
+    "subtitle": "Únete a los equipos que han reducido el tiempo de análisis de áreas de horas a cuestión de segundos.",
+    "button": "Acceder al Sistema",
+    "contact": "¿Tienes dudas? Contáctanos"
+  },
+  "footer": {
+    "description": "Plataforma integral de gestión, medición y análisis automatizado de planos arquitectónicos con Inteligencia Artificial.",
+    "rights": "Todos los derechos reservados.",
+    "builtWith": "Potenciado con YOLO Vision Models, React & WebSockets."
+  }
+}
+

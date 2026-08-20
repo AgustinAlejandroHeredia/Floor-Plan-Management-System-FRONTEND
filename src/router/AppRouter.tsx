@@ -3,8 +3,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AppLayout from "../layout/AppLayout";
 
-// PAGES
 import LoginPage from "../pages/LoginPage";
+import LandingPage from "../pages/LandingPage";
 import HomePage from "../pages/HomePage";
 import DevOptions from "../pages/DevOptions";
 import AdminModels from "@/pages/AdminModels";
@@ -21,7 +21,8 @@ export function AppRouter() {
   return (
     <Routes>
 
-      {/* Ruta pública */}
+      {/* Rutas públicas */}
+      <Route path="/landing" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/ErrorPage/:message" element={<ErrorPage />} />
       <Route path="/ErrorPage" element={<ErrorPage />} />

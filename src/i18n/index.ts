@@ -20,6 +20,7 @@ import userprofileEn from "./locals/en/userprofile.json";
 import notificationEn from "./locals/en/notification.json";
 import componentsEn from "./locals/en/components.json"
 import topbarEn from "./locals/en/topbar.json"
+import landingEn from "./locals/en/landing.json"
 
 // --- IMPORTS ESPAÑOL ---
 import commonEs from "./locals/es/common.json";
@@ -39,6 +40,7 @@ import userprofileEs from "./locals/es/userprofile.json";
 import notificationEs from "./locals/es/notification.json";
 import componentsEs from "./locals/es/components.json"
 import topbarEs from "./locals/es/topbar.json"
+import landingEs from "./locals/es/landing.json"
 
 i18n
   .use(LanguageDetector)
@@ -70,6 +72,7 @@ i18n
       "notification",
       "components",
       "topbar",
+      "landing",
     ],
 
     defaultNS: "common",
@@ -93,6 +96,7 @@ i18n
         notification: notificationEn,
         components: componentsEn,
         topbar: topbarEn,
+        landing: landingEn,
       },
       es: {
         common: commonEs,
@@ -112,6 +116,7 @@ i18n
         notification: notificationEs,
         components: componentsEs,
         topbar: topbarEs,
+        landing: landingEs,
       },
     },
   });

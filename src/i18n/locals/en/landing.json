@@ -1,0 +1,137 @@
+{
+  "nav": {
+    "brand": "FloorPlan AI",
+    "features": "Features",
+    "showcase": "Video Demos",
+    "aiEngine": "AI Engine",
+    "workflow": "How It Works",
+    "login": "Sign In",
+    "dashboard": "Open Platform",
+    "getStarted": "Get Started"
+  },
+  "hero": {
+    "badge": "AI-Powered Architectural Blueprint Intelligence",
+    "titlePrefix": "Intelligent Management & Analysis of",
+    "titleHighlight": "Floor Plans",
+    "titleSuffix": "in Seconds",
+    "description": "Transform 2D blueprints and multi-page PDFs into interactive models with automatic room detection, millimeter-accurate AI area calculations, and team collaboration by levels and projects.",
+    "ctaPrimary": "Explore Platform",
+    "ctaSecondary": "Watch Video Demos",
+    "metric1Value": "99.4%",
+    "metric1Label": "Detection Accuracy",
+    "metric2Value": "< 3 sec",
+    "metric2Label": "AI Analysis Speed",
+    "metric3Value": "100%",
+    "metric3Label": "Multi-Tenant Access"
+  },
+  "showcase": {
+    "badge": "Multimedia Showcase",
+    "title": "Experience the Power of Every Module",
+    "subtitle": "See how FloorPlan Management System automates the most complex workflows for architects, civil engineers, and real estate developers.",
+    "tabs": {
+      "upload": {
+        "title": "Upload & Calibration",
+        "tag": "Step 01",
+        "description": "Upload multi-page PDF documents or high-resolution images. The platform automatically detects blueprint orientation, visual scale, and lets you select specific pages to process.",
+        "points": [
+          "Native multi-page PDF support with high-performance preview.",
+          "Intelligent orientation detection and automatic leveling.",
+          "Interactive cropping tools to isolate rooms or apartment units."
+        ]
+      },
+      "editor": {
+        "title": "Interactive Editor",
+        "tag": "Step 02",
+        "description": "A responsive canvas equipped with metric/imperial ruler calibration, ultra-smooth viewport pan/zoom, specialty layers, and room visibility toggles.",
+        "points": [
+          "Interactive ruler for exact scale calibration.",
+          "Multi-layer support for architecture, structure, and MEP.",
+          "Smooth zooming with high-resolution gigapixel blueprint support."
+        ]
+      },
+      "areas": {
+        "title": "Area & Polygon Management",
+        "tag": "Step 03",
+        "description": "Draw, adjust, and tag polygon boundaries with sub-pixel precision. Instantly compute square meters, perimeters, and categorize by space destination.",
+        "points": [
+          "Dynamic polygon drawing with vertex dragging and editing.",
+          "Instant calculation of floor surface ($m^2$) and perimeter.",
+          "Color-coded categories by specialty and space classification."
+        ]
+      },
+      "ai": {
+        "title": "AI Inference (YOLO Vision)",
+        "tag": "Step 04",
+        "description": "Our state-of-the-art YOLO computer vision neural networks automatically detect rooms, walls, doors, and windows in seconds with real-time feedback.",
+        "points": [
+          "Automated deep learning detection of spaces and boundaries.",
+          "Real-time progress updates via WebSockets.",
+          "Instantly generated polygon meshes ready for export or editing."
+        ]
+      }
+    },
+    "videoControls": {
+      "playing": "Playing Demonstration",
+      "paused": "Paused",
+      "interactivePreview": "Interactive System Simulation",
+      "simulating": "Simulation Mode Active",
+      "switchTab": "Switch Demo"
+    }
+  },
+  "features": {
+    "badge": "Cutting-Edge Capabilities",
+    "title": "Everything You Need for Blueprint Management",
+    "subtitle": "Engineered for architecture firms, construction contractors, and asset managers.",
+    "items": [
+      {
+        "title": "Advanced Computer Vision",
+        "desc": "Trained neural models that understand architectural plans, reading room boundaries, symbols, and spatial layouts automatically."
+      },
+      {
+        "title": "Organizations & Role Management",
+        "desc": "Structure projects by companies and teams. Manage permissions with token invitations and granular role controls."
+      },
+      {
+        "title": "Multi-Level & Tower Hierarchy",
+        "desc": "Organize blueprints across floors, levels, and elevation ranges for residential and commercial developments."
+      },
+      {
+        "title": "Millimeter Area Calculations",
+        "desc": "Eliminate human calculation errors with instant surface and perimeter quantification for bidding and sales."
+      },
+      {
+        "title": "Real-Time WebSocket Sync",
+        "desc": "Receive instant notifications the moment AI inference jobs, calibrations, or uploads complete in the background."
+      },
+      {
+        "title": "Data Export & Reports",
+        "desc": "Generate detailed area schedules, export layered blueprints, and collaborate smoothly with your team."
+      }
+    ]
+  },
+  "workflow": {
+    "badge": "Seamless Workflow",
+    "title": "From 2D Blueprint to Smart Model in 3 Steps",
+    "step1Number": "01",
+    "step1Title": "Upload & Preprocess",
+    "step1Desc": "Drag and drop your PDF plans or CAD scans. The system parses pages and detects scales automatically.",
+    "step2Number": "02",
+    "step2Title": "Neural AI Inference",
+    "step2Desc": "Our computer vision engine recognizes rooms, spaces, and computes surface areas within seconds.",
+    "step3Number": "03",
+    "step3Title": "Edit & Collaborate",
+    "step3Desc": "Fine-tune polygons, assign specialties, and share with your team or clients with full version control."
+  },
+  "cta": {
+    "title": "Ready to streamline your architectural blueprint workflows?",
+    "subtitle": "Join the innovative engineering teams transforming area calculations from hours into seconds.",
+    "button": "Access FloorPlan AI",
+    "contact": "Have questions? Contact our team"
+  },
+  "footer": {
+    "description": "Comprehensive platform for automated architectural blueprint management, area calculation, and AI spatial intelligence.",
+    "rights": "All rights reserved.",
+    "builtWith": "Powered by YOLO Vision Models, React & WebSockets."
+  }
+}
+

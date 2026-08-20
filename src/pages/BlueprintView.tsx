@@ -926,9 +926,9 @@ const BlueprintView = () => {
                     }
                 })
 
-                const modelsWithNoDetections = (completed.result.modelSummaries ?? [])
-                    .filter((summary: { count: number }) => summary.count === 0)
-                    .map((summary: { modelName: string }) => summary.modelName)
+                const modelsWithNoDetections = (completed.result?.modelSummaries ?? [])
+                    .filter((summary) => summary.count === 0)
+                    .map((summary) => summary.modelName)
 
                 if (modelsWithNoDetections.length > 0) {
                     setNoDetectionsMessage(

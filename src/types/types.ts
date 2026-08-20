@@ -518,8 +518,14 @@ export interface YoloPrediction {
   }
 }
 
+export interface ModelSummary {
+  modelName: string
+  count: number
+}
+
 export interface InferenceJobResult {
   predictions?: YoloPrediction[]
+  modelSummaries?: ModelSummary[]
   error?: string
 }
 

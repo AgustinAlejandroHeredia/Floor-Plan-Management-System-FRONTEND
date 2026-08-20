@@ -158,6 +158,10 @@ const BlueprintView = () => {
     const [openErrorAlert, setOpenErrorAlert] = useState<boolean>(false)
     const [errorAlertMessage, setErrorAlertMessage] = useState<string>("")
 
+    // NO DETECTIONS ALERT
+    const [openNoDetectionsAlert, setOpenNoDetectionsAlert] = useState<boolean>(false)
+    const [noDetectionsMessage, setNoDetectionsMessage] = useState<string>("")
+
     // SECTION VIEW VARIABLES
     const [isProcessing, setIsProcessing] = useState<boolean>(false)
     const blueprintImageRef = useRef<HTMLDivElement | null>(null)
@@ -921,6 +925,19 @@ const BlueprintView = () => {
                             conversionToSectionView,
                     }
                 })
+
+                const modelsWithNoDetections = (completed.result.modelSummaries ?? [])
+                    .filter((summary: { count: number }) => summary.count === 0)
+                    .map((summary: { modelName: string }) => summary.modelName)
+
+                if (modelsWithNoDetections.length > 0) {
+                    setNoDetectionsMessage(
+                        t('blueprint:noDetectionsAlert.description', {
+                            models: modelsWithNoDetections.join(', '),
+                        })
+                    )
+                    setOpenNoDetectionsAlert(true)
+                }
             } else if (completed.status === 'Error') {
                 setErrorAlertMessage(completed.result?.error ?? t('blueprint:errorMessages.processingFailed'))
                 setOpenErrorAlert(true)
@@ -1860,9 +1877,9 @@ const BlueprintView = () => {
                                         <input
                                             className="cursor-pointer"
                                             type="range"
-                                            min={0.1}
+                                            min={0.0}
                                             max={1}
-                                            step={0.1}
+                                            step={0.05}
                                             value={confidenceSelection}
                                             onChange={(e) => setConfidenceSelection(Number(e.target.value))}
                                             style={{
@@ -3522,6 +3539,14 @@ const BlueprintView = () => {
                     onOpenChange={setOpenErrorAlert}
                     title={t('common:error')}
                     description={errorAlertMessage}
+                />
+
+                {/* ALERT NO DETECTIONS */}
+                <InfoDialog
+                    open={openNoDetectionsAlert}
+                    onOpenChange={setOpenNoDetectionsAlert}
+                    title={t('blueprint:noDetectionsAlert.title')}
+                    description={noDetectionsMessage}
                 />
 
                 {/* ================= DIALOG CREATE CROP ================= */}

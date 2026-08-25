@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Topbar, { type BreadcrumbItemType } from "../components/Topbar";
+import Footer from "../components/Footer";
 import { useInferenceNotification } from "../context/InferenceNotificationContext";
 import { IoIosClose } from "react-icons/io";
 import { Button } from "@/components/ui/button";
@@ -33,8 +34,11 @@ const AppLayout = () => {
         
         <Topbar breadcrumbs={breadcrumbs} />
 
-        <div style={{ flex: 1, overflowY: "auto", minWidth: 0 }}>
-          <Outlet context={{ setBreadcrumbs } satisfies LayoutContextType} />
+        <div style={{ flex: 1, overflowY: "auto", minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+          <div style={{ flex: 1 }}>
+            <Outlet context={{ setBreadcrumbs } satisfies LayoutContextType} />
+          </div>
+          <Footer />
         </div>
         
       </div>

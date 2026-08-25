@@ -20,5 +20,10 @@
         "phone": "Teléfono"
     },
 
+    "footer": {
+        "developedBy": "Desarrollado por",
+        "contact": "Contacto"
+    },
+
     "unknown": "Desconocido"
 }

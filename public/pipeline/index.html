@@ -1,0 +1,2521 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>How a plan becomes a model</title>
+<!--
+  VENDORED ASSET - do not hand-edit between the BEGIN/END ARTIFACT markers.
+
+  Source : 2025-BIM-MEP-pipeline-animation-v3.html  ("Three Sheets, One Model")
+  Origin : https://claude.ai/code/artifact/864c0fa9-cae8-44ba-999c-d346963a8f3e
+  Copied : 2026-08-29
+
+  To refresh, replace everything between the markers with the new source file
+  verbatim. The FPMS skin and the embed bridge below are additive and survive
+  the swap. Embedded by src/components/PipelineAnimation.tsx.
+-->
+</head>
+<body>
+
+<!-- ============================ BEGIN ARTIFACT ============================ -->
+<title>Three Sheets, One Model</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&family=Archivo+Narrow:wght@400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap">
+
+<style>
+:root{
+  /* drafting desk / paper */
+  --bg:#D7DAD4;
+  --desk:#CBCFC8;
+  --sheet:#FBFBF7;
+  --sheet-2:#F0F1EA;
+  --ink:#191D1A;
+  --ink-2:#4C524D;
+  --ink-3:#858C86;
+  --ink-4:#B3B9B2;
+  --rule:#C3C8C0;
+  --rule-soft:#DCE0D8;
+
+  --struct:#3F4A99;    /* the engineer's sheet */
+  --elec:#C13B27;      /* drafter's circuit ink */
+  --ai:#0B87A0;        /* machine overlay */
+  --gas:#AC7710;
+  --water:#3B6C95;
+  --bim:#2C7B55;
+
+  --shadow:0 1px 1px rgba(20,24,20,.06), 0 18px 40px -22px rgba(20,24,20,.5);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1211;
+    --desk:#141918;
+    --sheet:#181D1B;
+    --sheet-2:#212724;
+    --ink:#E9ECE7;
+    --ink-2:#B0B7B1;
+    --ink-3:#79817B;
+    --ink-4:#4C544E;
+    --rule:#2E3532;
+    --rule-soft:#242A27;
+
+    --struct:#99A0F0;
+    --elec:#F2735C;
+    --ai:#3FC6E2;
+    --gas:#DDA645;
+    --water:#6EA4CD;
+    --bim:#57C289;
+
+    --shadow:0 1px 1px rgba(0,0,0,.5), 0 20px 44px -24px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1211;
+  --desk:#141918;
+  --sheet:#181D1B;
+  --sheet-2:#212724;
+  --ink:#E9ECE7;
+  --ink-2:#B0B7B1;
+  --ink-3:#79817B;
+  --ink-4:#4C544E;
+  --rule:#2E3532;
+  --rule-soft:#242A27;
+
+  --struct:#99A0F0;
+  --elec:#F2735C;
+  --ai:#3FC6E2;
+  --gas:#DDA645;
+  --water:#6EA4CD;
+  --bim:#57C289;
+
+  --shadow:0 1px 1px rgba(0,0,0,.5), 0 20px 44px -24px rgba(0,0,0,.9);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Archivo","Helvetica Neue",Arial,sans-serif;
+  font-variation-settings:"wdth" 100;
+  font-size:16px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1260px;margin:0 auto;padding:34px 22px 64px}
+
+/* ---------------- masthead ---------------- */
+.mast{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 30px;margin-bottom:20px}
+.mast-l{flex:1 1 520px;min-width:0}
+.stamp{
+  display:inline-flex;align-items:center;gap:9px;
+  font-family:"Archivo Narrow",Arial,sans-serif;font-weight:600;
+  font-size:11.5px;letter-spacing:.17em;text-transform:uppercase;
+  color:var(--elec);border:1.5px solid var(--elec);
+  padding:3px 9px 2px;border-radius:2px;margin-bottom:13px;
+  transform:rotate(-.7deg);
+}
+.stamp i{display:block;width:5px;height:5px;border-radius:50%;background:var(--elec);font-style:normal}
+h1{
+  font-size:clamp(34px,5.6vw,60px);line-height:.96;margin:0;
+  font-weight:700;font-variation-settings:"wdth" 112;
+  letter-spacing:-.028em;text-wrap:balance;
+}
+h1 em{font-style:normal;color:var(--elec)}
+.dek{
+  font-size:16.5px;line-height:1.62;color:var(--ink-2);
+  margin:14px 0 0;max-width:68ch;
+}
+.mast-r{
+  flex:0 0 auto;font-family:"DM Mono",ui-monospace,monospace;
+  font-size:11px;line-height:1.75;color:var(--ink-3);letter-spacing:.01em;
+  text-align:right;padding-bottom:5px;
+}
+.mast-r b{color:var(--ink-2);font-weight:500}
+
+/* ---------------- the sheet ---------------- */
+.board{
+  background:var(--desk);
+  border-radius:4px;
+  padding:16px;
+  border:1px solid var(--rule);
+}
+.sheet{
+  background:var(--sheet);
+  box-shadow:var(--shadow);
+  position:relative;
+  overflow-x:auto;
+  overflow-y:hidden;
+}
+svg.plan{display:block;width:100%;min-width:940px;height:auto}
+
+/* ---------------- svg drawing language ---------------- */
+.thin{fill:none;stroke:var(--ink-4);stroke-width:.7}
+.dimline{fill:none;stroke:var(--ink-3);stroke-width:.7}
+.gridline{fill:none;stroke:var(--ink-4);stroke-width:.7;stroke-dasharray:14 4 2 4}
+.bub{fill:none;stroke:var(--ink-3);stroke-width:.9}
+.bubt{font-family:"Archivo Narrow",Arial,sans-serif;font-size:10px;font-weight:600;fill:var(--ink-3);text-anchor:middle}
+.dimt{font-family:"DM Mono",ui-monospace,monospace;font-size:9px;fill:var(--ink-3);text-anchor:middle}
+.roomt{font-family:"Archivo Narrow",Arial,sans-serif;font-size:10px;font-weight:600;letter-spacing:.13em;fill:var(--ink-3);text-anchor:middle}
+.roomt tspan.a{font-family:"DM Mono",ui-monospace,monospace;font-weight:400;font-size:8.5px;letter-spacing:0}
+
+.wallf{fill:var(--sheet-2);stroke:var(--ink);stroke-width:.9;stroke-linejoin:miter}
+.punch{fill:var(--sheet);stroke:none}
+.leaf{fill:none;stroke:var(--ink-2);stroke-width:.9}
+.swing{fill:none;stroke:var(--ink-3);stroke-width:.7}
+.glass{fill:none;stroke:var(--ink-2);stroke-width:.75}
+.furn{fill:none;stroke:var(--ink-4);stroke-width:.75;stroke-linejoin:round;stroke-linecap:round}
+
+/* structural sheet S-01 */
+.scol{fill:url(#hs);stroke:var(--struct);stroke-width:1.1}
+.sbeam{fill:none;stroke:var(--struct);stroke-width:.85;stroke-dasharray:9 4}
+.sslab{fill:none;stroke:var(--struct);stroke-width:.7;stroke-dasharray:2 3;opacity:.75}
+.sspan{fill:none;stroke:var(--struct);stroke-width:.8;opacity:.8}
+.stag{font-family:"DM Mono",ui-monospace,monospace;font-size:7.5px;fill:var(--struct)}
+.stag.c{text-anchor:middle}
+
+.eink{fill:none;stroke:var(--elec);stroke-width:1.45;stroke-linecap:round;stroke-linejoin:round}
+.esym{fill:none;stroke:var(--elec);stroke-width:1.15;stroke-linecap:round;stroke-linejoin:round}
+.esym .f{fill:var(--elec);stroke:none}
+.etag{font-family:"DM Mono",ui-monospace,monospace;font-size:7.5px;fill:var(--elec)}
+
+.mask{fill:var(--ai);fill-opacity:.14;stroke:var(--ai);stroke-width:1.1;stroke-linejoin:round}
+.mask.cull{stroke-dasharray:3 2.5}
+.mask.thin-m{stroke-width:.9;fill-opacity:.10}
+.bbox{fill:none;stroke:var(--ai);stroke-width:.8;stroke-dasharray:3 2.6;opacity:.55}
+.seg{fill:none;stroke:var(--ai);stroke-width:1.15;stroke-linecap:round}
+.seg.junk{stroke:var(--ink-3);stroke-dasharray:2.5 2.5}
+.kp{fill:var(--sheet);stroke:var(--ai);stroke-width:1.1}
+.chip-r{fill:var(--ai);stroke:none}
+.chip-t{font-family:"DM Mono",ui-monospace,monospace;font-size:7px;fill:var(--sheet);letter-spacing:.02em}
+.aitag{font-family:"DM Mono",ui-monospace,monospace;font-size:7.5px;fill:var(--ai)}
+.rel{fill:none;stroke:var(--ai);stroke-width:1.1;stroke-dasharray:3.5 3}
+.reg{fill:none;stroke:var(--ai);stroke-width:1.1}
+.run{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.node-d{stroke:var(--sheet);stroke-width:1.2}
+
+/* axonometric */
+.iso-ground{fill:var(--sheet-2);stroke:var(--ink-4);stroke-width:.8}
+.iso-wall{stroke:var(--ink-2);stroke-width:.55;stroke-linejoin:round}
+.iso-wall.f-top{fill:color-mix(in oklab,var(--ink) 7%,var(--sheet))}
+.iso-wall.f-x{fill:color-mix(in oklab,var(--ink) 17%,var(--sheet))}
+.iso-wall.f-y{fill:color-mix(in oklab,var(--ink) 27%,var(--sheet))}
+.iso-col{stroke:var(--struct);stroke-width:.6;stroke-linejoin:round}
+.iso-col.f-top{fill:color-mix(in oklab,var(--struct) 22%,var(--sheet))}
+.iso-col.f-x{fill:color-mix(in oklab,var(--struct) 40%,var(--sheet))}
+.iso-col.f-y{fill:color-mix(in oklab,var(--struct) 58%,var(--sheet))}
+.iso-beam{stroke:var(--struct);stroke-width:.5;stroke-linejoin:round}
+.iso-beam.f-top{fill:color-mix(in oklab,var(--struct) 14%,var(--sheet))}
+.iso-beam.f-x{fill:color-mix(in oklab,var(--struct) 26%,var(--sheet))}
+.iso-beam.f-y{fill:color-mix(in oklab,var(--struct) 38%,var(--sheet))}
+.iso-slab{stroke:var(--struct);stroke-width:.5;stroke-linejoin:round;fill-opacity:.34}
+.iso-slab.f-top{fill:color-mix(in oklab,var(--struct) 16%,var(--sheet))}
+.iso-slab.f-x{fill:color-mix(in oklab,var(--struct) 30%,var(--sheet));fill-opacity:.6}
+.iso-slab.f-y{fill:color-mix(in oklab,var(--struct) 42%,var(--sheet));fill-opacity:.6}
+.iso-wire{fill:none;stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round}
+.iso-dev{stroke:var(--sheet);stroke-width:.8}
+
+.tb{fill:none;stroke:var(--ink-3);stroke-width:.9}
+.tbk{font-family:"Archivo Narrow",Arial,sans-serif;font-size:8px;font-weight:600;letter-spacing:.15em;fill:var(--ink-3)}
+.tbv{font-family:"DM Mono",ui-monospace,monospace;font-size:10px;fill:var(--ink-2)}
+.tbbig{font-family:"Archivo",Arial,sans-serif;font-size:19px;font-weight:700;font-variation-settings:"wdth" 90;letter-spacing:.02em;fill:var(--ink)}
+
+.lay{transition:opacity .6s ease}
+.pop{transform-box:fill-box;transform-origin:center}
+
+/* ---------------- transport + rail ---------------- */
+.transport{display:flex;align-items:flex-start;gap:12px;margin:18px 0 0}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
+button:focus-visible{outline:2px solid var(--elec);outline-offset:3px;border-radius:3px}
+.tbtn{
+  width:36px;height:36px;border-radius:2px;flex:0 0 auto;
+  border:1px solid var(--rule);background:var(--sheet);
+  display:grid;place-items:center;transition:border-color .18s,background .18s;
+}
+.tbtn:hover{border-color:var(--ink-3);background:var(--sheet-2)}
+.tbtn svg{width:13px;height:13px;fill:var(--ink)}
+.tbtn.play{border-color:var(--ink);background:var(--ink)}
+.tbtn.play svg{fill:var(--sheet)}
+.tbtn.play:hover{background:var(--ink-2);border-color:var(--ink-2)}
+
+.rail{
+  display:flex;flex-wrap:wrap;flex:1 1 auto;gap:0;min-width:0;margin:0;padding:0;
+  border-left:1px solid var(--rule);
+}
+.rail button{
+  flex:1 1 11.5%;min-width:96px;text-align:left;padding:5px 0 0;
+  border-right:1px solid var(--rule);border-top:2px solid var(--rule);
+  transition:border-color .2s;position:relative;
+}
+.rail button:hover{border-top-color:var(--ink-3)}
+.rail .fill{position:absolute;left:0;top:-2px;height:2px;width:0;background:var(--ink)}
+.rail .n{
+  display:block;font-family:"DM Mono",ui-monospace,monospace;font-size:9.5px;
+  color:var(--ink-3);padding-left:7px;font-variant-numeric:tabular-nums;
+}
+.rail .t{
+  display:block;font-family:"Archivo Narrow",Arial,sans-serif;font-size:11px;
+  font-weight:500;letter-spacing:.03em;color:var(--ink-3);padding:0 7px 5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .2s;
+}
+.rail li{list-style:none;display:contents}
+.rail button.done{border-top-color:var(--ink-4)}
+.rail button.done .t{color:var(--ink-2)}
+.rail button.on .t{color:var(--ink);font-weight:700}
+.rail button.on{border-top-color:var(--ink)}
+.rail button.on .n{color:var(--ink)}
+.rail button[data-act="s"].on,.rail button[data-act="s"].done{border-top-color:var(--struct)}
+.rail button[data-act="s"].on .n{color:var(--struct)}
+.rail button[data-act="s"] .fill{background:var(--struct)}
+.rail button[data-act="a"].on,.rail button[data-act="a"].done{border-top-color:var(--ink-2)}
+.rail button[data-act="a"].on .n{color:var(--ink-2)}
+.rail button[data-act="a"] .fill{background:var(--ink-2)}
+.rail button[data-act="e"].on,.rail button[data-act="e"].done{border-top-color:var(--elec)}
+.rail button[data-act="e"].on .n{color:var(--elec)}
+.rail button[data-act="e"] .fill{background:var(--elec)}
+.rail button[data-act="m"].on,.rail button[data-act="m"].done{border-top-color:var(--bim)}
+.rail button[data-act="m"].on .n{color:var(--bim)}
+.rail button[data-act="m"] .fill{background:var(--bim)}
+@media (max-width:900px){.rail .t{display:none}.rail .n{padding:0 0 6px 7px}.rail button{min-width:44px}}
+
+/* ---------------- lower: caption + detail ---------------- */
+.lower{display:grid;grid-template-columns:1fr 1.02fr;gap:34px;margin-top:26px;align-items:start}
+@media (max-width:900px){.lower{grid-template-columns:1fr;gap:26px}}
+
+.cap-kick{
+  display:flex;align-items:baseline;gap:11px;margin:0 0 7px;
+  font-family:"Archivo Narrow",Arial,sans-serif;font-size:11.5px;font-weight:600;
+  letter-spacing:.17em;text-transform:uppercase;color:var(--elec);
+}
+.cap-kick .num{font-family:"DM Mono",ui-monospace,monospace;font-weight:400;color:var(--ink-3);letter-spacing:0}
+.cap-kick .act{margin-left:auto;font-weight:500;color:var(--ink-3);letter-spacing:.14em}
+.cap-title{
+  font-size:clamp(23px,2.6vw,30px);line-height:1.08;margin:0 0 13px;
+  font-weight:700;font-variation-settings:"wdth" 104;letter-spacing:-.02em;
+  color:var(--ink);text-wrap:balance;
+}
+.cap-body{font-size:16px;line-height:1.66;color:var(--ink-2);margin:0;max-width:56ch}
+.cap-body b{color:var(--ink);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:15px}
+.chip{
+  font-family:"DM Mono",ui-monospace,monospace;font-size:10.5px;
+  padding:3px 8px 2px;border-radius:2px;color:var(--ink-2);
+  background:var(--sheet);border:1px solid var(--rule);
+}
+.chip.hi{color:var(--elec);border-color:color-mix(in oklab,var(--elec) 45%,transparent);background:color-mix(in oklab,var(--elec) 9%,var(--sheet))}
+.chip.ml{color:var(--ai);border-color:color-mix(in oklab,var(--ai) 45%,transparent);background:color-mix(in oklab,var(--ai) 9%,var(--sheet))}
+.chip.st{color:var(--struct);border-color:color-mix(in oklab,var(--struct) 45%,transparent);background:color-mix(in oklab,var(--struct) 9%,var(--sheet))}
+.chip.bm{color:var(--bim);border-color:color-mix(in oklab,var(--bim) 45%,transparent);background:color-mix(in oklab,var(--bim) 9%,var(--sheet))}
+
+.detail{
+  background:var(--sheet);border:1px solid var(--rule);
+  box-shadow:var(--shadow);position:relative;
+}
+.detail-hd{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  padding:9px 13px 8px;border-bottom:1px solid var(--rule);
+}
+.detail-hd .l{
+  font-family:"Archivo Narrow",Arial,sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--ink);
+}
+.detail-hd .r{font-family:"DM Mono",ui-monospace,monospace;font-size:10px;color:var(--ink-3)}
+.detail svg{display:block;width:100%;height:auto}
+.detail-ft{
+  padding:9px 13px 10px;border-top:1px solid var(--rule-soft);
+  font-family:"Archivo Narrow",Arial,sans-serif;font-size:12.5px;line-height:1.45;color:var(--ink-2);
+}
+.dt{font-family:"Archivo Narrow",Arial,sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;fill:var(--ink-3)}
+.dm{font-family:"DM Mono",ui-monospace,monospace;font-size:10px;fill:var(--ink-2)}
+.dm.sm{font-size:8.5px;fill:var(--ink-3)}
+.dh{font-family:"Archivo",Arial,sans-serif;font-size:12px;font-weight:700;fill:var(--ink)}
+.dbox{fill:var(--sheet-2);stroke:var(--rule);stroke-width:1}
+.darr{fill:none;stroke:var(--ink-3);stroke-width:1}
+
+/* ---------------- legend + foot ---------------- */
+.key{
+  display:flex;flex-wrap:wrap;gap:7px 22px;margin-top:16px;
+  padding-top:13px;border-top:1px solid var(--rule);
+}
+.k{display:flex;align-items:center;gap:8px;font-family:"Archivo Narrow",Arial,sans-serif;font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+.k svg{flex:0 0 auto;overflow:visible}
+.foot{
+  margin-top:26px;padding-top:14px;border-top:1px solid var(--rule);
+  font-family:"DM Mono",ui-monospace,monospace;font-size:10.5px;
+  color:var(--ink-3);line-height:1.75;max-width:100ch;
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
+}
+</style>
+
+<div class="wrap">
+
+  <header class="mast">
+    <div class="mast-l">
+      <span class="stamp"><i></i>As-built set &#183; no vector source</span>
+      <h1>Three sheets, <em>one model</em></h1>
+      <p class="dek">The same house is drawn three times &#8212; once by the engineer, once by the architect, once by the electrician. Sixteen passes read all three scans and return a single federated IFC model. <b>Five networks are involved and none of them ever sees another's output</b>; everything they produce is reconciled on the drawing itself.</p>
+    </div>
+    <div class="mast-r">
+      <b>16 passes &#183; 3 sheets</b><br>
+      5 networks, no shared input<br>
+      166 IFC entities out<br>
+      extends Urbieta et al. 2023
+    </div>
+  </header>
+
+  <div class="board">
+    <div class="sheet">
+      <svg class="plan" id="plan" viewBox="0 0 1360 616" role="img" aria-label="A drawing set for a long single-storey house. Successive overlays show three misregistered scans brought into one coordinate system, instance-segmentation masks over columns, beams and slabs, then over walls, doors and windows, then over the electrical symbols, detected line segments and assembled circuits, and finally an axonometric of the federated model.">
+
+        <defs>
+          <pattern id="hs" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <path d="M 0 0 V 6" stroke="var(--struct)" stroke-width=".9" opacity=".55"/>
+          </pattern>
+
+          <!-- ---- IRAM electrical symbol library, drawn at origin ---- -->
+          <g id="s-outlet">
+            <path d="M -7.5 0 A 7.5 7.5 0 0 1 7.5 0"/>
+            <path d="M 0 0 V 9.5"/>
+            <path d="M -2.6 5.4 L 0 9.8 L 2.6 5.4"/>
+          </g>
+          <g id="s-outlet2">
+            <path d="M -7.5 0 A 7.5 7.5 0 0 1 7.5 0"/>
+            <path d="M -2.4 0 V 9.5 M 2.4 0 V 9.5"/>
+            <path d="M -4.8 5.6 L -2.4 9.8 L 0 5.6 M 0 5.6 L 2.4 9.8 L 4.8 5.6"/>
+          </g>
+          <g id="s-switch">
+            <circle class="f" cx="0" cy="0" r="2.7"/>
+            <path d="M 1.9 -1.9 L 8.4 -8.4"/>
+            <path d="M 6.2 -10.4 L 10.4 -6.2"/>
+          </g>
+          <g id="s-light">
+            <circle class="f" cx="0" cy="0" r="4.4"/>
+            <path d="M -8 0 H -5.4 M 5.4 0 H 8 M 0 -8 V -5.4 M 0 5.4 V 8"/>
+          </g>
+          <g id="s-wlight">
+            <path class="f" d="M -4.6 0 A 4.6 4.6 0 0 1 4.6 0 Z"/>
+            <path d="M -6.8 0 H 6.8"/>
+            <path d="M -3.4 3.4 L -1.6 1 M 0 3.6 V 1.2 M 3.4 3.4 L 1.6 1"/>
+          </g>
+          <g id="s-board">
+            <rect x="-13" y="-6.5" width="26" height="13" rx="1"/>
+            <path d="M -13 6.5 L 13 -6.5"/>
+            <path class="f" d="M -13 6.5 L -13 1 L -2 -6.5 Z"/>
+          </g>
+
+          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 9 5 L 0 9 z" fill="context-stroke"/>
+          </marker>
+        </defs>
+
+        <g id="sheetFrame"></g>
+        <g id="planRoot" transform="translate(96,150) scale(0.9)">
+          <g id="lyGrid"  class="lay"></g>
+          <g id="wrapS">
+            <g id="lySlab"   class="lay"></g>
+            <g id="lyStruct" class="lay"></g>
+          </g>
+          <g id="wrapA">
+            <g id="lyArch"  class="lay"></g>
+            <g id="lyFurn"  class="lay"></g>
+          </g>
+          <g id="lyStructM" class="lay"></g>
+          <g id="lyArchM"   class="lay"></g>
+          <g id="lyRel"     class="lay"></g>
+          <g id="wrapE">
+            <g id="lyDrawn" class="lay"></g>
+            <g id="lySym"   class="lay"></g>
+            <g id="lyLine"  class="lay"></g>
+            <g id="lyMask"  class="lay"></g>
+            <g id="lyRun"   class="lay"></g>
+          </g>
+          <g id="lyReg"  class="lay"></g>
+          <g id="lyCall" class="lay"></g>
+        </g>
+        <g id="legendBox" class="lay"></g>
+        <g id="isoRoot" class="lay" style="opacity:0"></g>
+        <g id="titleBlock"></g>
+      </svg>
+    </div>
+
+    <div class="transport">
+      <button class="tbtn play" id="play" aria-label="Play"><svg id="playIcon" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg></button>
+      <button class="tbtn" id="prev" aria-label="Previous pass"><svg viewBox="0 0 24 24"><path d="M17 4l-11 8 11 8z"/></svg></button>
+      <button class="tbtn" id="next" aria-label="Next pass"><svg viewBox="0 0 24 24"><path d="M7 4l11 8-11 8z"/></svg></button>
+      <ol class="rail" id="rail"></ol>
+    </div>
+  </div>
+
+  <div class="lower">
+    <div>
+      <p class="cap-kick"><span class="num" id="capNum">01</span><span id="capKick">Input</span><span class="act" id="capAct"></span></p>
+      <h2 class="cap-title" id="capTitle">A set of scans</h2>
+      <p class="cap-body" id="capBody"></p>
+      <div class="chips" id="capChips"></div>
+    </div>
+
+    <figure class="detail" style="margin:0">
+      <div class="detail-hd">
+        <span class="l" id="dtlTitle">Detail</span>
+        <span class="r" id="dtlScale">scale 1:5</span>
+      </div>
+      <svg id="dtl" viewBox="0 0 480 288" role="img" aria-label="Detail callout, redrawn for each pass of the pipeline."></svg>
+      <figcaption class="detail-ft" id="dtlCap"></figcaption>
+    </figure>
+  </div>
+
+  <div class="key">
+    <span class="k"><svg width="26" height="10"><path d="M1 5 H25" stroke="var(--struct)" stroke-width="1.9" fill="none"/></svg> sheet S&#8209;01, the engineer &#8212; columns, beams, slabs</span>
+    <span class="k"><svg width="26" height="10"><path d="M1 5 H25" stroke="var(--ink)" stroke-width="1.6" fill="none"/></svg> sheet A&#8209;01, the architect &#8212; walls, openings, fixtures</span>
+    <span class="k"><svg width="26" height="10"><path d="M1 5 H25" stroke="var(--elec)" stroke-width="1.9" fill="none"/></svg> sheet E&#8209;01, the electrician &#8212; symbols and circuit ink</span>
+    <span class="k"><svg width="26" height="10"><rect x="1" y="1" width="24" height="8" fill="var(--ai)" fill-opacity=".16" stroke="var(--ai)" stroke-width="1.2"/></svg> recovered by a model &#8212; masks, keypoints, scores</span>
+    <span class="k"><svg width="26" height="10"><path d="M1 5 H25" stroke="var(--bim)" stroke-width="1.9" fill="none"/></svg> written into IFC</span>
+  </div>
+
+  <p class="foot">
+    Plan redrawn after the Guernica case study (Buenos Aires) &#183; structural and architectural branches after Urbieta et al., <i>Generating BIM model from structural and architectural plans using Artificial Intelligence</i>, J. Build. Eng. 78 (2023) 107672: Mask R&#8209;CNN with a ResNet&#8209;101 FPN backbone, transfer learning from COCO, one network trained per specialty, mAP 0.963 &#183; sheets registered by feature alignment on shared columns &#183; tags read with a cloud OCR and matched to elements by nearest-neighbour under the C&#8209;XXX / V&#8209;XXX nomenclature &#183; electrical branch: instance segmentation with YOLOv11m&#8209;seg (mAP 0.50:0.95 = 0.7368, evaluated against YOLOv8m&#8209;seg and Cascade Mask R&#8209;CNN), line work from pretrained DeepLSD with no fine&#8209;tuning, circuit graph via Shapely and NetworkX under AEA classification rules &#183; IFC 4 written with IfcOpenShell &#183; gas and hot/cold water repeat the electrical pattern with per&#8209;discipline training.
+  </p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var NS  = "http://www.w3.org/2000/svg";
+  var XL  = "http://www.w3.org/1999/xlink";
+  var PPM = 41.9;                       /* px per metre on the plan */
+
+  /* =====================================================================
+     1.  THE BUILDING.  Every drawing below - the three sheets, every mask,
+         every circuit and the final axonometric - is generated from this
+         one description, so the model is guaranteed to be the same house.
+     ===================================================================== */
+
+  var PLAN = {
+    W:960, H:262,
+    /* x1,y1,x2,y2,thickness  (centre-line segments) */
+    walls:[
+      [0,0,960,0,10],[0,262,960,262,10],[0,0,0,262,10],[960,0,960,262,10],
+      [150,0,150,262,7],[150,190,960,190,7],
+      [420,0,420,190,7],[600,0,600,190,7],[700,0,700,190,7]
+    ],
+    /* columns at the grid intersections - the elements shared by every sheet */
+    cols:[[0,0],[150,0],[420,0],[600,0],[700,0],[960,0],
+          [0,262],[150,262],[420,262],[600,262],[700,262],[960,262],
+          [150,190],[420,190],[600,190],[700,190],[960,190]],
+    /* ax,ay,bx,by,kind,swing */
+    openings:[
+      [230,0,330,0,"win",0],[470,0,560,0,"win",0],[790,0,890,0,"win",0],
+      [250,262,330,262,"win",0],[520,262,600,262,"win",0],
+      [960,70,960,150,"win",0],
+      [0,246,0,196,"door",1],
+      [150,110,150,62,"door",1],
+      [252,190,300,190,"door",-1],
+      [482,190,530,190,"door",-1],
+      [632,190,674,190,"door",-1],
+      [762,190,810,190,"door",-1]
+    ],
+    grid:[[0,"1"],[150,"2"],[420,"3"],[600,"4"],[700,"5"],[960,"6"]],
+    dims:[[0,150,"3.58"],[150,420,"6.44"],[420,600,"4.30"],[600,700,"2.39"],[700,960,"6.21"]],
+    rooms:[
+      [75,110,"COCINA","9.4 m2"],[285,96,"ESTAR / COMEDOR","39.3 m2"],
+      [510,96,"DORM. 1","16.4 m2"],[650,100,"BA&#209;O","5.5 m2"],
+      [830,96,"DORM. 2","23.7 m2"],[560,228,"PASILLO","12.4 m2"]
+    ],
+    slabs:[
+      [0,0,150,262,"L-01"],[150,0,420,190,"L-02"],[420,0,600,190,"L-03"],
+      [600,0,700,190,"L-04"],[700,0,960,190,"L-05"],[150,190,960,262,"L-06"]
+    ]
+  };
+
+  /* ---- the structural sheet, derived from the same walls and columns ---- */
+  var COLS = PLAN.cols.map(function(c, i){
+    return {id:"C-" + (i < 9 ? "0" : "") + (i + 1), x:c[0], y:c[1], sec:"30x30", h:"2.60"};
+  });
+
+  var BEAMS = (function(){
+    var out = [], n = 100;
+    PLAN.walls.forEach(function(w){
+      var horiz = Math.abs(w[1] - w[3]) < 1;
+      var fixed = horiz ? w[1] : w[0];
+      var a = Math.min(horiz ? w[0] : w[1], horiz ? w[2] : w[3]);
+      var b = Math.max(horiz ? w[0] : w[2], horiz ? w[2] : w[3]);
+      if (!horiz){ a = Math.min(w[1], w[3]); b = Math.max(w[1], w[3]); }
+      var on = [];
+      COLS.forEach(function(c){
+        var cf = horiz ? c.y : c.x, cu = horiz ? c.x : c.y;
+        if (Math.abs(cf - fixed) < 1 && cu >= a - 1 && cu <= b + 1) on.push(cu);
+      });
+      on.sort(function(p, q){ return p - q; });
+      for (var i = 0; i < on.length - 1; i++){
+        n++;
+        out.push({id:"V-" + n, horiz:horiz, fixed:fixed, a:on[i], b:on[i+1],
+                  t:w[4] + 2, sec:(w[4] > 8 ? "20x50" : "15x40")});
+      }
+    });
+    return out;
+  })();
+
+  /* electrical layer: id, kind, x, y, rotation, circuit, label */
+  var SYM = [
+    {id:"TS", k:"board",  x:186, y:228, r:0,   c:"main", lb:"TS"},
+    {id:"L1", k:"light",  x:75,  y:118, r:0,   c:"c1", lb:"1"},
+    {id:"L2", k:"light",  x:285, y:96,  r:0,   c:"c1", lb:"1"},
+    {id:"L3", k:"light",  x:510, y:96,  r:0,   c:"c1", lb:"1"},
+    {id:"L4", k:"light",  x:830, y:96,  r:0,   c:"c1", lb:"1"},
+    {id:"L5", k:"light",  x:340, y:228, r:0,   c:"c1", lb:"1"},
+    {id:"L6", k:"light",  x:760, y:228, r:0,   c:"c1", lb:"1"},
+    {id:"W1", k:"wlight", x:650, y:36,  r:0,   c:"c1", lb:"1"},
+    {id:"S1", k:"switch", x:166, y:205, r:0,   c:"c1", lb:""},
+    {id:"S2", k:"switch", x:307, y:180, r:0,   c:"c1", lb:""},
+    {id:"S3", k:"switch", x:537, y:180, r:0,   c:"c1", lb:""},
+    {id:"S4", k:"switch", x:681, y:180, r:0,   c:"c1", lb:""},
+    {id:"S5", k:"switch", x:817, y:180, r:0,   c:"c1", lb:""},
+    {id:"O1", k:"outlet", x:120, y:9,   r:0,   c:"c2", lb:"2"},
+    {id:"O2", k:"outlet2",x:205, y:9,   r:0,   c:"c2", lb:"2"},
+    {id:"O3", k:"outlet", x:386, y:9,   r:0,   c:"c2", lb:"2"},
+    {id:"O4", k:"outlet", x:456, y:9,   r:0,   c:"c2", lb:"2"},
+    {id:"O5", k:"outlet", x:612, y:9,   r:0,   c:"c2", lb:"2"},
+    {id:"O6", k:"outlet2",x:744, y:9,   r:0,   c:"c2", lb:"2"},
+    {id:"O7", k:"outlet", x:951, y:170, r:90,  c:"c3", lb:"3"},
+    {id:"O8", k:"outlet", x:880, y:181, r:180, c:"c3", lb:"3"},
+    {id:"O9", k:"outlet", x:9,   y:120, r:270, c:"c2", lb:"2"}
+  ];
+  var byId = {}; SYM.forEach(function(s){ byId[s.id] = s; });
+
+  /* reconstructed runs: ordered node chains, routed orthogonally near walls */
+  var CIRCUITS = [
+    { id:"c1", name:"IUG - lighting", col:"elec",
+      chains:[ {n:["TS","L5","S1","L1"], t:228}, {n:["L5","L2","S2"], t:180},
+               {n:["L5","L3","S3"], t:180},      {n:["L5","L6"], t:228},
+               {n:["L6","W1","S4"], t:180},      {n:["L6","L4","S5"], t:180} ] },
+    { id:"c2", name:"TUG - general outlets", col:"gas",
+      chains:[ {n:["TS","O9","O1","O2"], t:120}, {n:["O2","O3","O4","O5","O6"], t:9} ] },
+    { id:"c3", name:"TUE - dedicated", col:"water",
+      chains:[ {n:["TS","O8","O7"], t:205} ] }
+  ];
+
+  /* =====================================================================
+     2.  helpers
+     ===================================================================== */
+
+  function el(tag, attrs, cls){
+    var n = document.createElementNS(NS, tag);
+    if (cls) n.setAttribute("class", cls);
+    for (var k in attrs) if (attrs.hasOwnProperty(k)) n.setAttribute(k, attrs[k]);
+    return n;
+  }
+  function put(parent, tag, attrs, cls){ var n = el(tag, attrs, cls); parent.appendChild(n); return n; }
+  function txt(parent, x, y, s, cls, extra){
+    var n = put(parent, "text", {x:x, y:y}, cls);
+    if (extra) for (var k in extra) n.setAttribute(k, extra[k]);
+    n.innerHTML = s;
+    return n;
+  }
+  function poly(pts){ return pts.map(function(p){ return p[0].toFixed(1) + " " + p[1].toFixed(1); }).join(" "); }
+  /* deterministic jitter so "predicted" masks look predicted, not drafted */
+  function rnd(i){ var x = Math.sin(i * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); }
+  function blob(cx, cy, w, h, seed, n){
+    var pts = [];
+    n = n || 10;
+    for (var k = 0; k < n; k++){
+      var a = (k / n) * Math.PI * 2;
+      var j = 0.84 + rnd(seed * 10 + k) * 0.38;
+      pts.push([cx + Math.cos(a) * w * j, cy + Math.sin(a) * h * j]);
+    }
+    return pts;
+  }
+
+  var G = {};
+  ["sheetFrame","planRoot","wrapS","wrapA","wrapE","lyGrid","lySlab","lyStruct",
+   "lyArch","lyFurn","lyStructM","lyArchM","lyRel","lyDrawn","lySym","lyLine",
+   "lyMask","lyRun","lyReg","lyCall","isoRoot","titleBlock","legendBox"].forEach(function(k){
+    G[k] = document.getElementById(k);
+  });
+  /* structural annotation + level layers, kept separate so they can fade alone */
+  G.lyStructT = put(G.wrapS, "g", {id:"lyStructT"}, "lay");
+  G.lyLevel   = put(G.wrapS, "g", {id:"lyLevel"},   "lay");
+
+  /* =====================================================================
+     3.  sheet furniture - border, corner ticks, title block
+     ===================================================================== */
+
+  (function frame(){
+    var f = G.sheetFrame;
+    put(f, "rect", {x:14, y:14, width:1332, height:588}, "thin");
+    put(f, "rect", {x:22, y:22, width:1316, height:572, "stroke-width":".9"}, "thin");
+    [[14,14,1],[1346,14,-1]].forEach(function(c){
+      put(f, "path", {d:"M " + c[0] + " 52 V 14 H " + (c[0] + 38*c[2])}, "thin");
+      put(f, "path", {d:"M " + c[0] + " 564 V 602 H " + (c[0] + 38*c[2])}, "thin");
+    });
+    for (var i = 0; i < 15; i++){
+      var y = 30 + i * 38;
+      put(f, "path", {d:"M 14 " + y + " H " + (i % 5 === 0 ? 22 : 18)}, "thin");
+    }
+  })();
+
+  var tbSheet, tbSheetSub, tbPass, tbState;
+  (function titleBlock(){
+    var t = G.titleBlock, X = 1000, Y = 452, W = 338, H = 142;
+    put(t, "rect", {x:X, y:Y, width:W, height:H}, "tb");
+    put(t, "path", {d:"M " + X + " " + (Y+46) + " H " + (X+W) +
+                       " M " + X + " " + (Y+82) + " H " + (X+W) +
+                       " M " + X + " " + (Y+112) + " H " + (X+W) +
+                       " M " + (X+206) + " " + (Y+82) + " V " + (Y+H)}, "tb");
+    txt(t, X+12, Y+18, "PROJECT", "tbk");
+    txt(t, X+12, Y+34, "Vivienda unifamiliar &#183; Guernica, Buenos Aires", "tbv", {"font-size":"9.5"});
+
+    txt(t, X+12, Y+61, "SHEET", "tbk");
+    tbSheet    = txt(t, X+62, Y+66, "SET", "tbbig");
+    tbSheetSub = txt(t, X+12, Y+77, "PLANTA BAJA &#183; JUEGO COMPLETO", "tbv", {"font-size":"8.5"});
+
+    var rows = [["ORIGIN", "raster scans, 300 dpi"], ["SCALE", "1:50 &#183; 41.9 px/m"]];
+    rows.forEach(function(r, i){
+      txt(t, X+12, Y+100 + i*30, r[0], "tbk");
+      txt(t, X+68, Y+100 + i*30, r[1], "tbv", {"font-size":"9.5"});
+    });
+    txt(t, X+218, Y+100, "PASS", "tbk");
+    tbPass = txt(t, X+W-12, Y+108, "01", "tbbig", {"text-anchor":"end"});
+    txt(t, X+218, Y+124, "STATE", "tbk");
+    tbState = txt(t, X+264, Y+124, "raster", "tbv");
+    tbState.setAttribute("font-size", "10.5");
+  })();
+
+  /* =====================================================================
+     4.  the right-hand column: one legend + one detector card per sheet
+     ===================================================================== */
+
+  var PX = 1000, PW = 338, PY = 58;
+  var ifcNames = [];
+
+  function panel(parent, Y, H, title, right){
+    var g = put(parent, "g", {});
+    put(g, "rect", {x:PX, y:Y, width:PW, height:H}, "tb");
+    put(g, "path", {d:"M " + PX + " " + (Y+30) + " H " + (PX+PW)}, "tb");
+    txt(g, PX+12, Y+20, title, "tbk");
+    if (right) txt(g, PX+PW-12, Y+20, right, "tbk", {"text-anchor":"end"});
+    return g;
+  }
+  function rule(g, y){
+    put(g, "path", {d:"M " + (PX+12) + " " + y + " H " + (PX+PW-12),
+                    stroke:"var(--rule-soft)", "stroke-width":"1"});
+  }
+  /* a legend row: swatch drawn by fn, name, and the IFC class it becomes */
+  function keyRow(g, y, fn, name, ifc, i){
+    if (i) rule(g, y - 20);
+    fn(g, PX + 40, y - 4);
+    txt(g, PX+80, y, name, "tbv", {"font-size":"10.5"});
+    var n = txt(g, PX+80, y + 12, ifc, "tbv",
+                {"font-size":"8.5", "letter-spacing":".02em", fill:"var(--ink-3)"});
+    ifcNames.push(n);
+  }
+  function card(parent, Y, H, title, right, rows){
+    var g = panel(parent, Y, H, title, right);
+    rows.forEach(function(r, i){
+      var y = Y + 30 + 20 + i * 30;
+      if (i) rule(g, y - 20);
+      txt(g, PX+14, y, r[0], "tbv", {"font-size":"10.5", fill:"var(--" + (r[2] || "ink-2") + ")"});
+      txt(g, PX+14, y + 12, r[1], "tbv", {"font-size":"8.5", fill:"var(--ink-3)"});
+    });
+    return g;
+  }
+  function esymSwatch(kind){
+    return function(g, x, y){
+      var n = put(g, "g", {transform:"translate(" + x + "," + y + ")"}, "esym");
+      var u = put(n, "use", {});
+      u.setAttribute("href", "#s-" + kind);
+      u.setAttributeNS(XL, "xlink:href", "#s-" + kind);
+    };
+  }
+
+  var PANELS = {};
+
+  /* --- the whole set, shown while the sheets are still being registered --- */
+  PANELS.set = (function(){
+    var root = put(G.legendBox, "g", {});
+    var g = panel(root, PY, 148, "SHEET INDEX", "4 SHEETS");
+    [["S-01", "Estructura", "columns, beams, slabs", "struct"],
+     ["A-01", "Arquitectura", "walls, doors, windows", "ink-2"],
+     ["S-02", "Cortes", "storey and element heights", "ink-2"],
+     ["E-01", "Inst. el&#233;ctrica", "symbols, circuits", "elec"]].forEach(function(r, i){
+      var y = PY + 50 + i * 26;
+      if (i) rule(g, y - 18);
+      txt(g, PX+14, y, r[0], "tbv", {"font-size":"10.5", fill:"var(--" + r[3] + ")"});
+      txt(g, PX+66, y, r[1], "tbv", {"font-size":"10"});
+      txt(g, PX+PW-14, y, r[2], "tbv", {"font-size":"8.5", fill:"var(--ink-3)", "text-anchor":"end"});
+    });
+    card(root, PY + 162, 212, "NETWORKS", "5",
+      [["Mask R-CNN &#183; structure", "column &#183; beam &#183; slab", "struct"],
+       ["Mask R-CNN &#183; architecture", "wall &#183; door &#183; window", "ink-2"],
+       ["Mask R-CNN &#183; sections", "one label per storey", "ink-2"],
+       ["YOLOv11m-seg &#183; electrical", "7 IRAM symbol classes", "elec"],
+       ["DeepLSD &#183; line work", "pretrained, no fine-tuning", "ai"]]);
+    return root;
+  })();
+
+  /* --- S-01 --- */
+  PANELS.s = (function(){
+    var root = put(G.legendBox, "g", {});
+    var g = panel(root, PY, 136, "SIMBOLOGIA &#183; ESTRUCTURA", "3 CLASSES");
+    var rows = [
+      [function(p, x, y){ put(p, "rect", {x:x-8, y:y-8, width:16, height:16}, "scol"); },
+       "Columna de H&#186;A&#186;", "IfcColumn"],
+      [function(p, x, y){ put(p, "path", {d:"M " + (x-18) + " " + (y-3) + " h 36 M " +
+                                             (x-18) + " " + (y+3) + " h 36"}, "sbeam"); },
+       "Viga", "IfcBeam"],
+      [function(p, x, y){ put(p, "rect", {x:x-18, y:y-9, width:36, height:18}, "sslab");
+                          put(p, "path", {d:"M " + (x-12) + " " + y + " h 24"}, "sspan"); },
+       "Losa", "IfcSlab"]
+    ];
+    rows.forEach(function(r, i){ keyRow(g, PY + 52 + i * 30, r[0], r[1], r[2], i); });
+    card(root, PY + 150, 224, "DETECTOR", "S-01",
+      [["Mask R-CNN", "ResNet-101 FPN, transfer from COCO", "struct"],
+       ["3 labels", "column &#183; beam &#183; slab"],
+       ["mAP 0.963", "stable after 6 training sessions"],
+       ["BLD-ST", "3 237 labelled instances, augmented"],
+       ["masks, not boxes", "sloped beams are not axis-aligned"],
+       ["Google Cloud Vision", "OCR for C-XXX and V-XXX tags"]]);
+    return root;
+  })();
+
+  /* --- A-01 --- */
+  PANELS.a = (function(){
+    var root = put(G.legendBox, "g", {});
+    var g = panel(root, PY, 136, "SIMBOLOGIA &#183; ARQUITECTURA", "3 CLASSES");
+    var rows = [
+      [function(p, x, y){ put(p, "rect", {x:x-18, y:y-4, width:36, height:8}, "wallf"); },
+       "Muro", "IfcWallStandardCase"],
+      [function(p, x, y){ put(p, "rect", {x:x-14, y:y-4, width:28, height:8}, "punch");
+                          put(p, "path", {d:"M " + (x-14) + " " + y + " v 12"}, "leaf");
+                          put(p, "path", {d:"M " + (x+14) + " " + y + " A 28 28 0 0 0 " +
+                                             (x-14) + " " + (y+12)}, "swing"); },
+       "Puerta", "IfcDoor + IfcOpeningElement"],
+      [function(p, x, y){ put(p, "rect", {x:x-18, y:y-4, width:36, height:8}, "punch");
+                          [-2.2, 0, 2.2].forEach(function(k){
+                            put(p, "path", {d:"M " + (x-18) + " " + (y+k) + " h 36"}, "glass"); }); },
+       "Ventana", "IfcWindow + IfcOpeningElement"]
+    ];
+    rows.forEach(function(r, i){ keyRow(g, PY + 52 + i * 30, r[0], r[1], r[2], i); });
+    card(root, PY + 150, 224, "DETECTOR", "A-01",
+      [["Mask R-CNN", "same architecture, own training", "ink-2"],
+       ["3 labels", "wall &#183; door &#183; window"],
+       ["BLD-AR", "3 337 labelled instances, augmented"],
+       ["walls as polygons", "curved and angled walls survive"],
+       ["openings need a host", "each cuts an IfcOpeningElement"],
+       ["heights from S-02", "sections carry what plans cannot"]]);
+    return root;
+  })();
+
+  /* --- E-01 --- */
+  PANELS.e = (function(){
+    var root = put(G.legendBox, "g", {});
+    var g = panel(root, PY, 256, "SIMBOLOGIA &#183; IRAM 2010", "7 CLASSES");
+    var ROWS = [
+      ["outlet",  "Toma de corriente", "IfcOutlet"],
+      ["outlet2", "Toma doble",        "IfcOutlet"],
+      ["light",   "Boca de techo",     "IfcLightFixture"],
+      ["wlight",  "Aplique de pared",  "IfcLightFixture"],
+      ["switch",  "Interruptor",       "IfcSwitchingDevice"],
+      ["board",   "Tablero seccional", "IfcElectricDistributionBoard"],
+      ["wire",    "Ca&#241;eria / conductor", "IfcCableSegment"]
+    ];
+    ROWS.forEach(function(r, i){
+      var fn = r[0] === "wire"
+        ? function(p, x, y){ put(p, "path", {d:"M " + (x-17) + " " + y + " h 34",
+                                             stroke:"var(--elec)", "stroke-width":"1.8", fill:"none"}); }
+        : esymSwatch(r[0]);
+      keyRow(g, PY + 52 + i * 30, fn, r[1], r[2], i);
+    });
+    card(root, PY + 270, 104, "DETECTORS", "E-01",
+      [["YOLOv11m-seg &#183; 1024 px", "mAP 0.50:0.95 = 0.7368", "elec"],
+       ["DeepLSD", "pretrained, no fine-tuning, run in parallel", "ai"]]);
+    return root;
+  })();
+
+  Object.keys(PANELS).forEach(function(k){
+    PANELS[k].style.transition = "opacity .5s ease";
+    PANELS[k].style.opacity = 0;
+  });
+
+  /* =====================================================================
+     5.  the drawings themselves
+     ===================================================================== */
+
+  (function grid(){
+    var g = G.lyGrid, H = PLAN.H;
+    PLAN.grid.forEach(function(c){
+      put(g, "path", {d:"M " + c[0] + " -74 V " + (H + 82)}, "gridline");
+      [-88, H + 108].forEach(function(y){
+        put(g, "circle", {cx:c[0], cy:y, r:11}, "bub");
+        txt(g, c[0], y + 3.6, c[1], "bubt");
+      });
+    });
+    [[0,"A"],[190,"B"],[262,"C"]].forEach(function(r){
+      put(g, "path", {d:"M -66 " + r[0] + " H " + (PLAN.W + 22)}, "gridline");
+      put(g, "circle", {cx:-80, cy:r[0], r:11}, "bub");
+      txt(g, -80, r[0] + 3.6, r[1], "bubt");
+    });
+
+    var dy = H + 46;
+    put(g, "path", {d:"M 0 " + dy + " H " + PLAN.W}, "dimline");
+    PLAN.dims.forEach(function(d){
+      [d[0], d[1]].forEach(function(x){
+        put(g, "path", {d:"M " + (x - 4) + " " + (dy + 4) + " L " + (x + 4) + " " + (dy - 4)}, "dimline");
+        put(g, "path", {d:"M " + x + " " + (dy - 9) + " V " + (dy + 9)}, "dimline");
+      });
+      txt(g, (d[0] + d[1]) / 2, dy - 6, d[2], "dimt");
+    });
+    txt(g, PLAN.W / 2, dy + 28, "22.91", "dimt");
+    put(g, "path", {d:"M 0 " + (dy + 24) + " H " + (PLAN.W / 2 - 22) +
+                       " M " + (PLAN.W / 2 + 22) + " " + (dy + 24) + " H " + PLAN.W}, "dimline");
+    put(g, "path", {d:"M -40 0 V " + H}, "dimline");
+    txt(g, -40, H / 2, "6.25", "dimt", {transform:"rotate(-90 -40 " + (H/2) + ")", dy:"-4"});
+  })();
+
+  /* ---- S-01: slabs, beams above the cut plane, columns ---- */
+  (function structural(){
+    var gs = G.lySlab, g = G.lyStruct, t = G.lyStructT;
+
+    PLAN.slabs.forEach(function(s){
+      var x0 = s[0] + 9, y0 = s[1] + 9, x1 = s[2] - 9, y1 = s[3] - 9;
+      put(gs, "rect", {x:x0, y:y0, width:x1 - x0, height:y1 - y0}, "sslab");
+      /* span arrow along the shorter side */
+      var cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+      var horiz = (x1 - x0) < (y1 - y0);
+      var L = Math.min(horiz ? (x1 - x0) : (y1 - y0), 120) * 0.62;
+      var a = horiz ? [cx - L, cy, cx + L, cy] : [cx, cy - L, cx, cy + L];
+      put(gs, "path", {d:"M " + a[0] + " " + a[1] + " L " + a[2] + " " + a[3]}, "sspan");
+      [[a[0], a[1], a[2], a[3]], [a[2], a[3], a[0], a[1]]].forEach(function(e){
+        var dx = e[0] - e[2], dy = e[1] - e[3], L2 = Math.hypot(dx, dy) || 1;
+        var ux = dx / L2, uy = dy / L2, px = -uy, py = ux;
+        put(gs, "path", {d:"M " + e[0] + " " + e[1] +
+                            " L " + (e[0] - ux*7 + px*2.6) + " " + (e[1] - uy*7 + py*2.6) +
+                            " L " + (e[0] - ux*7 - px*2.6) + " " + (e[1] - uy*7 - py*2.6) + " Z",
+                         fill:"var(--struct)", stroke:"none", opacity:".7"});
+      });
+      txt(gs, x0 + 6, y1 - 6, s[4] + " &#183; e=0.12", "stag");
+    });
+
+    BEAMS.forEach(function(b){
+      var h = b.t / 2;
+      if (b.horiz){
+        put(g, "path", {d:"M " + b.a + " " + (b.fixed - h) + " H " + b.b}, "sbeam");
+        put(g, "path", {d:"M " + b.a + " " + (b.fixed + h) + " H " + b.b}, "sbeam");
+      } else {
+        put(g, "path", {d:"M " + (b.fixed - h) + " " + b.a + " V " + b.b}, "sbeam");
+        put(g, "path", {d:"M " + (b.fixed + h) + " " + b.a + " V " + b.b}, "sbeam");
+      }
+      var m = (b.a + b.b) / 2, lab = b.id + " " + b.sec;
+      if (b.horiz){
+        var ty = b.fixed <= 0 ? b.fixed - 8 : (b.fixed >= PLAN.H ? b.fixed + 17 : b.fixed + 15);
+        txt(t, m, ty, lab, "stag c");
+      } else {
+        txt(t, b.fixed - 9, m, lab, "stag c",
+            {transform:"rotate(-90 " + (b.fixed - 9) + " " + m + ")"});
+      }
+    });
+
+    COLS.forEach(function(c){
+      put(g, "rect", {x:c.x - 6.5, y:c.y - 6.5, width:13, height:13}, "scol");
+      var up = c.y < PLAN.H / 2;
+      txt(t, c.x + 10, c.y + (up ? -9 : 17), c.id, "stag");
+    });
+  })();
+
+  /* ---- S-02: where the third dimension comes from ---- */
+  (function levels(){
+    var g = G.lyLevel, X = 520, H = PLAN.H;
+    put(g, "path", {d:"M " + X + " -104 V " + (H + 118),
+                    stroke:"var(--struct)", "stroke-width":"1.1", fill:"none",
+                    "stroke-dasharray":"20 4 4 4"});
+    [[-104, 1], [H + 118, -1]].forEach(function(e){
+      put(g, "path", {d:"M " + X + " " + e[0] + " h -34", stroke:"var(--struct)",
+                      "stroke-width":"1.6", fill:"none"});
+      put(g, "path", {d:"M " + (X - 34) + " " + e[0] + " l 11 " + (-7 * e[1]) +
+                         " v " + (14 * e[1]) + " Z", fill:"var(--struct)"});
+      put(g, "circle", {cx:X - 52, cy:e[0], r:11, fill:"var(--sheet)",
+                        stroke:"var(--struct)", "stroke-width":"1.1"});
+      txt(g, X - 52, e[0] + 4, "A", "bubt", {fill:"var(--struct)"});
+    });
+    [[150, 0, "+2.60"], [700, 0, "+2.60"], [420, 190, "+2.60"]].forEach(function(p){
+      put(g, "path", {d:"M " + (p[0] - 20) + " " + (p[1] - 22) + " l 7 8 l 7 -8 Z",
+                      fill:"none", stroke:"var(--struct)", "stroke-width":"1"});
+      txt(g, p[0] + 2, p[1] - 18, p[2], "stag");
+    });
+    txt(g, 640, 250, "N.P.T. &#177;0.00 &#183; losa e=0.12 &#183; viga 0.50", "stag");
+  })();
+
+  /* ---- A-01 ---- */
+  (function architecture(){
+    var g = G.lyArch;
+
+    PLAN.walls.forEach(function(w){
+      var t = w[4] / 2;
+      var x = Math.min(w[0], w[2]) - t, y = Math.min(w[1], w[3]) - t;
+      var ww = Math.abs(w[2] - w[0]) + w[4], hh = Math.abs(w[3] - w[1]) + w[4];
+      put(g, "rect", {x:x, y:y, width:ww, height:hh}, "wallf");
+    });
+
+    PLAN.openings.forEach(function(o){
+      var ax = o[0], ay = o[1], bx = o[2], by = o[3], kind = o[4], dir = o[5];
+      var dx = bx - ax, dy = by - ay, L = Math.hypot(dx, dy);
+      var ux = dx / L, uy = dy / L, px = -uy, py = ux;
+      var t = 7;
+      put(g, "polygon", {points:poly([
+        [ax + px*t, ay + py*t], [bx + px*t, by + py*t],
+        [bx - px*t, by - py*t], [ax - px*t, ay - py*t]])}, "punch");
+
+      if (kind === "win"){
+        [-2.2, 0, 2.2].forEach(function(k){
+          put(g, "path", {d:"M " + (ax + px*k) + " " + (ay + py*k) +
+                             " L " + (bx + px*k) + " " + (by + py*k)}, "glass");
+        });
+      } else {
+        var lx = ax + px*dir*L, ly = ay + py*dir*L;
+        put(g, "path", {d:"M " + ax + " " + ay + " L " + lx + " " + ly}, "leaf");
+        put(g, "path", {d:"M " + bx + " " + by + " A " + L + " " + L + " 0 0 " +
+                           (dir > 0 ? 1 : 0) + " " + lx + " " + ly}, "swing");
+      }
+    });
+
+    PLAN.rooms.forEach(function(r){
+      var n = txt(g, r[0], r[1], "", "roomt");
+      n.innerHTML = '<tspan x="' + r[0] + '">' + r[2] + '</tspan>' +
+                    '<tspan class="a" x="' + r[0] + '" dy="12">' + r[3] + '</tspan>';
+    });
+  })();
+
+  (function furniture(){
+    var g = G.lyFurn, d = [];
+    function bed(x, y, w, h){
+      d.push("M " + x + " " + y + " h " + w + " v " + h + " h " + (-w) + " Z");
+      d.push("M " + (x+4) + " " + (y+4) + " h " + (w-8) + " v 16 h " + (8-w) + " Z");
+      d.push("M " + x + " " + (y + h - 16) + " h " + w);
+    }
+    function tableSet(cx, cy, w, h){
+      d.push("M " + (cx-w/2) + " " + (cy-h/2) + " h " + w + " v " + h + " h " + (-w) + " Z");
+      for (var i = 0; i < 3; i++){
+        var x = cx - w/2 + 10 + i * ((w - 20) / 2);
+        d.push("M " + (x-7) + " " + (cy-h/2-11) + " h 14 v 8 h -14 Z");
+        d.push("M " + (x-7) + " " + (cy+h/2+3)  + " h 14 v 8 h -14 Z");
+      }
+    }
+    function sofa(x, y, w, h){
+      d.push("M " + x + " " + y + " h " + w + " v " + h + " h " + (-w) + " Z");
+      d.push("M " + (x+7) + " " + (y+5) + " v " + (h-10) + " M " + (x+w-7) + " " + (y+5) + " v " + (h-10));
+      d.push("M " + (x + w/2) + " " + (y+5) + " v " + (h-10));
+    }
+    function wardrobe(x, y, w, h){
+      d.push("M " + x + " " + y + " h " + w + " v " + h + " h " + (-w) + " Z");
+      d.push("M " + (x + w/2) + " " + y + " v " + h);
+    }
+    d.push("M 10 10 h 26 v 130 h -26 Z");
+    d.push("M 14 18 h 18 v 22 h -18 Z");
+    [[23,58],[23,76],[23,94],[23,112]].forEach(function(p){
+      d.push("M " + (p[0]-5.5) + " " + p[1] + " a 5.5 5.5 0 1 0 11 0 a 5.5 5.5 0 1 0 -11 0");
+    });
+    wardrobe(12, 148, 30, 46);
+    tableSet(232, 96, 84, 46);
+    sofa(320, 128, 78, 34);
+    bed(452, 20, 76, 96);
+    wardrobe(560, 22, 30, 74);
+    d.push("M 612 22 h 34 v 34 h -34 Z");
+    d.push("M 612 22 l 34 34 M 646 22 l -34 34");
+    d.push("M 668 26 a 12 9 0 1 0 24 0 a 12 9 0 1 0 -24 0");
+    d.push("M 674 100 h 14 v 20 a 7 10 0 0 1 -14 0 Z");
+    d.push("M 672 92 h 18 v 8 h -18 Z");
+    bed(742, 20, 76, 96);
+    wardrobe(900, 22, 30, 74);
+    put(g, "path", {d:d.join(" ")}, "furn");
+  })();
+
+  /* =====================================================================
+     6.  E-01 and the geometry every later pass reuses
+     ===================================================================== */
+
+  function route(a, b, trunk){
+    if (Math.abs(a.y - b.y) < 4) return [[a.x, a.y], [b.x, b.y]];
+    if (Math.abs(a.x - b.x) < 4) return [[a.x, a.y], [b.x, b.y]];
+    var p = [[a.x, a.y]];
+    if (Math.abs(a.y - trunk) > 1) p.push([a.x, trunk]);
+    if (Math.abs(b.x - a.x) > 1)   p.push([b.x, trunk]);
+    p.push([b.x, b.y]);
+    return p;
+  }
+
+  var EDGES = [], SEGS = [];
+  CIRCUITS.forEach(function(c){
+    c.chains.forEach(function(ch){
+      for (var i = 0; i < ch.n.length - 1; i++){
+        var A = byId[ch.n[i]], B = byId[ch.n[i+1]];
+        var pts = route(A, B, ch.t);
+        EDGES.push({a:A.id, b:B.id, pts:pts, circ:c.id});
+        for (var j = 0; j < pts.length - 1; j++){
+          if (Math.hypot(pts[j+1][0]-pts[j][0], pts[j+1][1]-pts[j][1]) < 2) continue;
+          SEGS.push({x1:pts[j][0], y1:pts[j][1], x2:pts[j+1][0], y2:pts[j+1][1], circ:c.id});
+        }
+      }
+    });
+  });
+
+  (function asDrawn(){
+    var g = G.lyDrawn;
+    EDGES.forEach(function(e, i){
+      var A = byId[e.a], B = byId[e.b];
+      var mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2;
+      var dx = B.x - A.x, dy = B.y - A.y, L = Math.hypot(dx, dy) || 1;
+      var bow = (rnd(i) - 0.4) * Math.min(L * 0.30, 34);
+      var p = put(g, "path", {d:"M " + A.x + " " + A.y + " Q " +
+                 (mx - dy / L * bow) + " " + (my + dx / L * bow) + " " + B.x + " " + B.y}, "eink");
+      p.dataset.circ = e.circ;
+    });
+  })();
+
+  (function symbols(){
+    var g = G.lySym;
+    SYM.forEach(function(s){
+      var n = put(g, "g", {transform:"translate(" + s.x + "," + s.y + ") rotate(" + s.r + ")"}, "esym pop");
+      var u = put(n, "use", {});
+      u.setAttributeNS(XL, "xlink:href", "#s-" + s.k);
+      u.setAttribute("href", "#s-" + s.k);
+      n.dataset.id = s.id;
+      s.node = n;
+      if (s.lb) txt(g, s.x + 9, s.y - 8, s.lb, "etag");
+      if (s.k === "board") txt(g, s.x, s.y + 18, "TS", "etag", {"text-anchor":"middle"});
+    });
+  })();
+
+  /* =====================================================================
+     7.  what the models give back
+     ===================================================================== */
+
+  /* a jittered strip around a segment - how a mask sits on a beam or a wall */
+  function strip(x0, y0, x1, y1, w, seed){
+    var dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy) || 1;
+    var ux = dx / L, uy = dy / L, px = -uy, py = ux, n = 5, i, t, j, pts = [];
+    for (i = 0; i <= n; i++){
+      t = i / n; j = w * (0.88 + rnd(seed * 7 + i) * 0.34);
+      pts.push([x0 + ux*L*t + px*j, y0 + uy*L*t + py*j]);
+    }
+    for (i = n; i >= 0; i--){
+      t = i / n; j = w * (0.88 + rnd(seed * 7 + i + 41) * 0.34);
+      pts.push([x0 + ux*L*t - px*j, y0 + uy*L*t - py*j]);
+    }
+    return pts;
+  }
+  function chip(g, cx, topY, label, col){
+    var w = label.length * 6.1 + 12;
+    var bx = cx - w / 2;
+    put(g, "rect", {x:bx, y:topY, width:w, height:16, rx:2, fill:"var(--" + (col || "ai") + ")"});
+    txt(g, bx + 6, topY + 11.5, label, "chip-t", {"font-size":"10.5"});
+  }
+
+  /* --- structural masks: column, beam, slab --- */
+  (function structuralMasks(){
+    var g = G.lyStructM, i = 0;
+    PLAN.slabs.forEach(function(s, k){
+      var grp = put(g, "g", {}, "pop");
+      grp.dataset.cls = "slab";
+      var pad = 12;
+      put(grp, "polygon", {points:poly([
+        [s[0]+pad, s[1]+pad], [s[2]-pad, s[1]+pad + rnd(k)*3],
+        [s[2]-pad, s[3]-pad], [s[0]+pad + rnd(k+9)*3, s[3]-pad]])}, "mask thin-m");
+    });
+    BEAMS.forEach(function(b, k){
+      var grp = put(g, "g", {}, "pop");
+      grp.dataset.cls = "beam";
+      var pts = b.horiz ? strip(b.a + 4, b.fixed, b.b - 4, b.fixed, b.t * 0.62, k + 3)
+                        : strip(b.fixed, b.a + 4, b.fixed, b.b - 4, b.t * 0.62, k + 3);
+      put(grp, "polygon", {points:poly(pts)}, "mask");
+    });
+    COLS.forEach(function(c, k){
+      var grp = put(g, "g", {}, "pop");
+      grp.dataset.cls = "column";
+      grp.dataset.id = c.id;
+      put(grp, "polygon", {points:poly(blob(c.x, c.y, 11, 11, k + 17, 8))}, "mask");
+      c.score = (0.88 + rnd(k + 5) * 0.11).toFixed(2);
+    });
+    /* three readable score chips */
+    var cg = g.querySelector('g[data-id="C-04"]');
+    if (cg) chip(cg, 600, -34, "column  " + COLS[3].score);
+    var bg = g.querySelectorAll('g[data-cls="beam"]')[1];
+    if (bg) chip(bg, 285, -26, "beam  0.94");
+    var sg = g.querySelectorAll('g[data-cls="slab"]')[4];
+    if (sg) chip(sg, 830, 140, "slab  0.91");
+  })();
+
+  /* --- the tags, once OCR has read them and bound them to elements --- */
+  (function ocrLayer(){
+    var g = put(G.lyStructM, "g", {id:"ocrG"});
+    G.ocrG = g;
+    COLS.forEach(function(c, k){
+      var up = c.y < PLAN.H / 2;
+      var bx = c.x + 8, by = c.y + (up ? -19 : 7);
+      put(g, "rect", {x:bx, y:by, width:29, height:12, rx:1.5}, "bbox");
+    });
+    BEAMS.forEach(function(b){
+      var m = (b.a + b.b) / 2;
+      if (b.horiz){
+        var ty = b.fixed <= 0 ? b.fixed - 17 : (b.fixed >= PLAN.H ? b.fixed + 8 : b.fixed + 6);
+        put(g, "rect", {x:m - 32, y:ty, width:64, height:12, rx:1.5}, "bbox");
+      } else {
+        put(g, "rect", {x:b.fixed - 15, y:m - 32, width:12, height:64, rx:1.5}, "bbox");
+      }
+    });
+    /* one worked pairing, on a column and the beam it names */
+    put(g, "path", {d:"M 620 -8 L 660 -30"}, "rel");
+    chip(g, 700, -42, "C-04  \u2192  30x30  h 2.60");
+    put(g, "path", {d:"M 285 12 L 300 30"}, "rel");
+    chip(g, 350, 30, "V-101  \u2192  0.20 x 0.50");
+  })();
+
+  /* --- the structural graph: what holds what --- */
+  (function structGraph(){
+    var g = put(G.lyRel, "g", {id:"lyRelS"}, "lay");
+    G.lyRelS = g;
+    BEAMS.forEach(function(b){
+      var p = b.horiz ? [b.a, b.fixed, b.b, b.fixed] : [b.fixed, b.a, b.fixed, b.b];
+      put(g, "line", {x1:p[0], y1:p[1], x2:p[2], y2:p[3],
+                      stroke:"var(--ai)", "stroke-width":"1.6"});
+    });
+    COLS.forEach(function(c){
+      put(g, "circle", {cx:c.x, cy:c.y, r:4.6, fill:"var(--ai)"}, "node-d");
+    });
+    put(g, "circle", {cx:150, cy:190, r:20, fill:"none", stroke:"var(--ai)", "stroke-width":"1.2"});
+    chip(g, 150, 218, "C-13  \u00b7  4 beams", "ai");
+    chip(g, 700, 218, "max 4 beams / column  \u00b7  2 columns / beam", "ai");
+  })();
+
+  /* --- architectural masks: wall polygons, and openings on their host --- */
+  (function archMasks(){
+    var g = G.lyArchM;
+    PLAN.walls.forEach(function(w, k){
+      var grp = put(g, "g", {}, "pop");
+      grp.dataset.cls = "wall";
+      put(grp, "polygon", {points:poly(strip(w[0], w[1], w[2], w[3], w[4] / 2 + 2.2, k + 60))}, "mask");
+    });
+    PLAN.openings.forEach(function(o, k){
+      var grp = put(g, "g", {}, "pop");
+      grp.dataset.cls = o[4];
+      grp.dataset.i = k;
+      put(grp, "polygon", {points:poly(strip(o[0], o[1], o[2], o[3], 7.5, k + 90))}, "mask");
+    });
+    chip(g.querySelectorAll('g[data-cls="wall"]')[5], 555, 166, "wall  0.96");
+    chip(g.querySelectorAll('g[data-cls="door"]')[2], 276, 214, "door  0.93");
+    chip(g.querySelectorAll('g[data-cls="win"]')[0], 280, -28, "window  0.95");
+  })();
+
+  /* --- the host relationship, and the void each opening cuts --- */
+  (function hostRel(){
+    var g = put(G.lyRel, "g", {id:"lyRelA"}, "lay");
+    G.lyRelA = g;
+    PLAN.openings.forEach(function(o){
+      var cx = (o[0] + o[2]) / 2, cy = (o[1] + o[3]) / 2;
+      var horiz = Math.abs(o[1] - o[3]) < 1;
+      put(g, "rect", {x:cx - (horiz ? Math.abs(o[2]-o[0])/2 + 3 : 8),
+                      y:cy - (horiz ? 8 : Math.abs(o[3]-o[1])/2 + 3),
+                      width:(horiz ? Math.abs(o[2]-o[0]) + 6 : 16),
+                      height:(horiz ? 16 : Math.abs(o[3]-o[1]) + 6)},
+          "reg");
+      put(g, "path", {d:"M " + cx + " " + cy + " l " + (horiz ? "0 -26" : "-26 0")}, "rel");
+    });
+    chip(g, 300, 236, "IfcDoor hosted by wall B  \u00b7  void cut", "ai");
+  })();
+
+  /* --- registration targets on the shared columns --- */
+  (function regTargets(){
+    var g = G.lyReg;
+    [[0,0],[960,0],[0,262],[960,262],[420,190],[700,0]].forEach(function(c){
+      put(g, "circle", {cx:c[0], cy:c[1], r:17}, "reg");
+      put(g, "path", {d:"M " + (c[0]-24) + " " + c[1] + " h 14 M " + (c[0]+10) + " " + c[1] +
+                         " h 14 M " + c[0] + " " + (c[1]-24) + " v 14 M " + c[0] + " " +
+                         (c[1]+10) + " v 14"}, "reg");
+    });
+    chip(g, 480, -60, "6 shared columns  \u00b7  rotate + rescale to S-01", "ai");
+  })();
+
+  var SPAN = {board:[16,9], light:[9,9], wlight:[8,6], "switch":[8,8], outlet:[9,7], outlet2:[9,7]};
+
+  (function masks(){
+    var g = G.lyMask;
+    SYM.forEach(function(s, i){
+      var sp = SPAN[s.k], w = sp[0] + 4, h = sp[1] + 5;
+      var pts = blob(s.x, s.y, w, h * 1.05, i, 10);
+      var grp = put(g, "g", {}, "pop");
+      grp.dataset.id = s.id;
+      put(grp, "polygon", {points:poly(pts)}, "mask");
+      s.mask = pts;
+      s.score = (0.83 + rnd(i + 3) * 0.16).toFixed(2);
+    });
+    [["O2", "outlet, 2 mod"], ["L3", "light point"], ["TS", "distribution board"]].forEach(function(c){
+      var s = byId[c[0]];
+      var grp = g.querySelector('g[data-id="' + c[0] + '"]');
+      var lab = c[1] + "  " + s.score;
+      var by = s.y - SPAN[s.k][1] - 26;
+      chip(grp, s.x, by, lab);
+      put(grp, "path", {d:"M " + s.x + " " + (by + 16) + " V " + (s.y - SPAN[s.k][1] - 4),
+                        stroke:"var(--ai)", "stroke-width":".9", fill:"none"});
+    });
+  })();
+
+  var JUNK = [];
+  (function lines(){
+    var g = G.lyLine;
+    SEGS.forEach(function(sg, i){
+      var grp = put(g, "g", {}, "kept");
+      put(grp, "line", {x1:sg.x1, y1:sg.y1, x2:sg.x2, y2:sg.y2}, "seg");
+      put(grp, "circle", {cx:sg.x1, cy:sg.y1, r:2.4}, "kp");
+      put(grp, "circle", {cx:sg.x2, cy:sg.y2, r:2.4}, "kp");
+      grp.dataset.i = i;
+    });
+    PLAN.walls.forEach(function(w){ JUNK.push([w[0], w[1], w[2], w[3]]); });
+    PLAN.dims.forEach(function(d){ JUNK.push([d[0], PLAN.H + 46, d[1], PLAN.H + 46]); });
+    SYM.forEach(function(s){
+      var sp = SPAN[s.k];
+      JUNK.push([s.x - sp[0] * 0.6, s.y, s.x + sp[0] * 0.6, s.y]);
+      JUNK.push([s.x, s.y - sp[1] * 0.6, s.x, s.y + sp[1] * 0.7]);
+    });
+    JUNK.forEach(function(j, i){
+      var grp = put(g, "g", {}, "junk");
+      put(grp, "line", {x1:j[0], y1:j[1], x2:j[2], y2:j[3]}, "seg junk");
+      put(grp, "circle", {cx:j[0], cy:j[1], r:1.7, "stroke-width":".9", stroke:"var(--ink-3)"}, "kp");
+      put(grp, "circle", {cx:j[2], cy:j[3], r:1.7, "stroke-width":".9", stroke:"var(--ink-3)"}, "kp");
+      grp.dataset.j = i;
+    });
+  })();
+
+  (function runs(){
+    var g = G.lyRun;
+    CIRCUITS.forEach(function(c){
+      var cg = put(g, "g", {}, "c-" + c.id);
+      cg.dataset.circ = c.id;
+      c.chains.forEach(function(ch){
+        for (var i = 0; i < ch.n.length - 1; i++){
+          var pts = route(byId[ch.n[i]], byId[ch.n[i+1]], ch.t);
+          var p = put(cg, "polyline", {points:poly(pts), stroke:"var(--" + c.col + ")"}, "run");
+          p.dataset.circ = c.id;
+        }
+      });
+      var seen = {};
+      c.chains.forEach(function(ch){ ch.n.forEach(function(id){ seen[id] = 1; }); });
+      Object.keys(seen).forEach(function(id){
+        var s = byId[id];
+        put(cg, "circle", {cx:s.x, cy:s.y, r:3.4, fill:"var(--" + c.col + ")"}, "node-d");
+      });
+    });
+  })();
+
+  function setCallout(id, letter, note){
+    G.lyCall.innerHTML = "";
+    if (!id) return;
+    var s = byId[id], R = 30, g = G.lyCall;
+    put(g, "circle", {cx:s.x, cy:s.y, r:R, fill:"none", stroke:"var(--ink)", "stroke-width":"1.2"});
+    put(g, "circle", {cx:s.x, cy:s.y, r:R + 5, fill:"none", stroke:"var(--ink)",
+                      "stroke-width":".7", "stroke-dasharray":"2 3", opacity:".5"});
+    var ex = s.x + 96, ey = s.y - 62;
+    put(g, "path", {d:"M " + (s.x + R * .72) + " " + (s.y - R * .72) + " L " + ex + " " + ey +
+                       " h 30", fill:"none", stroke:"var(--ink)", "stroke-width":"1"});
+    put(g, "circle", {cx:ex + 42, cy:ey, r:11, fill:"var(--ink)"});
+    txt(g, ex + 42, ey + 4, letter, "bubt", {fill:"var(--sheet)", "font-size":"11"});
+    if (note) txt(g, ex + 58, ey + 4, note, "dm", {"font-size":"9.5", fill:"var(--ink-2)"});
+  }
+
+  /* =====================================================================
+     8.  the same house, extruded.  Nothing here is drawn by hand: the
+         frame, the envelope and the conduit all come from the arrays above,
+         and each part carries the phase in which it joins the model.
+     ===================================================================== */
+
+  var WALL_H = 105, BEAM_TOP = 126, SLAB_TOP = 131;
+  var ZOF = {board:58, light:WALL_H - 3, wlight:76, "switch":50, outlet:32, outlet2:32};
+  var isoParts = [];          /* {node, ph} - driven by the last pass */
+
+  (function axonometric(){
+    var C = Math.cos(Math.PI / 6), S = 0.5;
+    function P(x, y, z){ return [(x - y) * C, (x + y) * S - z]; }
+
+    var faces = [];
+    function box(x0, y0, x1, y1, z0, z1, cls, keyBias, ph){
+      var key = (x0 + x1 + y0 + y1) / 2 + (keyBias || 0);
+      faces.push({pts:[P(x0,y0,z1), P(x1,y0,z1), P(x1,y1,z1), P(x0,y1,z1)], cls:cls + " f-top", key:key, ph:ph});
+      faces.push({pts:[P(x1,y0,z0), P(x1,y1,z0), P(x1,y1,z1), P(x1,y0,z1)], cls:cls + " f-x",   key:key, ph:ph});
+      faces.push({pts:[P(x0,y1,z0), P(x1,y1,z0), P(x1,y1,z1), P(x0,y1,z1)], cls:cls + " f-y",   key:key, ph:ph});
+    }
+
+    var ground = [P(-6,-6,0), P(PLAN.W+6,-6,0), P(PLAN.W+6,PLAN.H+6,0), P(-6,PLAN.H+6,0)];
+
+    /* 1 - the frame: columns, then the beams they carry */
+    COLS.forEach(function(c){ box(c.x - 7, c.y - 7, c.x + 7, c.y + 7, 0, BEAM_TOP, "iso-col", 3, 1); });
+    BEAMS.forEach(function(b){
+      var h = b.t / 2;
+      if (b.horiz) box(b.a, b.fixed - h, b.b, b.fixed + h, WALL_H, BEAM_TOP, "iso-beam", 1, 2);
+      else         box(b.fixed - h, b.a, b.fixed + h, b.b, WALL_H, BEAM_TOP, "iso-beam", 1, 2);
+    });
+    /* 2 - the slabs the beams carry */
+    PLAN.slabs.forEach(function(s){ box(s[0], s[1], s[2], s[3], BEAM_TOP, SLAB_TOP, "iso-slab", 0, 3); });
+
+    /* 3 - the envelope, split around its openings */
+    PLAN.walls.forEach(function(w){
+      var horiz = Math.abs(w[1] - w[3]) < 1;
+      var t = w[4] / 2;
+      var a = horiz ? Math.min(w[0], w[2]) : Math.min(w[1], w[3]);
+      var b = horiz ? Math.max(w[0], w[2]) : Math.max(w[1], w[3]);
+      var fixed = horiz ? w[1] : w[0];
+
+      var gaps = [];
+      PLAN.openings.forEach(function(o){
+        var oh = Math.abs(o[1] - o[3]) < 1;
+        if (oh !== horiz) return;
+        var of_ = oh ? o[1] : o[0];
+        if (Math.abs(of_ - fixed) > 1) return;
+        var g0 = Math.min(oh ? o[0] : o[1], oh ? o[2] : o[3]);
+        var g1 = Math.max(oh ? o[0] : o[1], oh ? o[2] : o[3]);
+        if (g1 < a || g0 > b) return;
+        gaps.push([Math.max(g0, a), Math.min(g1, b), o[4]]);
+      });
+      gaps.sort(function(p, q){ return p[0] - q[0]; });
+
+      function emit(u0, u1, z0, z1){
+        if (u1 - u0 < 1.2) return;
+        if (horiz) box(u0, fixed - t, u1, fixed + t, z0, z1, "iso-wall", 0, 4);
+        else       box(fixed - t, u0, fixed + t, u1, z0, z1, "iso-wall", 0, 4);
+      }
+      var cur = a;
+      gaps.forEach(function(g){
+        emit(cur, g[0], 0, WALL_H);
+        if (g[2] === "win"){ emit(g[0], g[1], 0, 30); emit(g[0], g[1], 92, WALL_H); }
+        cur = g[1];
+      });
+      emit(cur, b, 0, WALL_H);
+    });
+
+    /* 4 - conduit: lighting rides the ceiling, outlets ride the wall */
+    var TRUNKZ = {c1:WALL_H - 9, c2:32, c3:32};
+    var wires = [];
+    EDGES.forEach(function(e){
+      var A = byId[e.a], B = byId[e.b], tz = TRUNKZ[e.circ];
+      var path3 = [[A.x, A.y, ZOF[A.k]]];
+      e.pts.forEach(function(p){ path3.push([p[0], p[1], tz]); });
+      path3.push([B.x, B.y, ZOF[B.k]]);
+      wires.push({pts:path3.map(function(p){ return P(p[0], p[1], p[2]); }), circ:e.circ});
+    });
+
+    faces.sort(function(p, q){ return p.key - q.key; });
+    var root = G.isoRoot;
+    var inner = put(root, "g", {});
+    isoParts.push({node:put(inner, "polygon", {points:poly(ground)}, "iso-ground"), ph:0});
+    faces.forEach(function(f){
+      isoParts.push({node:put(inner, "polygon", {points:poly(f.pts)}, f.cls), ph:f.ph});
+    });
+
+    var mep = put(inner, "g", {}, "iso-mep");
+    wires.forEach(function(w){
+      var c = w.circ === "c1" ? "elec" : (w.circ === "c2" ? "gas" : "water");
+      isoParts.push({node:put(mep, "polyline", {points:poly(w.pts), stroke:"var(--" + c + ")"}, "iso-wire"), ph:5});
+    });
+    SYM.forEach(function(s){
+      var c = s.c === "c1" || s.c === "main" ? "elec" : (s.c === "c2" ? "gas" : "water");
+      var p = P(s.x, s.y, ZOF[s.k]), r = s.k === "board" ? 5.5 : 3.6;
+      isoParts.push({node:put(mep, "polygon", {points:poly([[p[0], p[1]-r], [p[0]+r, p[1]],
+                     [p[0], p[1]+r], [p[0]-r, p[1]]]), fill:"var(--" + c + ")"}, "iso-dev"), ph:5});
+    });
+
+    var bb = inner.getBBox();
+    var k  = Math.min(1020 / bb.width, 470 / bb.height);
+    var tx = 520 - (bb.x + bb.width / 2) * k;
+    var ty = 292 - (bb.y + bb.height / 2) * k;
+    inner.setAttribute("transform", "translate(" + tx.toFixed(1) + "," + ty.toFixed(1) + ") scale(" + k.toFixed(4) + ")");
+
+    txt(root, 44, 540, "AXONOMETRIC &#183; FEDERATED MODEL", "tbk", {"font-size":"9.5"});
+    txt(root, 44, 559, "one coordinate system, one storey, four partial models merged", "tbv", {"font-size":"10.5"});
+    txt(root, 44, 575, "slabs drawn transparent &#183; lighting at ceiling height, outlets at socket height", "tbv",
+        {"font-size":"9.5", fill:"var(--ink-3)"});
+
+    /* what actually got written, counted off the arrays above */
+    function nOf(){ var ks = arguments, n = 0;
+      SYM.forEach(function(y){ for (var i = 0; i < ks.length; i++) if (y.k === ks[i]) n++; });
+      return n; }
+    var nDoor = PLAN.openings.filter(function(o){ return o[4] === "door"; }).length;
+    var nWin  = PLAN.openings.filter(function(o){ return o[4] === "win"; }).length;
+    var TALLY = [
+      ["IfcColumn",                    COLS.length,       "S-01"],
+      ["IfcBeam",                      BEAMS.length,      "S-01"],
+      ["IfcSlab",                      PLAN.slabs.length, "S-01"],
+      ["IfcWallStandardCase",          PLAN.walls.length, "A-01"],
+      ["IfcDoor",                      nDoor,             "A-01"],
+      ["IfcWindow",                    nWin,              "A-01"],
+      ["IfcOpeningElement",            nDoor + nWin,      "A-01"],
+      ["IfcOutlet",                    nOf("outlet", "outlet2"), "E-01"],
+      ["IfcLightFixture",              nOf("light", "wlight"),   "E-01"],
+      ["IfcSwitchingDevice",           nOf("switch"),     "E-01"],
+      ["IfcElectricDistributionBoard", nOf("board"),      "E-01"],
+      ["IfcCableSegment",              EDGES.length,      "E-01"],
+      ["IfcDistributionPort",          EDGES.length * 2,  "E-01"],
+      ["IfcSystem",                    CIRCUITS.length,   "E-01"]
+    ];
+    var total = TALLY.reduce(function(a, r){ return a + r[1]; }, 0);
+    var SY = 62, SH = 30 + 16 + TALLY.length * 22 + 26;
+    put(root, "rect", {x:PX, y:SY, width:PW, height:SH}, "tb");
+    put(root, "path", {d:"M " + PX + " " + (SY+30) + " H " + (PX+PW)}, "tb");
+    txt(root, PX+12, SY+20, "MODEL CONTENTS &#183; IFC 4", "tbk");
+    txt(root, PX+PW-12, SY+20, total + " ENTITIES", "tbk", {"text-anchor":"end"});
+    var SHC = {"S-01":"struct", "A-01":"ink-2", "E-01":"elec"};
+    TALLY.forEach(function(t, i){
+      var y = SY + 30 + 18 + i * 22;
+      if (i) rule(root, y - 15);
+      txt(root, PX+14, y, t[0], "tbv", {"font-size":"10", fill:"var(--bim)"});
+      txt(root, PX+PW-52, y, t[2], "tbv",
+          {"text-anchor":"end", "font-size":"8.5", fill:"var(--" + SHC[t[2]] + ")"});
+      txt(root, PX+PW-14, y, String(t[1]), "tbv",
+          {"text-anchor":"end", "font-size":"11.5", fill:"var(--ink)"});
+    });
+    txt(root, PX+14, SY+SH-12, "inside IfcProject / IfcSite / IfcBuilding / IfcBuildingStorey", "tbk",
+        {"font-size":"7.5"});
+  })();
+
+  /* =====================================================================
+     9.  the detail callout - redrawn from scratch on every pass
+     ===================================================================== */
+
+  function dbox(x, y, w, h, extra){
+    return '<rect class="dbox" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h +
+           '" rx="2"' + (extra || "") + '/>';
+  }
+  function arrow(x1, y1, x2, y2){
+    var a = Math.atan2(y2 - y1, x2 - x1);
+    return '<path class="darr" d="M ' + x1 + ' ' + y1 + ' L ' + x2 + ' ' + y2 + '"/>' +
+           '<path d="M ' + x2 + ' ' + y2 +
+             ' L ' + (x2 - 6 * Math.cos(a - .42)) + ' ' + (y2 - 6 * Math.sin(a - .42)) +
+             ' L ' + (x2 - 6 * Math.cos(a + .42)) + ' ' + (y2 - 6 * Math.sin(a + .42)) +
+             ' Z" fill="var(--ink-3)"/>';
+  }
+  function lbl(x, y, s, cls){ return '<text class="' + (cls || "dm") + '" x="' + x + '" y="' + y + '">' + s + '</text>'; }
+  function ctr(x, y, s, cls){ return '<text class="' + (cls || "dm") + '" x="' + x + '" y="' + y + '" text-anchor="middle">' + s + '</text>'; }
+  var OUTLET_G = '<path d="M -7.5 0 A 7.5 7.5 0 0 1 7.5 0"/><path d="M 0 0 V 9.5"/>' +
+                 '<path d="M -2.6 5.4 L 0 9.8 L 2.6 5.4"/>';
+
+  var DETAIL = {};
+
+  /* --- 01  the set, and what each sheet alone can say ----------------- */
+  DETAIL.sheets = function(){
+    var o = lbl(24, 24, "ONE BUILDING, DRAWN THREE TIMES", "dt");
+    var S = [
+      [24,  "S-01", "struct", "columns &#183; beams &#183; slabs", "the frame, no rooms"],
+      [176, "A-01", "ink-2",  "walls &#183; doors &#183; windows",  "the rooms, no frame"],
+      [328, "E-01", "elec",   "symbols &#183; circuit ink",         "neither, plus wiring"]
+    ];
+    S.forEach(function(s, i){
+      var x = s[0], y = 40, w = 128, h = 150;
+      o += dbox(x, y, w, h, ' stroke="var(--' + s[2] + ')"');
+      o += '<g transform="translate(' + x + ',' + y + ')" fill="none">';
+      if (i === 0){
+        o += '<g stroke="var(--struct)" stroke-width=".9" stroke-dasharray="6 3">' +
+             '<path d="M 20 40 H 108 M 20 46 H 108 M 20 104 H 108 M 20 110 H 108"/>' +
+             '<path d="M 40 40 V 110 M 46 40 V 110 M 82 40 V 110 M 88 40 V 110"/></g>';
+        o += '<g fill="var(--struct)" fill-opacity=".55" stroke="var(--struct)">' +
+             [[20,43],[43,43],[85,43],[108,43],[20,107],[43,107],[85,107],[108,107]]
+               .map(function(p){ return '<rect x="' + (p[0]-5) + '" y="' + (p[1]-5) + '" width="10" height="10"/>'; }).join("") +
+             '</g>';
+      } else if (i === 1){
+        o += '<g stroke="var(--ink)" stroke-width="4" opacity=".55">' +
+             '<path d="M 20 43 H 108 M 20 107 H 108 M 22 43 V 107 M 106 43 V 107 M 64 43 V 78"/></g>';
+        o += '<g stroke="var(--ink-3)" stroke-width="1">' +
+             '<path d="M 64 100 A 22 22 0 0 0 86 78"/><path d="M 64 100 V 78"/>' +
+             '<path d="M 34 41 H 56 M 34 45 H 56"/></g>';
+      } else {
+        o += '<g stroke="var(--elec)" stroke-width="1.5" stroke-linecap="round">' +
+             '<path d="M 26 96 Q 56 56 84 84 T 104 60"/>' +
+             '<g transform="translate(30,70) scale(.9)">' + OUTLET_G + '</g>' +
+             '<g transform="translate(96,96) rotate(180) scale(.9)">' + OUTLET_G + '</g></g>';
+      }
+      o += '</g>';
+      o += '<text class="dh" x="' + (x + 10) + '" y="' + (y + 20) + '" style="fill:var(--' + s[2] + ')">' + s[1] + '</text>';
+      o += lbl(x, y + h + 16, s[3], "dm sm");
+      o += lbl(x, y + h + 30, s[4], "dm sm");
+    });
+    o += lbl(24, 250, "Different draughtsmen, different scans, different scales and skews.", "dm");
+    o += lbl(24, 266, "No sheet on its own is a building; nothing in any of them is labelled.", "dm");
+    return o;
+  };
+
+  /* --- 02  feature alignment on the shared columns -------------------- */
+  DETAIL.align = function(){
+    var o = lbl(24, 24, "FEATURE ALIGNMENT ON SHARED COLUMNS", "dt");
+    function marks(dx, dy, rot, col, op){
+      var g = '<g transform="translate(' + dx + ',' + dy + ') rotate(' + rot + ',82,74)" opacity="' + op + '">';
+      [[16,16],[82,16],[148,16],[16,132],[82,132],[148,132]].forEach(function(p){
+        g += '<rect x="' + (p[0]-6) + '" y="' + (p[1]-6) + '" width="12" height="12" fill="var(--' + col +
+             ')" fill-opacity=".5" stroke="var(--' + col + ')" stroke-width="1"/>';
+      });
+      g += '<path d="M 16 16 H 148 M 16 132 H 148 M 16 16 V 132 M 148 16 V 132" stroke="var(--' + col +
+           ')" stroke-width=".8" fill="none" stroke-dasharray="5 4"/></g>';
+      return g;
+    }
+    o += dbox(24, 40, 200, 168);
+    o += '<g transform="translate(28,44)">' + marks(0, 0, 0, "struct", 1) + marks(10, 6, 2.4, "ink-2", .85) + '</g>';
+    o += lbl(34, 58, "BEFORE", "dt");
+    o += lbl(34, 226, "A-01 scanned at a different", "dm sm");
+    o += lbl(34, 240, "resolution, and skewed on the glass", "dm sm");
+
+    o += arrow(234, 124, 262, 124);
+
+    o += dbox(272, 40, 184, 168);
+    o += '<g transform="translate(284,44)">' + marks(0, 0, 0, "struct", 1) + marks(0, 0, 0, "ink-2", .8) + '</g>';
+    o += '<g stroke="var(--ai)" stroke-width="1.1" fill="none">' +
+         [[300,60],[366,60],[432,60],[300,176],[366,176],[432,176]].map(function(p){
+           return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="12"/>';
+         }).join("") + '</g>';
+    o += lbl(282, 58, "AFTER", "dt");
+    o += lbl(272, 226, "rot -2.4&#176; &#183; scale 1.035 &#183; RMS 2.1 px", "dm sm");
+    o += lbl(272, 240, "every later coordinate is now comparable", "dm sm");
+    o += lbl(24, 268, "Columns appear on every sheet of the set, so they are the registration target.", "dm sm");
+    return o;
+  };
+
+  /* --- 03  masks, because structural elements are not axis-aligned ---- */
+  DETAIL.smask = function(){
+    var o = lbl(24, 24, "WHY MASKS AND NOT BOXES", "dt");
+    o += dbox(24, 40, 210, 150);
+    o += '<g transform="translate(28,44)">' +
+         '<path d="M 24 128 L 168 26" stroke="var(--struct)" stroke-width="11" stroke-dasharray="10 5" opacity=".75"/>' +
+         '</g>';
+    o += '<rect x="46" y="62" width="156" height="116" fill="none" stroke="var(--ai)" stroke-width="1.3" stroke-dasharray="4 3"/>';
+    o += lbl(34, 58, "SLOPED BEAM &#183; BOX", "dt");
+    o += lbl(24, 206, "68% of the box is not the beam", "dm sm");
+
+    o += dbox(246, 40, 210, 150);
+    o += '<g transform="translate(250,44)">' +
+         '<path d="M 24 128 L 168 26" stroke="var(--struct)" stroke-width="11" stroke-dasharray="10 5" opacity=".75"/>' +
+         '</g>';
+    o += '<polygon points="268,178 276,166 418,64 426,76 420,88 278,190" fill="var(--ai)" fill-opacity=".16" stroke="var(--ai)" stroke-width="1.3"/>';
+    o += lbl(256, 58, "SLOPED BEAM &#183; MASK", "dt");
+    o += lbl(246, 206, "length, width and angle all recoverable", "dm sm");
+
+    o += lbl(24, 236, "Mask R-CNN was chosen for exactly this: a rectangle cannot hold a sloped", "dm");
+    o += lbl(24, 252, "beam or a curved balcony, and the polygon is what the extrusion is built", "dm");
+    o += lbl(24, 268, "from. Three labels come back &#8212; column, beam, slab &#8212; each with a mask.", "dm");
+    return o;
+  };
+
+  /* --- 04  OCR, and the pairing rule that keeps it honest ------------- */
+  DETAIL.ocr = function(){
+    var o = lbl(24, 24, "TAG ASSOCIATION BY NEAREST NEIGHBOUR", "dt");
+    o += dbox(24, 40, 260, 176);
+    /* the pivot column */
+    o += '<rect x="132" y="120" width="26" height="26" fill="url(#hs)" stroke="var(--struct)" stroke-width="1.2"/>';
+    o += '<polygon points="128,116 162,114 166,148 130,152" fill="var(--ai)" fill-opacity=".14" stroke="var(--ai)" stroke-width="1.1"/>';
+    o += ctr(145, 168, "pivot: 1 column mask", "dm sm");
+    /* two candidate labels */
+    o += '<rect x="182" y="72" width="44" height="16" fill="none" stroke="var(--ai)" stroke-width="1" stroke-dasharray="3 2"/>';
+    o += lbl(186, 84, "C-04", "dm");
+    o += '<rect x="46" y="86" width="62" height="16" fill="none" stroke="var(--ai)" stroke-width="1" stroke-dasharray="3 2"/>';
+    o += lbl(50, 98, "V-108", "dm");
+    o += '<path d="M 150 118 L 186 90" stroke="var(--ai)" stroke-width="1.2" stroke-dasharray="3 3"/>';
+    o += '<path d="M 134 120 L 106 102" stroke="var(--ink-4)" stroke-width="1.2" stroke-dasharray="3 3"/>';
+    o += lbl(160, 106, "d 46", "dm sm");
+    o += lbl(104, 118, "d 33", "dm sm");
+    o += lbl(34, 58, "TWO LABELS IN RANGE", "dt");
+
+    o += dbox(298, 40, 158, 176);
+    o += lbl(308, 58, "THE FILTER", "dt");
+    o += lbl(308, 82, "columns match C-XXX", "dm sm");
+    o += lbl(308, 96, "beams match V-XXX", "dm sm");
+    o += '<path d="M 308 108 H 446" stroke="var(--rule)" stroke-width="1"/>';
+    o += lbl(308, 130, "V-108 is nearer", "dm");
+    o += '<path d="M 424 122 L 438 136 M 438 122 L 424 136" stroke="var(--ink-3)" stroke-width="2"/>';
+    o += lbl(308, 152, "but wrong family", "dm sm");
+    o += '<text class="dh" x="308" y="182" style="fill:var(--bim)">C-04</text>';
+    o += lbl(354, 182, "bound, removed", "dm sm");
+    o += lbl(308, 200, "from the pool", "dm sm");
+
+    o += lbl(24, 240, "The tag is not decoration either: <tspan class=\"dh\">V-108 20x50</tspan> is where the beam depth", "dm");
+    o += lbl(24, 256, "comes from, and the plan has no other record of it. Text is read with a", "dm");
+    o += lbl(24, 272, "cloud OCR that returns every string with its coordinates.", "dm");
+    return o;
+  };
+
+  /* --- 05  what holds what -------------------------------------------- */
+  DETAIL.rel = function(){
+    var o = lbl(24, 24, "ELEMENT ASSOCIATION &#183; 20 PX THRESHOLD", "dt");
+    o += dbox(24, 40, 250, 200);
+    var cx = 148, cy = 148;
+    o += '<circle cx="' + cx + '" cy="' + cy + '" r="48" fill="none" stroke="var(--ai)" stroke-width="1" stroke-dasharray="4 4"/>';
+    [[0,-1],[1,0],[0,1],[-1,0]].forEach(function(d){
+      o += '<path d="M ' + (cx + d[0]*18) + ' ' + (cy + d[1]*18) + ' L ' + (cx + d[0]*80) + ' ' + (cy + d[1]*80) +
+           '" stroke="var(--struct)" stroke-width="8" stroke-dasharray="9 4" opacity=".6"/>';
+      o += '<circle cx="' + (cx + d[0]*46) + '" cy="' + (cy + d[1]*46) + '" r="4" fill="var(--ai)"/>';
+    });
+    o += '<path d="M ' + (cx+54) + ' ' + (cy-50) + ' L ' + (cx+94) + ' ' + (cy-84) +
+         '" stroke="var(--ink-4)" stroke-width="8" opacity=".5"/>';
+    o += '<path d="M ' + (cx+64) + ' ' + (cy-76) + ' L ' + (cx+84) + ' ' + (cy-58) +
+         ' M ' + (cx+84) + ' ' + (cy-76) + ' L ' + (cx+64) + ' ' + (cy-58) + '" stroke="var(--ink-3)" stroke-width="2"/>';
+    o += '<rect x="' + (cx-13) + '" y="' + (cy-13) + '" width="26" height="26" fill="url(#hs)" stroke="var(--struct)" stroke-width="1.2"/>';
+    o += lbl(34, 58, "ONE COLUMN, ITS BEAMS", "dt");
+    o += lbl(34, 232, "the 5th candidate is out of range", "dm sm");
+
+    o += dbox(288, 40, 168, 200);
+    o += lbl(298, 58, "CAPS", "dt");
+    [["4", "beams per column"], ["2", "columns per beam"], ["20 px", "nearest-point distance"]].forEach(function(r, i){
+      o += '<text class="dh" x="298" y="' + (92 + i * 50) + '" style="font-size:20px">' + r[0] + '</text>';
+      o += lbl(298, 108 + i * 50, r[1], "dm sm");
+    });
+    o += lbl(298, 232, "caps absorb missed detections", "dm sm");
+    o += lbl(24, 266, "Geometry second: the frame becomes a graph first.", "dm sm");
+    return o;
+  };
+
+  /* --- 06  walls are polygons, openings are boxes on them ------------- */
+  DETAIL.amask = function(){
+    var o = lbl(24, 24, "THREE ARCHITECTURAL LABELS", "dt");
+    o += dbox(24, 40, 432, 150);
+    o += '<g transform="translate(24,40)">' +
+         '<path d="M 40 30 H 210 A 60 60 0 0 1 270 90 V 122" stroke="var(--ink)" stroke-width="9" fill="none" opacity=".5"/>' +
+         '<path d="M 300 30 H 400" stroke="var(--ink)" stroke-width="9" fill="none" opacity=".5"/>' +
+         '</g>';
+    /* wall mask following the curve */
+    o += '<path d="M 64 64 H 234 A 60 60 0 0 1 294 124 V 164" fill="none" stroke="var(--ai)" stroke-width="15" stroke-opacity=".16"/>';
+    o += '<path d="M 64 64 H 234 A 60 60 0 0 1 294 124 V 164" fill="none" stroke="var(--ai)" stroke-width="1.2" stroke-dasharray="0"/>';
+    o += lbl(34, 58, "WALL &#183; POLYGON MASK", "dt");
+    o += lbl(64, 96, "a box could not hold this", "dm sm");
+    /* window on the straight wall */
+    o += '<rect x="332" y="58" width="64" height="26" fill="var(--ai)" fill-opacity=".16" stroke="var(--ai)" stroke-width="1.2"/>';
+    o += ctr(364, 104, "WINDOW", "dt");
+    o += ctr(364, 120, "0.95", "dm sm");
+
+    o += dbox(24, 202, 210, 62);
+    o += lbl(34, 222, "wall", "dm") + lbl(120, 222, "polygon", "dm sm");
+    o += lbl(34, 240, "door / window", "dm") + lbl(120, 240, "box on a host wall", "dm sm");
+    o += lbl(34, 256, "same network, own weights", "dm sm");
+
+    o += dbox(248, 202, 208, 62);
+    o += lbl(258, 222, "BLD-AR", "dt");
+    o += lbl(258, 240, "2 013 walls &#183; 705 doors &#183; 609 windows", "dm sm");
+    o += lbl(258, 256, "after augmentation, 3 337 instances", "dm sm");
+    return o;
+  };
+
+  /* --- 07  an opening is composed, not just detected ------------------ */
+  DETAIL.host = function(){
+    var o = lbl(24, 24, "COMPOSING ONE DOOR", "dt");
+    function wall(x, y, cut, leaf){
+      var g = '<g transform="translate(' + x + ',' + y + ')">';
+      if (cut){
+        g += '<rect x="0" y="0" width="42" height="22" fill="var(--sheet-2)" stroke="var(--ink)" stroke-width="1"/>';
+        g += '<rect x="86" y="0" width="42" height="22" fill="var(--sheet-2)" stroke="var(--ink)" stroke-width="1"/>';
+        g += '<rect x="42" y="0" width="44" height="22" fill="none" stroke="var(--ai)" stroke-width="1.2" stroke-dasharray="4 3"/>';
+      } else {
+        g += '<rect x="0" y="0" width="128" height="22" fill="var(--sheet-2)" stroke="var(--ink)" stroke-width="1"/>';
+      }
+      if (leaf){
+        g += '<path d="M 42 11 V 54" stroke="var(--ink-2)" stroke-width="1.4"/>';
+        g += '<path d="M 86 11 A 44 44 0 0 0 42 55" stroke="var(--ink-3)" stroke-width=".9" fill="none"/>';
+      }
+      return g + '</g>';
+    }
+    o += dbox(24, 40, 136, 108) + wall(28, 62, false, false);
+    o += ctr(92, 58, "1 &#183; HOST WALL", "dt");
+    o += ctr(92, 128, "IfcWallStandardCase", "dm sm");
+    o += arrow(166, 94, 190, 94);
+
+    o += dbox(196, 40, 136, 108) + wall(200, 62, true, false);
+    o += ctr(264, 58, "2 &#183; VOID", "dt");
+    o += ctr(264, 128, "IfcOpeningElement", "dm sm");
+    o += arrow(338, 94, 362, 94);
+
+    o += dbox(368, 40, 88, 108);
+    o += '<g transform="translate(340,62)"><rect x="42" y="0" width="44" height="22" fill="var(--sheet-2)" stroke="var(--ink)" stroke-width="1"/>' +
+         '<path d="M 42 11 V 54" stroke="var(--ink-2)" stroke-width="1.4"/>' +
+         '<path d="M 86 11 A 44 44 0 0 0 42 55" stroke="var(--ink-3)" stroke-width=".9" fill="none"/></g>';
+    o += ctr(412, 58, "3 &#183; LEAF", "dt");
+    o += ctr(412, 128, "IfcDoor", "dm sm");
+
+    o += dbox(24, 172, 432, 60, ' stroke="var(--bim)"');
+    o += lbl(36, 194, "IfcRelVoidsElement", "dm") + lbl(160, 194, "wall &#8722; opening", "dm sm");
+    o += lbl(36, 212, "IfcRelFillsElement", "dm") + lbl(160, 212, "opening &#8592; door", "dm sm");
+    o += lbl(288, 194, "the detector returns one box;", "dm sm");
+    o += lbl(288, 208, "the model needs three entities", "dm sm");
+    o += lbl(288, 222, "and two relationships", "dm sm");
+    o += lbl(24, 258, "Windows work the same way. Sill height and leaf swing are not on the plan &#8212;", "dm");
+    o += lbl(24, 274, "they come from the carpentry schedule, or they are estimated.", "dm");
+    return o;
+  };
+
+  /* --- 08  the third dimension ---------------------------------------- */
+  DETAIL.levels = function(){
+    var o = lbl(24, 24, "SECTION A-A &#183; WHERE HEIGHT COMES FROM", "dt");
+    var gy = 226;
+    o += dbox(24, 40, 288, 212);
+    o += '<path d="M 34 ' + gy + ' H 302" stroke="var(--ink)" stroke-width="1.4"/>';
+    for (var i = 0; i < 14; i++){
+      o += '<path d="M ' + (36 + i * 20) + ' ' + gy + ' l -6 8" stroke="var(--ink-4)" stroke-width=".8"/>';
+    }
+    [70, 200].forEach(function(x){
+      o += '<rect x="' + (x - 9) + '" y="' + (gy - 128) + '" width="18" height="128" fill="url(#hs)" stroke="var(--struct)" stroke-width="1.1"/>';
+    });
+    o += '<rect x="61" y="' + (gy - 150) + '" width="148" height="22" fill="none" stroke="var(--struct)" stroke-width="1.1"/>';
+    o += '<rect x="55" y="' + (gy - 158) + '" width="160" height="8" fill="var(--struct)" fill-opacity=".22" stroke="var(--struct)" stroke-width="1"/>';
+    o += '<rect x="150" y="' + (gy - 106) + '" width="14" height="106" fill="var(--sheet-2)" stroke="var(--ink)" stroke-width="1"/>';
+    o += '<path d="M 236 ' + gy + ' V ' + (gy - 158) + '" stroke="var(--ink-3)" stroke-width=".8"/>';
+    [[gy, "&#177;0.00"], [gy - 106, "+2.50 muro"], [gy - 128, "+2.60 col"], [gy - 158, "+3.12 losa"]].forEach(function(r){
+      o += '<path d="M 230 ' + r[0] + ' h 12" stroke="var(--ink-3)" stroke-width=".8"/>';
+      o += lbl(248, r[0] + 3, r[1], "dm sm");
+    });
+    o += lbl(34, 58, "STOREY", "dt");
+    o += lbl(76, 186, "losa e=0.12", "dm sm");
+    o += lbl(76, 200, "viga 0.50", "dm sm");
+
+    o += dbox(326, 40, 130, 212);
+    o += lbl(336, 58, "IF NO SECTION", "dt");
+    o += lbl(336, 84, "h = 13.2 &#215; d", "dm");
+    o += lbl(336, 100, "d = smallest column", "dm sm");
+    o += lbl(336, 114, "dimension found", "dm sm");
+    o += '<text class="dh" x="336" y="152" style="font-size:22px">2.64</text>';
+    o += lbl(336, 170, "metres, from a 0.20 m", "dm sm");
+    o += lbl(336, 184, "minimum section", "dm sm");
+    o += '<path d="M 336 200 H 446" stroke="var(--rule)" stroke-width="1"/>';
+    o += lbl(336, 220, "close enough to model,", "dm sm");
+    o += lbl(336, 234, "flagged as estimated", "dm sm");
+    o += lbl(24, 272, "Every height is read off a section, an annotation, or a rule.", "dm sm");
+    return o;
+  };
+
+  /* --- 09  preprocessing: drop the grey, keep the ink ----------------- */
+  DETAIL.filter = function(){
+    var o = lbl(30, 26, "STROKE FILTER", "dt");
+    o += dbox(30, 40, 180, 96);
+    o += '<g stroke="var(--ink-4)" fill="none" stroke-width=".9">' +
+         '<path d="M 44 56 H 196 M 44 62 H 196 M 60 62 V 122 M 66 62 V 122"/>' +
+         '<path d="M 66 100 A 34 34 0 0 1 100 66"/><path d="M 66 100 H 100"/>' +
+         '<path d="M 120 84 h 44 v 30 h -44 Z"/></g>';
+    o += lbl(38, 52, "grey linework &#183; walls, fixtures, dims", "dm sm");
+    o += dbox(30, 152, 180, 100);
+    o += '<g stroke="var(--elec)" fill="none" stroke-width="1.6" stroke-linecap="round">' +
+         '<path d="M 46 236 Q 96 176 150 210 T 196 190"/>' +
+         '<g transform="translate(70,196)">' + OUTLET_G + '</g>' +
+         '<g transform="translate(160,232) rotate(180)">' + OUTLET_G + '</g></g>';
+    o += lbl(38, 166, "heavier / coloured strokes", "dm sm");
+
+    o += arrow(216, 88, 262, 88); o += arrow(216, 202, 262, 202);
+    o += '<g transform="translate(268,66)"><path d="M 4 4 L 26 26 M 26 4 L 4 26" stroke="var(--ink-3)" stroke-width="2.2" fill="none"/></g>';
+    o += lbl(306, 86, "dropped", "dh");
+    o += lbl(306, 102, "before the detectors run", "dm sm");
+    o += '<g transform="translate(268,180)"><path d="M 4 16 L 13 26 L 28 4" stroke="var(--elec)" stroke-width="2.6" fill="none" stroke-linecap="round"/></g>';
+    o += lbl(306, 200, "kept", "dh");
+    o += lbl(306, 216, "both detectors see only this", "dm sm");
+    return o;
+  };
+
+  /* --- 10  why a polygon and not a box -------------------------------- */
+  DETAIL.mask = function(){
+    var o = lbl(30, 26, "BOX vs POLYGON, SAME DETECTION", "dt");
+    function scene(ox, oy){
+      return '<g transform="translate(' + ox + ',' + oy + ')">' +
+        '<path d="M -66 44 H 70" stroke="var(--ink-4)" stroke-width="6"/>' +
+        '<g stroke="var(--elec)" stroke-width="2.4" fill="none" stroke-linecap="round">' +
+          '<path d="M -62 6 H 62"/>' +
+          '<g transform="translate(0,44) rotate(180) scale(2.5)">' + OUTLET_G + '</g></g></g>';
+    }
+    o += dbox(24, 42, 208, 132) + scene(128, 74);
+    o += '<rect x="94" y="76" width="68" height="66" fill="none" stroke="var(--ai)" stroke-width="1.4" stroke-dasharray="4 3"/>';
+    o += lbl(34, 62, "BOUNDING BOX", "dt");
+    o += lbl(34, 166, "1 conductor caught inside", "dm sm");
+
+    o += dbox(248, 42, 208, 132) + scene(352, 74);
+    o += '<polygon points="352,74 374,80 382,100 378,126 358,140 344,140 324,126 320,100 330,80" ' +
+         'fill="var(--ai)" fill-opacity=".16" stroke="var(--ai)" stroke-width="1.4"/>';
+    o += lbl(258, 62, "PREDICTED MASK", "dt");
+    o += lbl(258, 166, "0 conductors caught", "dm sm");
+
+    o += lbl(24, 206, "The mask is not decoration. It is the filter that decides", "dm");
+    o += lbl(24, 222, "which detected strokes belong to the symbol and which are", "dm");
+    o += lbl(24, 238, "cable running past it &#8212; a box would eat the cable.", "dm");
+    return o;
+  };
+
+  /* --- 11  anatomy of one detection ----------------------------------- */
+  DETAIL.anatomy = function(){
+    var s = byId.O2;
+    var o = lbl(24, 26, "TWO-MODULE OUTLET &#183; ESTAR/COMEDOR &#183; GRID 2-3", "dt");
+    var pts = s.mask.map(function(p){ return [(p[0] - s.x) * 3.6 + 96, (p[1] - s.y) * 3.6 + 128]; });
+
+    o += dbox(24, 42, 144, 172);
+    o += '<g transform="translate(96,116) scale(3.2)" stroke="var(--elec)" stroke-width=".9" fill="none" stroke-linecap="round">' +
+         '<path d="M -7.5 0 A 7.5 7.5 0 0 1 7.5 0"/><path d="M -2.4 0 V 9.5 M 2.4 0 V 9.5"/>' +
+         '<path d="M -4.8 5.6 L -2.4 9.8 L 0 5.6 M 0 5.6 L 2.4 9.8 L 4.8 5.6"/></g>';
+    o += lbl(34, 60, "PIXELS", "dt");
+
+    o += dbox(180, 42, 144, 172);
+    o += '<polygon points="' + pts.map(function(p){ return (p[0] + 156).toFixed(1) + "," + (p[1] - 4).toFixed(1); }).join(" ") +
+         '" fill="var(--ai)" fill-opacity=".16" stroke="var(--ai)" stroke-width="1.3"/>';
+    o += pts.map(function(p){ return '<circle cx="' + (p[0] + 156).toFixed(1) + '" cy="' + (p[1] - 4).toFixed(1) +
+         '" r="2.4" fill="var(--sheet)" stroke="var(--ai)" stroke-width="1.1"/>'; }).join("");
+    o += '<path d="M 240 124 h 24 M 252 112 v 24" stroke="var(--ai)" stroke-width="1"/>';
+    o += '<circle cx="252" cy="124" r="3" fill="var(--ai)"/>';
+    o += lbl(190, 60, "MASK + CENTROID", "dt");
+
+    var rows = [["class", "outlet, 2 modules"], ["score", s.score],
+                ["mask", "10-pt polygon"], ["centroid px", s.x.toFixed(1) + ", " + s.y.toFixed(1)],
+                ["centroid m", (s.x / PPM).toFixed(2) + ", " + (s.y / PPM).toFixed(2)],
+                ["on grid", "A / 2-3"]];
+    o += dbox(336, 42, 120, 172);
+    o += lbl(346, 60, "RECORD", "dt");
+    rows.forEach(function(r, i){
+      o += lbl(346, 82 + i * 22, r[0], "dm sm");
+      o += lbl(346, 94 + i * 22, r[1], "dm");
+    });
+    o += lbl(24, 244, "A class and a point. Not yet an outlet &#8212; nothing here says", "dm");
+    o += lbl(24, 260, "what it is wired to.", "dm");
+    return o;
+  };
+
+  /* --- 12  a line detector returns endpoints, nothing else ------------ */
+  DETAIL.lines = function(){
+    var o = lbl(30, 26, "RAW DeepLSD OUTPUT, ONE CONDUCTOR", "dt");
+    o += dbox(24, 42, 432, 108);
+    o += '<path d="M 60 96 H 420" stroke="var(--elec)" stroke-width="3.4" opacity=".22"/>';
+    var frag = [[62, 95.2, 186, 95.6], [178, 96.8, 300, 96.4], [292, 95.4, 418, 96.2], [120, 97.4, 262, 97]];
+    frag.forEach(function(f){
+      o += '<line x1="' + f[0] + '" y1="' + f[1] + '" x2="' + f[2] + '" y2="' + f[3] +
+           '" stroke="var(--ai)" stroke-width="1.2"/>';
+      o += '<circle cx="' + f[0] + '" cy="' + f[1] + '" r="2.6" fill="var(--sheet)" stroke="var(--ai)" stroke-width="1.1"/>';
+      o += '<circle cx="' + f[2] + '" cy="' + f[3] + '" r="2.6" fill="var(--sheet)" stroke="var(--ai)" stroke-width="1.1"/>';
+    });
+    o += lbl(34, 60, "1 CABLE &#8594; 4 SEGMENTS, 8 KEYPOINTS", "dt");
+    o += lbl(34, 138, "over-detection, and every one of them is just two points", "dm sm");
+
+    o += dbox(24, 166, 210, 96);
+    o += lbl(34, 184, "WHAT IT RETURNS", "dt");
+    o += lbl(34, 206, "p1 = (292.0, 95.4)", "dm");
+    o += lbl(34, 224, "p2 = (418.0, 96.2)", "dm");
+    o += lbl(34, 246, "no class, no owner", "dm sm");
+
+    o += dbox(246, 166, 210, 96);
+    o += lbl(256, 184, "WHAT IT DOES NOT", "dt");
+    o += lbl(256, 206, "&#8212; that this is a cable", "dm");
+    o += lbl(256, 224, "&#8212; which symbols it joins", "dm");
+    o += lbl(256, 246, "the symbol detector is not consulted", "dm sm");
+    return o;
+  };
+
+  /* --- 13  the reconciliation ----------------------------------------- */
+  DETAIL.merge = function(){
+    var o = lbl(30, 26, "TWO RULES THAT DO MOST OF THE WORK", "dt");
+    o += dbox(24, 42, 210, 116);
+    o += lbl(34, 60, "1 &#183; CULL INSIDE MASKS", "dt");
+    o += '<polygon points="104,74 122,78 130,94 124,112 104,120 84,112 78,94 86,78" fill="var(--ai)" fill-opacity=".14" stroke="var(--ai)" stroke-width="1.2"/>';
+    o += '<g stroke="var(--ai)" stroke-width="1.2"><path d="M 92 96 H 118"/><path d="M 104 82 V 110"/></g>';
+    o += '<path d="M 150 78 L 174 116 M 174 78 L 150 116" stroke="var(--ink-3)" stroke-width="2"/>';
+    o += lbl(146, 70, "dropped", "dm sm");
+    o += lbl(34, 136, "strokes inside a mask belong", "dm sm");
+    o += lbl(34, 150, "to the symbol, not to a cable", "dm sm");
+
+    o += dbox(246, 42, 210, 116);
+    o += lbl(256, 60, "2 &#183; SNAP TO TERMINALS", "dt");
+    o += '<g stroke="var(--elec)" stroke-width="2" fill="none" stroke-linecap="round">' +
+         '<g transform="translate(296,80) scale(1.7)">' + OUTLET_G + '</g></g>';
+    o += '<line x1="340" y1="97" x2="440" y2="97" stroke="var(--ai)" stroke-width="1.4"/>';
+    o += '<circle cx="340" cy="97" r="3.2" fill="var(--sheet)" stroke="var(--ai)" stroke-width="1.2"/>';
+    o += arrow(336, 97, 302, 97);
+    o += lbl(346, 84, "gap 6.4 px &#8594; 0", "dm sm");
+    o += lbl(256, 136, "an endpoint within tolerance of", "dm sm");
+    o += lbl(256, 150, "a terminal becomes a connection", "dm sm");
+
+    o += dbox(24, 176, 432, 86);
+    o += lbl(34, 194, "AFTER RECONCILIATION", "dt");
+    var st = [["segments in", "1 184"], ["culled by mask", "412"], ["merged duplicates", "751"], ["conductors out", "21"]];
+    st.forEach(function(r, i){
+      o += lbl(38 + i * 108, 220, r[0], "dm sm");
+      o += '<text class="dh" x="' + (38 + i * 108) + '" y="244" style="font-size:17px">' + r[1] + '</text>';
+    });
+    return o;
+  };
+
+  /* --- 14  the graph, and the rule that prunes it --------------------- */
+  DETAIL.graph = function(){
+    var o = lbl(30, 26, "CIRCUIT GRAPH &#183; NetworkX + AEA RULES", "dt");
+    var N = {TS:[64,150,"TS","elec"], L2:[164,74,"L2","elec"], S2:[254,74,"S2","elec"],
+             L3:[350,74,"L3","elec"], O1:[164,224,"O1","gas"], O2:[254,224,"O2","gas"],
+             O3:[350,224,"O3","gas"], O7:[440,150,"O7","water"]};
+    var E = [["TS","L2"],["L2","S2"],["S2","L3"],["TS","O1"],["O1","O2"],["O2","O3"],["TS","O7"]];
+    E.forEach(function(e){
+      var a = N[e[0]], b = N[e[1]];
+      o += '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] +
+           '" stroke="var(--' + b[3] + ')" stroke-width="1.8"/>';
+    });
+    o += '<line x1="254" y1="86" x2="254" y2="212" stroke="var(--ink-3)" stroke-width="1.6" stroke-dasharray="5 4"/>';
+    o += '<circle cx="254" cy="150" r="12" fill="var(--sheet)" stroke="var(--elec)" stroke-width="1.6"/>';
+    o += '<path d="M 248 144 L 260 156 M 260 144 L 248 156" stroke="var(--elec)" stroke-width="2"/>';
+    Object.keys(N).forEach(function(k){
+      var n = N[k];
+      o += '<circle cx="' + n[0] + '" cy="' + n[1] + '" r="' + (k === "TS" ? 17 : 13) +
+           '" fill="var(--' + n[3] + ')" stroke="var(--sheet)" stroke-width="1.6"/>';
+      o += '<text class="chip-t" x="' + n[0] + '" y="' + (n[1] + 3) + '" text-anchor="middle" style="font-size:9px">' + n[2] + '</text>';
+    });
+    o += lbl(58, 44, "IUG &#183; lighting", "dm sm");
+    o += lbl(58, 264, "TUG &#183; outlets", "dm sm");
+    o += lbl(288, 120, "rejected by rule:", "dm sm");
+    o += lbl(288, 134, "no outlets on a lighting run", "dm sm");
+    o += lbl(394, 172, "TUE &#183; dedicated", "dm sm");
+    o += lbl(24, 282, "The board roots every circuit; a branch that breaks a rule is traced back and cut.", "dm sm");
+    return o;
+  };
+
+  /* --- 15  how one outlet is composed in IFC -------------------------- */
+  DETAIL.ifc = function(){
+    var o = lbl(24, 22, "COMPOSITION OF ONE DETECTION &#183; IfcOpenShell", "dt");
+    o += dbox(20, 34, 132, 96);
+    o += lbl(28, 50, "circuits.json", "dt");
+    ['{', '  "id": "O2",', '  "class": "outlet",', '  "xy": [205, 9],',
+     '  "circuit": "c2",', '  "links": ["O1","O3"]', '}'].forEach(function(l, i){
+      o += '<text class="dm" x="28" y="' + (64 + i * 12) + '" style="font-size:8.5px">' + l + '</text>';
+    });
+    o += arrow(156, 82, 186, 82);
+
+    o += dbox(190, 34, 226, 96, ' stroke="var(--bim)"');
+    o += '<text class="dh" x="200" y="52" style="fill:var(--bim)">IfcOutlet</text>';
+    o += lbl(200, 70, "PredefinedType", "dm sm") + lbl(296, 70, "POWEROUTLET", "dm");
+    o += lbl(200, 88, "ObjectPlacement", "dm sm") + lbl(296, 88, "4.89, 0.21, 0.32", "dm");
+    o += lbl(200, 106, "Representation", "dm sm") + lbl(296, 106, "swept solid", "dm");
+    o += lbl(200, 122, "LOD 290", "dm sm");
+
+    o += '<path class="darr" d="M 268 130 V 148"/>';
+    o += dbox(160, 148, 186, 40);
+    o += lbl(170, 164, "IfcDistributionPort", "dm") + lbl(310, 164, "P1", "dm sm");
+    o += lbl(170, 180, "IfcDistributionPort", "dm") + lbl(310, 180, "P2", "dm sm");
+
+    o += '<path class="darr" d="M 346 168 H 388"/>';
+    o += lbl(210, 204, "IfcRelConnectPorts", "dm sm");
+    o += '<path class="darr" d="M 200 188 V 206 M 120 206 H 200"/>';
+    o += '<path class="darr" d="M 120 206 V 214"/>';
+
+    o += dbox(20, 214, 190, 40, ' stroke="var(--bim)"');
+    o += '<text class="dh" x="30" y="232" style="fill:var(--bim)">IfcCableSegment</text>';
+    o += lbl(30, 248, "polyline O1 &#8594; O2 &#8594; O3, 2.5 mm2", "dm sm");
+    o += '<path class="darr" d="M 210 234 H 246"/>';
+    o += dbox(250, 214, 210, 40, ' stroke="var(--bim)"');
+    o += '<text class="dh" x="260" y="232" style="fill:var(--bim);font-size:11px">IfcElectricDistributionBoard</text>';
+    o += lbl(260, 248, "root of circuit TUG", "dm sm");
+
+    o += '<rect x="388" y="148" width="72" height="40" class="dbox" stroke="var(--bim)" rx="2"/>';
+    o += '<text class="dh" x="424" y="164" text-anchor="middle" style="fill:var(--bim);font-size:10.5px">IfcSystem</text>';
+    o += '<text class="dm sm" x="424" y="178" text-anchor="middle">"TUG"</text>';
+    o += lbl(24, 274, "Ports are what make it a model and not a picture: connectivity survives export.", "dm sm");
+    return o;
+  };
+
+  /* --- 16  partial models, one deliverable ---------------------------- */
+  DETAIL.federate = function(){
+    var o = lbl(30, 26, "FEDERATION", "dt");
+    var L = [["STRUCTURAL", "struct", "IfcColumn 17 &#183; IfcBeam 22 &#183; IfcSlab 6"],
+             ["ARCHITECTURAL", "ink-2", "IfcWall 9 &#183; IfcDoor 6 &#183; IfcWindow 6"],
+             ["MEP &#183; ELECTRICAL", "elec", "IfcOutlet 9 &#183; IfcCableSegment 21"]];
+    L.forEach(function(l, i){
+      var y = 58 + i * 44, x = 26 + i * 14;
+      o += '<polygon points="' + [[x, y], [x + 122, y - 22], [x + 202, y + 4], [x + 80, y + 26]]
+             .map(function(p){ return p.join(","); }).join(" ") +
+           '" fill="var(--sheet-2)" stroke="var(--' + l[1] + ')" stroke-width="1.4"/>';
+      o += lbl(268, y + 2, l[0], "dh");
+      o += lbl(268, y + 17, l[2], "dm sm");
+    });
+    o += '<path class="darr" d="M 126 174 V 206"/>';
+    o += lbl(140, 198, "shared coordinate system &#183; IFC 4", "dm sm");
+    o += '<polygon points="26,232 148,210 228,236 106,258" fill="var(--bim)" fill-opacity=".16" stroke="var(--bim)" stroke-width="1.6"/>';
+    o += '<text class="dh" x="268" y="230" style="fill:var(--bim)">Federated model</text>';
+    o += lbl(268, 246, "166 entities, every link preserved", "dm sm");
+    return o;
+  };
+
+  /* =====================================================================
+     10.  the sixteen passes
+     ===================================================================== */
+
+  var DEF = {lyGrid:0, lySlab:0, lyStruct:0, lyStructT:0, lyLevel:0, lyArch:0, lyFurn:0,
+             lyStructM:0, lyArchM:0, lyRelS:0, lyRelA:0, lyDrawn:0, lySym:0, lyLine:0,
+             lyMask:0, lyRun:0, lyReg:0, isoRoot:0};
+  function OP(o){
+    var r = {}, k;
+    for (k in DEF) r[k] = DEF[k];
+    for (k in o) r[k] = o[k];
+    return r;
+  }
+  var ACTS = {i:"SET-UP", s:"STRUCTURE &#183; S-01", a:"ARCHITECTURE &#183; A-01",
+              e:"ELECTRICAL &#183; E-01", m:"MODEL"};
+
+  var STAGES = [
+    { act:"i", rail:"The set", kick:"Input", sheet:["SET","PLANTA BAJA &#183; JUEGO COMPLETO"],
+      state:"raster", panel:"set",
+      title:"The building, drawn three times",
+      body:"An engineer's structural plan, an architect's floor plan, the electrician's sheet. Different draughtsmen, different print runs, different days on the scanner \u2014 which is why they do not sit on top of each other here. <b>Nothing in any of them is labelled</b>, and no two of them agree on where anything is.",
+      chips:[["3 as-built scans",""],["no vector source",""],["nothing in register","hi"]],
+      dtl:["Detail A", "the set", "sheets",
+           "Each sheet is complete for its own trade and useless on its own: the frame has no rooms, the rooms have no frame."],
+      op:OP({lyGrid:.5, lySlab:.55, lyStruct:.8, lyStructT:.45, lyArch:1, lyFurn:.9, lyDrawn:1, lySym:1}) },
+
+    { act:"i", rail:"Register", kick:"Alignment", sheet:["SET","REGISTRO &#183; ALINEACION DE HOJAS"],
+      state:"registered", panel:"set",
+      title:"Six columns, and everything lines up",
+      body:"Columns are the one element every sheet in the set carries. Matching them across scans solves a rotation and a scale for each sheet, and the whole set drops into one coordinate frame. <b>Every coordinate produced from here on is directly comparable</b> \u2014 skip this and the three partial models can never be merged.",
+      chips:[["feature alignment",""],["shared columns","ml"],["one coordinate frame","hi"]],
+      dtl:["Detail B", "registration", "align",
+           "Scale matters as much as rotation: the same wall measured on two scans differs by centimetres, and that is the whole error budget."],
+      op:OP({lyGrid:.6, lySlab:.55, lyStruct:.9, lyStructT:.4, lyArch:1, lyFurn:.8, lyDrawn:.9, lySym:.9, lyReg:1}) },
+
+    { act:"s", rail:"The frame", kick:"Structure", sheet:["S-01","PLANTA BAJA &#183; ESTRUCTURA"],
+      state:"masks S", panel:"s",
+      title:"The frame comes back first",
+      body:"A Mask R-CNN trained on structural plans alone returns three labels \u2014 column, beam, slab \u2014 each as a per-instance polygon. Polygons and not boxes, because a sloped beam has no axis-aligned rectangle and the outline is what the extrusion is built from. <b>17 columns, 22 beams, 6 slabs</b>, and not one of them knows its size in metres yet.",
+      chips:[["Mask R-CNN","ml"],["ResNet-101 FPN","ml"],["mAP 0.963","ml"],["column / beam / slab","st"]],
+      dtl:["Detail C", "box vs mask", "smask",
+           "Beams above the cut plane are drawn dashed, which is a convention the detector has to learn along with the shape."],
+      op:OP({lyGrid:.5, lySlab:.8, lyStruct:1, lyStructT:.7, lyArch:.10, lyFurn:.05, lyStructM:1}) },
+
+    { act:"s", rail:"Read the tags", kick:"OCR", sheet:["S-01","PLANTA BAJA &#183; ESTRUCTURA"],
+      state:"tagged", panel:"s",
+      title:"The sheet writes its own dimensions",
+      body:"A beam's depth is nowhere in its outline. It is written beside it, as <b>V-108 20x50</b>. An OCR returns every string on the drawing with its coordinates, and a nearest-neighbour pass binds each string to an element \u2014 filtered by nomenclature, so a column can only take a C-XXX tag and a beam only a V-XXX one. A bound label is then removed from the pool.",
+      chips:[["cloud OCR",""],["nearest label","ml"],["C-XXX / V-XXX filter","st"],["depth from text","hi"]],
+      dtl:["Detail D", "pairing", "ocr",
+           "The nearest string is often the wrong one. Filtering candidates by the element's own nomenclature is what makes the match reliable."],
+      op:OP({lyGrid:.4, lySlab:.6, lyStruct:.9, lyStructT:1, lyArch:.10, lyFurn:.05, lyStructM:.5}) },
+
+    { act:"s", rail:"Holds what", kick:"Relations", sheet:["S-01","PLANTA BAJA &#183; ESTRUCTURA"],
+      state:"graph S", panel:"s",
+      title:"The frame becomes a graph",
+      body:"Which beams does this column carry? Nothing on the sheet says so; it has to be read off where things sit. Elements whose nearest points fall within 20 px are recorded as related, capped at four beams per column and two columns per beam \u2014 caps that keep one missed detection from cascading. <b>The structure is a graph before it is geometry.</b>",
+      chips:[["20 px threshold",""],["max 4 beams / column","st"],["max 2 columns / beam","st"],["inferred, not drawn",""]],
+      dtl:["Detail E", "association", "rel",
+           "The same move the circuits make ten passes later: connectivity that the drawing implies but never states."],
+      op:OP({lyGrid:.4, lySlab:.3, lyStruct:.5, lyStructT:.3, lyArch:.10, lyStructM:.22, lyRelS:1}) },
+
+    { act:"a", rail:"The envelope", kick:"Architecture", sheet:["A-01","PLANTA BAJA &#183; ARQUITECTURA"],
+      state:"masks A", panel:"a",
+      title:"Same network, different sheet, different weights",
+      body:"Now the architect's plan and a second Mask R-CNN, trained on it alone: wall, door, window. Walls come back as polygons, so curved and angled ones survive; openings come back as boxes sitting on a wall. <b>Neither detector has ever seen the other's output</b> \u2014 they meet only in the coordinate frame fixed four passes ago.",
+      chips:[["Mask R-CNN","ml"],["wall / door / window",""],["walls as polygons","ml"],["BLD-AR, 3 337 instances",""]],
+      dtl:["Detail F", "three labels", "amask",
+           "Where the architectural plan also shows columns, the structural sheet overrides it: one element, one source of truth."],
+      op:OP({lyGrid:.5, lyStruct:.22, lyArch:1, lyFurn:.5, lyArchM:1}) },
+
+    { act:"a", rail:"Host + void", kick:"Composition", sheet:["A-01","PLANTA BAJA &#183; ARQUITECTURA"],
+      state:"hosted", panel:"a",
+      title:"A door is three entities",
+      body:"A detected door is one box; a modelled door is not. The wall hosts it, an <b>IfcOpeningElement</b> is subtracted from the wall to make the void, and the IfcDoor fills that void. Two relationships hold the three together. The detector cannot supply any of this \u2014 it is inferred from the fact that the box lies on a wall.",
+      chips:[["IfcOpeningElement","bm"],["IfcRelVoidsElement","bm"],["IfcRelFillsElement","bm"],["hosted geometry",""]],
+      dtl:["Detail G", "one door", "host",
+           "Sill height and leaf swing are not on the floor plan. They come from the carpentry schedule, or they are estimated and flagged."],
+      op:OP({lyGrid:.5, lyStruct:.22, lyArch:1, lyFurn:.4, lyArchM:.45, lyRelA:1}) },
+
+    { act:"s", rail:"Heights", kick:"Sections", sheet:["S-02","CORTE A-A &#183; NIVELES"],
+      state:"levels", panel:"s",
+      title:"A plan is flat",
+      body:"Everything so far is two-dimensional. A third network reads the section sheet, labelling one storey at a time, and that is where slab thickness, beam depth and clear wall height come from. Where no section exists, a column's height falls back to <b>13.2 times its smallest plan dimension</b> \u2014 2.64 m for the 0.20 m minimum section \u2014 and is written into the model as estimated.",
+      chips:[["section-view network","ml"],["one label per storey","ml"],["h = 13.2 &#215; d",""],["+2.60 / e=0.12","st"]],
+      dtl:["Detail H", "section A-A", "levels",
+           "Storey height is the one number the whole extrusion hangs off; getting it from an annotation beats guessing it globally."],
+      op:OP({lyGrid:.5, lySlab:.4, lyStruct:.75, lyStructT:.3, lyArch:.45, lyFurn:.2, lyLevel:1}) },
+
+    { act:"e", rail:"Strip the grey", kick:"Preprocess", sheet:["E-01","PLANTA BAJA &#183; INST. ELECTRICA"],
+      state:"filtered", panel:"e",
+      title:"Keep the ink, drop the drawing",
+      body:"The electrical sheet carries the architecture underneath it, drawn light and grey, with the circuits inked heavier and often in colour. That convention is exploitable: a stroke filter removes the building fabric before any detector runs, which cuts false positives and shrinks the work. <b>What survives is the electrician's layer.</b>",
+      chips:[["stroke / colour filter",""],["fabric removed",""],["fewer false positives","ml"]],
+      dtl:["Detail I", "stroke filter", "filter",
+           "Where circuits are not distinguished by weight or colour, this shortcut is unavailable and the separation has to be learned instead."],
+      op:OP({lyGrid:.12, lySlab:.05, lyStruct:.10, lyArch:.13, lyFurn:.07, lyDrawn:1, lySym:1}) },
+
+    { act:"e", rail:"Segment", kick:"Detector", sheet:["E-01","PLANTA BAJA &#183; INST. ELECTRICA"],
+      state:"masks E", panel:"e",
+      title:"Twenty-two instances, one pass",
+      body:"The electrical sheet needs a different detector: the symbols are small, dense, rotated and often overlapping, which is a harder problem than walls and columns. An instance-segmentation model returns a class, a confidence and a <b>per-instance polygon</b> for every symbol. Not boxes \u2014 the polygon is what later tells a conductor running past a symbol apart from the symbol's own tick marks.",
+      chips:[["YOLOv11m-seg","ml"],["mAP 0.50:0.95 = 0.7368","ml"],["1024 px tiles","ml"],["7 IRAM classes","hi"]],
+      dtl:["Detail J", "box vs mask", "mask",
+           "Cascade Mask R-CNN and YOLOv8m-seg were evaluated on the same set; YOLOv11m-seg at 1024 px won."],
+      op:OP({lyGrid:.12, lySlab:.05, lyStruct:.10, lyArch:.13, lyFurn:.07, lyDrawn:.45, lySym:1, lyMask:1}) },
+
+    { act:"e", rail:"One detection", kick:"Anatomy", sheet:["E-01","PLANTA BAJA &#183; INST. ELECTRICA"],
+      state:"record", panel:"e",
+      title:"What a detection is actually worth",
+      body:"Pull one out. The double outlet in the living room comes back as a class, a score, a ten-point mask and a centroid in image coordinates that converts to metres against the sheet scale. That is a great deal more than a pixel blob \u2014 and still <b>not an outlet</b>, because nothing in the record says what it is wired to.",
+      chips:[["class + score","ml"],["polygon mask","ml"],["centroid \u2192 metres","ml"],["no connectivity",""]],
+      dtl:["Detail K", "outlet O2", "anatomy",
+           "The centroid is where the symbol was drawn, not where the device sits: outlets are conventionally drawn clear of the wall for legibility."],
+      op:OP({lyGrid:.12, lySlab:.05, lyStruct:.10, lyArch:.13, lyFurn:.07, lyDrawn:.45, lySym:1, lyMask:1}),
+      call:["O2", "K", "outlet, 2 modules"] },
+
+    { act:"e", rail:"Read the lines", kick:"Line work", sheet:["E-01","PLANTA BAJA &#183; INST. ELECTRICA"],
+      state:"segments", panel:"e",
+      title:"A fifth reader, kept in the dark",
+      body:"A pretrained line detector makes an entirely separate pass over the same image and returns every stroke it finds as a pair of endpoint keypoints. It is <b>never shown the symbol detections</b>. So the conductors come back, but so do wall edges, dimension lines and the ticks inside the symbols \u2014 and four overlapping copies of the same cable.",
+      chips:[["DeepLSD, pretrained","ml"],["no fine-tuning","ml"],["endpoint keypoints","ml"],["runs in parallel",""]],
+      dtl:["Detail L", "raw output", "lines",
+           "Five networks now, and none of them has been told what any other found. Everything they disagree about is settled in the next pass."],
+      op:OP({lyGrid:.12, lySlab:.05, lyStruct:.08, lyArch:.10, lyFurn:.05, lyDrawn:.30, lySym:.8, lyLine:1, lyMask:.28}) },
+
+    { act:"e", rail:"Cull + snap", kick:"Reconcile", sheet:["E-01","PLANTA BAJA &#183; INST. ELECTRICA"],
+      state:"merged", panel:"e",
+      title:"Where the two streams finally meet",
+      body:"This is the join, and the hard part. Segments falling inside a symbol mask are the symbol's own drawing and get dropped. Overlapping duplicates collapse into one conductor. Endpoints landing within tolerance of a component snap onto its terminal. <b>Only now does either model's output mean anything to the other.</b>",
+      chips:[["masks \u2229 segments","ml"],["duplicate merge",""],["endpoint snapping",""],["Shapely",""]],
+      dtl:["Detail M", "two rules", "merge",
+           "Errors upstream propagate here: a missed symbol or a broken line leaves an orphan, and orphans are discarded."],
+      op:OP({lyGrid:.12, lySlab:.05, lyStruct:.08, lyArch:.10, lyFurn:.05, lyDrawn:.15, lySym:.8, lyLine:1, lyMask:.55}) },
+
+    { act:"e", rail:"Circuits", kick:"Graph", sheet:["E-01","PLANTA BAJA &#183; INST. ELECTRICA"],
+      state:"circuits", panel:"e",
+      title:"Three circuits, rooted at the board",
+      body:"The surviving conductors become a connectivity graph, grown outward from the distribution board. Argentine wiring rules then prune it: a lighting circuit may not carry outlets, families may not mix, every circuit needs both ends. Branches that break a rule are traced back and cut \u2014 which is why <b>false positives are rare</b>.",
+      chips:[["NetworkX",""],["AEA classification rules","hi"],["IUG / TUG / TUE","hi"],["circuits.json",""]],
+      dtl:["Detail N", "graph", "graph",
+           "Compare the routes with the arcs the electrician actually inked: the topology is recovered, the draughtsmanship is not."],
+      op:OP({lyGrid:.16, lySlab:.06, lyStruct:.12, lyArch:.16, lyFurn:.05, lySym:.55, lyLine:.18, lyMask:.2, lyRun:1}) },
+
+    { act:"m", rail:"Write IFC", kick:"Compose", sheet:["IFC","MODELO IFC 4 &#183; IfcOpenShell"],
+      state:"IFC 4", panel:"e",
+      title:"Composed, not just labelled",
+      body:"Every branch now writes itself out with IfcOpenShell, and every entity is composed of parts. A column is a section swept along a vertical direction; a door is a leaf filling a void cut from its host; an outlet is a placement, a representation and <b>two distribution ports</b>. Cable segments join outlets through those ports, and each circuit is grouped into an IfcSystem.",
+      chips:[["IfcOpenShell",""],["IfcColumn / IfcBeam / IfcSlab","bm"],["IfcWall / IfcDoor / IfcWindow","bm"],["IfcDistributionPort","bm"]],
+      dtl:["Detail O", "O2 in IFC", "ifc",
+           "LOD 200 for cable and board, LOD 290 for outlets and lighting: placement is approximate, semantics are not."],
+      op:OP({lyGrid:.16, lySlab:.1, lyStruct:.16, lyArch:.16, lyFurn:.05, lyStructM:.08, lyArchM:.08,
+             lyRelS:.16, lyRelA:.16, lySym:.5, lyRun:1}),
+      call:["O2", "O", "IfcOutlet + 2 ports"] },
+
+    { act:"m", rail:"Stand it up", kick:"Federate", sheet:["BIM","MODELO FEDERADO"],
+      state:"BIM", panel:null,
+      title:"Everything merged, in one model",
+      body:"The three partial models are federated in the shared coordinate system: the frame stands up first, then its slabs, then the envelope with its openings, then the circuits at their working heights. <b>The same house, now a model that can be queried, clashed and costed</b> \u2014 rebuilt end to end from three scans and a section.",
+      chips:[["federated IFC 4","hi"],["structure + architecture + MEP","bm"],["166 entities","bm"],["queryable connectivity",""]],
+      dtl:["Detail P", "federation", "federate",
+           "Gas and hot/cold water enter at exactly this point, as further partial models built by the same pattern with per-discipline training."],
+      op:OP({isoRoot:1}) }
+  ];
+
+  var DUR = [4200, 3800, 4200, 4200, 3900, 4000, 4000, 4000, 3200, 4200, 4000, 4200, 4400, 4600, 4400, 7000];
+
+  /* =====================================================================
+     11.  playback
+     ===================================================================== */
+
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var inkPaths = [].slice.call(G.lyDrawn.querySelectorAll("path.eink")).map(function(p){
+    var len = p.getTotalLength();
+    p.style.strokeDasharray = len + " " + len;
+    return {p:p, len:len};
+  });
+  var runPaths = [].slice.call(G.lyRun.querySelectorAll("polyline.run")).map(function(p){
+    var len = p.getTotalLength();
+    p.style.strokeDasharray = len + " " + len;
+    return {p:p, len:len};
+  });
+  var maskGs   = [].slice.call(G.lyMask.querySelectorAll("g"));
+  var sMaskGs  = [].slice.call(G.lyStructM.querySelectorAll("g.pop"));
+  var aMaskGs  = [].slice.call(G.lyArchM.querySelectorAll("g.pop"));
+  var ocrKids  = [].slice.call(G.ocrG.children);
+  var relSKids = [].slice.call(G.lyRelS.children);
+  var relAKids = [].slice.call(G.lyRelA.children);
+  var regKids  = [].slice.call(G.lyReg.children);
+  var keptGs   = [].slice.call(G.lyLine.querySelectorAll("g.kept"));
+  var junkGs   = [].slice.call(G.lyLine.querySelectorAll("g.junk"));
+  var symGs    = [].slice.call(G.lySym.querySelectorAll("g.esym"));
+  var tokenG   = put(G.planRoot, "g", {});
+
+  function stagger(i, n, p, hold){
+    var w = hold === undefined ? 0.62 : hold;
+    var t = (p - (i / n) * w) / (1 - w);
+    return Math.max(0, Math.min(1, t));
+  }
+  function ease(t){ return t < .5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2; }
+  function fade(list, on, p, hold){
+    list.forEach(function(n, i){
+      n.style.opacity = on === 2 ? ease(stagger(i, list.length, p, hold)) : on;
+    });
+  }
+  /* how far each sheet sits out of register: 1 = as scanned, 0 = aligned */
+  function misreg(g, a, s, tx, ty, k){
+    var cx = 480, cy = 131;
+    a *= k; s = 1 + (s - 1) * k;
+    g.setAttribute("transform",
+      "translate(" + (cx + tx * k).toFixed(2) + "," + (cy + ty * k).toFixed(2) + ") rotate(" +
+      a.toFixed(3) + ") scale(" + s.toFixed(4) + ") translate(" + (-cx) + "," + (-cy) + ")");
+  }
+
+  var railEl = document.getElementById("rail");
+  var playBtn = document.getElementById("play"), playIcon = document.getElementById("playIcon");
+  var dtlSvg = document.getElementById("dtl");
+  var idx = 0, prog = 0, playing = false, last = 0, mode = "play";
+  var LAST = STAGES.length - 1;
+
+  STAGES.forEach(function(s, i){
+    var li = document.createElement("li");
+    var b = document.createElement("button");
+    b.dataset.act = s.act;
+    b.innerHTML = '<span class="fill"></span><span class="n">' + (i < 9 ? "0" : "") + (i + 1) +
+                  '</span><span class="t">' + s.rail + '</span>';
+    b.addEventListener("click", function(){ pause(); goTo(i); });
+    li.appendChild(b); railEl.appendChild(li);
+  });
+  var railBtns = [].slice.call(railEl.querySelectorAll("button"));
+
+  function paintStage(){
+    var st = STAGES[idx], k;
+
+    for (k in st.op) if (st.op.hasOwnProperty(k) && G[k]) G[k].style.opacity = st.op[k];
+    G.planRoot.style.transition = "opacity .8s ease";
+    G.planRoot.style.opacity = idx === LAST ? 0 : 1;
+    G.legendBox.style.opacity = idx === LAST ? 0 : 1;
+    G.isoRoot.style.transition = "opacity .9s ease, transform .9s cubic-bezier(.2,.8,.3,1)";
+
+    Object.keys(PANELS).forEach(function(p){ PANELS[p].style.opacity = (st.panel === p) ? 1 : 0; });
+    ifcNames.forEach(function(n){
+      n.style.transition = "fill .6s ease";
+      n.style.fill = idx >= 14 ? "var(--bim)" : "var(--ink-3)";
+    });
+
+    setCallout(st.call ? st.call[0] : null, st.call ? st.call[1] : "", st.call ? st.call[2] : "");
+
+    document.getElementById("capNum").textContent   = (idx < 9 ? "0" : "") + (idx + 1);
+    document.getElementById("capKick").textContent  = st.kick;
+    document.getElementById("capAct").innerHTML     = ACTS[st.act];
+    document.getElementById("capTitle").textContent = st.title;
+    document.getElementById("capBody").innerHTML    = st.body;
+    tbPass.textContent = (idx < 9 ? "0" : "") + (idx + 1);
+    tbState.textContent = st.state;
+    tbSheet.textContent = st.sheet[0];
+    tbSheetSub.innerHTML = st.sheet[1];
+
+    var cc = document.getElementById("capChips"); cc.innerHTML = "";
+    st.chips.forEach(function(c){
+      var e = document.createElement("span");
+      e.className = "chip " + (c[1] || "");
+      e.innerHTML = c[0];
+      cc.appendChild(e);
+    });
+
+    document.getElementById("dtlTitle").textContent = st.dtl[0];
+    document.getElementById("dtlScale").textContent = st.dtl[1];
+    dtlSvg.innerHTML = DETAIL[st.dtl[2]]();
+    document.getElementById("dtlCap").textContent = st.dtl[3];
+
+    railBtns.forEach(function(b, i){
+      b.classList.toggle("on", i === idx);
+      b.classList.toggle("done", i < idx);
+      b.querySelector(".fill").style.width = i < idx ? "100%" : "0%";
+    });
+  }
+
+  function tick(){
+    var p = reduced ? 1 : prog, e = ease(Math.min(1, p / .72));
+    var s = idx;
+    tokenG.innerHTML = "";
+
+    /* 01-02 - the sheets sit out of register, then swing into it */
+    var k = s === 0 ? 1 : (s === 1 ? 1 - ease(Math.min(1, p / .78)) : 0);
+    misreg(G.wrapA, -2.4, 1.035, 10, 6, k);
+    misreg(G.wrapE,  1.8, 0.972, -8, 10, k);
+    fade(regKids, s === 1 ? 2 : 0, Math.min(1, p / .7), .5);
+
+    /* 01 - the electrician inks the sheet */
+    inkPaths.forEach(function(o, i){
+      var t = s === 0 ? ease(stagger(i, inkPaths.length, Math.min(1, p / .8), .55)) : 1;
+      o.p.style.strokeDashoffset = o.len * (1 - t);
+      if (s === 0 && t > .02 && t < .98 && !reduced){
+        var pt = o.p.getPointAtLength(o.len * t);
+        put(tokenG, "circle", {cx:pt.x, cy:pt.y, r:2.6, fill:"var(--elec)"});
+      }
+    });
+    symGs.forEach(function(g, i){
+      g.style.opacity = s === 0 ? ease(stagger(i, symGs.length, Math.min(1, p / .9), .6)) : 1;
+    });
+
+    /* 03-05 - the structural sheet */
+    sMaskGs.forEach(function(g, i){
+      var t = s === 2 ? ease(stagger(i, sMaskGs.length, e, .7)) : (s > 2 ? 1 : 0);
+      g.style.opacity = t;
+      g.style.transform = "scale(" + (0.6 + 0.4 * t) + ")";
+    });
+    fade(ocrKids, s < 3 ? 0 : (s === 3 ? 2 : 1), Math.min(1, p / .85), .66);
+    fade(relSKids, s < 4 ? 0 : (s === 4 ? 2 : 1), Math.min(1, p / .85), .6);
+
+    /* 06-07 - the architectural sheet */
+    aMaskGs.forEach(function(g, i){
+      var t = s === 5 ? ease(stagger(i, aMaskGs.length, e, .68)) : (s > 5 ? 1 : 0);
+      g.style.opacity = t;
+      g.style.transform = "scale(" + (0.72 + 0.28 * t) + ")";
+    });
+    fade(relAKids, s < 6 ? 0 : (s === 6 ? 2 : 1), Math.min(1, p / .85), .6);
+
+    /* 10, 11 - electrical masks pop on, then all but the sample recede */
+    maskGs.forEach(function(g, i){
+      var vis = s >= 9;
+      var t = (s === 9) ? ease(stagger(i, maskGs.length, e, .68)) : (vis ? 1 : 0);
+      var focus = (s === 10 || s === 14) && g.dataset.id === "O2";
+      g.style.opacity = focus ? 1 : (s === 10 ? t * .3 : t);
+      g.style.transform = "scale(" + (0.55 + 0.45 * t) + ")";
+    });
+
+    /* 12 - every stroke the line detector returns */
+    keptGs.forEach(function(g, i){
+      g.style.opacity = s < 11 ? 0 : (s === 11 ? ease(stagger(i, keptGs.length, e, .7)) : 1);
+    });
+    junkGs.forEach(function(g, i){
+      if (s < 11)       g.style.opacity = 0;
+      else if (s === 11) g.style.opacity = ease(stagger(i, junkGs.length, e, .7)) * .9;
+      /* 13 - and the ones the reconciliation throws away */
+      else if (s === 12) g.style.opacity = .9 * (1 - ease(stagger(i, junkGs.length, Math.min(1, p / .85), .5)));
+      else              g.style.opacity = 0;
+    });
+
+    /* 14 - current leaves the board */
+    runPaths.forEach(function(o, i){
+      var t = s === 13 ? ease(stagger(i, runPaths.length, Math.min(1, p / .92), .6)) : (s > 13 ? 1 : 0);
+      o.p.style.strokeDashoffset = o.len * (1 - t);
+      if (s === 13 && t > .02 && t < .98 && !reduced){
+        var pt = o.p.getPointAtLength(o.len * t);
+        var col = o.p.getAttribute("stroke");
+        put(tokenG, "circle", {cx:pt.x, cy:pt.y, r:8, fill:col, opacity:".16"});
+        put(tokenG, "circle", {cx:pt.x, cy:pt.y, r:3.2, fill:col});
+      }
+    });
+
+    /* 16 - the model stands up, one discipline at a time */
+    if (s === LAST){
+      var ph = p * 6.6;
+      isoParts.forEach(function(o){
+        var t = Math.max(0, Math.min(1, ph - o.ph));
+        o.node.style.opacity = t;
+      });
+      G.isoRoot.style.transform = "translateY(0)";
+    } else {
+      isoParts.forEach(function(o){ o.node.style.opacity = 1; });
+      G.isoRoot.style.transform = "translateY(26px)";
+    }
+
+    railBtns[idx].querySelector(".fill").style.width = (p * 100).toFixed(1) + "%";
+  }
+
+  function goTo(i){
+    idx = (i + STAGES.length) % STAGES.length;
+    paintStage();
+    if (reduced){ prog = 1; tick(); return; }
+    prog = 0; tick();
+    mode = "step";
+    if (!playing){ playing = true; last = 0; requestAnimationFrame(frame); }
+  }
+  function frame(ts){
+    if (!playing) return;
+    if (!last) last = ts;
+    prog += (ts - last) / DUR[idx]; last = ts;
+    if (prog >= 1){
+      if (mode === "step" || idx === LAST){
+        prog = 1; playing = false; setIcon(false); tick(); return;
+      }
+      idx += 1; prog = 0; paintStage();
+    }
+    tick();
+    requestAnimationFrame(frame);
+  }
+  function setIcon(on){
+    playIcon.innerHTML = on ? '<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>' : '<path d="M7 4l13 8-13 8z"/>';
+    playBtn.setAttribute("aria-label", on ? "Pause" : "Play");
+  }
+  function play(){
+    if (idx === LAST && prog >= 1){ idx = 0; prog = 0; paintStage(); }
+    mode = "play"; setIcon(true);
+    if (!playing){ playing = true; last = 0; requestAnimationFrame(frame); }
+  }
+  function pause(){ playing = false; setIcon(false); }
+
+  playBtn.addEventListener("click", function(){ playing ? pause() : play(); });
+  document.getElementById("prev").addEventListener("click", function(){ pause(); goTo(idx - 1); });
+  document.getElementById("next").addEventListener("click", function(){ pause(); goTo(idx + 1); });
+  document.addEventListener("keydown", function(ev){
+    if (ev.target.tagName === "INPUT" || ev.target.tagName === "TEXTAREA") return;
+    if (ev.key === "ArrowRight"){ pause(); goTo(idx + 1); }
+    else if (ev.key === "ArrowLeft"){ pause(); goTo(idx - 1); }
+    else if (ev.key === " "){ ev.preventDefault(); playing ? pause() : play(); }
+  });
+
+  goTo(0);
+  if (!reduced) setTimeout(play, 800);
+})();
+</script>
+
+<!-- ============================= END ARTIFACT ============================= -->
+
+
+<!-- ---------------------------------------------------------------------- --
+     FPMS skin: retunes the drawing's neutrals to the app palette and drops the
+     standalone masthead, so the figure reads as part of the landing page and
+     not as a pasted document. The discipline colours are deliberately left
+     alone - they carry meaning, and the figure's own legend explains them.
+  -- ---------------------------------------------------------------------- -->
+<style>
+:root[data-theme="dark"]{
+  /* must match the frame colour in LandingPipelineFigure.tsx */
+  --bg:#0b1120;
+  --desk:#0d1220;
+  --sheet:#111827;
+  --sheet-2:#172033;
+  --ink:#f8fafc;
+  --ink-2:#cbd5e1;
+  --ink-3:#94a3b8;
+  --ink-4:#64748b;
+  --rule:#1e293b;
+  --rule-soft:#151d2e;
+  --ai:#38bdf8;                 /* the app accent doubles as "recovered by a model" */
+  --shadow:0 1px 1px rgba(0,0,0,.5), 0 24px 48px -28px rgba(0,0,0,1);
+}
+html,body{background:var(--bg)}   /* never rely on iframe transparency */
+.wrap{padding:0}
+.mast,.foot{display:none}
+.board{border-color:var(--rule)}
+.key{border-top-color:var(--rule)}
+</style>
+
+<!-- Embed bridge: the host page owns playback, so nothing animates off screen,
+     and is told how tall this document actually is. -->
+<script>
+(function(){
+  "use strict";
+  var ORIGIN = window.location.origin;
+  var btn = document.getElementById("play");
+
+  function isPlaying(){ return !!btn && btn.getAttribute("aria-label") === "Pause"; }
+  function setPlaying(on){ if (btn && isPlaying() !== on) btn.click(); }
+
+  /* The drawing starts itself ~800 ms after load; hold that until the host says
+     the figure is actually on screen. */
+  var wanted = false, ready = false;
+  setTimeout(function(){ ready = true; setPlaying(wanted); }, 1000);
+
+  window.addEventListener("message", function(ev){
+    if (ev.origin !== ORIGIN) return;
+    var d = ev.data;
+    if (!d || d.type !== "fpms-pipeline" || typeof d.play !== "boolean") return;
+    wanted = d.play;
+    if (ready) setPlaying(d.play);
+  });
+
+  var lastH = 0;
+  function report(){
+    var h = Math.ceil(document.documentElement.getBoundingClientRect().height);
+    if (h && Math.abs(h - lastH) > 1){
+      lastH = h;
+      if (window.parent !== window){
+        window.parent.postMessage({type:"fpms-pipeline-height", height:h}, ORIGIN);
+      }
+    }
+  }
+  report();
+  window.addEventListener("load", report);
+  window.addEventListener("resize", report);
+  if (window.ResizeObserver) new ResizeObserver(report).observe(document.body);
+})();
+</script>
+
+</body>
+</html>

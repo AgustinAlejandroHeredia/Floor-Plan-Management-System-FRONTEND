@@ -122,6 +122,13 @@
     "step3Title": "Edición y Colaboración",
     "step3Desc": "Ajusta detalles en el editor, asigna especialidades y comparte el proyecto con tu equipo u organización."
   },
+  "pipelineFigure": {
+    "badge": "Bajo el cap\u00f3",
+    "title": "Qu\u00e9 le hace el motor a un plano",
+    "subtitle": "Diecis\u00e9is pasadas sobre tres escaneos de la misma vivienda. Primero vuelve la estructura, despu\u00e9s los muros y las aberturas, y por \u00faltimo la instalaci\u00f3n el\u00e9ctrica \u2014 y los tres modelos parciales se federan en un \u00fanico archivo IFC. Dale play, o avanz\u00e1 de a una pasada.",
+    "frameTitle": "Recorrido animado: de tres planos escaneados a un \u00fanico modelo IFC federado",
+    "note": "Plano redibujado a partir del caso de estudio de Guernica, Buenos Aires. La detecci\u00f3n estructural y arquitect\u00f3nica sigue a Urbieta et al., Journal of Building Engineering 78 (2023) 107672; la extensi\u00f3n MEP es investigaci\u00f3n en curso en LIFIA."
+  },
   "cta": {
     "title": "¿Listo para optimizar la gestión de tus planos arquitectónicos?",
     "subtitle": "Únete a los equipos que han reducido el tiempo de análisis de áreas de horas a cuestión de segundos.",

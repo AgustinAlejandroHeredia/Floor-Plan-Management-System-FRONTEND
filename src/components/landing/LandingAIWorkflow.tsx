@@ -11,6 +11,8 @@ import {
   BsStars 
 } from "react-icons/bs";
 
+import { LandingPipelineFigure } from "@/components/landing/LandingPipelineFigure";
+
 export const LandingAIWorkflow = () => {
   const { t } = useTranslation(["landing"]);
   const { isAuthenticated, loginWithRedirect } = useAuth0();
@@ -103,6 +105,9 @@ export const LandingAIWorkflow = () => {
             </motion.div>
           ))}
         </div>
+
+        {/* THE PIPELINE, ANIMATED - what step 02 is actually doing */}
+        <LandingPipelineFigure />
 
         {/* BOTTOM CTA BANNER */}
         <div id="ai-engine" className="mt-20 max-w-5xl mx-auto rounded-3xl bg-gradient-to-r from-sky-900/40 via-slate-900/60 to-indigo-900/40 border border-sky-500/30 p-8 sm:p-12 text-center relative overflow-hidden shadow-2xl backdrop-blur-md">

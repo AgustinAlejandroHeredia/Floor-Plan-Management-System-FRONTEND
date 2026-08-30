@@ -122,6 +122,13 @@
     "step3Title": "Edit & Collaborate",
     "step3Desc": "Fine-tune polygons, assign specialties, and share with your team or clients with full version control."
   },
+  "pipelineFigure": {
+    "badge": "Under the hood",
+    "title": "What the engine actually does to a plan",
+    "subtitle": "Sixteen passes over three scans of the same house. The structural frame comes back first, then the walls and openings, then the electrical installation \u2014 and the three partial models are federated into a single IFC file. Press play, or step through one pass at a time.",
+    "frameTitle": "Animated walkthrough: from three scanned plans to one federated IFC model",
+    "note": "Drawing redrawn from the Guernica case study, Buenos Aires. Structural and architectural detection follow Urbieta et al., Journal of Building Engineering 78 (2023) 107672; the MEP extension is current research at LIFIA."
+  },
   "cta": {
     "title": "Ready to streamline your architectural blueprint workflows?",
     "subtitle": "Join the innovative engineering teams transforming area calculations from hours into seconds.",

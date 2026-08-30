@@ -265,6 +265,28 @@ export type BlueprintViewType =
   | 'right_side'
   | 'undefined'
 
+// The layout detector's actual output classes (from data01.yaml) - content
+// categories on a raw sheet, not viewing directions. Only 'floorplan' maps
+// onto BlueprintViewType (-> 'top'); the rest don't correspond to any view.
+export type LayoutFeatureClass =
+  | 'detail'
+  | 'floorplan'
+  | 'note'
+  | 'table'
+  | 'titleblock'
+  | 'view'
+  | 'xsec'
+
+export const layoutFeatureClassOptions: LayoutFeatureClass[] = [
+  'floorplan',
+  'view',
+  'xsec',
+  'detail',
+  'titleblock',
+  'table',
+  'note',
+]
+
 export interface CropMadeType {
   blueprintId: string;
   blueprintName: string;
@@ -331,6 +353,8 @@ export interface BlueprintResponseType {
   levels: BlueprintLevelsRangeType[];
   view?: BlueprintViewType;
   sectionViews: SectionView[];
+  detectedLayoutFeatures?: SectionView[];
+  layoutClass?: LayoutFeatureClass;
   titleBlock?: string[];
   downloadUrl?: string;
   originalBlueprintId?: string;
@@ -360,6 +384,8 @@ export interface BlueprintType {
   levels: BlueprintLevelsRangeType[];
   view?: BlueprintViewType;
   sectionViews: SectionView[];
+  detectedLayoutFeatures?: SectionView[];
+  layoutClass?: LayoutFeatureClass;
   titleBlock?: string[];
   downloadUrl?: string;
   originalBlueprintId?: string;
@@ -391,6 +417,8 @@ export interface CreateCropPayload {
   originalBlueprintId: string;
   width: number;
   height: number;
+  view?: BlueprintViewType;
+  layoutClass?: LayoutFeatureClass;
 }
 
 export interface UpdateBlueprintPayload {
@@ -403,6 +431,7 @@ export interface UpdateBlueprintPayload {
   titleBlock?: string[];
   //areas
   sectionViews?: SectionView[];
+  detectedLayoutFeatures?: SectionView[];
   scale?: number;
   scale_source?: 'ai' | 'manual';
 }
@@ -519,6 +548,7 @@ export interface YoloPrediction {
 }
 
 export interface ModelSummary {
+  modelId: string | null
   modelName: string
   count: number
 }

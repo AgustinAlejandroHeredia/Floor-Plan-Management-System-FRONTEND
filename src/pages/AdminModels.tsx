@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { useUser } from "@/context/UserContext";
 import { ModelService } from "@/services/ModelService";
-import type { ModelConfig, ModelItem } from "@/types/types";
+import type { ModelConfig, ModelItem, ModelTaskType } from "@/types/types";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,34 @@ const taskBadgeStyles: Record<string, string> = {
   OCR: "bg-yellow-100 text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-300",
 };
 
+// Same 4 values as taskBadgeStyles' keys, and the only values inference_engine.py's
+// sibling scripts and AutoDetectionModel actually expect - keeping this a fixed
+// list rather than free text is what stops entries like "Detection" from happening.
+const TASK_OPTIONS: ModelTaskType[] = ["keypoints", "instance segmentation", "object detection", "OCR"];
+
+// Verified against sahi/auto_model.py's MODEL_TYPE_TO_MODEL_CLASS_NAME directly
+// (github.com/obss/sahi/blob/main/sahi/auto_model.py) - it supports 12 framework
+// keys total, but this list is deliberately restricted to the 3 inference_engine.py
+// actually handles. Critically: SAHI also accepts alias names ("yolov8", "yolov11",
+// "yolo11", "yolo26") and silently normalizes them to "ultralytics" internally -
+// but inference_engine.py's own cache-extension logic (ext = ".pt" if model_type
+// == "ultralytics" else ".pth") does a raw string comparison and does NOT know
+// about that normalization. Selecting "yolo26" here (which matches this project's
+// `model` field naming, and which SAHI itself would accept) would silently pick
+// the wrong file extension. Only the exact string "ultralytics" is safe.
+const MODEL_TYPE_OPTIONS = ["ultralytics", "mmdet", "detectron2"];
+
 const formatPercent = (value: number) => `${Math.round(value * 100)}%`;
+
+// Roboflow's signature pattern for metrics: color grades the score itself,
+// so scanning a column of models tells you at a glance which are strong
+// without reading every number.
+const getScoreColorClasses = (value: number) => {
+  if (value >= 0.9) return { text: "text-emerald-500", bar: "bg-emerald-500" };
+  if (value >= 0.75) return { text: "text-blue-500", bar: "bg-blue-500" };
+  if (value >= 0.5) return { text: "text-amber-500", bar: "bg-amber-500" };
+  return { text: "text-red-500", bar: "bg-red-500" };
+};
 
 const getAverageMap = (map?: Record<string, number>) => {
   if (!map) return 0;
@@ -150,7 +177,7 @@ const AdminModels = () => {
               <th className="p-3 text-left font-medium">Default</th>
               <th className="p-3 text-left font-medium">Task</th>
               <th className="p-3 text-left font-medium">Training</th>
-              <th className="p-3 text-left font-medium">mAP50</th>
+              <th className="p-3 text-left font-medium">Performance</th>
               <th className="p-3 text-left font-medium">Model</th>
               <th className="p-3 text-left font-medium">Version</th>
               <th className="p-3 text-left font-medium">Drive</th>
@@ -200,27 +227,57 @@ const AdminModels = () => {
                     ) : null}
                   </div>
                 </td>
-                <td className="p-3 min-w-[240px] align-top">
-                  {model.metrics?.mAP50 ? (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>mAP50</span>
-                        <span className="font-semibold text-foreground">{formatPercent(getAverageMap(model.metrics.mAP50))}</span>
+                <td className="p-3 min-w-[260px] align-top">
+                  {model.metrics?.mAP50 || model.metrics?.['mAP50-95'] ? (
+                    <div className="space-y-2.5">
+                      <div className="flex items-center gap-5">
+                        {model.metrics?.mAP50 && (
+                          <div>
+                            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">mAP50</div>
+                            <div className={`text-lg font-bold leading-tight ${getScoreColorClasses(getAverageMap(model.metrics.mAP50)).text}`}>
+                              {formatPercent(getAverageMap(model.metrics.mAP50))}
+                            </div>
+                          </div>
+                        )}
+                        {model.metrics?.['mAP50-95'] && (
+                          <div>
+                            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">mAP50-95</div>
+                            <div className={`text-lg font-bold leading-tight ${getScoreColorClasses(getAverageMap(model.metrics['mAP50-95'])).text}`}>
+                              {formatPercent(getAverageMap(model.metrics['mAP50-95']))}
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      {Object.entries(model.metrics.mAP50).map(([label, value]) => (
-                        <div key={label} className="space-y-1">
-                          <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                            <span>{label}</span>
-                            <span>{formatPercent(value)}</span>
-                          </div>
-                          <div className="h-2 overflow-hidden rounded-full bg-muted">
-                            <div className="h-full rounded-full bg-emerald-500" style={{ width: `${Math.round(value * 100)}%` }} />
-                          </div>
-                        </div>
-                      ))}
+                      <div className="space-y-1">
+                        {Object.keys({ ...(model.metrics?.mAP50 ?? {}), ...(model.metrics?.['mAP50-95'] ?? {}) })
+                          .filter((label) => (model.metrics?.mAP50?.[label] ?? 0) > 0 || (model.metrics?.['mAP50-95']?.[label] ?? 0) > 0)
+                          .map((label) => {
+                            const v50 = model.metrics?.mAP50?.[label] ?? 0;
+                            const v5095 = model.metrics?.['mAP50-95']?.[label] ?? 0;
+                            return (
+                              <div key={label} className="grid grid-cols-[32px_1fr_1fr] items-center gap-2">
+                                <span className="text-[10px] text-muted-foreground">{label}</span>
+                                <div className="flex items-center gap-1">
+                                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                                    <div className={`h-full rounded-full ${getScoreColorClasses(v50).bar}`} style={{ width: `${Math.round(v50 * 100)}%` }} />
+                                  </div>
+                                  <span className={`w-8 shrink-0 text-right text-[10px] ${getScoreColorClasses(v50).text}`}>{formatPercent(v50)}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                                    <div className={`h-full rounded-full ${getScoreColorClasses(v5095).bar}`} style={{ width: `${Math.round(v5095 * 100)}%` }} />
+                                  </div>
+                                  <span className={`w-8 shrink-0 text-right text-[10px] ${getScoreColorClasses(v5095).text}`}>{formatPercent(v5095)}</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                      </div>
                     </div>
                   ) : (
-                    <span className="text-xs text-muted-foreground">No metrics</span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-1 text-xs font-medium text-amber-600 dark:text-amber-400">
+                      No metrics recorded
+                    </span>
                   )}
                 </td>
                 <td className="p-3 text-foreground">{model.model}</td>
@@ -282,7 +339,21 @@ const AdminModels = () => {
               </div>
               <div>
                 <Label htmlFor="task">Task</Label>
-                <Input id="task" value={formData.task ?? ''} onChange={(e) => setFormData({ ...formData, task: e.target.value as any })} />
+                <Select
+                  value={formData.task ?? ""}
+                  onValueChange={(value) => setFormData({ ...formData, task: value as ModelItem['task'] })}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select task" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TASK_OPTIONS.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -295,9 +366,29 @@ const AdminModels = () => {
                 <Input id="version" value={formData.version ?? ''} onChange={(e) => setFormData({ ...formData, version: e.target.value })} />
               </div>
             </div>
-            <div>
-              <Label htmlFor="status">Status</Label>
-              <Input id="status" value={formData.status ?? ''} onChange={(e) => setFormData({ ...formData, status: e.target.value })} />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="model_type">Model Type</Label>
+                <Select
+                  value={formData.model_type ?? ""}
+                  onValueChange={(value) => setFormData({ ...formData, model_type: value })}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select model type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MODEL_TYPE_OPTIONS.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="status">Status</Label>
+                <Input id="status" value={formData.status ?? ''} placeholder="e.g. latest, deprecated, experimental" onChange={(e) => setFormData({ ...formData, status: e.target.value })} />
+              </div>
             </div>
             <div>
               <Label htmlFor="drive_id">Drive ID</Label>
@@ -474,6 +565,47 @@ const AdminModels = () => {
                   })}
                 />
               </div>
+            </div>
+            <div className="border-t border-slate-200 pt-4">
+              <Label className="mb-2 block">Metrics</Label>
+              <div className="grid grid-cols-3 gap-4">
+                <div />
+                <Label className="text-center text-xs text-muted-foreground">mAP50</Label>
+                <Label className="text-center text-xs text-muted-foreground">mAP50-95</Label>
+              </div>
+              {(["Box", "Mask", "Pose"] as const).map((category) => (
+                <div key={category} className="grid grid-cols-3 gap-4 mt-2 items-center">
+                  <Label className="text-sm font-normal">{category}</Label>
+                  <Input
+                    value={formData.metrics?.mAP50?.[category] ?? ''}
+                    placeholder="0.0"
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      metrics: {
+                        ...(formData.metrics ?? {}),
+                        mAP50: {
+                          ...(formData.metrics?.mAP50 ?? {}),
+                          [category]: Number(e.target.value),
+                        },
+                      },
+                    })}
+                  />
+                  <Input
+                    value={formData.metrics?.['mAP50-95']?.[category] ?? ''}
+                    placeholder="0.0"
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      metrics: {
+                        ...(formData.metrics ?? {}),
+                        'mAP50-95': {
+                          ...(formData.metrics?.['mAP50-95'] ?? {}),
+                          [category]: Number(e.target.value),
+                        },
+                      },
+                    })}
+                  />
+                </div>
+              ))}
             </div>
           </div>
           <DialogFooter>

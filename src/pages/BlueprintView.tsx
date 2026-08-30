@@ -12,7 +12,7 @@ import { BlueprintViewService } from "@/services/BlueprintViewService";
 
 // ICONS
 import { MdEdit } from "react-icons/md";
-import { FaCheck, FaChevronDown, FaChevronUp, FaCompass, FaFileDownload, FaRegCheckSquare, FaRegSquare, FaRulerHorizontal, FaUser } from "react-icons/fa";
+import { FaCheck, FaChevronDown, FaChevronUp, FaCompass, FaFileDownload, FaMagic, FaRegCheckSquare, FaRegSquare, FaRulerHorizontal, FaUser } from "react-icons/fa";
 import { BsScissors, BsStars } from "react-icons/bs";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { GrFormView, GrFormViewHide } from "react-icons/gr";
@@ -164,6 +164,9 @@ const BlueprintView = () => {
 
     // SECTION VIEW VARIABLES
     const [isProcessing, setIsProcessing] = useState<boolean>(false)
+    const [isRunningMagicCrop, setIsRunningMagicCrop] = useState<boolean>(false)
+    const isRunningMagicCropRef = useRef(false)
+    const pendingMagicCropJobIdRef = useRef<string | null>(null)
     const blueprintImageRef = useRef<HTMLDivElement | null>(null)
     const inferenceSocketRef = useRef<Socket | null>(null)
     const isProcessingRef = useRef(false)
@@ -749,8 +752,66 @@ const BlueprintView = () => {
         )
     }
 
-    const handleMagicCrop = () => {
-        console.log("Magic crop")
+    const handleMagicCrop = async () => {
+        if (isRunningMagicCropRef.current) return
+
+        // Looked up by AEC_speciality rather than hardcoding "Blueprint Layout
+        // Feature Detector 1.0.0" - if the registered version changes, this
+        // keeps working without a code change, same as the specialty flow does.
+        const matchingKey = Object.keys(availableModels).find(
+            (key) => key.toLowerCase() === 'blueprint layout classification'
+        )
+        const layoutModel = matchingKey ? availableModels[matchingKey][0] : undefined
+
+        if (!layoutModel) {
+            setErrorAlertMessage(t('blueprint:errorMessages.noLayoutModelAvailable'))
+            setOpenErrorAlert(true)
+            return
+        }
+
+        setIsRunningMagicCrop(true)
+        isRunningMagicCropRef.current = true
+
+        try {
+            const token = await getAccessTokenSilently()
+            const job = await BlueprintViewService.enqueueInference(blueprint!._id, [layoutModel])
+            pendingMagicCropJobIdRef.current = job._id
+            const completed = await waitForInferenceJob(job._id, token)
+            pendingMagicCropJobIdRef.current = null
+
+            if (completed.status === 'Processed' && completed.result?.predictions) {
+                const suggestedFeatures = predictionsToSectionViews(completed.result.predictions)
+
+                setBlueprint(prev => {
+                    if (!prev) return prev
+                    return {
+                        ...prev,
+                        detectedLayoutFeatures: suggestedFeatures,
+                    }
+                })
+
+                if (suggestedFeatures.length === 0) {
+                    setNoDetectionsMessage(
+                        t('blueprint:noDetectionsAlert.description', {
+                            models: layoutModel,
+                        })
+                    )
+                    setOpenNoDetectionsAlert(true)
+                }
+            } else if (completed.status === 'Error') {
+                setErrorAlertMessage(completed.result?.error ?? t('blueprint:errorMessages.processingFailed'))
+                setOpenErrorAlert(true)
+            } else if (completed.status === 'Cancelled') {
+                setErrorAlertMessage(t('blueprint:errorMessages.inferenceJobCancelled'))
+                setOpenErrorAlert(true)
+            }
+        } catch (error) {
+            setErrorAlertMessage(t('blueprint:errorMessages.errorProcessingBlueprint'))
+            setOpenErrorAlert(true)
+        } finally {
+            setIsRunningMagicCrop(false)
+            isRunningMagicCropRef.current = false
+        }
     }
 
     const handleNormalImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
@@ -926,9 +987,9 @@ const BlueprintView = () => {
                     }
                 })
 
-                const modelsWithNoDetections = (completed.result?.modelSummaries ?? [])
-                    .filter((summary) => summary.count === 0)
-                    .map((summary) => summary.modelName)
+                const modelsWithNoDetections = (completed.result.modelSummaries ?? [])
+                    .filter((summary: { count: number }) => summary.count === 0)
+                    .map((summary: { modelName: string }) => summary.modelName)
 
                 if (modelsWithNoDetections.length > 0) {
                     setNoDetectionsMessage(
@@ -1877,9 +1938,9 @@ const BlueprintView = () => {
                                         <input
                                             className="cursor-pointer"
                                             type="range"
-                                            min={0.0}
+                                            min={0.1}
                                             max={1}
-                                            step={0.05}
+                                            step={0.1}
                                             value={confidenceSelection}
                                             onChange={(e) => setConfidenceSelection(Number(e.target.value))}
                                             style={{
@@ -2905,7 +2966,6 @@ const BlueprintView = () => {
                                     </TooltipContent>
                                 </Tooltip>
 
-                                {/*
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Button
@@ -2913,6 +2973,7 @@ const BlueprintView = () => {
                                             size="icon"
                                             variant="secondary"
                                             onClick={handleMagicCrop}
+                                            disabled={isRunningMagicCrop}
                                         >
                                             <FaMagic className="text-[var(--text-h)] text-xl"/>
                                         </Button>
@@ -2922,7 +2983,6 @@ const BlueprintView = () => {
                                         <p>{t('blueprint:sidebar.magicCrop')}</p>
                                     </TooltipContent>
                                 </Tooltip>
-                                */}
 
                                 <Tooltip>
                                     <TooltipTrigger asChild>
@@ -3600,6 +3660,13 @@ const BlueprintView = () => {
                     open={isProcessing}
                     title={t('blueprint:processingBlueprint.title')}
                     description={t('blueprint:processingBlueprint.description')}
+                />
+
+                {/* RUNNING MAGIC CROP ALERT */}
+                <Toast
+                    open={isRunningMagicCrop}
+                    title={t('blueprint:runningMagicCrop.title')}
+                    description={t('blueprint:runningMagicCrop.description')}
                 />
 
                 {/* DELETE AREA ALERT DIALOG */}

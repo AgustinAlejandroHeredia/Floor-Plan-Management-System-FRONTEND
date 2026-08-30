@@ -202,9 +202,14 @@
 
     "processingBlueprint": {
         "title": "Processing blueprint...",
-        "description": "Your blueprint is being processed by AI.\n\nYou may continue using the application and will be notified once processing is complete."
-    },
+        "description": "Your blueprint is being processed by AI.\n\nYou may continue using the application and will be notified once processing is complete."    
+    },        
 
+    "runningMagicCrop": {
+        "title": "Detecting views and components in architectural floor plans ...",
+        "description": "The AI is identifying the different views within this plan (floor plans, elevations, sections, title blocks, etc.).You can continue using the application and you will be notified once the process is complete."
+    },
+    
     "deleteAreaDialog": {
         "title": "Delete area \"{{label}}\"",
         "description": "You can undo this change later in the \"Deleted areas\" section below the blueprint image."
@@ -280,6 +285,7 @@
         "noAiModelsForSpecialties": "Sorry, there are no AI models available for the selected specialties.",
         "needEditionForAi": "You need to edit all blueprint fields marked as \"Unspecified\" to use this functionality.\n\nRequired fields:\n- Point of view\n- Specialties\n- Levels",
         "noModelSelected": "You must select a processing model for each specialty listed here.",
+        "noLayoutModelAvailable": "No view detection model is available. Please contact an administrator to register it in the Model Registry.",
         "processingFailed": "AI processing failed. Please try again.",
         "inferenceJobCancelled": "The inference job was cancelled.",
         "errorProcessingBlueprint": "Something went wrong while processing the blueprint. Please try again later.",

@@ -75,6 +75,8 @@ export const BlueprintViewService = {
             formData.append("originalBlueprintId", data.originalBlueprintId)
             formData.append("width", String(data.width))
             formData.append("height", String(data.height))
+            if (data.view) formData.append("view", data.view)
+            if (data.layoutClass) formData.append("layoutClass", data.layoutClass)
 
             await api.post("/blueprints", formData)
 
@@ -123,6 +125,14 @@ export const BlueprintViewService = {
         )
         return response.data
     },
+
+    saveDetectedLayoutFeatures: async (blueprintId: string, detectedLayoutFeatures: SectionView[]) => {
+        const response = await api.patch(`/blueprints/${blueprintId}/detected-layout-features`,
+            { detectedLayoutFeatures }
+        )
+        return response.data
+    },
+
 
     addTestingAreas: async (blueprintId: string) => {
         try {

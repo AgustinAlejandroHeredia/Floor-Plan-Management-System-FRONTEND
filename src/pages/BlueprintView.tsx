@@ -56,7 +56,7 @@ import "react-image-crop/dist/ReactCrop.css";
 import { getCroppedImg } from "@/utils/cropImage";
 
 // TYPES
-import { type AreaColor, type BlueprintLevelsRangeType, type BlueprintViewType, type CreateCropPayload, type DragAreaState, type EditAreaState, type InferenceJobResult, type InferenceJobStatus, type InferenceJobType, type Point, type SectionType, type SectionView, type SpecialtyTag, type YoloPrediction } from "@/types/types";
+import { layoutFeatureClassOptions, type AreaColor, type BlueprintLevelsRangeType, type BlueprintViewType, type CreateCropPayload, type DragAreaState, type EditAreaState, type InferenceJobResult, type InferenceJobStatus, type InferenceJobType, type LayoutFeatureClass, type Point, type SectionType, type SectionView, type SpecialtyTag, type YoloPrediction } from "@/types/types";
 import { SPECIALTIES, specialtyByTag } from "@/config/specialties";
 
 // CONTEXT
@@ -258,6 +258,11 @@ const BlueprintView = () => {
         orinigalAreaCoordsList: null,
     })
     const [dragState, setDragState] = useState<DragAreaState>(null)
+    const [magicCropDragState, setMagicCropDragState] = useState<DragAreaState>(null)
+    const [selectedMagicCropIndex, setSelectedMagicCropIndex] = useState<number | null>(null)
+    const [approvedMagicCropIndexes, setApprovedMagicCropIndexes] = useState<Set<number>>(new Set())
+    const [approvingMagicCropIndexes, setApprovingMagicCropIndexes] = useState<Set<number>>(new Set())
+    const detectedLayoutFeaturesRef = useRef<SectionView[]>([])
         // edit properties
         const [selectedAreaForEditOriginalRadius, setSelectedAreaForEditOriginalRadius] = useState<number>(1)
 
@@ -290,6 +295,17 @@ const BlueprintView = () => {
     // HOOK
     const { blueprint, setBlueprint,  projectInfo, blueprtinImageUrl, availableModels, loadingBlueprint, error, refreshBlueprint } = useBlueprintView(blueprintId!)
 
+    useEffect(() => {
+        if (!magicCropDragState) {
+            detectedLayoutFeaturesRef.current = blueprint?.detectedLayoutFeatures ?? []
+        }
+    }, [blueprint?.detectedLayoutFeatures, magicCropDragState])
+
+    useEffect(() => {
+        setApprovedMagicCropIndexes(new Set())
+        setApprovingMagicCropIndexes(new Set())
+        setSelectedMagicCropIndex(null)
+    }, [blueprint?._id])
     useEffect(() => {
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
             if (warningState !== 0) {
@@ -462,9 +478,58 @@ const BlueprintView = () => {
         // agrego setSelectedAreaForEdit a las dependencias para poder usarlo de forma segura dentro de handleMouseUp
     }, [dragState, selectedAreaForEdit.area, selectedAreaForEdit.index, selectedAreaForEdit.orinigalAreaCoordsList, setSelectedAreaForEdit])
 
+    // MAGIC CROP REVIEW DRAGGING
+    useEffect(() => {
+        if (!magicCropDragState) return
+
+        const handleMouseMove = (event: MouseEvent) => {
+            const coords = getImageCoordinates(event.clientX, event.clientY)
+            if (!coords || approvedMagicCropIndexes.has(magicCropDragState.areaIndex)) return
+
+            setBlueprint(prev => {
+                if (!prev?.detectedLayoutFeatures) return prev
+                const features = [...prev.detectedLayoutFeatures]
+                const feature = features[magicCropDragState.areaIndex]
+                if (!feature) return prev
+
+                const coordsList = magicCropDragState.vertexIndex === -1
+                    ? feature.coordsList.map(point => ({
+                        x: point.x + coords.x - magicCropDragState.startMouse.x,
+                        y: point.y + coords.y - magicCropDragState.startMouse.y,
+                    }))
+                    : feature.coordsList.map((point, pointIndex) =>
+                        pointIndex === magicCropDragState.vertexIndex ? coords : point
+                    )
+
+                features[magicCropDragState.areaIndex] = { ...feature, coordsList }
+                detectedLayoutFeaturesRef.current = features
+                return { ...prev, detectedLayoutFeatures: features }
+            })
+            setMagicCropDragState(current => current ? { ...current, startMouse: coords } : current)
+        }
+
+        const handleMouseUp = () => {
+            // The same drag path that moves a box also confirms it as selected.
+            setSelectedMagicCropIndex(magicCropDragState.areaIndex)
+            setMagicCropDragState(null)
+            if (!blueprint?._id) return
+            BlueprintViewService.saveDetectedLayoutFeatures(blueprint._id, detectedLayoutFeaturesRef.current)
+                .catch(() => {
+                    setErrorAlertMessage(t('blueprint:errorMessages.errorProcessingBlueprint'))
+                    setOpenErrorAlert(true)
+                })
+        }
+
+        window.addEventListener("mousemove", handleMouseMove)
+        window.addEventListener("mouseup", handleMouseUp)
+        return () => {
+            window.removeEventListener("mousemove", handleMouseMove)
+            window.removeEventListener("mouseup", handleMouseUp)
+        }
+    }, [magicCropDragState, approvedMagicCropIndexes, blueprint?._id, t])
     // SHOW CONTROLS IF THERE ARE AREAS
     useEffect(() => {
-        if(blueprint && blueprint.sectionViews && blueprint.sectionViews.length > 0){
+        if (blueprint && ((blueprint.sectionViews?.length ?? 0) > 0 || (blueprint.detectedLayoutFeatures?.length ?? 0) > 0)) {
             setThereAreAreasToShow(true)
         }else{
             setThereAreAreasToShow(false)
@@ -781,6 +846,8 @@ const BlueprintView = () => {
 
             if (completed.status === 'Processed' && completed.result?.predictions) {
                 const suggestedFeatures = predictionsToSectionViews(completed.result.predictions)
+                detectedLayoutFeaturesRef.current = suggestedFeatures
+                setApprovedMagicCropIndexes(new Set())
 
                 setBlueprint(prev => {
                     if (!prev) return prev
@@ -814,9 +881,94 @@ const BlueprintView = () => {
         }
     }
 
+    const handleApproveMagicCrop = async (index: number) => {
+        const feature = detectedLayoutFeaturesRef.current[index]
+        const [p1, p2] = feature?.coordsList ?? []
+        if (!feature || !p1 || !p2 || !imageRef || !blueprint) return
+
+        const x = Math.min(p1.x, p2.x)
+        const y = Math.min(p1.y, p2.y)
+        const width = Math.abs(p2.x - p1.x)
+        const height = Math.abs(p2.y - p1.y)
+        if (width === 0 || height === 0 || imageRes.width === 0 || imageRes.height === 0) return
+
+        // getCroppedImg expects displayed-image pixels and applies its own scale
+        // to natural pixels. Detection coordinates are already natural pixels.
+        const displayedCrop = {
+            x: x * imageRef.width / imageRes.width,
+            y: y * imageRef.height / imageRes.height,
+            width: width * imageRef.width / imageRes.width,
+            height: height * imageRef.height / imageRes.height,
+        }
+
+        setApprovingMagicCropIndexes(current => new Set(current).add(index))
+        try {
+            const safeLabel = (feature.label ?? 'layout-feature').replace(/[^a-z0-9_-]/gi, '_')
+            const file = await getCroppedImg(imageRef, displayedCrop, `cropped_${safeLabel}_${blueprint.filename}`)
+            const response = await BlueprintViewService.createBlueprint({
+                file,
+                blueprintName: `${blueprint.blueprintName} - ${feature.label ?? 'Layout feature'}`,
+                projectId: projectId!,
+                organizationId: organizationId!,
+                originalBlueprintId: blueprint._id,
+                width: Math.round(width),
+                height: Math.round(height),
+                layoutClass: feature.label as LayoutFeatureClass,
+            })
+
+            if (response.status) {
+                setApprovedMagicCropIndexes(current => new Set(current).add(index))
+            } else {
+                setErrorAlertMessage(t(`blueprint:errorMessages.${response.message}`))
+                setOpenErrorAlert(true)
+            }
+        } catch {
+            setErrorAlertMessage(t('blueprint:errorMessages.errorUploadingBlueprint'))
+            setOpenErrorAlert(true)
+        } finally {
+            setApprovingMagicCropIndexes(current => {
+                const next = new Set(current)
+                next.delete(index)
+                return next
+            })
+        }
+    }
+
+    const handleMagicCropClassChange = async (index: number, layoutClass: LayoutFeatureClass) => {
+        const updatedFeatures = detectedLayoutFeaturesRef.current.map((feature, featureIndex) =>
+            featureIndex === index ? { ...feature, label: layoutClass } : feature
+        )
+        detectedLayoutFeaturesRef.current = updatedFeatures
+        setBlueprint(prev => prev ? { ...prev, detectedLayoutFeatures: updatedFeatures } : prev)
+
+        if (!blueprint?._id) return
+        try {
+            await BlueprintViewService.saveDetectedLayoutFeatures(blueprint._id, updatedFeatures)
+        } catch {
+            setErrorAlertMessage(t('blueprint:errorMessages.errorProcessingBlueprint'))
+            setOpenErrorAlert(true)
+        }
+    }
+    const handleRejectMagicCrop = async (index: number) => {
+        const remaining = detectedLayoutFeaturesRef.current.filter((_, featureIndex) => featureIndex !== index)
+        detectedLayoutFeaturesRef.current = remaining
+        setBlueprint(prev => prev ? { ...prev, detectedLayoutFeatures: remaining } : prev)
+        setApprovedMagicCropIndexes(current => new Set(
+            [...current].filter(featureIndex => featureIndex !== index).map(featureIndex => featureIndex > index ? featureIndex - 1 : featureIndex)
+        ))
+
+        if (!blueprint?._id) return
+        try {
+            await BlueprintViewService.saveDetectedLayoutFeatures(blueprint._id, remaining)
+        } catch {
+            setErrorAlertMessage(t('blueprint:errorMessages.errorProcessingBlueprint'))
+            setOpenErrorAlert(true)
+        }
+    }
     const handleNormalImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
         const img = e.currentTarget
         setImageRes({ width: img.naturalWidth, height: img.naturalHeight })
+        setImageRef(img)
     }
 
     const waitForInferenceJob = (jobId: string, token: string): Promise<InferenceJobType> => {
@@ -894,7 +1046,7 @@ const BlueprintView = () => {
                     console.log("EN EL USE EFFECT -> PREDICTIONS : ", predictions)
 
                     setBlueprint(prev => {
-                        if (!prev) return prev
+                        if (!prev || (prev.detectedLayoutFeatures?.length ?? 0) > 0) return prev
                         return {
                             ...prev,
                             sectionViews:
@@ -2605,6 +2757,114 @@ const BlueprintView = () => {
                                             return null;
                                         })}
 
+                                        {/* MAGIC CROP REVIEW SUGGESTIONS */}
+                                        <rect x={0} y={0} width={imageRes.width} height={imageRes.height} fill="transparent" style={{ pointerEvents: "auto" }} onMouseDown={(e) => { if (e.button === 0) setSelectedMagicCropIndex(null) }} />
+                                        {(blueprint?.detectedLayoutFeatures ?? []).map((feature, index) => ({ feature, index })).filter(({ feature }) => (feature.confidence ?? 1) >= confidenceSelection).map(({ feature, index }) => {
+                                            const [p1, p2] = feature.coordsList
+                                            if (!p1 || !p2 || feature.type !== "rectangle") return null
+
+                                            const x = Math.min(p1.x, p2.x)
+                                            const y = Math.min(p1.y, p2.y)
+                                            const width = Math.abs(p2.x - p1.x)
+                                            const height = Math.abs(p2.y - p1.y)
+                                            const isApproved = approvedMagicCropIndexes.has(index)
+                                            const isApproving = approvingMagicCropIndexes.has(index)
+                                            const isSelected = selectedMagicCropIndex === index || magicCropDragState?.areaIndex === index
+                                            const label = `${feature.label ?? 'Detected layout feature'}${feature.confidence !== undefined ? ` ${Math.round(feature.confidence * 100)}%` : ''}`
+
+                                            const rectangle = (
+                                                <g>
+                                                    <rect
+                                                        x={x}
+                                                        y={y}
+                                                        width={width}
+                                                        height={height}
+                                                        fill={isApproved ? "rgba(34, 197, 94, 0.18)" : "rgba(168, 85, 247, 0.14)"}
+                                                        stroke={isApproved ? "#16a34a" : "#a855f7"}
+                                                        strokeWidth={3}
+                                                        strokeDasharray={isApproved ? undefined : "10 6"}
+                                                        style={{ pointerEvents: isApproved ? "none" : "auto", cursor: isApproved ? "default" : "move" }}
+                                                        onPointerDown={(e) => {
+                                                            if (e.button === 0 && !isApproved) setSelectedMagicCropIndex(index)
+                                                        }}
+                                                        onClick={() => {
+                                                            if (!isApproved) setSelectedMagicCropIndex(index)
+                                                        }}
+                                                        onMouseDown={(e) => {
+                                                            if (e.button !== 0 || isApproved) return
+                                                            setSelectedMagicCropIndex(index)
+                                                            const coords = getImageCoordinates(e.clientX, e.clientY)
+                                                            if (!coords) return
+                                                            setMagicCropDragState({ areaIndex: index, vertexIndex: -1, startMouse: coords })
+                                                        }}
+                                                    />
+                                                    <text x={x} y={Math.max(14, y - 7)} fill={isApproved ? "#15803d" : "#7e22ce"} fontSize={Math.max(12, imageRes.width * 0.012)} fontWeight="600" style={{ pointerEvents: "none" }}>
+                                                        {isApproved ? `Extracted: ${label}` : label}
+                                                    </text>
+                                                </g>
+                                            )
+
+                                            if (isApproved) return <g key={`magic-crop-${index}`}>{rectangle}</g>
+
+                                            return (
+                                                <TooltipProvider key={`magic-crop-${index}`}>
+                                                    <ContextMenu>
+                                                        <Tooltip>
+                                                            <ContextMenuTrigger asChild>{rectangle}</ContextMenuTrigger>
+                                                            <TooltipContent><p>{label}</p></TooltipContent>
+                                                        </Tooltip>
+                                                        <ContextMenuContent className="w-48">
+                                                            <ContextMenuGroup>
+                                                                <ContextMenuLabel>{feature.label ?? 'Detected layout feature'}</ContextMenuLabel>
+                                                                <ContextMenuLabel>Change class</ContextMenuLabel>
+                                                                {layoutFeatureClassOptions.map((layoutClass) => (
+                                                                    <ContextMenuItem
+                                                                        key={layoutClass}
+                                                                        disabled={layoutClass === feature.label}
+                                                                        onClick={() => handleMagicCropClassChange(index, layoutClass)}
+                                                                    >
+                                                                        {layoutClass === feature.label ? `Current: ${layoutClass}` : layoutClass}
+                                                                    </ContextMenuItem>
+                                                                ))}                                                                <ContextMenuItem disabled={isApproving} onClick={() => handleApproveMagicCrop(index)}>
+                                                                    {isApproving ? 'Extracting…' : 'Approve & extract'}
+                                                                </ContextMenuItem>
+                                                                <ContextMenuItem onClick={() => handleRejectMagicCrop(index)}>
+                                                                    Reject suggestion
+                                                                </ContextMenuItem>
+                                                            </ContextMenuGroup>
+                                                        </ContextMenuContent>
+                                                    </ContextMenu>
+                                                </TooltipProvider>
+                                            )
+                                        })}
+                                        {/* Selected Magic Crop corners are rendered above context-menu wrappers. */}
+                                        {selectedMagicCropIndex !== null && (() => {
+                                            const feature = blueprint?.detectedLayoutFeatures?.[selectedMagicCropIndex]
+                                            if (!feature || approvedMagicCropIndexes.has(selectedMagicCropIndex) || (feature.confidence ?? 1) < confidenceSelection) return null
+                                            return feature.coordsList.map((point, vertexIndex) => (
+                                                <circle
+                                                    key={`magic-crop-handle-${vertexIndex}`}
+                                                    cx={point.x}
+                                                    cy={point.y}
+                                                    r={20}
+                                                    fill="white"
+                                                    stroke="#a855f7"
+                                                    strokeWidth={3}
+                                                    style={{ cursor: "grab", pointerEvents: "auto" }}
+                                                    onMouseDown={(e) => {
+                                                        e.stopPropagation()
+                                                        if (e.button !== 0) return
+                                                        const coords = getImageCoordinates(e.clientX, e.clientY)
+                                                        if (!coords) return
+                                                        setMagicCropDragState({
+                                                            areaIndex: selectedMagicCropIndex,
+                                                            vertexIndex,
+                                                            startMouse: coords,
+                                                        })
+                                                    }}
+                                                />
+                                            ))
+                                        })()}
                                         {/* EDIT AREA SECTION */}
                                         {editAreaMode && selectedAreaForEdit.area && (
                                             <>

@@ -7,8 +7,10 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { FaArrowsAlt, FaMapMarkerAlt } from 'react-icons/fa'
-import type { BlueprintType } from '@/types/types'
+import { FaArrowsAlt, FaMapMarkerAlt, FaMagic } from 'react-icons/fa'
+import { useAuth0 } from '@auth0/auth0-react'
+import { io } from 'socket.io-client'
+import type { BlueprintType, BlueprintAlignment } from '@/types/types'
 import { AlignmentService } from '@/services/AlignmentService'
 import {
   IDENTITY,
@@ -28,15 +30,30 @@ interface Props {
 interface Size { w: number; h: number }
 interface Pair { sx: number; sy: number; dx: number; dy: number }
 
-const STAGE_W = 560
-const PANEL_W = 320
+const STAGE_MAX_W = 540
+const STAGE_MAX_H = 460
+const PANEL_MAX_W = 300
+const PANEL_MAX_H = 420
+
+// Fit a natural WxH into a box, preserving aspect ratio (so tall plans don't
+// overflow the screen).
+function fitBox(natW: number, natH: number, maxW: number, maxH: number): { w: number; h: number } {
+  const ar = natW / natH
+  let w = maxW, h = maxW / ar
+  if (h > maxH) { h = maxH; w = maxH * ar }
+  return { w: Math.round(w), h: Math.round(h) }
+}
 
 export default function BlueprintAlignmentModal({ open, onOpenChange, blueprint, onSaved }: Props) {
+  const { getAccessTokenSilently } = useAuth0()
+
   const [counterpart, setCounterpart] = useState<BlueprintType | null>(null)
   const [sourceUrl, setSourceUrl] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [running, setRunning] = useState(false)          // automatic re-align in progress
+  const [alignment, setAlignment] = useState<BlueprintAlignment | undefined>(blueprint?.alignment)
 
   const [sim, setSim] = useState<Similarity>(() => matrixToSimilarity(IDENTITY))
   const [opacity, setOpacity] = useState(0.6)
@@ -48,7 +65,10 @@ export default function BlueprintAlignmentModal({ open, onOpenChange, blueprint,
   const [pairs, setPairs] = useState<Pair[]>([])
   const [pendingSrc, setPendingSrc] = useState<{ x: number; y: number } | null>(null)
 
-  const alignment = blueprint?.alignment
+  const runningRef = useRef(false)
+  useEffect(() => { runningRef.current = running }, [running])
+
+  const baseMatrix = (a?: BlueprintAlignment) => (a?.matrix?.length ? a.matrix : IDENTITY)
 
   // ---- load counterpart + init transform when opened -----------------------
   useEffect(() => {
@@ -58,19 +78,18 @@ export default function BlueprintAlignmentModal({ open, onOpenChange, blueprint,
     setPairs([])
     setPendingSrc(null)
     setMode('adjust')
-    setSim(matrixToSimilarity(alignment?.matrix?.length ? alignment.matrix : IDENTITY))
+    setRunning(false)
+    setAlignment(blueprint.alignment)
+    setSim(matrixToSimilarity(baseMatrix(blueprint.alignment)))
 
     const run = async () => {
       setLoading(true)
       try {
-        const src = blueprint.downloadUrl
-          ? blueprint
-          : await AlignmentService.getBlueprint(blueprint._id)
+        const src = blueprint.downloadUrl ? blueprint : await AlignmentService.getBlueprint(blueprint._id)
         if (cancelled) return
         setSourceUrl(src.downloadUrl ?? '')
-
-        if (alignment?.alignedWith) {
-          const cp = await AlignmentService.getBlueprint(alignment.alignedWith)
+        if (blueprint.alignment?.alignedWith) {
+          const cp = await AlignmentService.getBlueprint(blueprint.alignment.alignedWith)
           if (!cancelled) setCounterpart(cp)
         } else {
           setCounterpart(null)
@@ -83,11 +102,59 @@ export default function BlueprintAlignmentModal({ open, onOpenChange, blueprint,
     }
     void run()
     return () => { cancelled = true }
-  }, [open, blueprint, alignment])
+  }, [open, blueprint])
+
+  // ---- live results: when the /alignment socket fires, refresh --------------
+  useEffect(() => {
+    if (!open || !blueprint) return
+    let sock: ReturnType<typeof io> | null = null
+    let active = true
+    ;(async () => {
+      try {
+        const token = await getAccessTokenSilently()
+        if (!active) return
+        sock = io(`${import.meta.env.VITE_API_URL}/alignment`, {
+          auth: { token: `Bearer ${token}` },
+          transports: ['websocket'],
+        })
+        sock.on('connect', () => sock?.emit('subscribe', blueprint._id))
+        sock.on('alignment:update', async () => {
+          try {
+            const a = await AlignmentService.getAlignment(blueprint._id)
+            if (!active || !a) return
+            setAlignment(a)
+            // link (or refresh) the counterpart whenever one is now set
+            if (a.alignedWith) {
+              AlignmentService.getBlueprint(a.alignedWith).then((cp) => active && setCounterpart(cp)).catch(() => {})
+            }
+            // only overwrite the working transform if the user asked for auto re-align
+            if (runningRef.current) {
+              if (a.matrix?.length) setSim(matrixToSimilarity(a.matrix))
+              setRunning(false)
+            }
+          } catch { /* ignore */ }
+        })
+      } catch { /* ignore socket errors */ }
+    })()
+    return () => { active = false; sock?.disconnect() }
+  }, [open, blueprint, getAccessTokenSilently])
+
+  const runAuto = async () => {
+    if (!blueprint) return
+    setRunning(true); setError('')
+    try {
+      await AlignmentService.triggerAlign(blueprint._id)   // result arrives over the socket
+      setTimeout(() => setRunning(false), 30000)           // fallback so the spinner can't hang
+    } catch {
+      setRunning(false)
+      setError('Could not start automatic re-alignment.')
+    }
+  }
 
   // ---- adjust-mode drag to translate ---------------------------------------
   const dragRef = useRef<{ x: number; y: number; tx: number; ty: number } | null>(null)
-  const dScale = dstNat ? STAGE_W / dstNat.w : 1
+  const stage = dstNat ? fitBox(dstNat.w, dstNat.h, STAGE_MAX_W, STAGE_MAX_H) : { w: STAGE_MAX_W, h: STAGE_MAX_H }
+  const dScale = dstNat ? stage.w / dstNat.w : 1
 
   const onStagePointerDown = (e: React.PointerEvent) => {
     if (mode !== 'adjust') return
@@ -102,7 +169,6 @@ export default function BlueprintAlignmentModal({ open, onOpenChange, blueprint,
   }
   const onStagePointerUp = () => { dragRef.current = null }
 
-  // css matrix that maps source natural px -> stage display px
   const cssMatrix = useCallback(() => {
     const m = similarityToMatrix(sim)
     const d = dScale
@@ -135,10 +201,9 @@ export default function BlueprintAlignmentModal({ open, onOpenChange, blueprint,
     if (!blueprint || !counterpart) return
     setSaving(true)
     try {
-      const matrix = similarityToMatrix(sim)
       await AlignmentService.saveAlignment(blueprint._id, {
         alignedWith: counterpart._id,
-        matrix,
+        matrix: similarityToMatrix(sim),
         scale: sim.scale,
         rotationDeg: sim.rotationDeg,
         translation: [sim.tx, sim.ty],
@@ -153,11 +218,9 @@ export default function BlueprintAlignmentModal({ open, onOpenChange, blueprint,
     }
   }
 
-  const stageH = dstNat ? STAGE_W * (dstNat.h / dstNat.w) : STAGE_W
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl">
+      <DialogContent className="sm:max-w-4xl max-w-[95vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             Align blueprint
@@ -171,30 +234,35 @@ export default function BlueprintAlignmentModal({ open, onOpenChange, blueprint,
         </DialogHeader>
 
         {!counterpart && !loading && (
-          <p className="text-sm text-[var(--text-h)] py-6">
-            No architectural/structural counterpart was found in this project to align against.
-            Upload the complementary plan first.
-          </p>
+          <div className="py-6 flex flex-col items-start gap-3">
+            <p className="text-sm text-[var(--text-h)]">
+              No counterpart is linked yet. Make sure another discipline's plan (architectural,
+              structural, electrical, gas, water, …) for the same floor is uploaded and tagged in
+              this project, then run automatic alignment to pair them.
+            </p>
+            <Button type="button" onClick={runAuto} disabled={running}>
+              <FaMagic className="mr-1 size-4" /> {running ? 'Running auto…' : 'Attempt automatic alignment'}
+            </Button>
+          </div>
         )}
 
         {counterpart && (
           <>
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant={mode === 'adjust' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setMode('adjust')}
-              >
+            {/* Re-align: automatic OR manual */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs uppercase tracking-wide text-[var(--text-h)]">Re-align</span>
+              <Button type="button" variant="outline" size="sm" disabled={running} onClick={runAuto}>
+                <FaMagic className="mr-1 size-4" /> {running ? 'Running auto…' : 'Automatic'}
+              </Button>
+              <span className="mx-1 text-[var(--text-h)]">·</span>
+              <span className="text-xs text-[var(--text-h)]">Manual:</span>
+              <Button type="button" variant={mode === 'adjust' ? 'default' : 'outline'} size="sm"
+                disabled={running} onClick={() => setMode('adjust')}>
                 <FaArrowsAlt className="mr-1 size-4" /> Adjust
               </Button>
-              <Button
-                type="button"
-                variant={mode === 'points' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setMode('points')}
-              >
-                <FaMapMarkerAlt className="mr-1 size-4" /> Manual points
+              <Button type="button" variant={mode === 'points' ? 'default' : 'outline'} size="sm"
+                disabled={running} onClick={() => setMode('points')}>
+                <FaMapMarkerAlt className="mr-1 size-4" /> Point pairs
               </Button>
               <span className="ml-auto text-xs text-[var(--text-h)]">
                 {mode === 'adjust'
@@ -205,82 +273,63 @@ export default function BlueprintAlignmentModal({ open, onOpenChange, blueprint,
 
             {mode === 'adjust' ? (
               <div className="flex gap-4">
-                {/* overlay stage */}
                 <div
                   className="relative overflow-hidden rounded border bg-white select-none touch-none"
-                  style={{ width: STAGE_W, height: stageH }}
+                  style={{ width: stage.w, height: stage.h, opacity: running ? 0.5 : 1 }}
                   onPointerDown={onStagePointerDown}
                   onPointerMove={onStagePointerMove}
                   onPointerUp={onStagePointerUp}
                   onPointerLeave={onStagePointerUp}
                 >
-                  {counterpart.downloadUrl && (
-                    <img
-                      src={counterpart.downloadUrl}
-                      alt="counterpart"
-                      draggable={false}
-                      style={{ width: STAGE_W, display: 'block' }}
-                      onLoad={(e) => setDstNat({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })}
-                    />
+                  {counterpart?.downloadUrl && (
+                    <img src={counterpart.downloadUrl} alt="counterpart" draggable={false}
+                      style={{ width: stage.w, display: 'block' }}
+                      onLoad={(e) => setDstNat({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })} />
                   )}
                   {sourceUrl && (
-                    <img
-                      src={sourceUrl}
-                      alt="source"
-                      draggable={false}
+                    <img src={sourceUrl} alt="source" draggable={false}
                       style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        transformOrigin: '0 0',
-                        transform: cssMatrix(),
-                        opacity,
-                        cursor: 'move',
+                        position: 'absolute', top: 0, left: 0,
+                        // render at NATURAL pixel size so the CSS transform (built in
+                        // native coords) is correct - override Tailwind preflight's
+                        // global `img { max-width: 100% }`.
+                        width: srcNat?.w, height: srcNat?.h, maxWidth: 'none',
+                        transformOrigin: '0 0', transform: cssMatrix(), opacity, cursor: 'move',
                       }}
-                      onLoad={(e) => setSrcNat({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })}
-                    />
+                      onLoad={(e) => setSrcNat({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })} />
                   )}
                 </div>
 
-                {/* controls */}
                 <div className="flex flex-col gap-4 text-sm w-56">
                   <label className="flex flex-col gap-1">
                     Rotation <span className="font-mono">{sim.rotationDeg.toFixed(1)}°</span>
-                    <input type="range" min={-180} max={180} step={0.5}
-                      value={sim.rotationDeg}
+                    <input type="range" min={-180} max={180} step={0.5} value={sim.rotationDeg}
                       onChange={(e) => setSim((s) => ({ ...s, rotationDeg: Number(e.target.value) }))} />
                   </label>
                   <label className="flex flex-col gap-1">
                     Scale <span className="font-mono">{sim.scale.toFixed(3)}×</span>
-                    <input type="range" min={-2} max={2} step={0.01}
-                      value={Math.log10(sim.scale || 1)}
+                    <input type="range" min={-2} max={2} step={0.01} value={Math.log10(sim.scale || 1)}
                       onChange={(e) => setSim((s) => ({ ...s, scale: Math.pow(10, Number(e.target.value)) }))} />
                   </label>
                   <label className="flex flex-col gap-1">
                     Overlay opacity
-                    <input type="range" min={0} max={1} step={0.05}
-                      value={opacity} onChange={(e) => setOpacity(Number(e.target.value))} />
+                    <input type="range" min={0} max={1} step={0.05} value={opacity}
+                      onChange={(e) => setOpacity(Number(e.target.value))} />
                   </label>
-                  <div className="flex gap-2">
-                    <Button type="button" variant="outline" size="sm"
-                      onClick={() => setSim(matrixToSimilarity(alignment?.matrix?.length ? alignment.matrix : IDENTITY))}>
-                      Reset
-                    </Button>
-                    <Button type="button" variant="outline" size="sm"
-                      onClick={() => blueprint && void AlignmentService.triggerAlign(blueprint._id)}>
-                      Re-run auto
-                    </Button>
-                  </div>
+                  <Button type="button" variant="outline" size="sm"
+                    onClick={() => setSim(matrixToSimilarity(baseMatrix(alignment)))}>
+                    Reset to saved
+                  </Button>
                 </div>
               </div>
             ) : (
               <div className="flex gap-4">
-                <PointPanel label="This blueprint" url={sourceUrl} nat={srcNat}
-                  setNat={setSrcNat} points={pairs.map((p) => ({ x: p.sx, y: p.sy }))}
-                  pending={pendingSrc} onPick={(e) => pickPoint(e, 'src', srcNat)} />
-                <PointPanel label="Counterpart" url={counterpart.downloadUrl ?? ''} nat={dstNat}
-                  setNat={setDstNat} points={pairs.map((p) => ({ x: p.dx, y: p.dy }))}
-                  pending={null} onPick={(e) => pickPoint(e, 'dst', dstNat)} />
+                <PointPanel label="This blueprint" url={sourceUrl} nat={srcNat} setNat={setSrcNat}
+                  points={pairs.map((p) => ({ x: p.sx, y: p.sy }))} pending={pendingSrc}
+                  onPick={(e) => pickPoint(e, 'src', srcNat)} />
+                <PointPanel label="Counterpart" url={counterpart?.downloadUrl ?? ''} nat={dstNat} setNat={setDstNat}
+                  points={pairs.map((p) => ({ x: p.dx, y: p.dy }))} pending={null}
+                  onPick={(e) => pickPoint(e, 'dst', dstNat)} />
                 <div className="flex flex-col gap-2 text-sm">
                   <span className="font-mono">{pairs.length} pair(s)</span>
                   <Button type="button" size="sm" disabled={pairs.length < 2} onClick={computeFromPairs}>
@@ -299,7 +348,7 @@ export default function BlueprintAlignmentModal({ open, onOpenChange, blueprint,
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={save} disabled={!counterpart || saving}>
+          <Button onClick={save} disabled={!counterpart || saving || running}>
             {saving ? 'Saving…' : 'Save alignment'}
           </Button>
         </DialogFooter>
@@ -318,19 +367,16 @@ function PointPanel({ label, url, nat, setNat, points, pending, onPick }: {
   onPick: (e: React.MouseEvent<HTMLImageElement>) => void
 }) {
   const marks = pending ? [...points, pending] : points
+  const fit = nat ? fitBox(nat.w, nat.h, PANEL_MAX_W, PANEL_MAX_H) : { w: PANEL_MAX_W, h: PANEL_MAX_H }
   return (
     <div className="flex flex-col gap-1">
       <span className="text-xs text-[var(--text-h)]">{label}</span>
-      <div className="relative rounded border" style={{ width: PANEL_W }}>
+      <div className="relative rounded border" style={{ width: fit.w }}>
         {url && (
-          <img
-            src={url}
-            alt={label}
-            draggable={false}
-            style={{ width: PANEL_W, display: 'block', cursor: 'crosshair' }}
+          <img src={url} alt={label} draggable={false}
+            style={{ width: fit.w, height: 'auto', maxWidth: 'none', display: 'block', cursor: 'crosshair' }}
             onLoad={(e) => setNat({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })}
-            onClick={onPick}
-          />
+            onClick={onPick} />
         )}
         {nat && marks.map((p, i) => (
           <span key={i}

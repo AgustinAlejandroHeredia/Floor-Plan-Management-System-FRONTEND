@@ -33,22 +33,22 @@ export const LandingAIWorkflow = () => {
       num: t("landing:workflow.step1Number"),
       title: t("landing:workflow.step1Title"),
       desc: t("landing:workflow.step1Desc"),
-      icon: <BsCloudArrowUpFill className="w-6 h-6 text-sky-400" />,
-      color: "border-sky-500/40 bg-sky-500/10 text-sky-400",
+      icon: <BsCloudArrowUpFill className="w-6 h-6 text-lifia-400" />,
+      color: "border-lifia-500/40 bg-lifia-500/10 text-lifia-400",
     },
     {
       num: t("landing:workflow.step2Number"),
       title: t("landing:workflow.step2Title"),
       desc: t("landing:workflow.step2Desc"),
-      icon: <BsCpuFill className="w-6 h-6 text-cyan-400" />,
-      color: "border-cyan-500/40 bg-cyan-500/10 text-cyan-400",
+      icon: <BsCpuFill className="w-6 h-6 text-lifia-400" />,
+      color: "border-lifia-500/40 bg-lifia-500/10 text-lifia-400",
     },
     {
       num: t("landing:workflow.step3Number"),
       title: t("landing:workflow.step3Title"),
       desc: t("landing:workflow.step3Desc"),
-      icon: <BsSliders2Vertical className="w-6 h-6 text-indigo-400" />,
-      color: "border-indigo-500/40 bg-indigo-500/10 text-indigo-400",
+      icon: <BsSliders2Vertical className="w-6 h-6 text-lifia-400" />,
+      color: "border-lifia-500/40 bg-lifia-500/10 text-lifia-400",
     },
   ];
 
@@ -59,8 +59,8 @@ export const LandingAIWorkflow = () => {
         
         {/* HEADER */}
         <div className="text-center max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-4">
-            <BsStars className="w-4 h-4 text-cyan-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lifia-500/10 border border-lifia-500/30 text-lifia-400 text-xs font-semibold uppercase tracking-wider mb-4">
+            <BsStars className="w-4 h-4 text-lifia-400" />
             <span>{t("landing:workflow.badge")}</span>
           </div>
 
@@ -110,8 +110,8 @@ export const LandingAIWorkflow = () => {
         <LandingPipelineFigure />
 
         {/* BOTTOM CTA BANNER */}
-        <div id="ai-engine" className="mt-20 max-w-5xl mx-auto rounded-3xl bg-gradient-to-r from-sky-900/40 via-slate-900/60 to-indigo-900/40 border border-sky-500/30 p-8 sm:p-12 text-center relative overflow-hidden shadow-2xl backdrop-blur-md">
-          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-sky-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div id="ai-engine" className="mt-20 max-w-5xl mx-auto rounded-3xl bg-gradient-to-r from-lifia-900/40 via-slate-900/60 to-lifia-900/40 border border-lifia-500/30 p-8 sm:p-12 text-center relative overflow-hidden shadow-2xl backdrop-blur-md">
+          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-lifia-500/20 rounded-full blur-3xl pointer-events-none" />
           
           <h3 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mb-4 max-w-2xl mx-auto leading-tight">
             {t("landing:cta.title")}
@@ -124,7 +124,7 @@ export const LandingAIWorkflow = () => {
           <Button
             size="lg"
             onClick={handleAction}
-            className="cursor-pointer bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold px-8 py-6 rounded-xl shadow-lg shadow-sky-500/30 hover:scale-105 transition-all duration-200 inline-flex items-center gap-3 text-base"
+            className="cursor-pointer bg-lifia-600 hover:bg-lifia-500 text-white font-bold px-8 py-6 rounded-xl shadow-lg shadow-lifia-500/30 hover:scale-105 transition-all duration-200 inline-flex items-center gap-3 text-base"
           >
             <span>{isAuthenticated ? t("landing:nav.dashboard") : t("landing:cta.button")}</span>
             <BsArrowRight className="w-5 h-5" />

@@ -24,8 +24,8 @@ export const LandingPipelineFigure = () => {
     >
       {/* HEADER */}
       <div className="text-center max-w-3xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-4">
-          <BsDiagram3Fill className="w-4 h-4 text-indigo-400" />
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lifia-500/10 border border-lifia-500/30 text-lifia-400 text-xs font-semibold uppercase tracking-wider mb-4">
+          <BsDiagram3Fill className="w-4 h-4 text-lifia-400" />
           <span>{t("landing:pipelineFigure.badge")}</span>
         </div>
 
@@ -39,12 +39,12 @@ export const LandingPipelineFigure = () => {
       </div>
 
       {/* FIGURE */}
-      <div className="mt-10 rounded-2xl border border-[var(--border)] bg-[#070c18] overflow-hidden shadow-2xl shadow-indigo-950/40">
+      <div className="mt-10 rounded-2xl border border-[var(--border)] bg-[#070c18] overflow-hidden shadow-2xl shadow-lifia-950/40">
         {/* TITLEBAR, matching the showcase player */}
-        <div className="px-4 py-2.5 bg-[#0b1120] border-b border-indigo-900/40 flex items-center justify-between text-xs">
+        <div className="px-4 py-2.5 bg-[#0b1120] border-b border-lifia-900/40 flex items-center justify-between text-xs">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="w-2.5 h-2.5 rounded-full bg-indigo-400 animate-pulse shrink-0" />
-            <span className="font-mono font-semibold text-indigo-300 truncate">
+            <span className="w-2.5 h-2.5 rounded-full bg-lifiaorange-500 animate-pulse shrink-0" />
+            <span className="font-mono font-semibold text-lifia-300 truncate">
               PIPELINE_S01_A01_E01
             </span>
           </div>

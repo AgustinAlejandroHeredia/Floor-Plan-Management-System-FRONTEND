@@ -65,8 +65,8 @@ export const LandingVideoShowcase = () => {
       descKey: "showcase.tabs.upload.description",
       icon: <FaFilePdf className="w-5 h-5" />,
       videoSrc: "/videos/upload-blueprint.mp4",
-      badgeColor: "bg-sky-500/10 text-sky-400 border-sky-500/30",
-      accentColor: "#38bdf8",
+      badgeColor: "bg-lifia-500/10 text-lifia-400 border-lifia-500/30",
+      accentColor: "#4e86c9",
       accentBg: "rgba(56, 189, 248, 0.15)",
       pointsKeys: [
         "showcase.tabs.upload.points.0",
@@ -81,8 +81,8 @@ export const LandingVideoShowcase = () => {
       descKey: "showcase.tabs.editor.description",
       icon: <FaRulerCombined className="w-5 h-5" />,
       videoSrc: "/videos/edit-blueprint.mp4",
-      badgeColor: "bg-cyan-500/10 text-cyan-400 border-cyan-500/30",
-      accentColor: "#06b6d4",
+      badgeColor: "bg-lifia-500/10 text-lifia-400 border-lifia-500/30",
+      accentColor: "#2e6bb3",
       accentBg: "rgba(6, 182, 212, 0.15)",
       pointsKeys: [
         "showcase.tabs.editor.points.0",
@@ -97,7 +97,7 @@ export const LandingVideoShowcase = () => {
       descKey: "showcase.tabs.areas.description",
       icon: <FaDrawPolygon className="w-5 h-5" />,
       videoSrc: "/videos/add-areas.mp4",
-      badgeColor: "bg-indigo-500/10 text-indigo-400 border-indigo-500/30",
+      badgeColor: "bg-lifia-500/10 text-lifia-400 border-lifia-500/30",
       accentColor: "#6366f1",
       accentBg: "rgba(99, 102, 241, 0.15)",
       pointsKeys: [
@@ -172,15 +172,15 @@ export const LandingVideoShowcase = () => {
     <section id="showcase" className="py-20 md:py-28 relative overflow-hidden bg-[var(--bg)] border-t border-[var(--border)]">
       
       {/* GLOW DECORATIONS */}
-      <div className="absolute top-1/2 left-0 w-96 h-96 bg-sky-500/10 dark:bg-sky-500/15 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500/10 dark:bg-indigo-500/15 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-1/2 left-0 w-96 h-96 bg-lifia-500/10 dark:bg-lifia-500/15 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-lifia-500/10 dark:bg-lifia-500/15 rounded-full blur-[140px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* SECTION TITLE */}
         <div className="text-center max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 text-xs font-semibold uppercase tracking-wider mb-4">
-            <BsPlayFill className="w-4 h-4 text-sky-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lifia-500/10 border border-lifia-500/30 text-lifia-400 text-xs font-semibold uppercase tracking-wider mb-4">
+            <BsPlayFill className="w-4 h-4 text-lifia-400" />
             <span>{t("landing:showcase.badge")}</span>
           </div>
 
@@ -207,7 +207,7 @@ export const LandingVideoShowcase = () => {
                 }}
                 className={`flex items-center gap-2.5 px-4 sm:px-6 py-3 rounded-xl font-medium text-sm transition-all duration-200 cursor-pointer flex-1 min-w-[150px] justify-center ${
                   isActive
-                    ? "bg-sky-500 text-slate-950 font-bold shadow-md shadow-sky-500/20 scale-[1.02]"
+                    ? "bg-lifia-600 text-white font-bold shadow-md shadow-lifia-500/20 scale-[1.02]"
                     : "text-[var(--text)] hover:text-[var(--text-h)] hover:bg-[var(--accent-bg)]"
                 }`}
               >
@@ -256,7 +256,7 @@ export const LandingVideoShowcase = () => {
                 <div className="flex flex-col gap-3 mt-2">
                   {currentTab.pointsKeys.map((pointKey, idx) => (
                     <div key={idx} className="flex items-start gap-3 p-2.5 rounded-lg bg-[var(--accent-bg)]/40 border border-[var(--border)]">
-                      <BsCheck2Circle className="w-5 h-5 text-sky-400 shrink-0 mt-0.5" />
+                      <BsCheck2Circle className="w-5 h-5 text-lifia-400 shrink-0 mt-0.5" />
                       <span className="text-sm text-[var(--text-h)] font-medium">
                         {t(`landing:${pointKey}`)}
                       </span>
@@ -276,7 +276,7 @@ export const LandingVideoShowcase = () => {
                         key={step}
                         className={`h-1.5 rounded-full transition-all duration-300 ${
                           activeSimulationStep === step
-                            ? "w-6 bg-sky-400"
+                            ? "w-6 bg-lifia-400"
                             : "w-2 bg-[var(--border)]"
                         }`}
                       />
@@ -292,13 +292,13 @@ export const LandingVideoShowcase = () => {
           <div className="lg:col-span-7 order-1 lg:order-2">
             <div
               id="showcase-media-container"
-              className="relative rounded-2xl border border-[var(--border)] bg-[#070c18] overflow-hidden shadow-2xl shadow-sky-950/40 group aspect-video sm:aspect-[16/10] flex flex-col"
+              className="relative rounded-2xl border border-[var(--border)] bg-[#070c18] overflow-hidden shadow-2xl shadow-lifia-950/40 group aspect-video sm:aspect-[16/10] flex flex-col"
             >
               {/* TOP VIDEO TITLEBAR */}
-              <div className="px-4 py-2.5 bg-[#0b1120] border-b border-sky-900/40 flex items-center justify-between text-xs text-slate-300">
+              <div className="px-4 py-2.5 bg-[#0b1120] border-b border-lifia-900/40 flex items-center justify-between text-xs text-slate-300">
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-sky-400 animate-pulse" />
-                  <span className="font-mono font-semibold text-sky-300">
+                  <span className="w-2.5 h-2.5 rounded-full bg-lifiaorange-500 animate-pulse" />
+                  <span className="font-mono font-semibold text-lifia-300">
                     DEMO_{activeTab.toUpperCase()}_v2.4
                   </span>
                 </div>
@@ -337,27 +337,27 @@ export const LandingVideoShowcase = () => {
                     <div 
                       className="absolute inset-0 opacity-20"
                       style={{
-                        backgroundImage: `linear-gradient(to right, #38bdf8 1px, transparent 1px), linear-gradient(to bottom, #38bdf8 1px, transparent 1px)`,
+                        backgroundImage: `linear-gradient(to right, #4e86c9 1px, transparent 1px), linear-gradient(to bottom, #4e86c9 1px, transparent 1px)`,
                         backgroundSize: "20px 20px",
                       }}
                     />
 
                     {/* TAB 1: UPLOAD SIMULATION */}
                     {activeTab === "upload" && (
-                      <div className="relative z-10 w-full max-w-md p-6 rounded-xl bg-slate-900/90 border border-sky-500/30 text-center shadow-xl">
-                        <div className="w-16 h-16 rounded-2xl bg-sky-500/10 border border-sky-500/30 text-sky-400 mx-auto flex items-center justify-center mb-4">
+                      <div className="relative z-10 w-full max-w-md p-6 rounded-xl bg-slate-900/90 border border-lifia-500/30 text-center shadow-xl">
+                        <div className="w-16 h-16 rounded-2xl bg-lifia-500/10 border border-lifia-500/30 text-lifia-400 mx-auto flex items-center justify-center mb-4">
                           <BsCloudUploadFill className="w-8 h-8 animate-bounce" />
                         </div>
                         <h4 className="text-base font-bold text-white mb-1">
                           Plano_Edificio_Palermo_Piso4.pdf
                         </h4>
-                        <p className="text-xs text-sky-300 font-mono mb-4">
+                        <p className="text-xs text-lifia-300 font-mono mb-4">
                           3 Páginas Detectadas • 24.8 MB • Orientación: 0°
                         </p>
 
                         <div className="w-full bg-slate-800 rounded-full h-2.5 mb-3 overflow-hidden border border-slate-700">
                           <motion.div
-                            className="bg-gradient-to-r from-sky-400 to-cyan-400 h-2.5 rounded-full"
+                            className="bg-gradient-to-r from-lifia-400 to-lifia-400 h-2.5 rounded-full"
                             initial={{ width: "10%" }}
                             animate={{ width: activeSimulationStep === 0 ? "35%" : activeSimulationStep === 1 ? "75%" : "100%" }}
                             transition={{ duration: 1 }}
@@ -376,32 +376,32 @@ export const LandingVideoShowcase = () => {
                     {/* TAB 2: EDITOR SIMULATION */}
                     {activeTab === "editor" && (
                       <div className="relative z-10 w-full h-full flex flex-col justify-between p-4">
-                        <div className="flex justify-between items-center bg-slate-900/90 p-2 rounded-lg border border-sky-500/20 text-xs">
+                        <div className="flex justify-between items-center bg-slate-900/90 p-2 rounded-lg border border-lifia-500/20 text-xs">
                           <div className="flex items-center gap-2">
-                            <span className="px-2 py-0.5 rounded bg-sky-500/20 text-sky-400 font-mono text-[10px]">
+                            <span className="px-2 py-0.5 rounded bg-lifia-500/20 text-lifia-400 font-mono text-[10px]">
                               HERRAMIENTA: REGLA
                             </span>
                             <span className="text-slate-300">Calibración de Escala</span>
                           </div>
-                          <span className="font-mono text-cyan-400 font-bold">12.50 metros</span>
+                          <span className="font-mono text-lifia-400 font-bold">12.50 metros</span>
                         </div>
 
                         {/* RULER GRAPHIC */}
                         <div className="relative my-auto flex items-center justify-center">
                           <svg className="w-full h-40" viewBox="0 0 500 180">
-                            <rect x="50" y="30" width="400" height="120" stroke="#0ea5e9" strokeWidth="2" fill="#0f172a" fillOpacity="0.8" />
+                            <rect x="50" y="30" width="400" height="120" stroke="#2e6bb3" strokeWidth="2" fill="#0f172a" fillOpacity="0.8" />
                             {/* RULER LINE */}
                             <line x1="80" y1="90" x2="420" y2="90" stroke="#f59e0b" strokeWidth="3" strokeDasharray="4" />
                             <circle cx="80" cy="90" r="6" fill="#f59e0b" className="animate-pulse" />
                             <circle cx="420" cy="90" r="6" fill="#f59e0b" className="animate-pulse" />
-                            <rect x="200" y="70" width="100" height="30" rx="4" fill="#0284c7" />
+                            <rect x="200" y="70" width="100" height="30" rx="4" fill="#1b4c88" />
                             <text x="250" y="90" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold" fontFamily="monospace">14.85 m</text>
                           </svg>
                         </div>
 
                         <div className="flex gap-2 justify-end">
                           <span className="px-2.5 py-1 rounded bg-slate-800 text-[11px] text-slate-300 border border-slate-700">Zoom: 140%</span>
-                          <span className="px-2.5 py-1 rounded bg-sky-500/20 text-[11px] text-sky-400 border border-sky-500/30">Nivel 04</span>
+                          <span className="px-2.5 py-1 rounded bg-lifia-500/20 text-[11px] text-lifia-400 border border-lifia-500/30">Nivel 04</span>
                         </div>
                       </div>
                     )}
@@ -409,8 +409,8 @@ export const LandingVideoShowcase = () => {
                     {/* TAB 3: AREAS SIMULATION */}
                     {activeTab === "areas" && (
                       <div className="relative z-10 w-full h-full flex flex-col justify-between p-4">
-                        <div className="flex justify-between items-center bg-slate-900/90 p-2 rounded-lg border border-indigo-500/20 text-xs">
-                          <span className="text-indigo-300 font-medium">Polígonos Dinámicos en Vivo</span>
+                        <div className="flex justify-between items-center bg-slate-900/90 p-2 rounded-lg border border-lifia-500/20 text-xs">
+                          <span className="text-lifia-300 font-medium">Polígonos Dinámicos en Vivo</span>
                           <span className="font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Área: 68.30 m²</span>
                         </div>
 
@@ -438,7 +438,7 @@ export const LandingVideoShowcase = () => {
 
                         <div className="flex justify-between items-center text-[11px] text-slate-400 bg-slate-900/60 p-2 rounded">
                           <span>Vértices Editables con Snap</span>
-                          <span className="text-indigo-400 font-mono font-bold">+ Agregar Nuevo Polígono</span>
+                          <span className="text-lifia-400 font-mono font-bold">+ Agregar Nuevo Polígono</span>
                         </div>
                       </div>
                     )}
@@ -466,8 +466,8 @@ export const LandingVideoShowcase = () => {
                             <rect x="45" y="35" width="120" height="22" rx="3" fill="#065f46" />
                             <text x="105" y="50" textAnchor="middle" fill="#ecfdf5" fontSize="10" fontWeight="bold">DORMITORIO (99.2%)</text>
 
-                            <rect x="250" y="30" width="210" height="130" rx="4" fill="rgba(56, 189, 248, 0.2)" stroke="#38bdf8" strokeWidth="2" strokeDasharray="4" />
-                            <rect x="255" y="35" width="110" height="22" rx="3" fill="#075985" />
+                            <rect x="250" y="30" width="210" height="130" rx="4" fill="rgba(56, 189, 248, 0.2)" stroke="#4e86c9" strokeWidth="2" strokeDasharray="4" />
+                            <rect x="255" y="35" width="110" height="22" rx="3" fill="#163d6e" />
                             <text x="310" y="50" textAnchor="middle" fill="#f0f9ff" fontSize="10" fontWeight="bold">ESTAR COMEDOR</text>
                           </svg>
                         </div>
@@ -485,13 +485,13 @@ export const LandingVideoShowcase = () => {
               </div>
 
               {/* BOTTOM CONTROLS BAR */}
-              <div className="p-3 bg-[#0b1120]/95 border-t border-sky-900/40 flex items-center justify-between">
+              <div className="p-3 bg-[#0b1120]/95 border-t border-lifia-900/40 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={togglePlay}
-                    className="h-8 w-8 p-0 text-sky-400 hover:text-white hover:bg-sky-500/20 rounded-lg cursor-pointer"
+                    className="h-8 w-8 p-0 text-lifia-400 hover:text-white hover:bg-lifia-500/20 rounded-lg cursor-pointer"
                   >
                     {isPlaying ? <BsPauseFill className="w-5 h-5" /> : <BsPlayFill className="w-5 h-5" />}
                   </Button>

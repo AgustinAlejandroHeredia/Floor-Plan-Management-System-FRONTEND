@@ -8,6 +8,8 @@
   --sans: 'Geist Variable', system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: 'Geist Variable', system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
+  /* Institutional serif — echoes the UNLP crest lettering; used for provenance lines */
+  --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, 'Times New Roman', serif;
 
   font: 16px/1.5 var(--sans);
   letter-spacing: 0.18px;
@@ -26,10 +28,11 @@
   --border: #e2e8f0;
   --code-bg: #f1f5f9;
 
-  --accent: #0284c7;
-  --accent-bg: rgba(2, 132, 199, 0.08);
-  --accent-bg2: rgba(2, 132, 199, 0.15);
-  --accent-border: rgba(2, 132, 199, 0.3);
+  /* LIFIA institutional blue */
+  --accent: #1b4c88;
+  --accent-bg: rgba(27, 76, 136, 0.08);
+  --accent-bg2: rgba(27, 76, 136, 0.15);
+  --accent-border: rgba(27, 76, 136, 0.3);
 
   --social-bg: rgba(241, 245, 249, 0.8);
   --shadow: rgba(0, 0, 0, 0.05) 0px 10px 15px -3px, rgba(0, 0, 0, 0.03) 0px 4px 6px -2px;
@@ -54,7 +57,7 @@
 
   --destructive: #ef4444;
   --input: #e2e8f0;
-  --ring: #0284c7;
+  --ring: #1b4c88;
 
   --chart-1: #0284c7;
   --chart-2: #0f172a;
@@ -95,10 +98,11 @@
   --border: #1e293b;
   --code-bg: #111827;
 
-  --accent: #38bdf8;
-  --accent-bg: rgba(56, 189, 248, 0.12);
-  --accent-bg2: rgba(56, 189, 248, 0.25);
-  --accent-border: rgba(56, 189, 248, 0.4);
+  /* LIFIA institutional blue, lightened for the dark blueprint surface */
+  --accent: #4e86c9;
+  --accent-bg: rgba(78, 134, 201, 0.14);
+  --accent-bg2: rgba(78, 134, 201, 0.26);
+  --accent-border: rgba(78, 134, 201, 0.42);
 
   --social-bg: rgba(30, 41, 59, 0.5);
   --shadow: rgba(0, 0, 0, 0.6) 0 10px 15px -3px, rgba(0, 0, 0, 0.4) 0 4px 6px -2px;
@@ -123,7 +127,7 @@
 
   --destructive: #f87171;
   --input: #1e293b;
-  --ring: #38bdf8;
+  --ring: #4e86c9;
 
   --chart-1: #38bdf8;
   --chart-2: #f8fafc;
@@ -195,6 +199,34 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* --- Institutional brand palette (LIFIA · Facultad de Informática · UNLP) --- */
+@theme {
+  /* LIFIA blue — primary institutional ramp (folds the old sky/cyan/indigo accents) */
+  --color-lifia-50:  #eef4fb;
+  --color-lifia-100: #d8e6f5;
+  --color-lifia-200: #b4ceea;
+  --color-lifia-300: #85acdb;
+  --color-lifia-400: #4e86c9;
+  --color-lifia-500: #2e6bb3;
+  --color-lifia-600: #1b4c88;
+  --color-lifia-700: #163d6e;
+  --color-lifia-800: #133257;
+  --color-lifia-900: #0f2743;
+  --color-lifia-950: #0a1a2e;
+
+  /* LIFIA orange — the single warm spark (from the Lifia wordmark swoosh) */
+  --color-lifiaorange-400: #ee9a52;
+  --color-lifiaorange-500: #e27c2c;
+  --color-lifiaorange-600: #c96520;
+
+  /* Facultad de Informática maroon — used only where the Faculty is referenced */
+  --color-faculty-500: #96313e;
+  --color-faculty-600: #7a1e2b;
+  --color-faculty-700: #641823;
+
+  --font-serif: var(--serif);
 }
 
 /* Reset básico */

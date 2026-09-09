@@ -47,24 +47,36 @@ export const LandingHero = ({ onWatchDemo }: LandingHeroProps) => {
           }}
         />
         {/* Radial gradient glow */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[900px] h-[500px] bg-sky-500/15 dark:bg-sky-500/20 blur-[130px] rounded-full" />
-        <div className="absolute top-1/2 right-10 w-[350px] h-[350px] bg-indigo-500/10 dark:bg-indigo-500/15 blur-[120px] rounded-full" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[900px] h-[500px] bg-lifia-500/15 dark:bg-lifia-500/20 blur-[130px] rounded-full" />
+        <div className="absolute top-1/2 right-10 w-[350px] h-[350px] bg-lifia-500/10 dark:bg-lifia-500/15 blur-[120px] rounded-full" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
-        {/* HEADER BADGE */}
-        <motion.div 
-          initial={{ opacity: 0, y: 15 }}
+
+        {/* INSTITUTIONAL PROVENANCE EYEBROW */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
+          className="flex justify-center mb-4"
+        >
+          <span className="font-serif italic text-[13px] sm:text-sm text-lifia-700/90 dark:text-lifia-300/90 tracking-wide text-center px-4">
+            {t("landing:institutional.heroEyebrow")}
+          </span>
+        </motion.div>
+
+        {/* HEADER BADGE */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.05 }}
           className="flex justify-center"
         >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 text-xs sm:text-sm font-medium backdrop-blur-md shadow-sm shadow-sky-500/10">
-            <BsStars className="w-4 h-4 text-sky-400 animate-spin-slow" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-lifia-500/10 border border-lifia-500/30 text-lifia-400 text-xs sm:text-sm font-medium backdrop-blur-md shadow-sm shadow-lifia-500/10">
+            <BsStars className="w-4 h-4 text-lifia-400 animate-spin-slow" />
             <span>{t("landing:hero.badge")}</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
-            <span className="text-sky-300 font-mono text-[11px] font-bold">v2.0</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-lifia-400" />
+            <span className="text-lifia-300 font-mono text-[11px] font-bold">v2.0</span>
           </div>
         </motion.div>
 
@@ -77,7 +89,7 @@ export const LandingHero = ({ onWatchDemo }: LandingHeroProps) => {
         >
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-[var(--text-h)] tracking-tight leading-[1.15]">
             {t("landing:hero.titlePrefix")}{" "}
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 via-cyan-400 to-blue-500 underline decoration-sky-500/30 decoration-wavy decoration-2">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-lifia-400 via-lifia-400 to-lifia-500 underline decoration-lifia-500/30 decoration-wavy decoration-2">
               {t("landing:hero.titleHighlight")}
             </span>{" "}
             {t("landing:hero.titleSuffix")}
@@ -98,7 +110,7 @@ export const LandingHero = ({ onWatchDemo }: LandingHeroProps) => {
           <Button
             size="lg"
             onClick={handleGetStarted}
-            className="w-full sm:w-auto px-8 py-6 text-base font-semibold rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 shadow-lg shadow-sky-500/30 hover:shadow-sky-500/50 hover:scale-[1.02] transition-all duration-200 cursor-pointer flex items-center justify-center gap-3 group"
+            className="w-full sm:w-auto px-8 py-6 text-base font-semibold rounded-xl bg-lifia-600 hover:bg-lifia-500 text-white shadow-lg shadow-lifia-500/30 hover:shadow-lifia-500/50 hover:scale-[1.02] transition-all duration-200 cursor-pointer flex items-center justify-center gap-3 group"
           >
             <span>{isAuthenticated ? t("landing:nav.dashboard") : t("landing:hero.ctaPrimary")}</span>
             <BsArrowRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1" />
@@ -108,9 +120,9 @@ export const LandingHero = ({ onWatchDemo }: LandingHeroProps) => {
             size="lg"
             variant="outline"
             onClick={onWatchDemo}
-            className="w-full sm:w-auto px-7 py-6 text-base font-semibold rounded-xl border-[var(--border)] bg-[var(--bg)]/80 hover:bg-[var(--accent-bg)] text-[var(--text-h)] hover:border-sky-500/40 backdrop-blur-md transition-all duration-200 cursor-pointer flex items-center justify-center gap-3"
+            className="w-full sm:w-auto px-7 py-6 text-base font-semibold rounded-xl border-[var(--border)] bg-[var(--bg)]/80 hover:bg-[var(--accent-bg)] text-[var(--text-h)] hover:border-lifia-500/40 backdrop-blur-md transition-all duration-200 cursor-pointer flex items-center justify-center gap-3"
           >
-            <BsPlayCircleFill className="w-5 h-5 text-sky-400" />
+            <BsPlayCircleFill className="w-5 h-5 text-lifia-400" />
             <span>{t("landing:hero.ctaSecondary")}</span>
           </Button>
         </motion.div>
@@ -123,7 +135,7 @@ export const LandingHero = ({ onWatchDemo }: LandingHeroProps) => {
           className="mt-12 sm:mt-16 grid grid-cols-3 gap-3 sm:gap-8 max-w-3xl mx-auto text-center border-y border-[var(--border)] py-6 bg-[var(--accent-bg)]/30 backdrop-blur-sm rounded-2xl px-4"
         >
           <div>
-            <div className="text-xl sm:text-3xl font-black text-sky-400 font-mono tracking-tight">
+            <div className="text-xl sm:text-3xl font-black text-lifia-400 font-mono tracking-tight">
               {t("landing:hero.metric1Value")}
             </div>
             <div className="text-[11px] sm:text-xs text-muted-foreground font-medium mt-0.5">
@@ -131,7 +143,7 @@ export const LandingHero = ({ onWatchDemo }: LandingHeroProps) => {
             </div>
           </div>
           <div className="border-x border-[var(--border)] px-2">
-            <div className="text-xl sm:text-3xl font-black text-cyan-400 font-mono tracking-tight">
+            <div className="text-xl sm:text-3xl font-black text-lifia-400 font-mono tracking-tight">
               {t("landing:hero.metric2Value")}
             </div>
             <div className="text-[11px] sm:text-xs text-muted-foreground font-medium mt-0.5">
@@ -155,7 +167,7 @@ export const LandingHero = ({ onWatchDemo }: LandingHeroProps) => {
           transition={{ duration: 0.8, delay: 0.35 }}
           className="mt-14 max-w-5xl mx-auto"
         >
-          <div className="relative rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-2xl shadow-sky-950/20 overflow-hidden p-2 sm:p-3 group">
+          <div className="relative rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-2xl shadow-lifia-950/20 overflow-hidden p-2 sm:p-3 group">
             
             {/* TOP WINDOW HEADER */}
             <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--border)] bg-[var(--bg)]/90 rounded-t-xl mb-2 text-xs">
@@ -170,42 +182,42 @@ export const LandingHero = ({ onWatchDemo }: LandingHeroProps) => {
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
                   YOLO Inference: Active
                 </span>
-                <span className="hidden sm:inline-block px-2 py-0.5 rounded bg-sky-500/10 text-sky-400 text-[10px] font-mono border border-sky-500/20">
+                <span className="hidden sm:inline-block px-2 py-0.5 rounded bg-lifia-500/10 text-lifia-400 text-[10px] font-mono border border-lifia-500/20">
                   Escala: 1:100 (1px = 0.02m)
                 </span>
               </div>
             </div>
 
             {/* BLUEPRINT CANVAS GRAPHIC SIMULATION */}
-            <div className="relative w-full h-[280px] sm:h-[420px] md:h-[480px] rounded-lg bg-[#0b1120] overflow-hidden flex items-center justify-center border border-sky-900/40">
+            <div className="relative w-full h-[280px] sm:h-[420px] md:h-[480px] rounded-lg bg-[#0b1120] overflow-hidden flex items-center justify-center border border-lifia-900/40">
               
               {/* GRID */}
               <div 
                 className="absolute inset-0 opacity-20"
                 style={{
-                  backgroundImage: `linear-gradient(to right, #38bdf8 1px, transparent 1px), linear-gradient(to bottom, #38bdf8 1px, transparent 1px)`,
+                  backgroundImage: `linear-gradient(to right, #4e86c9 1px, transparent 1px), linear-gradient(to bottom, #4e86c9 1px, transparent 1px)`,
                   backgroundSize: "24px 24px",
                 }}
               />
 
               {/* RADIAL BLUEPRINT BLUE GLOW */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-sky-950/50 via-slate-900/60 to-sky-900/30 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-tr from-lifia-950/50 via-slate-900/60 to-lifia-900/30 pointer-events-none" />
 
               {/* SVG ARCHITECTURAL PLAN WITH DETECTED ROOMS */}
               <svg className="w-full h-full p-4 sm:p-8" viewBox="0 0 900 550" fill="none" xmlns="http://www.w3.org/2000/svg">
                 {/* OUTER WALLS */}
-                <rect x="80" y="60" width="740" height="430" rx="4" stroke="#38bdf8" strokeWidth="4" fill="#070c18" fillOpacity="0.85" />
+                <rect x="80" y="60" width="740" height="430" rx="4" stroke="#4e86c9" strokeWidth="4" fill="#070c18" fillOpacity="0.85" />
                 
                 {/* INNER DIVISIONS */}
-                <path d="M 80 240 L 480 240 M 480 60 L 480 490 M 280 240 L 280 490 M 480 320 L 820 320 M 650 60 L 650 320" stroke="#0ea5e9" strokeWidth="3" strokeDasharray="none" />
+                <path d="M 80 240 L 480 240 M 480 60 L 480 490 M 280 240 L 280 490 M 480 320 L 820 320 M 650 60 L 650 320" stroke="#2e6bb3" strokeWidth="3" strokeDasharray="none" />
                 
                 {/* ROOM 1: MASTER BEDROOM (AI DETECTED POLYGON) */}
                 <g className="cursor-pointer transition-all duration-300 hover:opacity-90">
-                  <polygon points="85,65 475,65 475,235 85,235" fill="rgba(56, 189, 248, 0.18)" stroke="#38bdf8" strokeWidth="2" strokeDasharray="4 2" />
-                  <circle cx="280" cy="150" r="4" fill="#38bdf8" />
-                  <rect x="200" y="125" width="160" height="48" rx="6" fill="#0f172a" fillOpacity="0.92" stroke="#38bdf8" strokeWidth="1.5" />
+                  <polygon points="85,65 475,65 475,235 85,235" fill="rgba(56, 189, 248, 0.18)" stroke="#4e86c9" strokeWidth="2" strokeDasharray="4 2" />
+                  <circle cx="280" cy="150" r="4" fill="#4e86c9" />
+                  <rect x="200" y="125" width="160" height="48" rx="6" fill="#0f172a" fillOpacity="0.92" stroke="#4e86c9" strokeWidth="1.5" />
                   <text x="280" y="145" textAnchor="middle" fill="#f8fafc" fontSize="13" fontWeight="bold" fontFamily="sans-serif">MASTER BEDROOM</text>
-                  <text x="280" y="162" textAnchor="middle" fill="#38bdf8" fontSize="11" fontWeight="bold" fontFamily="monospace">42.80 m² • YOLO 98%</text>
+                  <text x="280" y="162" textAnchor="middle" fill="#4e86c9" fontSize="11" fontWeight="bold" fontFamily="monospace">42.80 m² • YOLO 98%</text>
                 </g>
 
                 {/* ROOM 2: LIVING & DINING ROOM (AI DETECTED POLYGON) */}
@@ -247,7 +259,7 @@ export const LandingHero = ({ onWatchDemo }: LandingHeroProps) => {
                 <text x="450" y="42" textAnchor="middle" fill="#94a3b8" fontSize="10" fontFamily="monospace">14.80 m</text>
 
                 {/* SCANNER BEAM ANIMATION */}
-                <line x1="0" y1="200" x2="900" y2="200" stroke="#38bdf8" strokeWidth="2" opacity="0.6">
+                <line x1="0" y1="200" x2="900" y2="200" stroke="#4e86c9" strokeWidth="2" opacity="0.6">
                   <animate attributeName="y1" values="50;500;50" dur="5s" repeatCount="indefinite" />
                   <animate attributeName="y2" values="50;500;50" dur="5s" repeatCount="indefinite" />
                   <animate attributeName="opacity" values="0.2;0.8;0.2" dur="5s" repeatCount="indefinite" />
@@ -255,12 +267,12 @@ export const LandingHero = ({ onWatchDemo }: LandingHeroProps) => {
               </svg>
 
               {/* FLOATING ACTION TOOLBAR OVERLAY */}
-              <div className="absolute bottom-4 left-4 right-4 sm:left-auto sm:right-6 flex items-center justify-between sm:justify-start gap-2 bg-[#0f172a]/90 backdrop-blur-md border border-sky-500/30 px-3 py-2 rounded-xl text-xs shadow-lg text-slate-200">
-                <span className="flex items-center gap-1.5 font-medium text-sky-400">
+              <div className="absolute bottom-4 left-4 right-4 sm:left-auto sm:right-6 flex items-center justify-between sm:justify-start gap-2 bg-[#0f172a]/90 backdrop-blur-md border border-lifia-500/30 px-3 py-2 rounded-xl text-xs shadow-lg text-slate-200">
+                <span className="flex items-center gap-1.5 font-medium text-lifia-400">
                   <FiCompass className="w-4 h-4 animate-spin-slow" />
                   Total Detectado:
                 </span>
-                <span className="font-mono font-bold text-white bg-sky-500/20 px-2 py-0.5 rounded border border-sky-500/30">
+                <span className="font-mono font-bold text-white bg-lifia-500/20 px-2 py-0.5 rounded border border-lifia-500/30">
                   158.90 m²
                 </span>
                 <span className="hidden sm:inline text-muted-foreground">• 5 Recintos Identificados</span>

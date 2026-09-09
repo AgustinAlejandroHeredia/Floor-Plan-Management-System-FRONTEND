@@ -5,6 +5,7 @@ import AppLayout from "../layout/AppLayout";
 
 import LoginPage from "../pages/LoginPage";
 import LandingPage from "../pages/LandingPage";
+import ResearchPage from "../pages/ResearchPage";
 import HomePage from "../pages/HomePage";
 import DevOptions from "../pages/DevOptions";
 import AdminModels from "@/pages/AdminModels";
@@ -23,6 +24,7 @@ export function AppRouter() {
 
       {/* Rutas públicas */}
       <Route path="/landing" element={<LandingPage />} />
+      <Route path="/research" element={<ResearchPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/ErrorPage/:message" element={<ErrorPage />} />
       <Route path="/ErrorPage" element={<ErrorPage />} />

@@ -7,7 +7,8 @@
     "workflow": "How It Works",
     "login": "Sign In",
     "dashboard": "Open Platform",
-    "getStarted": "Get Started"
+    "getStarted": "Get Started",
+    "research": "Research"
   },
   "hero": {
     "badge": "AI-Powered Architectural Blueprint Intelligence",
@@ -96,12 +97,8 @@
         "desc": "Organize blueprints across floors, levels, and elevation ranges for residential and commercial developments."
       },
       {
-        "title": "Millimeter Area Calculations",
-        "desc": "Eliminate human calculation errors with instant surface and perimeter quantification for bidding and sales."
-      },
-      {
-        "title": "Real-Time WebSocket Sync",
-        "desc": "Receive instant notifications the moment AI inference jobs, calibrations, or uploads complete in the background."
+        "title": "Floor Plan Normalization",
+        "desc": "Automatic scale and orientation detection aligns every uploaded plan to a common metric reference before analysis begins."
       },
       {
         "title": "Data Export & Reports",
@@ -125,7 +122,7 @@
   "pipelineFigure": {
     "badge": "Under the hood",
     "title": "What the engine actually does to a plan",
-    "subtitle": "Sixteen passes over three scans of the same house. The structural frame comes back first, then the walls and openings, then the electrical installation \u2014 and the three partial models are federated into a single IFC file. Press play, or step through one pass at a time.",
+    "subtitle": "Sixteen passes over three scans of the same house. The structural frame comes back first, then the walls and openings, then the electrical installation — and the three partial models are federated into a single IFC file. Press play, or step through one pass at a time.",
     "frameTitle": "Animated walkthrough: from three scanned plans to one federated IFC model",
     "note": "Drawing redrawn from the Guernica case study, Buenos Aires. Structural and architectural detection follow Urbieta et al., Journal of Building Engineering 78 (2023) 107672; the MEP extension is current research at LIFIA."
   },
@@ -139,6 +136,25 @@
     "description": "Comprehensive platform for automated architectural blueprint management, area calculation, and AI spatial intelligence.",
     "rights": "All rights reserved.",
     "builtWith": "Powered by YOLO Vision Models, React & WebSockets."
+  },
+  "institutional": {
+    "heroEyebrow": "A research project of LIFIA · Facultad de Informática · UNLP",
+    "eyebrow": "An academic development",
+    "lab": "Research Laboratory",
+    "faculty": "Faculty",
+    "university": "University",
+    "provenance": "Developed at LIFIA — Laboratorio de Investigación y Formación en Informática Avanzada, Facultad de Informática, Universidad Nacional de La Plata (UNLP)."
+  },
+  "research": {
+    "eyebrow": "Research",
+    "title": "Publications by Martín Urbieta",
+    "subtitle": "Selected peer-reviewed work on applying AI to architectural and structural plans — the research foundation behind FloorPlan AI.",
+    "profileCta": "Full profile at LIFIA",
+    "back": "Back to home",
+    "authorsLabel": "Authors",
+    "viewPaper": "View publication",
+    "pdfLabel": "PDF · SEDICI",
+    "doiLabel": "DOI",
+    "note": "This list highlights work directly related to this platform's topic. See his LIFIA profile for the complete, up-to-date list."
   }
 }
-

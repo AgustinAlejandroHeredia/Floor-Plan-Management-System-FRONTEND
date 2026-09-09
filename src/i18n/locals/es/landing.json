@@ -7,7 +7,8 @@
     "workflow": "Cómo Funciona",
     "login": "Iniciar Sesión",
     "dashboard": "Ir a la Plataforma",
-    "getStarted": "Comenzar Ahora"
+    "getStarted": "Comenzar Ahora",
+    "research": "Investigación"
   },
   "hero": {
     "badge": "Revolución en Gestión Arquitectónica con IA",
@@ -96,12 +97,8 @@
         "desc": "Organiza planos por pisos, niveles y rangos de altura para proyectos residenciales y comerciales de cualquier escala."
       },
       {
-        "title": "Cálculo Milimétrico de Superficies",
-        "desc": "Obtén cómputos métricos instantáneos sin errores humanos para presupuestación, venta y construcción."
-      },
-      {
-        "title": "Notificaciones en Tiempo Real",
-        "desc": "Recibe avisos inmediatos mediante WebSockets tan pronto como los trabajos de inferencia y calibración finalizan."
+        "title": "Normalización de Planos",
+        "desc": "La detección automática de escala y orientación alinea cada plano cargado a una referencia métrica común antes del análisis."
       },
       {
         "title": "Exportación y Reportes",
@@ -123,11 +120,11 @@
     "step3Desc": "Ajusta detalles en el editor, asigna especialidades y comparte el proyecto con tu equipo u organización."
   },
   "pipelineFigure": {
-    "badge": "Bajo el cap\u00f3",
-    "title": "Qu\u00e9 le hace el motor a un plano",
-    "subtitle": "Diecis\u00e9is pasadas sobre tres escaneos de la misma vivienda. Primero vuelve la estructura, despu\u00e9s los muros y las aberturas, y por \u00faltimo la instalaci\u00f3n el\u00e9ctrica \u2014 y los tres modelos parciales se federan en un \u00fanico archivo IFC. Dale play, o avanz\u00e1 de a una pasada.",
-    "frameTitle": "Recorrido animado: de tres planos escaneados a un \u00fanico modelo IFC federado",
-    "note": "Plano redibujado a partir del caso de estudio de Guernica, Buenos Aires. La detecci\u00f3n estructural y arquitect\u00f3nica sigue a Urbieta et al., Journal of Building Engineering 78 (2023) 107672; la extensi\u00f3n MEP es investigaci\u00f3n en curso en LIFIA."
+    "badge": "Bajo el capó",
+    "title": "Qué le hace el motor a un plano",
+    "subtitle": "Dieciséis pasadas sobre tres escaneos de la misma vivienda. Primero vuelve la estructura, después los muros y las aberturas, y por último la instalación eléctrica — y los tres modelos parciales se federan en un único archivo IFC. Dale play, o avanzá de a una pasada.",
+    "frameTitle": "Recorrido animado: de tres planos escaneados a un único modelo IFC federado",
+    "note": "Plano redibujado a partir del caso de estudio de Guernica, Buenos Aires. La detección estructural y arquitectónica sigue a Urbieta et al., Journal of Building Engineering 78 (2023) 107672; la extensión MEP es investigación en curso en LIFIA."
   },
   "cta": {
     "title": "¿Listo para optimizar la gestión de tus planos arquitectónicos?",
@@ -139,6 +136,25 @@
     "description": "Plataforma integral de gestión, medición y análisis automatizado de planos arquitectónicos con Inteligencia Artificial.",
     "rights": "Todos los derechos reservados.",
     "builtWith": "Potenciado con YOLO Vision Models, React & WebSockets."
+  },
+  "institutional": {
+    "heroEyebrow": "Un proyecto de investigación del LIFIA · Facultad de Informática · UNLP",
+    "eyebrow": "Un desarrollo académico",
+    "lab": "Laboratorio de investigación",
+    "faculty": "Facultad",
+    "university": "Universidad",
+    "provenance": "Desarrollado en el LIFIA — Laboratorio de Investigación y Formación en Informática Avanzada, Facultad de Informática, Universidad Nacional de La Plata (UNLP)."
+  },
+  "research": {
+    "eyebrow": "Investigación",
+    "title": "Publicaciones de Martín Urbieta",
+    "subtitle": "Trabajos revisados por pares sobre la aplicación de IA a planos arquitectónicos y estructurales — la base de investigación detrás de FloorPlan AI.",
+    "profileCta": "Perfil completo en LIFIA",
+    "back": "Volver al inicio",
+    "authorsLabel": "Autores",
+    "viewPaper": "Ver publicación",
+    "pdfLabel": "PDF · SEDICI",
+    "doiLabel": "DOI",
+    "note": "Esta lista destaca trabajos directamente relacionados con la temática de esta plataforma. Consultá su perfil en LIFIA para la lista completa y actualizada."
   }
 }
-

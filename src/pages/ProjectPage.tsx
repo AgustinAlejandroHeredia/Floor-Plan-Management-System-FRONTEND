@@ -705,6 +705,29 @@ const ProjectPage = () => {
                           })}
                         </div>
                       )}
+                      {bp.alignment?.status && (
+                        <div style={{ marginTop: "6px" }}>
+                          <span
+                            style={{
+                              fontSize: "10px",
+                              padding: "2px 7px",
+                              borderRadius: "9999px",
+                              background:
+                                bp.alignment.status === 'ok' ? 'rgba(34,197,94,0.55)'
+                                : bp.alignment.status === 'needs_review' ? 'rgba(251,146,60,0.55)'
+                                : bp.alignment.status === 'failed' ? 'rgba(239,68,68,0.55)'
+                                : bp.alignment.status === 'manual' ? 'rgba(59,130,246,0.55)'
+                                : 'rgba(120,120,140,0.55)',
+                              border: "1px solid rgba(255,255,255,0.35)",
+                              color: "white",
+                              fontWeight: "500",
+                              backdropFilter: "blur(4px)",
+                            }}
+                          >
+                            {`alignment: ${bp.alignment.status}`}
+                          </span>
+                        </div>
+                      )}
                       {bp.tags && bp.tags.length > 0 && (
                         <p
                           style={{

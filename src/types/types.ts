@@ -361,10 +361,36 @@ export interface BlueprintResponseType {
   width?: number;
   height?: number;
   cropsMade?: CropMadeType[];
+  alignment?: BlueprintAlignment;
   projectFields: {
     levels: string,
     basement: boolean
   }
+}
+
+export type BlueprintAlignmentStatus =
+  | 'ok'
+  | 'weak'
+  | 'footprint'
+  | 'failed'
+  | 'needs_review'
+  | 'manual';
+
+// Transform aligning THIS blueprint onto its counterpart.
+// `matrix` is 2x3 and maps this blueprint's pixels -> `alignedWith`'s pixels.
+export interface BlueprintAlignment {
+  alignedWith?: string;
+  matrix: number[][];
+  scale?: number;
+  rotationDeg?: number;
+  translation?: number[];
+  confidence?: number;
+  rmse?: number;
+  model?: string;
+  method?: string;
+  status: BlueprintAlignmentStatus;
+  source?: 'ai' | 'manual';
+  updatedAt?: string;
 }
 
 export interface BlueprintType {
@@ -397,6 +423,7 @@ export interface BlueprintType {
   scale_source?: 'ai' | 'manual';
   orientation?: number;
   orientation_source?: 'ai' | 'manual';
+  alignment?: BlueprintAlignment;
 }
 
 export interface CreateBlueprintPayload {

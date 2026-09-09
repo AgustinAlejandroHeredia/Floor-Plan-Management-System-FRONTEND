@@ -9,10 +9,11 @@ import { UNSAFE_NavigationContext, useLocation, useNavigate, useOutletContext, u
 
 // SERVICES
 import { BlueprintViewService } from "@/services/BlueprintViewService";
+import BlueprintAlignmentModal from "@/components/BlueprintAlignmentModal";
 
 // ICONS
 import { MdEdit } from "react-icons/md";
-import { FaCheck, FaChevronDown, FaChevronUp, FaCompass, FaFileDownload, FaMagic, FaRegCheckSquare, FaRegSquare, FaRulerHorizontal, FaUser } from "react-icons/fa";
+import { FaCheck, FaChevronDown, FaChevronUp, FaCompass, FaFileDownload, FaLayerGroup, FaMagic, FaRegCheckSquare, FaRegSquare, FaRulerHorizontal, FaUser } from "react-icons/fa";
 import { BsScissors, BsStars } from "react-icons/bs";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { GrFormView, GrFormViewHide } from "react-icons/gr";
@@ -291,9 +292,30 @@ const BlueprintView = () => {
     const [warningState, setWarningState] = useState<number>(0)
     const [txBlocker, setTxBlocker] = useState<any>(null)
     const [showLeaveDialog, setShowLeaveDialog] = useState<boolean>(false)
+    const [openAlignDialog, setOpenAlignDialog] = useState<boolean>(false)
 
     // HOOK
     const { blueprint, setBlueprint,  projectInfo, blueprtinImageUrl, availableModels, loadingBlueprint, error, refreshBlueprint } = useBlueprintView(blueprintId!)
+
+    // Reflect auto-alignment results live: refresh when the /alignment socket fires.
+    useEffect(() => {
+        if (!blueprintId) return
+        let socket: ReturnType<typeof io> | null = null
+        let active = true
+        ;(async () => {
+            try {
+                const token = await getAccessTokenSilently()
+                if (!active) return
+                socket = io(`${import.meta.env.VITE_API_URL}/alignment`, {
+                    auth: { token: `Bearer ${token}` },
+                    transports: ['websocket'],
+                })
+                socket.on('connect', () => socket?.emit('subscribe', blueprintId))
+                socket.on('alignment:update', () => refreshBlueprint())
+            } catch { /* ignore socket errors */ }
+        })()
+        return () => { active = false; socket?.disconnect() }
+    }, [blueprintId])
 
     useEffect(() => {
         if (!magicCropDragState) {
@@ -3340,6 +3362,23 @@ const BlueprintView = () => {
                                         <Button
                                             className="cursor-pointer"
                                             size="icon"
+                                            variant="outline"
+                                            onClick={() => setOpenAlignDialog(true)}
+                                        >
+                                            <FaLayerGroup />
+                                        </Button>
+                                    </TooltipTrigger>
+
+                                    <TooltipContent side="left">
+                                        <p>Align with counterpart</p>
+                                    </TooltipContent>
+                                </Tooltip>
+
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            className="cursor-pointer"
+                                            size="icon"
                                             variant="destructive"
                                             onClick={() => setOpenDeleteDialog(true)}
                                         >
@@ -3965,6 +4004,13 @@ const BlueprintView = () => {
 
                     </DialogContent>
                 </Dialog>
+
+                <BlueprintAlignmentModal
+                    open={openAlignDialog}
+                    onOpenChange={setOpenAlignDialog}
+                    blueprint={blueprint ?? null}
+                    onSaved={() => refreshBlueprint()}
+                />
 
                 {/* SAVING AREAS */}
                 <Toast

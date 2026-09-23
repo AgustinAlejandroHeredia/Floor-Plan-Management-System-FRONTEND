@@ -247,6 +247,7 @@
         "title": "Blueprint Scale",
         "description": "Choose how you want to set the blueprint scale. On manual mode, you will need to select two points on the blueprint and enter the real-world distance between them.",
         "ai": "Use AI detection",
+        "lsd": "Detect dimensions without a model (LSD)",
         "manual": "Set manually"
     },
 

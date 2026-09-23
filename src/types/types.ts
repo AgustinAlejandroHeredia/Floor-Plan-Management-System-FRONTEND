@@ -426,6 +426,10 @@ export interface BlueprintType {
   alignment?: BlueprintAlignment;
 }
 
+/** Estrategia con la que el backend resuelve las dimensiones del plano.
+ *  'yolo': modelo de IA que detecta las cotas. 'lsd': Line Segment Detection, sin modelo. */
+export type ScaleDetectionMethod = 'yolo' | 'lsd';
+
 export interface CreateBlueprintPayload {
   file: File;
   blueprintName: string;

@@ -237,6 +237,7 @@
         "title": "Escala y orientación",
         "description": "Elegí cómo querés establecer la escala y orientación del plano.",
         "ai": "Usar detección con IA",
+        "lsd": "Detectar cotas sin modelo (LSD)",
         "manual": "Establecer manualmente"
     },
 

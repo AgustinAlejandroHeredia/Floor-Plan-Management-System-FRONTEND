@@ -1,5 +1,5 @@
 import { api } from "../api/api";
-import type { BlueprintResponseType, BlueprintType, BlueprintViewType, SectionCoords, CreateCropPayload, SectionSize, SectionView, SpecialtyTag, InferenceJobType, AvailableModel, BlueprintLevelsRangeType } from "@/types/types";
+import type { BlueprintResponseType, BlueprintType, BlueprintViewType, SectionCoords, CreateCropPayload, SectionSize, SectionView, SpecialtyTag, InferenceJobType, AvailableModel, BlueprintLevelsRangeType, ScaleDetectionMethod } from "@/types/types";
 
 
 
@@ -160,9 +160,9 @@ export const BlueprintViewService = {
         }
     },
 
-    detectScaleAndOrientation: async (blueprintId: string): Promise<{ scale: number | null; orientation: number | null; scale_source: 'ai' | null; orientation_source: 'ai' | null } | null> => {
+    detectScaleAndOrientation: async (blueprintId: string, method: ScaleDetectionMethod = 'yolo'): Promise<{ scale: number | null; orientation: number | null; scale_source: 'ai' | null; orientation_source: 'ai' | null } | null> => {
         try {
-            const response = await api.patch(`/blueprints/${blueprintId}/scale/ai`)
+            const response = await api.patch(`/blueprints/${blueprintId}/scale/ai`, null, { params: { method } })
             return response.data
         } catch {
             return null

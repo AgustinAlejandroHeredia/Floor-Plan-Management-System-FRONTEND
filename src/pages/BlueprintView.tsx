@@ -57,7 +57,7 @@ import "react-image-crop/dist/ReactCrop.css";
 import { getCroppedImg } from "@/utils/cropImage";
 
 // TYPES
-import { layoutFeatureClassOptions, type AreaColor, type BlueprintLevelsRangeType, type BlueprintViewType, type CreateCropPayload, type DragAreaState, type EditAreaState, type InferenceJobResult, type InferenceJobStatus, type InferenceJobType, type LayoutFeatureClass, type Point, type SectionType, type SectionView, type SpecialtyTag, type YoloPrediction } from "@/types/types";
+import { layoutFeatureClassOptions, type AreaColor, type BlueprintLevelsRangeType, type BlueprintViewType, type CreateCropPayload, type DragAreaState, type EditAreaState, type InferenceJobResult, type InferenceJobStatus, type InferenceJobType, type LayoutFeatureClass, type Point, type SectionType, type ScaleDetectionMethod, type SectionView, type SpecialtyTag, type YoloPrediction } from "@/types/types";
 import { SPECIALTIES, specialtyByTag } from "@/config/specialties";
 
 // CONTEXT
@@ -279,7 +279,8 @@ const BlueprintView = () => {
     const [openScaleMethodDialog, setOpenScaleMethodDialog] = useState<boolean>(false)
     const [scaleRealLength, setScaleRealLength] = useState<string>("")
     const [isSavingScale, setIsSavingScale] = useState<boolean>(false)
-    const [isDetectingScale, setIsDetectingScale] = useState<boolean>(false)
+    // Que estrategia esta corriendo, para que el spinner salga solo en el boton apretado.
+    const [isDetectingScale, setIsDetectingScale] = useState<ScaleDetectionMethod | null>(null)
 
     // ORIENTATION CAPTURE
     const [orientationMode, setOrientationMode] = useState<boolean>(false)
@@ -1373,7 +1374,7 @@ const BlueprintView = () => {
         setOpenScaleMethodDialog(true)
     }
 
-    const handleScaleMethodSelection = async (method: 'ai' | 'manual') => {
+    const handleScaleMethodSelection = async (method: 'yolo' | 'lsd' | 'manual') => {
         setOpenScaleMethodDialog(false)
 
         if (method === 'manual') {
@@ -1389,9 +1390,9 @@ const BlueprintView = () => {
             return
         }
 
-        setIsDetectingScale(true)
-        const detectionResult = await BlueprintViewService.detectScaleAndOrientation(blueprint._id)
-        setIsDetectingScale(false)
+        setIsDetectingScale(method)
+        const detectionResult = await BlueprintViewService.detectScaleAndOrientation(blueprint._id, method)
+        setIsDetectingScale(null)
 
         if (!detectionResult) {
             setErrorAlertMessage(t('blueprint:errorMessages.errorSavingScale'))
@@ -4231,10 +4232,13 @@ const BlueprintView = () => {
                         </DialogHeader>
 
                         <div className="grid gap-3 py-2">
-                            <Button className="cursor-pointer" onClick={() => void handleScaleMethodSelection('ai')} disabled={isDetectingScale}>
-                                {isDetectingScale ? t('common:saving') : t('blueprint:scaleMethodDialog.ai')}
+                            <Button className="cursor-pointer" onClick={() => void handleScaleMethodSelection('yolo')} disabled={isDetectingScale !== null}>
+                                {isDetectingScale === 'yolo' ? t('common:saving') : t('blueprint:scaleMethodDialog.ai')}
                             </Button>
-                            <Button className="cursor-pointer" variant="outline" onClick={() => void handleScaleMethodSelection('manual')}>
+                            <Button className="cursor-pointer" onClick={() => void handleScaleMethodSelection('lsd')} disabled={isDetectingScale !== null}>
+                                {isDetectingScale === 'lsd' ? t('common:saving') : t('blueprint:scaleMethodDialog.lsd')}
+                            </Button>
+                            <Button className="cursor-pointer" variant="outline" onClick={() => void handleScaleMethodSelection('manual')} disabled={isDetectingScale !== null}>
                                 {t('blueprint:scaleMethodDialog.manual')}
                             </Button>
                         </div>

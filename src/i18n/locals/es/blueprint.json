@@ -202,7 +202,13 @@
 
     "processingBlueprint": {
         "title": "Procesando plano...",
-        "description": "Tu plano está siendo procesado por IA.\n\nPodrás seguir usando la aplicación y serás notificado una vez que el procesamiento se haya completado."
+        "description": "Tu plano está siendo procesado por IA.\n\nPodrás seguir usando la aplicación y serás notificado una vez que el procesamiento se haya completado.",
+        "phases": {
+            "preparing-image": "Preparando la imagen del plano...",
+            "model-download": "Descargando el modelo de IA. La primera vez puede tardar varios minutos...",
+            "model-ready": "Modelo de IA listo. Iniciando la inferencia...",
+            "inference": "Ejecutando la inferencia de IA..."
+        }
     },
 
     "deleteAreaDialog": {

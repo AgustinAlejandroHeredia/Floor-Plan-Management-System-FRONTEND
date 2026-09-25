@@ -12,13 +12,23 @@ export const ModelService = {
     return response.data.model;
   },
 
-  create: async (model: ModelItem): Promise<ModelItem> => {
-    const response = await api.post("/api/admin/models", model);
+  create: async (model: ModelItem, configFile?: File | null): Promise<ModelItem> => {
+    const payload = configFile ? new FormData() : model;
+    if (configFile) {
+      payload.append("model", JSON.stringify(model));
+      payload.append("configFile", configFile);
+    }
+    const response = await api.post("/api/admin/models", payload);
     return response.data.model;
   },
 
-  update: async (id: string, model: Partial<ModelItem>): Promise<ModelItem> => {
-    const response = await api.put(`/api/admin/models/${id}`, model);
+  update: async (id: string, model: Partial<ModelItem>, configFile?: File | null): Promise<ModelItem> => {
+    const payload = configFile ? new FormData() : model;
+    if (configFile) {
+      payload.append("model", JSON.stringify(model));
+      payload.append("configFile", configFile);
+    }
+    const response = await api.put(`/api/admin/models/${id}`, payload);
     return response.data.model;
   },
 

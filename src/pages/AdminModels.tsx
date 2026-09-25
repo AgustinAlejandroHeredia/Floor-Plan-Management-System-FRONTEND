@@ -70,6 +70,7 @@ const AdminModels = () => {
   const [selectedModel, setSelectedModel] = useState<ModelItem | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [configFile, setConfigFile] = useState<File | null>(null);
   const [formData, setFormData] = useState<Partial<ModelItem>>({
     config: { confidence: 0.4, slice_height: 640, slice_width: 640 },
     defaultModel: false,
@@ -124,6 +125,7 @@ const AdminModels = () => {
   const openEdit = (model: ModelItem) => {
     setSelectedModel(model);
     setFormData(model);
+    setConfigFile(null);
     setIsEditMode(true);
     setIsOpen(true);
   };
@@ -131,6 +133,7 @@ const AdminModels = () => {
   const openCreate = () => {
     setSelectedModel(null);
     setFormData({ config: { confidence: 0.4, slice_height: 640, slice_width: 640 }, defaultModel: false });
+    setConfigFile(null);
     setIsEditMode(false);
     setIsOpen(true);
   };
@@ -140,9 +143,9 @@ const AdminModels = () => {
       return;
     }
     if (isEditMode && selectedModel) {
-      await ModelService.update(selectedModel.id, formData as ModelItem);
+      await ModelService.update(selectedModel.id, formData as ModelItem, configFile);
     } else {
-      await ModelService.create(formData as ModelItem);
+      await ModelService.create(formData as ModelItem, configFile);
     }
     setIsOpen(false);
     await fetchModels();
@@ -393,6 +396,11 @@ const AdminModels = () => {
             <div>
               <Label htmlFor="drive_id">Drive ID</Label>
               <Input id="drive_id" value={formData.drive_id ?? ''} onChange={(e) => setFormData({ ...formData, drive_id: e.target.value })} />
+            </div>
+            <div>
+              <Label htmlFor="configFile">MMDetection config file {formData.model_type === 'mmdet' ? '(required)' : '(optional)'}</Label>
+              <Input id="configFile" type="file" accept=".py,.yaml,.yml,.json" onChange={(e) => setConfigFile(e.target.files?.[0] ?? null)} />
+              {formData.config_file && <p className="mt-1 text-sm text-muted-foreground">Saved config: {formData.config_file}</p>}
             </div>
             <div className="flex items-center gap-3">
               <input

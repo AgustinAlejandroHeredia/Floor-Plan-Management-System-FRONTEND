@@ -202,7 +202,13 @@
 
     "processingBlueprint": {
         "title": "Processing blueprint...",
-        "description": "Your blueprint is being processed by AI.\n\nYou may continue using the application and will be notified once processing is complete."    
+        "description": "Your blueprint is being processed by AI.\n\nYou may continue using the application and will be notified once processing is complete.",
+        "phases": {
+            "preparing-image": "Preparing the blueprint image...",
+            "model-download": "Downloading the AI model. This may take a few minutes the first time...",
+            "model-ready": "AI model ready. Starting inference...",
+            "inference": "Running AI inference..."
+        }
     },        
 
     "runningMagicCrop": {

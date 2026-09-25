@@ -54,6 +54,7 @@ export interface ModelItem {
   provenance?: ModelTrainingProvenance
   metrics?: ModelMetrics
   drive_id?: string
+  config_file?: string
   config?: ModelConfig
   defaultModel?: boolean
   [key: string]: any

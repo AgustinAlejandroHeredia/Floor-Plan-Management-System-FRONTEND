@@ -165,6 +165,7 @@ const BlueprintView = () => {
 
     // SECTION VIEW VARIABLES
     const [isProcessing, setIsProcessing] = useState<boolean>(false)
+    const [processingPhase, setProcessingPhase] = useState<string>('preparing-image')
     const [isRunningMagicCrop, setIsRunningMagicCrop] = useState<boolean>(false)
     const isRunningMagicCropRef = useRef(false)
     const pendingMagicCropJobIdRef = useRef<string | null>(null)
@@ -1011,7 +1012,8 @@ const BlueprintView = () => {
 
             socket.on('connect', () => socket.emit('subscribe', jobId))
 
-            socket.on('inference:update', (data: { status: InferenceJobStatus; result: InferenceJobResult | null }) => {
+            socket.on('inference:update', (data: { status: InferenceJobStatus; result: InferenceJobResult | null; phase?: string }) => {
+                if (data.phase) setProcessingPhase(data.phase)
                 if (data.status === 'Processed' || data.status === 'Error' || data.status === 'Cancelled') {
                     clearTimeout(timer)
                     socket.disconnect()
@@ -1135,6 +1137,7 @@ const BlueprintView = () => {
         }
         setOpenModelsSelectionDialog(false)
         setIsProcessing(true)
+        setProcessingPhase('preparing-image')
         isProcessingRef.current = true
         try {
             const token = await getAccessTokenSilently()
@@ -3959,7 +3962,11 @@ const BlueprintView = () => {
                 <Toast
                     open={isProcessing}
                     title={t('blueprint:processingBlueprint.title')}
-                    description={t('blueprint:processingBlueprint.description')}
+                    description={`${t('blueprint:processingBlueprint.description')}
+
+${t(`blueprint:processingBlueprint.phases.${processingPhase}`, {
+    defaultValue: t('blueprint:processingBlueprint.phases.inference'),
+})}`}
                 />
 
                 {/* RUNNING MAGIC CROP ALERT */}
